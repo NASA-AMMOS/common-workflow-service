@@ -1,0 +1,139 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
+		<artifactId>common-workflow-service</artifactId>
+		<version>2.0</version><!-- update this each CWS release -->
+	</parent>
+	<artifactId>cws-tasks</artifactId>
+
+	<properties>
+		<lib.directory>./cws-tasks-libs</lib.directory>
+	</properties>
+
+	<profiles>
+		<profile>
+			<id>core</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
+					<artifactId>cws-core</artifactId>
+					<exclusions>
+						<exclusion>
+							<groupId>org.slf4j</groupId>
+							<artifactId>slf4j-api</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+
+				<!-- LOGGING: [Spring/JCL to log4j], [CWS/slf4j to log4j] -->
+				<dependency>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+					<scope>provided</scope>
+				</dependency>
+
+				<!-- https://mvnrepository.com/artifact/log4j/apache-log4j-extras -->
+				<dependency>
+				    <groupId>log4j</groupId>
+				    <artifactId>apache-log4j-extras</artifactId>
+				</dependency>
+
+				<!-- USE THIS LIB, ONCE EVERYONE IS ON JAVA 7 -->
+				<!-- <dependency> <groupId>io.fastjson</groupId> <artifactId>boon</artifactId>
+					</dependency> -->
+				<dependency>
+					<groupId>com.google.code.gson</groupId>
+					<artifactId>gson</artifactId>
+				</dependency>
+
+				<!-- Apache Commons -->
+				<dependency>
+					<groupId>commons-lang</groupId>
+					<artifactId>commons-lang</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>commons-io</groupId>
+					<artifactId>commons-io</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-exec</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-email</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>commons-configuration</groupId>
+					<artifactId>commons-configuration</artifactId>
+				</dependency>
+
+				<dependency> <!-- needed by commons-email -->
+					<groupId>javax.mail</groupId>
+					<artifactId>mail</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.glassfish.jersey.core</groupId>
+					<artifactId>jersey-client</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.glassfish.grizzly</groupId>
+					<artifactId>grizzly-http-server</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>junit</groupId>
+					<artifactId>junit</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
+
+
+	<build>
+		<finalName>${project.artifactId}</finalName>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>${maven-dependency-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${lib.directory}</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<excludeArtifactIds></excludeArtifactIds>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:amq="http://activemq.apache.org/schema/core"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+ 		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd	
+		http://www.springframework.org/schema/task
+		http://www.springframework.org/schema/task/spring-task.xsd
+		http://activemq.apache.org/schema/core
+		http://activemq.apache.org/schema/core/activemq-core.xsd
+		http://www.springframework.org/schema/jee 
+		http://www.springframework.org/schema/jee/spring-jee-3.1.xsd">
+
+	<context:property-placeholder location="classpath*:cws-ui.properties" ignore-unresolvable="true" order="1" />
+	<context:property-placeholder location="classpath*:cws-adaptation-ui.properties" order="2"/>
+	
+	<context:component-scan base-package="jpl.cws.consumer"/>
+	<context:component-scan base-package="jpl.cws.process.initiation"/>
+
+
+	<bean id="bpmDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+		<property name="driverClass" value="__CWS_DB_DRIVER__" />
+		<property name="url"         value="__CWS_DB_URL__" />
+		<property name="username"    value="__CWS_DB_USERNAME__" />
+		<property name="password"    value="__CWS_DB_PASSWORD__" />
+	</bean>
+
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="bpmDataSource" />
+	</bean>
+
+	<bean id="processEngineConfiguration"  class="org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration">
+        <property name="processEngineName" value="default" />
+		<property name="dataSource" ref="bpmDataSource" />
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="databaseSchemaUpdate" value="true" />
+		<property name="jobExecutorActivate" value="__JOB_EXECUTOR_ACTIVATE__" />
+		<property name="history" value="__HISTORY_LEVEL__" />
+		<property name="authorizationEnabled" value="true" />
+		<property name="jobExecutorDeploymentAware" value="true" />
+		<property name="historyCleanupBatchWindowStartTime" value="00:00" />
+		<property name="historyCleanupBatchWindowEndTime" value="23:59" />
+		<property name="historyCleanupBatchSize" value="50" />
+		<property name="historyRemovalTimeStrategy" value="start" />
+		<property name="jdbcBatchProcessing" value="false" />
+		<property name="idGenerator">
+			<bean class="org.camunda.bpm.engine.impl.persistence.StrongUuidGenerator" />
+		</property>
+        <property name="processEnginePlugins">
+            <list>
+                <bean id="procAppEventListenerPlugin" class="org.camunda.bpm.application.impl.event.ProcessApplicationEventListenerPlugin" />
+
+                __LDAP_PLUGIN_REF__
+
+                __CUSTOM_IDENTITY_PLUGIN_XML__
+
+            </list>
+        </property>
+	</bean>
+
+	__LDAP_PLUGIN_BEAN__
+
+	__SQS_DISPATCHER_THREAD_BEAN__
+
+    <!-- using ManagedProcessEngineFactoryBean allows registering the ProcessEngine with the BpmPlatform -->
+    <bean id="processEngine" class="org.camunda.bpm.engine.spring.container.ManagedProcessEngineFactoryBean">
+        <property name="processEngineConfiguration" ref="processEngineConfiguration"/>
+    </bean>
+
+	<bean id="repositoryService"      factory-bean="processEngine" factory-method="getRepositoryService" />
+	<bean id="runtimeService"         factory-bean="processEngine" factory-method="getRuntimeService" />
+	<bean id="taskService"            factory-bean="processEngine" factory-method="getTaskService" />
+	<bean id="externalTaskService"    factory-bean="processEngine" factory-method="getExternalTaskService"/>
+	<bean id="historyService"         factory-bean="processEngine" factory-method="getHistoryService" />
+	<bean id="managementService"      factory-bean="processEngine" factory-method="getManagementService" />
+	<bean id="identityService"        factory-bean="processEngine" factory-method="getIdentityService" />
+	<bean id="authorizationService"   factory-bean="processEngine" factory-method="getAuthorizationService" />
+	
+	<bean id="springApplicationContext" class="jpl.cws.core.service.SpringApplicationContext" />
+	
+	<bean id="camundaExecutionService" class="jpl.cws.service.camunda.CamundaExecutionService" />
+	
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- the maximum file size in bytes -->
+		<property name="maxUploadSize" value="2000000"/>
+	</bean>
+
+	<!--  EMBEDDED ActiveMQ BROKER -->
+	<!-- FIXME: make brokerName unique (i.e. use DBHOST_DBPORT_DBSCHEMA)-->
+	<!--        see page 53 here: -->
+	<!--        http://www.zengcode.com/files/FckAjaxFileManage/uploaded/documentations/ActiveMQInAction.pdf -->
+	<!-- 
+		do not use the shutdown hook as it would cause the broker to shutdown when you press ctrl + c,
+		instead we will let Spring shutdown the broker
+	-->
+	<amq:broker brokerName="cwsConsoleBroker" persistent="true" useJmx="true" dataDirectory="" useShutdownHook="false">
+		<amq:managementContext>
+			<amq:managementContext connectorPort="__CWS_AMQ_JMX_PORT__" jmxDomainName="cws-broker" />
+		</amq:managementContext>
+		
+		<amq:persistenceAdapter>
+			<amq:kahaDB directory="__CWS_ROOT_DIR__/server/kahadb"></amq:kahaDB>
+		</amq:persistenceAdapter>
+		
+		<!-- TODO: Re-evaluate these values -->
+		<amq:systemUsage>
+			<amq:systemUsage>
+				<amq:memoryUsage>
+					<amq:memoryUsage limit="128 mb"></amq:memoryUsage>
+				</amq:memoryUsage>
+				<amq:storeUsage>
+					<amq:storeUsage limit="1 gb"></amq:storeUsage>
+				</amq:storeUsage>
+				<amq:tempUsage>
+					<amq:tempUsage limit="100 mb"></amq:tempUsage>
+				</amq:tempUsage>
+			</amq:systemUsage>
+		</amq:systemUsage>
+		<amq:networkConnectors>
+			<!--  TODO: investigate this default host/ip (239.255.2.3:6155) -->
+			<!--      see: http://activemq.apache.org/multicast-transport-reference.html -->
+			<!--      and change if necessary -->
+			<amq:networkConnector uri="multicast://239.255.2.3:6155?group=__UNIQUE_BROKER_GROUP_NAME__"/>
+		</amq:networkConnectors>
+		<amq:transportConnectors>
+			<!--  TODO: investigate this default host/ip (239.255.2.3:6155) -->
+			<!--      see: http://activemq.apache.org/multicast-transport-reference.html -->
+			<!--      and change if necessary -->
+			<amq:transportConnector name="__UNIQUE_BROKER_GROUP_NAME__" uri="tcp://__CWS_AMQ_HOST__:__CWS_AMQ_PORT__" discoveryUri="multicast://239.255.2.3:6155?group=__UNIQUE_BROKER_GROUP_NAME__" />
+		</amq:transportConnectors>
+	</amq:broker>
+	
+	<!-- SETUP CONNECTION TO MESSAGE BROKER -->
+	<bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<property name="brokerURL" value="tcp://__CWS_AMQ_HOST__:__CWS_AMQ_PORT__?wireFormat.maxInactivityDurationInitalDelay=30000"/>
+	</bean>
+	<bean id="cachingConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+		<property name="targetConnectionFactory" ref="connectionFactory"/>
+	</bean>
+
+	<!-- JMS processStartReqTopic Template -->
+	<bean id="processStartReqTopic" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg value="processStartReqTopic"/>
+	</bean>
+	<bean id="processStartReqTopicJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<constructor-arg ref="cachingConnectionFactory" />
+		<property name="defaultDestination">
+			<ref bean="processStartReqTopic" />
+		</property>
+		<property name="pubSubDomain" value="true"/>
+	</bean>
+	
+	<!-- JMS processDeployReqQueue Template -->
+	<!-- Used to send message to message broker that instructs that a Worker should -->
+	<!-- deploy the provided BPMN process definition. -->
+	<bean id="processDeployReqQueue" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg value="processDeployReqQueue"/>
+	</bean>
+	<bean id="jmsProcDeployReqTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<constructor-arg ref="cachingConnectionFactory" />
+		<property name="defaultDestination">
+			<ref bean="processDeployReqQueue" />
+		</property>
+	</bean>
+	
+	
+	<!-- JMS codeUpdateTopic Template -->
+	<bean id="codeUpdateTopic" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg value="codeUpdateTopic"/>
+	</bean>
+	<bean id="jmsCodeUpdateTopicTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<constructor-arg ref="cachingConnectionFactory" />
+		<property name="defaultDestination">
+			<ref bean="codeUpdateTopic" />
+		</property>
+		<property name="pubSubDomain" value="true"/>
+	</bean>
+
+	<!-- JMS processExternalTasksQueue Template -->
+	<bean id="processExternalTasksQueue" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg value="processExternalTasksQueue"/>
+	</bean>
+	<bean id="jmsProcessExternalTasksTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<constructor-arg ref="cachingConnectionFactory" />
+		<property name="defaultDestination">
+			<ref bean="processExternalTasksQueue" />
+		</property>
+		<property name="pubSubDomain" value="true"/>
+	</bean>
+	
+		
+	<!-- JMS workerLogCleanupTopic Template -->
+	<bean id="workerLogCleanupTopic" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg value="workerLogCleanupTopic"/>
+	</bean>
+	<bean id="jmsWorkerLogCleanupTopicTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<constructor-arg ref="cachingConnectionFactory" />
+		<property name="defaultDestination">
+			<ref bean="workerLogCleanupTopic" />
+		</property>
+		<property name="pubSubDomain" value="true"/>
+	</bean>
+	
+	<!-- CONSOLE SHUTDOWN TOPIC AND LISTENER -->
+	<bean id="systemShutdownTopic" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg value="systemShutdownTopic"/>
+	</bean>
+	<bean id="jmsSystemShutdownTopicTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<constructor-arg ref="cachingConnectionFactory" />
+		<property name="defaultDestination">
+			<ref bean="systemShutdownTopic" />
+		</property>
+		<property name="pubSubDomain" value="true"/>
+	</bean>
+	<bean id="consoleShutdownListener" class="jpl.cws.console.listener.ConsoleShutdownListener" />
+	<bean id="consoleShutdownContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="cachingConnectionFactory" />
+		<property name="destination"       ref="systemShutdownTopic" />
+		<property name="messageListener"   ref="consoleShutdownListener" />
+		<property name="sessionTransacted" value="true"/>
+		<property name="concurrentConsumers" value="1" />
+	</bean>
+	
+	<!-- SCHEDULE PROCESS TOPIC AND LISTENER -->
+	<bean id="scheduleProcessTopic" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg value="scheduleProcessTopic"/>
+	</bean>
+	<bean id="jmsScheduleProcessTopicTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<constructor-arg ref="cachingConnectionFactory" />
+		<property name="defaultDestination">
+			<ref bean="scheduleProcessTopic" />
+		</property>
+		<property name="pubSubDomain" value="true"/>
+	</bean>
+	<bean id="scheduleProcessListener" class="jpl.cws.console.listener.ScheduleProcessListener" />
+	<bean id="scheduleProcessContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="cachingConnectionFactory" />
+		<property name="destination"       ref="scheduleProcessTopic" />
+		<property name="messageListener"   ref="scheduleProcessListener" />
+		<property name="sessionTransacted" value="true"/>
+		<property name="concurrentConsumers" value="1" />
+	</bean>
+	
+	<!-- JMS workerConfigChangeTopic Template -->
+	<!-- Used to send message to message broker that instructs that a Worker should -->
+	<!-- check for any updates to its configuration. -->
+	<bean id="workerConfigChangeTopic" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg value="workerConfigChangeTopic"/>
+	</bean>
+	<bean id="jmsWorkerConfigChangeTopicTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<constructor-arg ref="cachingConnectionFactory" />
+		<property name="defaultDestination">
+			<ref bean="workerConfigChangeTopic" />
+		</property>
+		<property name="pubSubDomain" value="true"/>
+	</bean>
+	
+	<!-- PROCESS EVENT TOPIC -->
+	<bean id="processEventTopic" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg value="processEventTopic"/>
+	</bean>
+	<!-- PROCESS EVENT TOPIC PRODUCER -->
+	<bean id="jmsProcEventTopicTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<constructor-arg ref="cachingConnectionFactory" />
+		<property name="defaultDestination">
+			<ref bean="processEventTopic" />
+		</property>
+		<property name="pubSubDomain" value="true"/>
+	</bean>
+	
+	<!-- MSG LISTENER -->
+	<bean id="processInitiatorTopic" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg value="processInitiatorTopic"/>
+	</bean>
+	
+	<bean id="jmsProcessInitiatorTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<constructor-arg ref="cachingConnectionFactory" />
+		<property name="defaultDestination">
+			<ref bean="processInitiatorTopic" />
+		</property>
+		<property name="pubSubDomain" value="true"/>
+	</bean>
+	
+	<jee:jndi-lookup id="dbDataSource" jndi-name="java:comp/env/jdbc/ProcessEngine" expected-type="javax.sql.DataSource" />
+	
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<constructor-arg ref="dbDataSource"/>
+	</bean>
+	
+	<bean id="namedJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+		<constructor-arg ref="dbDataSource"/>
+	</bean>
+	
+	<bean id="cwsConfig"            class="jpl.cws.core.CwsConfig" />
+	
+	<!-- CWS-CONSOLE STARTUP BEAN -->
+	<bean id="cwsConsoleStartup"       class="jpl.cws.console.CwsConsoleStartup" />
+	
+	<bean id="projectWebappRoot" class="java.lang.String">
+		<constructor-arg value="__CWS_PROJECT_WEBAPP_ROOT__"/>
+	</bean>
+
+	<!-- CWS SERVICES -->
+	<bean id="cwsDbService"                              class="jpl.cws.core.db.DbService" />
+	<bean id="cwsSchedulerDbService"                     class="jpl.cws.core.db.SchedulerDbService" />
+	<bean id="cwsScheduler"                              class="jpl.cws.scheduler.Scheduler" />
+	<bean id="cwsCodeService"                            class="jpl.cws.core.code.CodeService" />
+	<bean id="cwsInitiatorsService"                      class="jpl.cws.process.initiation.InitiatorsService" />
+	<bean id="cwsProcessService"                         class="jpl.cws.core.service.ProcessService" />
+	<bean id="cwsSecurityService"                        class="jpl.cws.core.service.SecurityService">
+		<property name="projectWebappRoot" ref="projectWebappRoot" />
+	</bean>
+	<bean id="cwsConsoleService"                         class="jpl.cws.service.CwsConsoleService" />
+	<bean id="cwsEmailerService"                         class="jpl.cws.core.log.CwsEmailerService" />
+	<bean id="cwsSchedulerUtils"                         class="jpl.cws.scheduler.SchedulerQueueUtils" />
+	<bean id="processStatusDaemon"                       class="jpl.cws.console.ProcessStatusDaemon" />
+	<bean id="historyCleanupDaemon"                      class="jpl.cws.console.HistoryCleanupDaemon" />
+	<bean id="externalTaskDaemon"                      	 class="jpl.cws.console.ExternalTaskDaemon" />
+	<bean id="awsMetricsPublisherBackgroundThread"       class="jpl.cws.console.AwsMetricsPublisherBackgroundThread" />
+	<bean id="workerMonitorBackgroundThread"             class="jpl.cws.console.WorkerMonitorBackgroundThread" />
+	
+	<!--  IMPORT ADAPTATION CONTEXT -->
+	<import resource="classpath:adaptationUiContext.xml" />
+	
+</beans>

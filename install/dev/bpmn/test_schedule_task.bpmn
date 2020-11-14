@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1bxnkkv" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.2.3">
+  <bpmn:process id="test_schedule_task" name="Test Schedule Task" isExecutable="true">
+    <bpmn:extensionElements>
+      <camunda:properties>
+        <camunda:property />
+      </camunda:properties>
+    </bpmn:extensionElements>
+    <bpmn:startEvent id="StartEvent_1" camunda:asyncBefore="true">
+      <bpmn:outgoing>SequenceFlow_1qunncq</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="EndEvent_14g3qio">
+      <bpmn:incoming>SequenceFlow_0ly7u8d</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1qunncq" sourceRef="StartEvent_1" targetRef="Task_1fffb93" />
+    <bpmn:sequenceFlow id="SequenceFlow_0ly7u8d" sourceRef="Task_1fffb93" targetRef="EndEvent_14g3qio" />
+    <bpmn:serviceTask id="Task_1fffb93" name="schedule log_core_vars process instance" camunda:modelerTemplate="jpl.cws.task.ScheduleProcTask" camunda:class="jpl.cws.task.ScheduleProcTask">
+      <bpmn:extensionElements>
+        <camunda:field name="procDefKeyExpr">
+          <camunda:expression>log_core_vars</camunda:expression>
+        </camunda:field>
+        <camunda:field name="procVariablesExpr">
+          <camunda:expression>ifYouSeeThis=thenGood</camunda:expression>
+        </camunda:field>
+        <camunda:field name="procBusinessKeyExpr">
+          <camunda:expression>a</camunda:expression>
+        </camunda:field>
+        <camunda:field name="initiationKeyExpr">
+          <camunda:expression>process instance: ${execution.processInstanceId}</camunda:expression>
+        </camunda:field>
+        <camunda:field name="priorityExpr">
+          <camunda:expression>10</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1qunncq</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0ly7u8d</bpmn:outgoing>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="test_schedule_task">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="225" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_14g3qio_di" bpmnElement="EndEvent_14g3qio">
+        <dc:Bounds x="507" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1qunncq_di" bpmnElement="SequenceFlow_1qunncq">
+        <di:waypoint x="261" y="120" />
+        <di:waypoint x="329" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0ly7u8d_di" bpmnElement="SequenceFlow_0ly7u8d">
+        <di:waypoint x="429" y="120" />
+        <di:waypoint x="507" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0vnetki_di" bpmnElement="Task_1fffb93">
+        <dc:Bounds x="329" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,42 @@
+Common Workflow Service
+
+Copyright 2020, California Institute of Technology ("Caltech").
+U.S. Government sponsorship acknowledged. All Rights Reserved.
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+This product includes software developed at
+Spring (https://spring.io/).
+
+**********************
+THIRD PARTY COMPONENTS
+**********************
+This software includes third party software subject to the following copyrights:
+
+ - The AWS SDK for Java is Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ - The Camunda BPMN Platform is Copyright 2013-2020 Camunda Services GmbH.
+ - The Camunda Modeler is Copyright (c) Camunda Services GmbH.
+ - The Elasticsearch software is Copyright 2009-2018 Elasticsearch.
+ - The Logstash software is Copyright 2009-2018 Elasticsearch.
+ - The Bootstrap software has the following copyright holders:
+   - Copyright (c) 2011-2020 Twitter, Inc.
+   - Copyright (c) 2011-2020 The Bootstrap Authors.
+ - The fst (fast-serialization) library is Copyright 2012-2014 Ruediger Moeller.
+ - The gson library is Copyright 2008 Google Inc.
+ - The JMS library is Copyright (c) 1993, 2020, Oracle and/or its affiliates.
+ - The Javax Mail library is Copyright (c) 1993, 2020, Oracle and/or its affiliates.
+ - The Javax Servlet API is Copyright (c) 1993, 2020, Oracle and/or its affiliates.
+ - The Joda-Time library is Copyright (c) 2002-2020 Joda.org. All Rights Reserved.
+ - The Jython library has the following copyright holders:
+   - Copyright (c) 2000-2018 Jython Developers. All rights reserved.
+   - Copyright (c) 2000 BeOpen.com. All Rights Reserved.
+   - Copyright (c) 2000 The Apache Software Foundation. All rights reserved.
+   - Copyright (c) 1995-2000 Corporation for National Research Initiatives. All Rights Reserved.
+   - Copyright (c) 1991-1995 Stichting Mathematisch Centrum, Amsterdam. All Rights Reserved.
+ - The MariaDB Connector/J library is Copyright (c) 2020 MariaDB. All rights reserved.
+ - The mybatis library is Copyright (c) 2009–2020 MyBatis.org.
+ - The Quartz library is Copyright (c) Terracotta, Inc., a wholly-owned subsidiary of Software AG USA, Inc. All rights reserved.
+ - The slf4j-log4j12 library is Copyright (c) 2004-2007 QOS.ch. All rights reserved.
+ - The urlrewritefilter library is Copyright 1995-2012 Paul Tuckey.
+ - The respond.js library is Copyright 2011: Scott Jehl, scottjehl.com.

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpm-platform xmlns="http://www.camunda.org/schema/1.0/BpmPlatform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.camunda.org/schema/1.0/BpmPlatform http://www.camunda.org/schema/1.0/BpmPlatform ">
+
+  	<job-executor>
+		<job-acquisition name="default">
+			<!-- https://docs.camunda.org/manual/7.10/reference/deployment-descriptors/tags/job-executor/ -->
+			<!--  45/worker : maxJobsPerAcquisition:20 + queueSize:15 + maxPoolSize:10 -->
+			<!--  40/worker : maxJobsPerAcquisition:20 + queueSize:10 + maxPoolSize:10 -->
+			<!-- DEFAULTS 16/worker : maxJobsPerAcquisition:3 + queueSize:3 + maxPoolSize:10 -->
+			<properties>
+				<property name="lockTimeInMillis">300000</property>     <!-- Default is 300000 -->
+				<property name="waitTimeInMillis">5000</property>       <!-- Default is 5000 -->
+				<property name="maxWait">60000</property>                <!-- Default is 60000 -->
+				
+				<!-- NOTE:  I'm wondering if should be lower, especially in highly-clustered scenarios -->
+				<property name="maxJobsPerAcquisition">3</property>     <!-- Default is 3 -->
+			</properties>
+		</job-acquisition>	
+		<properties>
+			<!--  TODO: Make this a parameter.  This is not available to get/set via JMX. -->
+			<property name="queueSize">3</property> <!-- Default is 3 -->
+		</properties>
+	</job-executor>
+
+</bpm-platform>

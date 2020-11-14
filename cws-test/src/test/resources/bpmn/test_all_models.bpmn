@@ -1,0 +1,806 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_0gwbugk" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.12.0">
+  <bpmn:process id="test_all_models" name="Test All Models" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" camunda:asyncBefore="true">
+      <bpmn:outgoing>SequenceFlow_10zvbwv</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Task_1c4ywjv" name="Blow Up" camunda:modelerTemplate="jpl.cws.task.BlowUpTask" camunda:class="jpl.cws.task.BlowUpTask">
+      <bpmn:extensionElements />
+      <bpmn:incoming>SequenceFlow_1l65nry</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_01tut8t</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_0h98ehl" name="Log Message" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>Testing the models.</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0knydt4</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0i3gfyt</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0i3gfyt" sourceRef="Task_0h98ehl" targetRef="email_task" />
+    <bpmn:serviceTask id="email_task" name="Email Task" camunda:modelerTemplate="jpl.cws.task.EmailTask" camunda:class="jpl.cws.task.EmailTask">
+      <bpmn:extensionElements>
+        <camunda:field name="from">
+          <camunda:expression>user@domain.org</camunda:expression>
+        </camunda:field>
+        <camunda:field name="to">
+          <camunda:expression>user@domain.org</camunda:expression>
+        </camunda:field>
+        <camunda:field name="subject">
+          <camunda:expression>Models Test</camunda:expression>
+        </camunda:field>
+        <camunda:field name="bodyType">
+          <camunda:expression>html</camunda:expression>
+        </camunda:field>
+        <camunda:field name="body">
+          <camunda:expression>Testing Models.</camunda:expression>
+        </camunda:field>
+        <camunda:field name="smtpHost">
+          <camunda:expression>smtp.domain.org</camunda:expression>
+        </camunda:field>
+        <camunda:field name="smtpPort">
+          <camunda:expression>25</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0i3gfyt</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0jil09n</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="sleep_task" name="SLEEP" camunda:modelerTemplate="jpl.cws.task.SleepTask" camunda:class="jpl.cws.task.SleepTask">
+      <bpmn:extensionElements>
+        <camunda:field name="duration">
+          <camunda:expression>5000</camunda:expression>
+        </camunda:field>
+        <camunda:field name="numLogs">
+          <camunda:expression>5</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0xhxavj</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_10zs5od</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="rest_get" name="REST GET" camunda:modelerTemplate="jpl.cws.task.RestGetTask" camunda:class="jpl.cws.task.RestGetTask">
+      <bpmn:extensionElements>
+        <camunda:field name="url">
+          <camunda:expression>https://${cws.hostname}:${cws.port}/cws-ui/rest/stats/processInstanceStats</camunda:expression>
+        </camunda:field>
+        <camunda:field name="allowInsecureRequests">
+          <camunda:expression>true</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnBadResponse">
+          <camunda:expression>true</camunda:expression>
+        </camunda:field>
+        <camunda:field name="acceptType">
+          <camunda:expression>application/json</camunda:expression>
+        </camunda:field>
+        <camunda:field name="cwsTokenFileLocation">
+          <camunda:expression>/tmp/cws_token.txt</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnTruncatedVariable">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1dtsia7</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1quc7nf</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="rest_post" name="REST POST" camunda:modelerTemplate="jpl.cws.task.RestPostTask" camunda:class="jpl.cws.task.RestPostTask">
+      <bpmn:extensionElements>
+        <camunda:field name="url">
+          <camunda:expression>https://${cws.hostname}:${cws.port}/cws-ui/rest/process/test_logs_page/schedule</camunda:expression>
+        </camunda:field>
+        <camunda:field name="allowInsecureRequests">
+          <camunda:expression>true</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnBadResponse">
+          <camunda:expression>true</camunda:expression>
+        </camunda:field>
+        <camunda:field name="body">
+          <camunda:expression><![CDATA[{"testvar":"test value"}]]></camunda:expression>
+        </camunda:field>
+        <camunda:field name="contentType">
+          <camunda:expression>application/json; charset=UTF-8</camunda:expression>
+        </camunda:field>
+        <camunda:field name="cwsTokenFileLocation">
+          <camunda:expression>/tmp/cws_token.txt</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnTruncatedVariable">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1h6f7lp</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1p9ggs0</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0jil09n" sourceRef="email_task" targetRef="ExclusiveGateway_1bnfnto" />
+    <bpmn:sequenceFlow id="SequenceFlow_10zs5od" sourceRef="sleep_task" targetRef="ExclusiveGateway_15o099r" />
+    <bpmn:serviceTask id="Task_10nk5sd" name="Roll the Dice." camunda:modelerTemplate="jpl.cws.task.RollTheDiceTask" camunda:class="jpl.cws.task.RollTheDiceTask">
+      <bpmn:extensionElements>
+        <camunda:field name="numSides">
+          <camunda:expression>6</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1byzul2</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_04ds8ah</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_0urza1b">
+      <bpmn:incoming>SequenceFlow_1g8zhit</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1jqeamg" sourceRef="cmd_task" targetRef="ExclusiveGateway_0x5w2ga" />
+    <bpmn:sequenceFlow id="SequenceFlow_10zvbwv" sourceRef="StartEvent_1" targetRef="Task_0p87pxb" />
+    <bpmn:userTask id="Task_0p87pxb" name="User Task">
+      <bpmn:incoming>SequenceFlow_10zvbwv</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0n00scd</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_0jwh7fu" name="Set Variables" camunda:modelerTemplate="jpl.cws.task.SetVariablesTask" camunda:class="jpl.cws.task.SetVariablesTask">
+      <bpmn:extensionElements>
+        <camunda:field name="srcPropertiesFile">
+          <camunda:expression>/tmp/var_test.txt</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnTruncatedVariable">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_04ds8ah</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1l65nry</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="BoundaryEvent_1a8or1j" attachedToRef="Task_1c4ywjv">
+      <bpmn:outgoing>SequenceFlow_1rr1xh0</bpmn:outgoing>
+      <bpmn:errorEventDefinition />
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1g8zhit" sourceRef="Task_00jp1uk" targetRef="EndEvent_0urza1b" />
+    <bpmn:serviceTask id="Task_00jp1uk" name="Log Message" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>All done!</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1rr1xh0</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1g8zhit</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_1fyhyj5">
+      <bpmn:incoming>SequenceFlow_01tut8t</bpmn:incoming>
+      <bpmn:errorEventDefinition errorRef="Error_1pwfsvl" />
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_0u3jx2u">
+      <bpmn:incoming>SequenceFlow_0n00scd</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0uwlm9a</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_115swfp</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_0uwlm9a" name="True" sourceRef="ExclusiveGateway_0u3jx2u" targetRef="cmd_task">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${modelsVar == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_115swfp" name="False" sourceRef="ExclusiveGateway_0u3jx2u" targetRef="Task_18f316j">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${modelsVar == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Task_18f316j" name="Log Failed" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>User task failed with boolean value ${modelsVar}.</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_115swfp</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0fwouka</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_0hofq5f">
+      <bpmn:incoming>SequenceFlow_0fwouka</bpmn:incoming>
+      <bpmn:errorEventDefinition errorRef="Error_1pwfsvl" />
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0fwouka" sourceRef="Task_18f316j" targetRef="EndEvent_0hofq5f" />
+    <bpmn:sequenceFlow id="SequenceFlow_0n00scd" sourceRef="Task_0p87pxb" targetRef="ExclusiveGateway_0u3jx2u" />
+    <bpmn:serviceTask id="cmd_task" name="Command Line" camunda:modelerTemplate="jpl.cws.task.CmdLineExecTask" camunda:type="external" camunda:topic="__CWS_CMD_TOPIC__">
+      <bpmn:extensionElements>
+        <camunda:field name="cmdLine">
+          <camunda:expression><![CDATA[echo "Cmd_Task_Good"]]></camunda:expression>
+        </camunda:field>
+        <camunda:field name="workingDir" />
+        <camunda:field name="successExitValues">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnFailures">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="exitCodeEvents">
+          <camunda:expression>0=success</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnTruncatedVariable">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition" />
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+        <camunda:field name="timeout">
+          <camunda:expression>86400</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retries">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retryDelay">
+          <camunda:expression>1000</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0uwlm9a</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1jqeamg</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1quc7nf" sourceRef="rest_get" targetRef="ExclusiveGateway_06uhhdo" />
+    <bpmn:sequenceFlow id="SequenceFlow_04ds8ah" sourceRef="Task_10nk5sd" targetRef="Task_0jwh7fu" />
+    <bpmn:sequenceFlow id="SequenceFlow_1l65nry" sourceRef="Task_0jwh7fu" targetRef="Task_1c4ywjv" />
+    <bpmn:exclusiveGateway id="ExclusiveGateway_0x5w2ga" default="SequenceFlow_06ymh7v">
+      <bpmn:incoming>SequenceFlow_1jqeamg</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0knydt4</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_06ymh7v</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_0knydt4" name="Task is good." sourceRef="ExclusiveGateway_0x5w2ga" targetRef="Task_0h98ehl">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${cmd_task_output == "Cmd_Task_Good"}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_06ymh7v" sourceRef="ExclusiveGateway_0x5w2ga" targetRef="Task_1axfvy4" />
+    <bpmn:serviceTask id="Task_1axfvy4" name="Log Failed" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>Command Line Task failed. </camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_06ymh7v</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1vuisqd</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1vuisqd" sourceRef="Task_1axfvy4" targetRef="EndEvent_0vc794e" />
+    <bpmn:endEvent id="EndEvent_0vc794e">
+      <bpmn:incoming>SequenceFlow_1vuisqd</bpmn:incoming>
+      <bpmn:errorEventDefinition errorRef="Error_1pwfsvl" />
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1p9ggs0" sourceRef="rest_post" targetRef="ExclusiveGateway_0hq8qgh" />
+    <bpmn:sequenceFlow id="SequenceFlow_01tut8t" sourceRef="Task_1c4ywjv" targetRef="EndEvent_1fyhyj5" />
+    <bpmn:sequenceFlow id="SequenceFlow_1rr1xh0" sourceRef="BoundaryEvent_1a8or1j" targetRef="Task_00jp1uk" />
+    <bpmn:exclusiveGateway id="ExclusiveGateway_0hq8qgh">
+      <bpmn:incoming>SequenceFlow_1p9ggs0</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0xhxavj</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0vauxb7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_0xhxavj" name="True" sourceRef="ExclusiveGateway_0hq8qgh" targetRef="sleep_task">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${rest_post_preConditionPassed == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_0vauxb7" name="False" sourceRef="ExclusiveGateway_0hq8qgh" targetRef="Task_0emhp4x">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${rest_post_preConditionPassed == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Task_0emhp4x" name="Log Failed" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>Rest post failure.</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0vauxb7</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1uuq87f</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1uuq87f" sourceRef="Task_0emhp4x" targetRef="EndEvent_045q70a" />
+    <bpmn:endEvent id="EndEvent_045q70a">
+      <bpmn:incoming>SequenceFlow_1uuq87f</bpmn:incoming>
+      <bpmn:errorEventDefinition errorRef="Error_1pwfsvl" />
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_1bnfnto">
+      <bpmn:incoming>SequenceFlow_0jil09n</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1h6f7lp</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0nplpd7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_1h6f7lp" sourceRef="ExclusiveGateway_1bnfnto" targetRef="rest_post">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${email_task_preConditionPassed == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_0nplpd7" sourceRef="ExclusiveGateway_1bnfnto" targetRef="Task_01lrj74">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${email_task_preConditionPassed == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_0jl1gvl" sourceRef="Task_01lrj74" targetRef="EndEvent_1hjlzj6" />
+    <bpmn:endEvent id="EndEvent_1hjlzj6">
+      <bpmn:incoming>SequenceFlow_0jl1gvl</bpmn:incoming>
+      <bpmn:errorEventDefinition errorRef="Error_1pwfsvl" />
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Task_01lrj74" name="Log Failed" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>Email task failed.</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0nplpd7</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0jl1gvl</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_15o099r" default="SequenceFlow_15knu3p">
+      <bpmn:incoming>SequenceFlow_10zs5od</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1dtsia7</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_15knu3p</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_1dtsia7" sourceRef="ExclusiveGateway_15o099r" targetRef="rest_get">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${sleep_task_sleptFor == 5000}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_15knu3p" sourceRef="ExclusiveGateway_15o099r" targetRef="Task_1ujznlt" />
+    <bpmn:sequenceFlow id="SequenceFlow_07tcu5j" sourceRef="Task_1ujznlt" targetRef="EndEvent_0hbocil" />
+    <bpmn:endEvent id="EndEvent_0hbocil">
+      <bpmn:incoming>SequenceFlow_07tcu5j</bpmn:incoming>
+      <bpmn:errorEventDefinition errorRef="Error_1pwfsvl" />
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Task_1ujznlt" name="Log Failed" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>Did not sleep for 5000 ms.</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_15knu3p</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_07tcu5j</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_06uhhdo">
+      <bpmn:incoming>SequenceFlow_1quc7nf</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1byzul2</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0yamauw</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_1byzul2" sourceRef="ExclusiveGateway_06uhhdo" targetRef="Task_10nk5sd">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${rest_get_preConditionPassed == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_0yamauw" sourceRef="ExclusiveGateway_06uhhdo" targetRef="Task_0ihp14p">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${rest_get_preConditionPassed == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Task_0ihp14p" name="Log Failed" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>Rest get failed.</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0yamauw</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0eyzubo</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0eyzubo" sourceRef="Task_0ihp14p" targetRef="EndEvent_16m02w8" />
+    <bpmn:endEvent id="EndEvent_16m02w8">
+      <bpmn:incoming>SequenceFlow_0eyzubo</bpmn:incoming>
+      <bpmn:errorEventDefinition errorRef="Error_1pwfsvl" />
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmn:error id="Error_1pwfsvl" name="Error_0u8jfp6" errorCode="1" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="test_all_models">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="539" y="-6" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="512" y="-36" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_02ll2uc_di" bpmnElement="Task_1c4ywjv">
+        <dc:Bounds x="507" y="1987" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_18ykvgg_di" bpmnElement="Task_0h98ehl">
+        <dc:Bounds x="507" y="514" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0i3gfyt_di" bpmnElement="SequenceFlow_0i3gfyt">
+        <di:waypoint x="557" y="594" />
+        <di:waypoint x="557" y="653" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="527" y="617" width="90" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_04mwx12_di" bpmnElement="email_task">
+        <dc:Bounds x="507" y="653" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0xb5jw9_di" bpmnElement="sleep_task">
+        <dc:Bounds x="507" y="1076" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1fslfal_di" bpmnElement="rest_get">
+        <dc:Bounds x="507" y="1253" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0lewrmf_di" bpmnElement="rest_post">
+        <dc:Bounds x="507" y="858" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0jil09n_di" bpmnElement="SequenceFlow_0jil09n">
+        <di:waypoint x="557" y="733" />
+        <di:waypoint x="557" y="777" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="527" y="748.5" width="90" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_10zs5od_di" bpmnElement="SequenceFlow_10zs5od">
+        <di:waypoint x="557" y="1156" />
+        <di:waypoint x="557" y="1175" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="527" y="1159" width="90" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0x4absq_di" bpmnElement="Task_10nk5sd">
+        <dc:Bounds x="507" y="1485" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0urza1b_di" bpmnElement="EndEvent_0urza1b">
+        <dc:Bounds x="539" y="2554" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="512" y="2599.5" width="90" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1jqeamg_di" bpmnElement="SequenceFlow_1jqeamg">
+        <di:waypoint x="557" y="363" />
+        <di:waypoint x="557" y="388" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="527" y="369" width="90" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_10zvbwv_di" bpmnElement="SequenceFlow_10zvbwv">
+        <di:waypoint x="557" y="30" />
+        <di:waypoint x="557" y="93" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="527" y="55" width="90" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_1e2a00l_di" bpmnElement="Task_0p87pxb">
+        <dc:Bounds x="507" y="93" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1xjpk75_di" bpmnElement="Task_0jwh7fu">
+        <dc:Bounds x="507" y="1723" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BoundaryEvent_15pjrfz_di" bpmnElement="BoundaryEvent_1a8or1j">
+        <dc:Bounds x="589" y="2049" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="562" y="2025.5" width="90" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1g8zhit_di" bpmnElement="SequenceFlow_1g8zhit">
+        <di:waypoint x="557" y="2336" />
+        <di:waypoint x="557" y="2554" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="527" y="2438.5" width="90" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1eggbwv_di" bpmnElement="Task_00jp1uk">
+        <dc:Bounds x="507" y="2256" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_11hmkvo_di" bpmnElement="EndEvent_1fyhyj5">
+        <dc:Bounds x="710" y="2009" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="683" y="1986" width="90" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_01vy0au_di" bpmnElement="ExclusiveGateway_0u3jx2u" isMarkerVisible="true">
+        <dc:Bounds x="532" y="196" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="521.7774294670846" y="214.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0uwlm9a_di" bpmnElement="SequenceFlow_0uwlm9a">
+        <di:waypoint x="557" y="246" />
+        <di:waypoint x="557" y="283" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="561" y="258" width="23" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_115swfp_di" bpmnElement="SequenceFlow_115swfp">
+        <di:waypoint x="582" y="221" />
+        <di:waypoint x="632" y="221" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="594" y="200" width="27" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0sov2yy_di" bpmnElement="Task_18f316j">
+        <dc:Bounds x="632" y="181" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0gw1tu6_di" bpmnElement="EndEvent_0hofq5f">
+        <dc:Bounds x="774" y="203" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="792" y="179.71630094043894" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0fwouka_di" bpmnElement="SequenceFlow_0fwouka">
+        <di:waypoint x="732" y="221" />
+        <di:waypoint x="774" y="221" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="753" y="199.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0n00scd_di" bpmnElement="SequenceFlow_0n00scd">
+        <di:waypoint x="557" y="173" />
+        <di:waypoint x="557" y="196" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="572" y="177.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_048vu74_di" bpmnElement="cmd_task">
+        <dc:Bounds x="507" y="283" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1quc7nf_di" bpmnElement="SequenceFlow_1quc7nf">
+        <di:waypoint x="557" y="1333" />
+        <di:waypoint x="557" y="1371" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="572" y="1345.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_04ds8ah_di" bpmnElement="SequenceFlow_04ds8ah">
+        <di:waypoint x="557" y="1565" />
+        <di:waypoint x="557" y="1723" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="572" y="1637.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1l65nry_di" bpmnElement="SequenceFlow_1l65nry">
+        <di:waypoint x="557" y="1803" />
+        <di:waypoint x="557" y="1987" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="572" y="1888.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ExclusiveGateway_0x5w2ga_di" bpmnElement="ExclusiveGateway_0x5w2ga" isMarkerVisible="true">
+        <dc:Bounds x="532" y="387.94594594594594" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="522" y="406.94594594594594" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0knydt4_di" bpmnElement="SequenceFlow_0knydt4">
+        <di:waypoint x="557" y="438" />
+        <di:waypoint x="557" y="514" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="565" y="471" width="65" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_06ymh7v_di" bpmnElement="SequenceFlow_06ymh7v">
+        <di:waypoint x="582" y="413" />
+        <di:waypoint x="632" y="413" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="607" y="391.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0jst2mu_di" bpmnElement="Task_1axfvy4">
+        <dc:Bounds x="632" y="373" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1vuisqd_di" bpmnElement="SequenceFlow_1vuisqd">
+        <di:waypoint x="732" y="413" />
+        <di:waypoint x="782" y="413" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="757" y="391.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_17awfyu_di" bpmnElement="EndEvent_0vc794e">
+        <dc:Bounds x="782" y="395" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="800" y="434" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1p9ggs0_di" bpmnElement="SequenceFlow_1p9ggs0">
+        <di:waypoint x="557" y="938" />
+        <di:waypoint x="557" y="987" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="572" y="956" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_01tut8t_di" bpmnElement="SequenceFlow_01tut8t">
+        <di:waypoint x="607" y="2027" />
+        <di:waypoint x="710" y="2027" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="613.5" y="2005.5" width="90" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1rr1xh0_di" bpmnElement="SequenceFlow_1rr1xh0">
+        <di:waypoint x="607" y="2085" />
+        <di:waypoint x="607" y="2171" />
+        <di:waypoint x="557" y="2171" />
+        <di:waypoint x="557" y="2256" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="582" y="2149.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ExclusiveGateway_0hq8qgh_di" bpmnElement="ExclusiveGateway_0hq8qgh" isMarkerVisible="true">
+        <dc:Bounds x="532" y="986.8933873144399" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="522" y="1005.8933873144399" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0xhxavj_di" bpmnElement="SequenceFlow_0xhxavj">
+        <di:waypoint x="557" y="1037" />
+        <di:waypoint x="557" y="1076" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="561" y="1050" width="23" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0vauxb7_di" bpmnElement="SequenceFlow_0vauxb7">
+        <di:waypoint x="582" y="1012" />
+        <di:waypoint x="632" y="1012" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="594" y="991" width="27" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_19d9tc9_di" bpmnElement="Task_0emhp4x">
+        <dc:Bounds x="632" y="972" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1uuq87f_di" bpmnElement="SequenceFlow_1uuq87f">
+        <di:waypoint x="732" y="1012" />
+        <di:waypoint x="782" y="1012" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="757" y="990.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_12qv7pg_di" bpmnElement="EndEvent_045q70a">
+        <dc:Bounds x="782" y="994" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="800" y="1033" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_1bnfnto_di" bpmnElement="ExclusiveGateway_1bnfnto" isMarkerVisible="true">
+        <dc:Bounds x="532" y="777.096399535424" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="522" y="795.096399535424" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1h6f7lp_di" bpmnElement="SequenceFlow_1h6f7lp">
+        <di:waypoint x="557" y="827" />
+        <di:waypoint x="557" y="858" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="572" y="835.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0nplpd7_di" bpmnElement="SequenceFlow_0nplpd7">
+        <di:waypoint x="582" y="802" />
+        <di:waypoint x="632" y="802" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="607" y="780.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0jl1gvl_di" bpmnElement="SequenceFlow_0jl1gvl">
+        <di:waypoint x="732" y="802" />
+        <di:waypoint x="782" y="802" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="757" y="780.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_1vqvx5d_di" bpmnElement="EndEvent_1hjlzj6">
+        <dc:Bounds x="782" y="784" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="800" y="823" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_16prj9j_di" bpmnElement="Task_01lrj74">
+        <dc:Bounds x="632" y="762" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_15o099r_di" bpmnElement="ExclusiveGateway_15o099r" isMarkerVisible="true">
+        <dc:Bounds x="532" y="1175.2566782810686" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="522" y="1193.2566782810686" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1dtsia7_di" bpmnElement="SequenceFlow_1dtsia7">
+        <di:waypoint x="557" y="1225" />
+        <di:waypoint x="557" y="1253" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="572" y="1232" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_15knu3p_di" bpmnElement="SequenceFlow_15knu3p">
+        <di:waypoint x="582" y="1200" />
+        <di:waypoint x="632" y="1200" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="607" y="1178.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_07tcu5j_di" bpmnElement="SequenceFlow_07tcu5j">
+        <di:waypoint x="732" y="1200" />
+        <di:waypoint x="782" y="1200" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="757" y="1178.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_0f9mcze_di" bpmnElement="EndEvent_0hbocil">
+        <dc:Bounds x="782" y="1182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="800" y="1221" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_15eyfr0_di" bpmnElement="Task_1ujznlt">
+        <dc:Bounds x="632" y="1160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_06uhhdo_di" bpmnElement="ExclusiveGateway_06uhhdo" isMarkerVisible="true">
+        <dc:Bounds x="532" y="1371.1799999999998" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="522" y="1389.1799999999998" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1byzul2_di" bpmnElement="SequenceFlow_1byzul2">
+        <di:waypoint x="557" y="1421" />
+        <di:waypoint x="557" y="1485" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="572" y="1446" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0yamauw_di" bpmnElement="SequenceFlow_0yamauw">
+        <di:waypoint x="582" y="1396" />
+        <di:waypoint x="632" y="1396" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="607" y="1374.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0rgjzv6_di" bpmnElement="Task_0ihp14p">
+        <dc:Bounds x="632" y="1356" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0eyzubo_di" bpmnElement="SequenceFlow_0eyzubo">
+        <di:waypoint x="732" y="1396" />
+        <di:waypoint x="782" y="1396" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="757" y="1374.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_0fgu1cu_di" bpmnElement="EndEvent_16m02w8">
+        <dc:Bounds x="782" y="1378" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="800" y="1417" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

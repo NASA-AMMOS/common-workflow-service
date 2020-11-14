@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd" id="_BXQQQALHEeio_JDp8NSLBQ" exporter="camunda modeler" exporterVersion="2.8.0.201612011311" targetNamespace="http://camunda.org/schema/1.0/bpmn">
+  <bpmn2:process id="test_set_vars" name="Test Set Variables" isExecutable="true">
+    <bpmn2:startEvent id="StartEvent_1" camunda:async="true">
+      <bpmn2:outgoing>SequenceFlow_1</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:scriptTask id="ScriptTask_1" name="Set Variables" scriptFormat="JavaScript">
+      <bpmn2:incoming>SequenceFlow_1</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_2</bpmn2:outgoing>
+      <bpmn2:script><![CDATA[var count = 2
+var path = '/tmp/file.dat'
+
+execution.setVariable("Count", count)
+execution.setVariable("Path", path)
+]]></bpmn2:script>
+    </bpmn2:scriptTask>
+    <bpmn2:serviceTask id="ServiceTask_1" camunda:class="jpl.cws.task.LogTask" name="Log Variables">
+      <bpmn2:extensionElements>
+        <camunda:field expression="ABORT_PROCESS" name="onPreConditionFail"/>
+        <camunda:field name="message">
+          <camunda:expression><![CDATA[Results:
+
+Count: ${Count}
+Path: ${Path}
+]]></camunda:expression>
+        </camunda:field>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>SequenceFlow_2</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_3</bpmn2:outgoing>
+    </bpmn2:serviceTask>
+    <bpmn2:endEvent id="EndEvent_1">
+      <bpmn2:incoming>SequenceFlow_3</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:sequenceFlow id="SequenceFlow_1" name="" sourceRef="StartEvent_1" targetRef="ScriptTask_1"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_2" name="" sourceRef="ScriptTask_1" targetRef="ServiceTask_1"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_3" name="" sourceRef="ServiceTask_1" targetRef="EndEvent_1"/>
+  </bpmn2:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="test_set_vars">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_45" bpmnElement="StartEvent_1">
+        <dc:Bounds height="36.0" width="36.0" x="324.0" y="246.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_EndEvent_62" bpmnElement="EndEvent_1">
+        <dc:Bounds height="36.0" width="36.0" x="900.0" y="246.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="0.0" width="0.0" x="918.0" y="287.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_ScriptTask_54" bpmnElement="ScriptTask_1">
+        <dc:Bounds height="80.0" width="100.0" x="468.0" y="224.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_ServiceTask_347" bpmnElement="ServiceTask_1">
+        <dc:Bounds height="80.0" width="100.0" x="684.0" y="224.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1" bpmnElement="SequenceFlow_1" sourceElement="_BPMNShape_StartEvent_45" targetElement="_BPMNShape_ScriptTask_54">
+        <di:waypoint xsi:type="dc:Point" x="360.0" y="264.0"/>
+        <di:waypoint xsi:type="dc:Point" x="468.0" y="264.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_2" bpmnElement="SequenceFlow_2" sourceElement="_BPMNShape_ScriptTask_54" targetElement="_BPMNShape_ServiceTask_347">
+        <di:waypoint xsi:type="dc:Point" x="568.0" y="264.0"/>
+        <di:waypoint xsi:type="dc:Point" x="684.0" y="264.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_3" bpmnElement="SequenceFlow_3" sourceElement="_BPMNShape_ServiceTask_347" targetElement="_BPMNShape_EndEvent_62">
+        <di:waypoint xsi:type="dc:Point" x="784.0" y="264.0"/>
+        <di:waypoint xsi:type="dc:Point" x="900.0" y="264.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn2:definitions>

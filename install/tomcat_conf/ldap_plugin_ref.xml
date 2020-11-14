@@ -1,0 +1,5 @@
+			<!-- The following plugin allows you to grant administrator authorizations
+				to an existing LDAP user -->
+            <ref bean="administratorAuthorizationPlugin" />
+            <ref bean="ldapIdentityProviderPlugin" />
+

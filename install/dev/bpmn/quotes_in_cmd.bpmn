@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="sample-diagram" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.0.3" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+  <bpmn2:process id="quotes_in_cmd" name="Quotes in Command Test" isExecutable="true">
+    <bpmn2:startEvent id="StartEvent_1" camunda:asyncBefore="true">
+      <bpmn2:outgoing>SequenceFlow_1e9k7od</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:sequenceFlow id="SequenceFlow_1e9k7od" sourceRef="StartEvent_1" targetRef="Task_1i7lzfl" />
+    <bpmn2:sequenceFlow id="SequenceFlow_0i9cnn5" sourceRef="Task_1i7lzfl" targetRef="Task_18xicu6" />
+    <bpmn2:sequenceFlow id="SequenceFlow_0bz0bil" sourceRef="Task_18xicu6" targetRef="Task_09jr7u1" />
+    <bpmn2:sequenceFlow id="SequenceFlow_1r5ear1" sourceRef="Task_09jr7u1" targetRef="Task_1osgx8o" />
+    <bpmn2:endEvent id="EndEvent_1bv7lwv">
+      <bpmn2:incoming>SequenceFlow_0oft332</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:sequenceFlow id="SequenceFlow_0oft332" sourceRef="Task_1osgx8o" targetRef="EndEvent_1bv7lwv" />
+    <bpmn2:serviceTask id="Task_1i7lzfl" name="simple ls" camunda:modelerTemplate="jpl.cws.task.CmdLineExecTask" camunda:type="external" camunda:topic="Process_1">
+      <bpmn2:extensionElements>
+        <camunda:field name="cmdLine">
+          <camunda:expression>echo "test"</camunda:expression>
+        </camunda:field>
+        <camunda:field name="workingDir">
+          <camunda:expression>/tmp</camunda:expression>
+        </camunda:field>
+        <camunda:field name="successExitValues">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnFailures">
+          <camunda:expression>true</camunda:expression>
+        </camunda:field>
+        <camunda:field name="exitCodeEvents">
+          <camunda:expression>0=success</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnTruncatedVariable">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition" />
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+        <camunda:field name="timeout">
+          <camunda:expression>86400</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retries">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retryDelay">
+          <camunda:expression>1000</camunda:expression>
+        </camunda:field>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>SequenceFlow_1e9k7od</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_0i9cnn5</bpmn2:outgoing>
+    </bpmn2:serviceTask>
+    <bpmn2:serviceTask id="Task_18xicu6" name="echo 1" camunda:modelerTemplate="jpl.cws.task.CmdLineExecTask" camunda:type="external" camunda:topic="Process_1">
+      <bpmn2:extensionElements>
+        <camunda:field name="cmdLine">
+          <camunda:expression>echo "'AAA'"</camunda:expression>
+        </camunda:field>
+        <camunda:field name="workingDir">
+          <camunda:expression>/tmp</camunda:expression>
+        </camunda:field>
+        <camunda:field name="successExitValues">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnFailures">
+          <camunda:expression>true</camunda:expression>
+        </camunda:field>
+        <camunda:field name="exitCodeEvents">
+          <camunda:expression>0=success</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnTruncatedVariable">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition" />
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+        <camunda:field name="timeout">
+          <camunda:expression>86400</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retries">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retryDelay">
+          <camunda:expression>1000</camunda:expression>
+        </camunda:field>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>SequenceFlow_0i9cnn5</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_0bz0bil</bpmn2:outgoing>
+    </bpmn2:serviceTask>
+    <bpmn2:serviceTask id="Task_09jr7u1" name="echo 2" camunda:modelerTemplate="jpl.cws.task.CmdLineExecTask" camunda:type="external" camunda:topic="Process_1">
+      <bpmn2:extensionElements>
+        <camunda:field name="cmdLine">
+          <camunda:expression>echo '"AAA"'</camunda:expression>
+        </camunda:field>
+        <camunda:field name="workingDir">
+          <camunda:expression>/tmp</camunda:expression>
+        </camunda:field>
+        <camunda:field name="successExitValues">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnFailures">
+          <camunda:expression>true</camunda:expression>
+        </camunda:field>
+        <camunda:field name="exitCodeEvents">
+          <camunda:expression>0=success</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnTruncatedVariable">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition" />
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+        <camunda:field name="timeout">
+          <camunda:expression>86400</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retries">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retryDelay">
+          <camunda:expression>1000</camunda:expression>
+        </camunda:field>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>SequenceFlow_0bz0bil</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_1r5ear1</bpmn2:outgoing>
+    </bpmn2:serviceTask>
+    <bpmn2:serviceTask id="Task_1osgx8o" name="echo 3" camunda:modelerTemplate="jpl.cws.task.CmdLineExecTask" camunda:type="external" camunda:topic="Process_1">
+      <bpmn2:extensionElements>
+        <camunda:field name="cmdLine">
+          <camunda:expression>echo '"AAA" BBB "CCC"'</camunda:expression>
+        </camunda:field>
+        <camunda:field name="workingDir">
+          <camunda:expression>/tmp</camunda:expression>
+        </camunda:field>
+        <camunda:field name="successExitValues">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnFailures">
+          <camunda:expression>true</camunda:expression>
+        </camunda:field>
+        <camunda:field name="exitCodeEvents">
+          <camunda:expression>0=success</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnTruncatedVariable">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition" />
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+        <camunda:field name="timeout">
+          <camunda:expression>86400</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retries">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retryDelay">
+          <camunda:expression>1000</camunda:expression>
+        </camunda:field>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>SequenceFlow_1r5ear1</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_0oft332</bpmn2:outgoing>
+    </bpmn2:serviceTask>
+  </bpmn2:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="quotes_in_cmd">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="398" y="240" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1e9k7od_di" bpmnElement="SequenceFlow_1e9k7od">
+        <di:waypoint x="434" y="258" />
+        <di:waypoint x="532" y="258" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0i9cnn5_di" bpmnElement="SequenceFlow_0i9cnn5">
+        <di:waypoint x="632" y="258" />
+        <di:waypoint x="721" y="258" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0bz0bil_di" bpmnElement="SequenceFlow_0bz0bil">
+        <di:waypoint x="821" y="258" />
+        <di:waypoint x="920" y="258" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1r5ear1_di" bpmnElement="SequenceFlow_1r5ear1">
+        <di:waypoint x="1020" y="258" />
+        <di:waypoint x="1094" y="258" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_1bv7lwv_di" bpmnElement="EndEvent_1bv7lwv">
+        <dc:Bounds x="1252" y="240" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0oft332_di" bpmnElement="SequenceFlow_0oft332">
+        <di:waypoint x="1194" y="258" />
+        <di:waypoint x="1252" y="258" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0otyeg4_di" bpmnElement="Task_1i7lzfl">
+        <dc:Bounds x="532" y="218" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0w5nn3z_di" bpmnElement="Task_18xicu6">
+        <dc:Bounds x="721" y="218" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1ne9ta3_di" bpmnElement="Task_09jr7u1">
+        <dc:Bounds x="920" y="218" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_10rmowv_di" bpmnElement="Task_1osgx8o">
+        <dc:Bounds x="1094" y="218" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn2:definitions>

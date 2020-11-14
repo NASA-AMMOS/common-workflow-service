@@ -1,0 +1,1218 @@
+[
+	{
+		"name": "Command Line Execution",
+		"id": "jpl.cws.task.CmdLineExecTask",
+		"appliesTo": [
+			"bpmn:ServiceTask"
+		],
+		"properties": [
+			{
+				"label": "Command",
+				"type": "Text",
+				"binding": {
+					"type": "camunda:field",
+					"name": "cmdLine",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Working Directory",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "workingDir",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Success Value(s)",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "successExitValues",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Throw BpmnError on Failure?",
+				"type": "Dropdown",
+				"value": "true",
+				"choices": [
+					{ "name": "True", "value": "true" },
+					{ "name": "False", "value": "false" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "throwOnFailures",
+					"expression": true
+				}
+			},
+			{
+				"label": "Exit Event Map",
+				"type": "Text",
+				"binding": {
+					"type": "camunda:field",
+					"name": "exitCodeEvents",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true,
+					"pattern": {
+						"value": "(^([^,]+=[^,]+|[^,]+=[^,]+(,[^,]+=[^,]+)+)$)|(^\\$\\{[a-zA-Z_].*\\}$)",
+						"message": "Must provide comma separated mapping of exit values to event variables.  For example: 0=success,1=error"
+					}
+				}
+			},
+			{
+				"label": "Throw BpmnError on Truncated Variable?",
+				"type": "Dropdown",
+				"value": "false",
+				"choices": [
+					{ "name": "True", "value": "true" },
+					{ "name": "False", "value": "false" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "throwOnTruncatedVariable",
+					"expression": true
+				}
+			},
+			{
+				"label": "Pre-condition",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "preCondition",
+					"expression": true
+				}
+			},
+			{
+				"label": "On Pre-condition Fail",
+				"type": "Dropdown",
+				"value": "ABORT_PROCESS",
+				"choices": [
+					{ "name": "ABORT_PROCESS", "value": "ABORT_PROCESS" },
+					{ "name": "SKIP_TASK", "value": "SKIP_TASK" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "onPreConditionFail",
+					"expression": true
+				}
+			},
+			{
+				"label": "Timeout (in seconds)",
+				"type": "String",
+				"value": "86400",
+				"binding": {
+					"type": "camunda:field",
+					"name": "timeout",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true,
+					"pattern": {
+					  "value": "(^[1-9][0-9]*$)|(^\\$\\{[a-zA-Z_].*\\}$)",
+					  "message": "Must provide a timeout duration, in seconds, allowed for the command to run before retrying." 
+					}
+				}
+			},
+			{
+				"label": "Retries",
+				"type": "String",
+				"value": "0",
+				"binding": {
+					"type": "camunda:field",
+					"name": "retries",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true,
+					"pattern": {
+					  "value": "(^[0-9][0-9]*$)|(^\\$\\{[a-zA-Z_].*\\}$)",
+					  "message": "Must provide the maximum number of retries to run the command, if it fails or times out." 
+					}
+				}
+			},
+			{
+				"label": "Retry Delay (in milliseconds)",
+				"type": "String",
+				"value": "1000",
+				"binding": {
+					"type": "camunda:field",
+					"name": "retryDelay",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true,
+					"pattern": {
+					  "value": "(^[0-9][0-9]*$)|(^\\$\\{[a-zA-Z_].*\\}$)",
+					  "message": "Must provide the duration, in milliseconds, to wait before retrying." 
+					}
+				}
+			},
+			{
+				"label": "Implementation",
+				"type": "Hidden",
+				"value": "external",
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:type"
+				}
+			},
+			{
+				"label": "Topic",
+				"type": "Hidden",
+				"value": "__CWS_CMD_TOPIC__",
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:topic"
+				}
+			}
+		],
+		"entriesVisible": {
+			"_all": true,
+			"implementation": false,
+			"externalTopic": false
+		}
+	},
+	{
+		"name": "Blow Up",
+		"id": "jpl.cws.task.BlowUpTask",
+		"appliesTo": [
+			"bpmn:ServiceTask"
+		],
+		"properties": [
+			{
+				"label": "Implementation Type",
+				"type": "Hidden",
+				"value": "jpl.cws.task.BlowUpTask",
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:class"
+				}
+			},
+			{
+				"label": "Implementation",
+				"type": "Hidden",
+				"value": null,
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:type"
+				}
+			}
+		],
+		"entriesVisible": {
+			"_all": true,
+			"implementation": false
+		}
+	},
+	{
+		"name": "Schedule Process",
+		"id": "jpl.cws.task.ScheduleProcTask",
+		"appliesTo": [
+			"bpmn:ServiceTask"
+		],
+		"properties": [
+			{
+				"label": "Implementation Type",
+				"type": "Hidden",
+				"value": "jpl.cws.task.ScheduleProcTask",
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:class"
+				}
+			},
+			{
+				"label": "Proc Def Key",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "procDefKeyExpr",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Process Variables",
+				"type": "Text",
+				"binding": {
+					"type": "camunda:field",
+					"name": "procVariablesExpr",
+					"expression": true
+				},
+				"constraints": {
+					"pattern": {
+						"value": "(^([^,]+=[^,]+|[^,]+=[^,]+(,[^,]+=[^,]+)+)$)|(^\\$\\{[a-zA-Z_].*\\}$)",
+						"message": "Must provide comma separated mapping variables.  For example: food=pizza,level=1" 
+					}
+				}
+				
+			},
+			{
+				"label": "Process Business Key",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "procBusinessKeyExpr",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Initiation Key",
+				"type": "String",
+				"value": "process instance: ${execution.processInstanceId}",
+				"binding": {
+					"type": "camunda:field",
+					"name": "initiationKeyExpr",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Priority",
+				"type": "String",
+				"value": "10",
+				"binding": {
+					"type": "camunda:field",
+					"name": "priorityExpr",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true,
+					"mandatory": true,
+					"min": 0,
+					"max": 2147483647,
+					"pattern": {
+						"value": "(^[0-9]+\\d*$)|(^\\$\\{[a-zA-Z_].*\\}$)",
+						"message": "Must be a positive integer."
+					}
+				}
+			},
+			{
+				"label": "Pre-condition",
+				"type": "String",
+				"value": "none",
+				"binding": {
+					"type": "camunda:field",
+					"name": "preCondition",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": false
+				}
+			},
+			{
+				"label": "On Pre-condition Fail",
+				"type": "Dropdown",
+				"value": "ABORT_PROCESS",
+				"choices": [
+					{ "name": "ABORT_PROCESS", "value": "ABORT_PROCESS" },
+					{ "name": "SKIP_TASK", "value": "SKIP_TASK" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "onPreConditionFail",
+					"expression": true
+				}
+			},
+			{
+				"label": "Implementation",
+				"type": "Hidden",
+				"value": null,
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:type"
+				}
+			}
+		],
+		"entriesVisible": {
+			"_all": true,
+			"implementation": false
+		}
+	},
+	{
+		"name": "Log Message",
+		"id": "jpl.cws.task.LogTask",
+		"appliesTo": [
+			"bpmn:ServiceTask"
+		],
+		"properties": [
+			{
+				"label": "Implementation Type",
+				"type": "Hidden",
+				"value": "jpl.cws.task.LogTask",
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:class"
+				}
+			},
+			{
+				"label": "Message",
+				"type": "Text",
+				"binding": {
+					"type": "camunda:field",
+					"name": "message",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Pre-condition",
+				"type": "String",
+				"value": "none",
+				"binding": {
+					"type": "camunda:field",
+					"name": "preCondition",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": false
+				}
+			},
+			{
+				"label": "On Pre-condition Fail",
+				"type": "Dropdown",
+				"value": "ABORT_PROCESS",
+				"choices": [
+					{ "name": "ABORT_PROCESS", "value": "ABORT_PROCESS" },
+					{ "name": "SKIP_TASK", "value": "SKIP_TASK" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "onPreConditionFail",
+					"expression": true
+				}
+			},
+			{
+				"label": "Implementation",
+				"type": "Hidden",
+				"value": null,
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:type"
+				}
+			}
+		],
+		"entriesVisible": {
+			"_all": true,
+			"implementation": false
+		}
+	},
+	{
+		"name": "Send Email",
+		"id": "jpl.cws.task.EmailTask",
+		"appliesTo": [
+			"bpmn:ServiceTask"
+		],
+		"properties": [
+			{
+				"label": "Implementation Type",
+				"type": "Hidden",
+				"value": "jpl.cws.task.EmailTask",
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:class"
+				}
+			},
+			{
+				"label": "From",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "from",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "To",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "to",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Subject",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "subject",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Body Type",
+				"type": "Dropdown",
+				"value": "html",
+				"choices": [
+					{ "name": "Html", "value": "html" },
+					{ "name": "Plain text", "value": "plain text" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "bodyType",
+					"expression": true
+				}
+			},
+			{
+				"label": "Message",
+				"type": "Text",
+				"binding": {
+					"type": "camunda:field",
+					"name": "body",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "SMTP Hostname",
+				"type": "String",
+				"value": "smtp.locahost",
+				"binding": {
+					"type": "camunda:field",
+					"name": "smtpHost",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "SMTP Port",
+				"type": "String",
+				"value": "25",
+				"binding": {
+					"type": "camunda:field",
+					"name": "smtpPort",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Pre-condition",
+				"type": "String",
+				"value": "none",
+				"binding": {
+					"type": "camunda:field",
+					"name": "preCondition",
+					"expression": true
+				}
+			},
+			{
+				"label": "On Pre-condition Fail",
+				"type": "Dropdown",
+				"value": "ABORT_PROCESS",
+				"choices": [
+					{ "name": "ABORT_PROCESS", "value": "ABORT_PROCESS" },
+					{ "name": "SKIP_TASK", "value": "SKIP_TASK" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "onPreConditionFail",
+					"expression": true
+				}
+			},
+			{
+				"label": "Implementation",
+				"type": "Hidden",
+				"value": null,
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:type"
+				}
+			}
+		],
+		"entriesVisible": {
+			"_all": true,
+			"implementation": false
+		}
+	},
+	{
+		"name": "Sleep",
+		"id": "jpl.cws.task.SleepTask",
+		"appliesTo": [
+			"bpmn:ServiceTask"
+		],
+		"properties": [
+			{
+				"label": "Implementation Type",
+				"type": "Hidden",
+				"value": "jpl.cws.task.SleepTask",
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:class"
+				}
+			},
+			{
+				"label": "Duration (ms)",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "duration",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "# of Logs",
+				"type": "String",
+				"value": "5",
+				"binding": {
+					"type": "camunda:field",
+					"name": "numLogs",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Pre-condition",
+				"type": "String",
+				"value": "none",
+				"binding": {
+					"type": "camunda:field",
+					"name": "preCondition",
+					"expression": true
+				}
+			},
+			{
+				"label": "On Pre-condition Fail",
+				"type": "Dropdown",
+				"value": "ABORT_PROCESS",
+				"choices": [
+					{ "name": "ABORT_PROCESS", "value": "ABORT_PROCESS" },
+					{ "name": "SKIP_TASK", "value": "SKIP_TASK" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "onPreConditionFail",
+					"expression": true
+				}
+			},
+			{
+				"label": "Implementation",
+				"type": "Hidden",
+				"value": null,
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:type"
+				}
+			}
+		],
+		"entriesVisible": {
+			"_all": true,
+			"implementation": false
+		}
+	},
+	{
+		"name": "Rest GET",
+		"id": "jpl.cws.task.RestGetTask",
+		"appliesTo": [
+			"bpmn:ServiceTask"
+		],
+		"properties": [
+			{
+				"label": "Implementation Type",
+				"type": "Hidden",
+				"value": "jpl.cws.task.RestGetTask",
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:class"
+				}
+			},
+			{
+				"label": "Url",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "url",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Insecure Request Allowed?",
+				"type": "Dropdown",
+				"value": "false",
+				"choices": [
+					{ "name": "True", "value": "true" },
+					{ "name": "False", "value": "false" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "allowInsecureRequests",
+					"expression": true
+				}
+			},
+			{
+				"label": "Throw Exception on Bad Response?",
+				"type": "Dropdown",
+				"value": "true",
+				"choices": [
+					{ "name": "True", "value": "true" },
+					{ "name": "False", "value": "false" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "throwOnBadResponse",
+					"expression": true
+				}
+			},
+			{
+				"label": "Accept Type",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "acceptType",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "CWS Token File Location",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "cwsTokenFileLocation",
+					"expression": true
+				}
+			},
+			{
+				"label": "Throw BpmnError on Truncated Variable?",
+				"type": "Dropdown",
+				"value": "false",
+				"choices": [
+					{ "name": "True", "value": "true" },
+					{ "name": "False", "value": "false" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "throwOnTruncatedVariable",
+					"expression": true
+				}
+			},
+			{
+				"label": "Pre-condition",
+				"type": "String",
+				"value": "none",
+				"binding": {
+					"type": "camunda:field",
+					"name": "preCondition",
+					"expression": true
+				}
+			},
+			{
+				"label": "On Pre-condition Fail",
+				"type": "Dropdown",
+				"value": "ABORT_PROCESS",
+				"choices": [
+					{ "name": "ABORT_PROCESS", "value": "ABORT_PROCESS" },
+					{ "name": "SKIP_TASK", "value": "SKIP_TASK" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "onPreConditionFail",
+					"expression": true
+				}
+			},
+			{
+				"label": "Implementation",
+				"type": "Hidden",
+				"value": null,
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:type"
+				}
+			}
+		],
+		"entriesVisible": {
+			"_all": true,
+			"implementation": false
+		}
+	},
+	{
+		"name": "Rest POST",
+		"id": "jpl.cws.task.RestPostTask",
+		"appliesTo": [
+			"bpmn:ServiceTask"
+		],
+		"properties": [
+			{
+				"label": "Implementation Type",
+				"type": "Hidden",
+				"value": "jpl.cws.task.RestPostTask",
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:class"
+				}
+			},
+			{
+				"label": "Url",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "url",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Insecure Request Allowed?",
+				"type": "Dropdown",
+				"value": "false",
+				"choices": [
+					{ "name": "True", "value": "true" },
+					{ "name": "False", "value": "false" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "allowInsecureRequests",
+					"expression": true
+				}
+			},
+			{
+				"label": "Throw Exception on Bad Response?",
+				"type": "Dropdown",
+				"value": "true",
+				"choices": [
+					{ "name": "True", "value": "true" },
+					{ "name": "False", "value": "false" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "throwOnBadResponse",
+					"expression": true
+				}
+			},
+			{
+				"label": "Body Data",
+				"type": "Text",
+				"binding": {
+					"type": "camunda:field",
+					"name": "body",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Content Type",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "contentType",
+					"expression": true
+				}
+			},
+			{
+				"label": "CWS Token File Location",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "cwsTokenFileLocation",
+					"expression": true
+				}
+			},
+			{
+				"label": "Throw BpmnError on Truncated Variable?",
+				"type": "Dropdown",
+				"value": "false",
+				"choices": [
+					{ "name": "True", "value": "true" },
+					{ "name": "False", "value": "false" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "throwOnTruncatedVariable",
+					"expression": true
+				}
+			},
+			{
+				"label": "Pre-condition",
+				"type": "String",
+				"value": "none",
+				"binding": {
+					"type": "camunda:field",
+					"name": "preCondition",
+					"expression": true
+				}
+			},
+			{
+				"label": "On Pre-condition Fail",
+				"type": "Dropdown",
+				"value": "ABORT_PROCESS",
+				"choices": [
+					{ "name": "ABORT_PROCESS", "value": "ABORT_PROCESS" },
+					{ "name": "SKIP_TASK", "value": "SKIP_TASK" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "onPreConditionFail",
+					"expression": true
+				}
+			},
+			{
+				"label": "Implementation",
+				"type": "Hidden",
+				"value": null,
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:type"
+				}
+			}
+		],
+		"entriesVisible": {
+			"_all": true,
+			"implementation": false
+		}
+	},
+	{
+		"name": "Set Variables",
+		"id": "jpl.cws.task.SetVariablesTask",
+		"appliesTo": [
+			"bpmn:ServiceTask"
+		],
+		"properties": [
+			{
+				"label": "Implementation Type",
+				"type": "Hidden",
+				"value": "jpl.cws.task.SetVariablesTask",
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:class"
+				}
+			},
+			{
+				"label": "Properties File",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "srcPropertiesFile",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Throw BpmnError on Truncated Variable?",
+				"type": "Dropdown",
+				"value": "false",
+				"choices": [
+					{ "name": "True", "value": "true" },
+					{ "name": "False", "value": "false" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "throwOnTruncatedVariable",
+					"expression": true
+				}
+			},
+			{
+				"label": "Pre-condition",
+				"type": "String",
+				"value": "none",
+				"binding": {
+					"type": "camunda:field",
+					"name": "preCondition",
+					"expression": true
+				}
+			},
+			{
+				"label": "On Pre-condition Fail",
+				"type": "Dropdown",
+				"value": "ABORT_PROCESS",
+				"choices": [
+					{ "name": "ABORT_PROCESS", "value": "ABORT_PROCESS" },
+					{ "name": "SKIP_TASK", "value": "SKIP_TASK" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "onPreConditionFail",
+					"expression": true
+				}
+			},
+			{
+				"label": "Implementation",
+				"type": "Hidden",
+				"value": null,
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:type"
+				}
+			}
+		],
+		"entriesVisible": {
+			"_all": true,
+			"implementation": false
+		}
+	},
+	{
+		"name": "Roll the Dice",
+		"id": "jpl.cws.task.RollTheDiceTask",
+		"appliesTo": [
+			"bpmn:ServiceTask"
+		],
+		"properties": [
+			{
+				"label": "Implementation Type",
+				"type": "Hidden",
+				"value": "jpl.cws.task.RollTheDiceTask",
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:class"
+				}
+			},
+			{
+				"label": "# of Sides",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "numSides",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Pre-condition",
+				"type": "String",
+				"value": "none",
+				"binding": {
+					"type": "camunda:field",
+					"name": "preCondition",
+					"expression": true
+				}
+			},
+			{
+				"label": "On Pre-condition Fail",
+				"type": "Dropdown",
+				"value": "ABORT_PROCESS",
+				"choices": [
+					{ "name": "ABORT_PROCESS", "value": "ABORT_PROCESS" },
+					{ "name": "SKIP_TASK", "value": "SKIP_TASK" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "onPreConditionFail",
+					"expression": true
+				}
+			},
+			{
+				"label": "Implementation",
+				"type": "Hidden",
+				"value": null,
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:type"
+				}
+			}
+		],
+		"entriesVisible": {
+			"_all": true,
+			"implementation": false
+		}
+	},
+	{
+		"name": "Command Line Execution (short-lived)",
+		"id": "jpl.cws.task.CmdLineExecTaskNonExt",
+		"appliesTo": [
+			"bpmn:ServiceTask"
+		],
+		"properties": [
+			{
+				"label": "Implementation Type",
+				"type": "Hidden",
+				"value": "jpl.cws.task.CmdLineExecTask",
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:class"
+				}
+			},
+			{
+				"label": "Command",
+				"type": "Text",
+				"binding": {
+					"type": "camunda:field",
+					"name": "cmdLine",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Working Directory",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "workingDir",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Success Value(s)",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "successExitValues",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Throw BpmnError on Failure?",
+				"type": "Dropdown",
+				"value": "true",
+				"choices": [
+					{ "name": "True", "value": "true" },
+					{ "name": "False", "value": "false" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "throwOnFailures",
+					"expression": true
+				}
+			},
+			{
+				"label": "Exit Event Map",
+				"type": "Text",
+				"value": "0=success",
+				"binding": {
+					"type": "camunda:field",
+					"name": "exitCodeEvents",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true,
+					"pattern": {
+						"value": "(^([^,]+=[^,]+|[^,]+=[^,]+(,[^,]+=[^,]+)+)$)|(^\\$\\{[a-zA-Z_].*\\}$)",
+						"message": "Must provide comma separated mapping of exit values to event variables.  For example: 0=success,1=error"
+					}
+				}
+			},
+			{
+				"label": "Throw BpmnError on Truncated Variable?",
+				"type": "Dropdown",
+				"value": "false",
+				"choices": [
+					{ "name": "True", "value": "true" },
+					{ "name": "False", "value": "false" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "throwOnTruncatedVariable",
+					"expression": true
+				}
+			},
+			{
+				"label": "Pre-condition",
+				"type": "String",
+				"value": "none",
+				"binding": {
+					"type": "camunda:field",
+					"name": "preCondition",
+					"expression": true
+				}
+			},
+			{
+				"label": "On Pre-condition Fail",
+				"type": "Dropdown",
+				"value": "ABORT_PROCESS",
+				"choices": [
+					{ "name": "ABORT_PROCESS", "value": "ABORT_PROCESS" },
+					{ "name": "SKIP_TASK", "value": "SKIP_TASK" }
+				],
+				"binding": {
+					"type": "camunda:field",
+					"name": "onPreConditionFail",
+					"expression": true
+				}
+			},
+			{
+				"label": "Implementation",
+				"type": "Hidden",
+				"value": null,
+				"editable": false,
+				"binding": {
+					"type": "property",
+					"name": "camunda:type"
+				}
+			}
+		],
+		"entriesVisible": {
+			"_all": true,
+			"implementation": false
+		}
+	}
+]

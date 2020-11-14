@@ -1,0 +1,26 @@
+<!-- The following plugin allows you to grant administrator authorizations
+    to an existing LDAP user -->
+<bean id="administratorAuthorizationPlugin" class="org.camunda.bpm.engine.impl.plugin.AdministratorAuthorizationPlugin">
+    <property name="administratorUserName" value="__CWS_LDAP_USER__"/>
+</bean>
+
+<!-- Example config below. Replace with your own LDAP config. 
+The __VALUES__ placeholders will be filled in from config at runtime.
+See: https://docs.camunda.org/manual/latest/user-guide/process-engine/identity-service/#activate-the-ldap-plugin -->
+<bean id="ldapIdentityProviderPlugin" class="__CWS_IDENTITY_PLUGIN_CLASS__">
+    <property name="serverUrl"                   value="__CWS_LDAP_URL__" />
+    <property name="acceptUntrustedCertificates" value="false" />
+    <property name="baseDn"                      value="dc=example,dc=com" />
+    <property name="userSearchBase"              value="ou=Users,dc=example,dc=com" />
+    <property name="userSearchFilter"            value="(|(objectClass=person)(objectClass=user))" />
+    <property name="userIdAttribute"             value="<attribute>" />
+    <property name="userFirstnameAttribute"      value="<firstname>" />
+    <property name="userLastnameAttribute"       value="<lastname>" />
+    <property name="userEmailAttribute"          value="<mail>" />
+    <property name="userPasswordAttribute"       value="<password>" />
+    <property name="groupSearchBase"             value="ou=Users,dc=example,dc=com" />
+    <property name="groupSearchFilter"           value="(|(cn=your.first.group)(cn=your.other.group))" />
+    <property name="groupIdAttribute"            value="<groupIdAttribute>" />
+    <property name="groupNameAttribute"          value="<groupNameAttribute>" />
+    <property name="groupMemberAttribute"        value="<groupMemberAttribute>" />
+</bean>

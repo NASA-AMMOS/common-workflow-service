@@ -1,0 +1,7 @@
+			<plugin>
+				<class>__CWS_IDENTITY_PLUGIN_CLASS__</class>
+				<properties>
+					<!--  add properties here necessary for custom implementation -->
+				</properties>
+			</plugin>
+			

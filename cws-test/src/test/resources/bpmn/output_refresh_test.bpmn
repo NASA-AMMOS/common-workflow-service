@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1jjbges" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.12.0">
+  <bpmn:process id="output_refresh_test" name="Output Refresh Test" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" camunda:asyncBefore="true">
+      <bpmn:outgoing>SequenceFlow_0gipvhj</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0gipvhj" sourceRef="StartEvent_1" targetRef="Task_0iuu41n" />
+    <bpmn:serviceTask id="Task_0iuu41n" name="1 second log" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>1 second log.</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0gipvhj</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0itevrx</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0itevrx" sourceRef="Task_0iuu41n" targetRef="Task_06qkks3" />
+    <bpmn:serviceTask id="Task_06qkks3" name="sleep 5 seconds" camunda:modelerTemplate="jpl.cws.task.SleepTask" camunda:class="jpl.cws.task.SleepTask">
+      <bpmn:extensionElements>
+        <camunda:field name="duration">
+          <camunda:expression>5000</camunda:expression>
+        </camunda:field>
+        <camunda:field name="numLogs">
+          <camunda:expression>5</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0itevrx</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1qy5gqj</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1qy5gqj" sourceRef="Task_06qkks3" targetRef="Task_175vjy5" />
+    <bpmn:serviceTask id="Task_175vjy5" name="5 second log" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>5 second log.</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1qy5gqj</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_124wp2t</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_124wp2t" sourceRef="Task_175vjy5" targetRef="Task_0lf8joy" />
+    <bpmn:serviceTask id="Task_0lf8joy" name="sleep 10 seconds" camunda:modelerTemplate="jpl.cws.task.SleepTask" camunda:class="jpl.cws.task.SleepTask">
+      <bpmn:extensionElements>
+        <camunda:field name="duration">
+          <camunda:expression>10000</camunda:expression>
+        </camunda:field>
+        <camunda:field name="numLogs">
+          <camunda:expression>5</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_124wp2t</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0tj5m3t</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0tj5m3t" sourceRef="Task_0lf8joy" targetRef="Task_1h1xm0j" />
+    <bpmn:serviceTask id="Task_1h1xm0j" name="10 second log" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>10 second log.</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0tj5m3t</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1it885n</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1it885n" sourceRef="Task_1h1xm0j" targetRef="Task_1t1htmo" />
+    <bpmn:serviceTask id="Task_1t1htmo" name="sleep 2 seconds" camunda:modelerTemplate="jpl.cws.task.SleepTask" camunda:class="jpl.cws.task.SleepTask">
+      <bpmn:extensionElements>
+        <camunda:field name="duration">
+          <camunda:expression>2000</camunda:expression>
+        </camunda:field>
+        <camunda:field name="numLogs">
+          <camunda:expression>5</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1it885n</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0c1qj2m</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_0be31vy">
+      <bpmn:incoming>SequenceFlow_0c1qj2m</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0c1qj2m" sourceRef="Task_1t1htmo" targetRef="EndEvent_0be31vy" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="output_refresh_test">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="173" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0gipvhj_di" bpmnElement="SequenceFlow_0gipvhj">
+        <di:waypoint x="209" y="120" />
+        <di:waypoint x="259" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="234" y="98.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_04587id_di" bpmnElement="Task_0iuu41n">
+        <dc:Bounds x="259" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0itevrx_di" bpmnElement="SequenceFlow_0itevrx">
+        <di:waypoint x="359" y="120" />
+        <di:waypoint x="409" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="384" y="98.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_17q6gqr_di" bpmnElement="Task_06qkks3">
+        <dc:Bounds x="409" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1qy5gqj_di" bpmnElement="SequenceFlow_1qy5gqj">
+        <di:waypoint x="509" y="120" />
+        <di:waypoint x="559" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="534" y="98.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_126wac1_di" bpmnElement="Task_175vjy5">
+        <dc:Bounds x="559" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_124wp2t_di" bpmnElement="SequenceFlow_124wp2t">
+        <di:waypoint x="659" y="120" />
+        <di:waypoint x="709" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="684" y="98.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1thz19b_di" bpmnElement="Task_0lf8joy">
+        <dc:Bounds x="709" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0tj5m3t_di" bpmnElement="SequenceFlow_0tj5m3t">
+        <di:waypoint x="809" y="120" />
+        <di:waypoint x="859" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="834" y="98.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1yc7442_di" bpmnElement="Task_1h1xm0j">
+        <dc:Bounds x="859" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1it885n_di" bpmnElement="SequenceFlow_1it885n">
+        <di:waypoint x="959" y="120" />
+        <di:waypoint x="1009" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="984" y="98.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1vyvtme_di" bpmnElement="Task_1t1htmo">
+        <dc:Bounds x="1009" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0be31vy_di" bpmnElement="EndEvent_0be31vy">
+        <dc:Bounds x="1159" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1177" y="141" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0c1qj2m_di" bpmnElement="SequenceFlow_0c1qj2m">
+        <di:waypoint x="1109" y="120" />
+        <di:waypoint x="1159" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1134" y="98" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

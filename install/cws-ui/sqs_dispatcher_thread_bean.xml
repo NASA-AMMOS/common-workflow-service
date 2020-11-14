@@ -1,0 +1,8 @@
+<!-- SQS Watcher -->
+<bean id="SQSDispatcherThread" class="jpl.cws.process.initiation.aws.SQSDispatcherThread">
+    <property name="dispatcherMap">
+        <map>
+            <!-- WILL BE FILLED IN AT RUNTIME -->
+        </map>
+    </property>
+</bean>

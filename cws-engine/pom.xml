@@ -1,0 +1,45 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
+		<artifactId>common-workflow-service</artifactId>
+		<version>2.0</version><!-- update this each CWS release -->
+	</parent>
+	<artifactId>cws-engine</artifactId>
+
+	<packaging>war</packaging>
+
+	<profiles>
+		<profile>
+			<!--  ============ -->
+			<!--    CWS CORE   -->
+			<!--  ============ -->
+			<id>core</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
+					<artifactId>cws-adaptation-engine</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
+
+
+	<build>
+		<finalName>${project.artifactId}</finalName>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

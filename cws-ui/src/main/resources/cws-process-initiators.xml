@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- 
+	<bean id="s3_1" class="jpl.cws.process.initiation.aws.S3Initiator">
+		<property name="procDefKey"        value="external_pwd" />
+		<property name="s3BucketName"      value="s3-bucket-name" />
+		<property name="partnerFinderImpl" value="jpl.cws.partner.finding.custom.SinglePartnerFinder" />
+		<property name="partnerCollectionPeriod" value="5000" />
+		<property name="s3ObjPatterns">
+			<map>
+				<entry key="input"   value="file.txt"></entry>
+			</map>
+		</property>
+	</bean>
+	-->
+
+	<!-- EXAMPLE RepeatingDelayInitiator -->
+	<bean id="repeat_1" class="jpl.cws.process.initiation.RepeatingDelayInitiator"> 
+		<property name="procDefKey" value="external_pwd" />
+		<property name="delayBetweenProcesses" value="1000" />
+		<property name="maxRepeats" value="1" />
+		<property name="procVariables">
+			<map>
+				<entry key="variable1" value="foo"></entry>
+				<entry key="variable2" value="bar"></entry>
+			</map>
+		</property>
+	</bean>
+	
+	<!-- EXAMPLE FileInitiator with SingleFinder -->
+	<!--
+	<bean id="file_initiator_1" class="jpl.cws.process.initiation.filearrival.nio.FileInitiator">
+		<property name="procDefKey" value="ENTER_YOUR_PROC_DEF_KEY_HERE" />
+		<property name="rootDir"    value="/path/to/root/dir" />
+		<property name="filePatterns">
+			<map>
+				<entry key="inp" value=".*\.txt"></entry>
+			</map>
+		</property>
+		<property name="pollPeriod" value="3" />
+		<property name="partnerFinderImpl" value="jpl.cws.process.initiation.filearrival.nio.SingleFinder" />
+		<property name="procVariables">
+			<map>
+				<entry key="variable1"   value="foo"></entry>
+				<entry key="variable2"   value="bar"></entry>
+			</map>
+		</property>
+	</bean>
+	-->
+	
+	
+	<!-- EXAMPLE FileInitiator with a custom snippets method as partner finder implementation -->
+	<!--
+	<bean id="file_initiator_2" class="jpl.cws.process.initiation.filearrival.nio.FileInitiator">
+		<property name="procDefKey" value="ENTER_YOUR_PROC_DEF_KEY_HERE" />
+		<property name="rootDir"    value="/path/to/root/dir" />
+		<property name="filePatterns">
+			<map>
+				<entry key="foo" value="<pattern>"></entry>
+				<entry key="bar" value="<pattern>"></entry>
+			</map>
+		</property>
+		<property name="pollPeriod" value="3" />
+		<property name="partnerFinderImpl" value="snippets.find_partners" />
+		<property name="procVariables">
+			<map>
+				<entry key="variable1"   value="foo"></entry>
+				<entry key="variable2"   value="bar"></entry>
+			</map>
+		</property>
+	</bean>
+	-->
+	
+	
+	<!-- EXAMPLE MessageArrivalInitiator -->
+	<!--
+	<bean id="msg_initiator" 
+		class="jpl.cws.process.initiation.message.MessageArrivalInitiator">
+		<property name="procDefKey"  value="ENTER_YOUR_PROC_DEF_KEY_HERE" />
+		<property name="regex" value=".*" />
+		<property name="procVariables">
+			<map>
+				<entry key="variable1"   value="foo"></entry>
+				<entry key="variable2"   value="bar"></entry>
+			</map>
+		</property>
+	</bean>
+	-->
+	
+	
+	<!-- EXAMPLE CronInitiator -->
+	<!--
+	<bean id="cron_initiator" class="jpl.cws.process.initiation.cron.CronInitiator">
+		<property name="procDefKey"  value="ENTER_YOUR_PROC_DEF_KEY_HERE" />
+		<property name="cronExpression"  value="ENTER_YOUR_CRON_EXPRESSION_HERE" />
+		<property name="procVariables">
+			<map>
+				<entry key="variable1"   value="foo"></entry>
+				<entry key="variable2"   value="bar"></entry>
+			</map>
+		</property>
+	</bean>
+	-->
+</beans>

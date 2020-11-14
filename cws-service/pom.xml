@@ -1,0 +1,268 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
+		<artifactId>common-workflow-service</artifactId>
+		<version>2.0</version><!-- update this each CWS release -->
+	</parent>
+	<artifactId>cws-service</artifactId>
+
+	<packaging>jar</packaging>
+	<name>cws-service</name>
+	<description>CWS Service Code</description>
+
+	<profiles>
+		<profile>
+			<id>core</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
+					<artifactId>cws-core</artifactId>
+				</dependency>
+
+				<dependency>
+    				<groupId>org.springframework</groupId>
+    				<artifactId>spring-test</artifactId>
+				</dependency>
+
+
+
+				<!-- AWS JAVA API -->
+				<dependency>
+					<groupId>software.amazon.awssdk</groupId>
+					<artifactId>cloudwatch</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>software.amazon.awssdk</groupId>
+					<artifactId>apache-client</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>software.amazon.awssdk</groupId>
+					<artifactId>s3</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>software.amazon.awssdk</groupId>
+					<artifactId>sqs</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>javax.servlet</groupId>
+					<artifactId>javax.servlet-api</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.tuckey</groupId>
+					<artifactId>urlrewritefilter</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.camunda.bpm.identity</groupId>
+					<artifactId>camunda-identity-ldap</artifactId>
+					<exclusions>
+						<exclusion>
+							<artifactId>*</artifactId>
+							<groupId>org.springframework</groupId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+
+				<dependency> <!-- FOR TESTING -->
+					<groupId>org.camunda.bpm.extension</groupId>
+					<artifactId>camunda-bpm-assert</artifactId>
+					<exclusions>
+						<exclusion>
+							<artifactId>*</artifactId>
+							<groupId>org.springframework</groupId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+
+				<dependency>
+					<groupId>org.mybatis</groupId>
+					<artifactId>mybatis</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>joda-time</groupId>
+					<artifactId>joda-time</artifactId>
+				</dependency>
+
+				<!-- LOGGING: [Spring/JCL to log4j], [CWS/slf4j to log4j] -->
+				<dependency>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+					<scope>provided</scope>
+				</dependency>
+
+				<!-- https://mvnrepository.com/artifact/log4j/apache-log4j-extras -->
+				<dependency>
+				    <groupId>log4j</groupId>
+				    <artifactId>apache-log4j-extras</artifactId>
+				</dependency>
+
+				<!-- Freemarker -->
+				<dependency>
+					<groupId>org.freemarker</groupId>
+					<artifactId>freemarker</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>junit</groupId>
+					<artifactId>junit</artifactId>
+				</dependency>
+
+				<!-- Database drivers (MariaDB and MySQL supported) -->
+				<dependency>
+					<groupId>org.mariadb.jdbc</groupId>
+					<artifactId>mariadb-java-client</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>mysql</groupId>
+					<artifactId>mysql-connector-java</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>commons-fileupload</groupId>
+					<artifactId>commons-fileupload</artifactId>
+				</dependency>
+
+				<!-- ACTIVEMQ DEPENDENCIES: http://activemq.apache.org/initial-configuration.html#InitialConfiguration-RequiredJARs -->
+				<dependency>
+					<groupId>org.apache.activemq</groupId>
+					<artifactId>activemq-broker</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.activemq</groupId>
+					<artifactId>activemq-client</artifactId>
+					<exclusions>
+						<exclusion>
+							<groupId>org.slf4j</groupId>
+							<artifactId>slf4j-api</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.activemq</groupId>
+					<artifactId>activeio-core</artifactId>
+					<exclusions>
+						<exclusion>
+							<groupId>log4j</groupId>
+							<artifactId>log4j</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.activemq</groupId>
+					<artifactId>activemq-kahadb-store</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.activemq</groupId>
+					<artifactId>activemq-spring</artifactId>
+					<exclusions>
+						<exclusion>
+							<groupId>org.slf4j</groupId>
+							<artifactId>slf4j-api</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-jms_1.1_spec</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-jta_1.0.1B_spec</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-jacc_1.1_spec</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>com.google.code.gson</groupId>
+					<artifactId>gson</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-exec</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.xbean</groupId>
+					<artifactId>xbean-spring</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-context-support</artifactId>
+				</dependency>
+
+				<!-- Needed for in-memory tests -->
+				<dependency>
+					<groupId>com.h2database</groupId>
+					<artifactId>h2</artifactId>
+				</dependency>
+
+				<dependency>
+					<groupId>org.quartz-scheduler</groupId>
+					<artifactId>quartz</artifactId>
+					<exclusions>
+						<exclusion>
+							<groupId>org.slf4j</groupId>
+							<artifactId>slf4j-api</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+
+				<dependency>
+					<groupId>org.quartz-scheduler</groupId>
+					<artifactId>quartz-jobs</artifactId>
+				</dependency>
+
+				<!-- Needed for XML comparison -->
+				<dependency>
+					<groupId>org.xmlunit</groupId>
+					<artifactId>xmlunit-core</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
+
+
+	<build>
+		<finalName>${project.artifactId}</finalName>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

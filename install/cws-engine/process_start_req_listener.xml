@@ -1,0 +1,21 @@
+	<!-- PROCESS START REQUEST LISTENER -->
+	<bean id="processStartReqTopic" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg value="processStartReqTopic" />
+	</bean>
+	<bean id="procStartReqListener" class="jpl.cws.engine.listener.ProcessStartRequestListener" />
+	<bean id="jmsContainer1"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory"      ref="cachingConnectionFactory" />
+		<property name="destination"            ref="processStartReqTopic" />
+		<property name="messageListener"        ref="procStartReqListener" />
+		<property name="sessionTransacted"      value="true" />
+		<property name="concurrentConsumers"    value="1" />
+		<property name="maxConcurrentConsumers" value="1" />
+	</bean>
+	<!-- JMS Template, USED TO RE-POST PROCESS MESSAGES THAT FAILED TO START -->
+	<bean id="processStartReqTopicJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<constructor-arg ref="cachingConnectionFactory" />
+		<property name="defaultDestination">
+			<ref bean="processStartReqTopic" />
+		</property>
+	</bean>

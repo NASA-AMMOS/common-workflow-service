@@ -1,0 +1,89 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Login</title>
+	<script src="/${base}/js/jquery.min.js"></script>
+	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
+	<!-- Custom styles for this template -->
+	<link href="/${base}/css/dashboard.css" rel="stylesheet">
+	<script>
+		$( document ).ready(function() {
+			// 
+			if ($("#message:contains('ERROR:')").length >= 1) {
+				$("#message").css( "color", "red" );
+			}
+			else {
+				$("#message").css( "color", "green" );
+				if ($('#message').html().length > 9) {
+					$('#message').fadeOut(5000, "linear");
+				}
+			}
+			
+		});
+	
+	</script>
+	
+	<!-- Just for debugging purposes. Don't actually copy this line! -->
+	<!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+		<script src="/${base}/js/html5shiv.js"></script>
+		<script src="/${base}/js/respond.min.js"></script>
+	<![endif]-->
+</head>
+
+<body>
+
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="#">__CWS_BRAND_HEADER__</a>
+		</div>
+		<div class="navbar-collapse collapse">
+		</div>
+	</div>
+</div>
+
+<div class="container">
+		
+		<div id="login-form" class="col-md-6 col-md-push-3 col-sm-12">
+			<h2 id="message">${msg}</h2>
+			
+			<form action="/${base}/logintotarget" method="POST">
+				<label for="username">
+				Username:
+				</label>
+				<input class="form-control" type="text" name="username" id="username" autofocus/><br/>
+				
+				<label for="password" >Password:</label> 
+				<input type="password" class="form-control" name="password" id="password" /><br/>
+				<input class="btn btn-primary pull-right" type="submit" id="submit" value="Submit" />
+				<#if RequestParameters.target??>
+					<input type="hidden" id="targetPage" name="targetPage" value="${RequestParameters.target}" />
+				<#elseif cwsProjectWebappRoot??>
+					<input type="hidden" id="targetPage" name="targetPage" value="/${cwsProjectWebappRoot}" />
+				<#else>
+					<input type="hidden" id="targetPage" name="targetPage" value="/${base}/home" />
+				</#if>
+			</form>
+			<span class="text-muted"></span>
+		</div>
+
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="/${base}/js/bootstrap.min.js"></script>
+<script src="/${base}/js/docs.min.js"></script>
+
+</body>
+</html>

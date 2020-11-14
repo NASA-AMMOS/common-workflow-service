@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1jja5zi" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.2.3">
+  <bpmn:process id="message_passing_example_parent" name="Message Passing Example - Parent" isExecutable="true">
+    <bpmn:startEvent id="Message_Parent_Start" name="Start" camunda:asyncBefore="true">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="FormField_1vrbqhm" label="counter" type="long" defaultValue="0" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>SequenceFlow_1ddn7y7</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="Parent_Send_1000_Messages" name="Send 1000 Messages" scriptFormat="groovy">
+      <bpmn:incoming>SequenceFlow_10225tq</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_167uopy</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics camunda:asyncAfter="true">
+        <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">1000</bpmn:loopCardinality>
+      </bpmn:multiInstanceLoopCharacteristics>
+      <bpmn:script>import org.camunda.bpm.BpmPlatform;
+import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.RuntimeService;
+
+ProcessEngine processEngine = BpmPlatform.getDefaultProcessEngine();
+processEngine.getRuntimeService().startProcessInstanceByMessage("Start_Task");</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:intermediateCatchEvent id="Parent_Wait_For_Count_Finished" name="Count finished">
+      <bpmn:incoming>SequenceFlow_167uopy</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_05douib</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_01etkf3" messageRef="Message_1e6j6jg" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="Message_Parent_End" name="End">
+      <bpmn:incoming>SequenceFlow_05douib</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1ddn7y7" sourceRef="Message_Parent_Start" targetRef="Parent_Set_Variables" />
+    <bpmn:sequenceFlow id="SequenceFlow_167uopy" sourceRef="Parent_Send_1000_Messages" targetRef="Parent_Wait_For_Count_Finished" />
+    <bpmn:subProcess id="Task_1impxvz" camunda:asyncBefore="true" triggeredByEvent="true">
+      <bpmn:exclusiveGateway id="ExclusiveGateway_1qfi6sd">
+        <bpmn:incoming>SequenceFlow_100t8d3</bpmn:incoming>
+        <bpmn:outgoing>SequenceFlow_04grcqz</bpmn:outgoing>
+        <bpmn:outgoing>SequenceFlow_0ncf537</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:endEvent id="Message_Parent_Sub_End" name="End">
+        <bpmn:incoming>SequenceFlow_0ncf537</bpmn:incoming>
+        <bpmn:incoming>SequenceFlow_1fbgkez</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:scriptTask id="Parent_Sub_Increment_Count" name="Increment Count" scriptFormat="javascript">
+        <bpmn:incoming>SequenceFlow_07orn3j</bpmn:incoming>
+        <bpmn:outgoing>SequenceFlow_100t8d3</bpmn:outgoing>
+        <bpmn:script>execution.setVariable("counter", execution.getVariable("counter") + 1);</bpmn:script>
+      </bpmn:scriptTask>
+      <bpmn:sequenceFlow id="SequenceFlow_100t8d3" sourceRef="Parent_Sub_Increment_Count" targetRef="ExclusiveGateway_1qfi6sd" />
+      <bpmn:sequenceFlow id="SequenceFlow_04grcqz" name="Yes" sourceRef="ExclusiveGateway_1qfi6sd" targetRef="Parent_Sub_Send_Count_Finished">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${counter &gt;= 1000}</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="SequenceFlow_07orn3j" sourceRef="Message_Parent_Sub_Start" targetRef="Parent_Sub_Increment_Count" />
+      <bpmn:sequenceFlow id="SequenceFlow_0ncf537" name="No" sourceRef="ExclusiveGateway_1qfi6sd" targetRef="Message_Parent_Sub_End">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${counter &lt; 1000}</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:startEvent id="Message_Parent_Sub_Start" name="Receive Child Finished" camunda:asyncBefore="true" camunda:exclusive="false" isInterrupting="false">
+        <bpmn:outgoing>SequenceFlow_07orn3j</bpmn:outgoing>
+        <bpmn:messageEventDefinition id="MessageEventDefinition_1gfonil" messageRef="Message_0okk40f" />
+      </bpmn:startEvent>
+      <bpmn:sequenceFlow id="SequenceFlow_1fbgkez" sourceRef="Parent_Sub_Send_Count_Finished" targetRef="Message_Parent_Sub_End" />
+      <bpmn:scriptTask id="Parent_Sub_Send_Count_Finished" name="Send Count Finished" scriptFormat="groovy">
+        <bpmn:incoming>SequenceFlow_04grcqz</bpmn:incoming>
+        <bpmn:outgoing>SequenceFlow_1fbgkez</bpmn:outgoing>
+        <bpmn:script>import org.camunda.bpm.BpmPlatform;
+import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.RuntimeService;
+
+ProcessEngine processEngine = BpmPlatform.getDefaultProcessEngine();
+processEngine.getRuntimeService().correlateMessage("Count_Finished");</bpmn:script>
+      </bpmn:scriptTask>
+    </bpmn:subProcess>
+    <bpmn:sequenceFlow id="SequenceFlow_10225tq" sourceRef="Parent_Set_Variables" targetRef="Parent_Send_1000_Messages" />
+    <bpmn:scriptTask id="Parent_Set_Variables" name="Set counter variable" scriptFormat="javascript">
+      <bpmn:incoming>SequenceFlow_1ddn7y7</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_10225tq</bpmn:outgoing>
+      <bpmn:script>execution.setVariable("counter", 0);</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="SequenceFlow_05douib" sourceRef="Parent_Wait_For_Count_Finished" targetRef="Message_Parent_End" />
+  </bpmn:process>
+  <bpmn:message id="Message_0okk40f" name="Task_Finished" />
+  <bpmn:message id="Message_1e6j6jg" name="Count_Finished" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="message_passing_example_parent">
+      <bpmndi:BPMNShape id="StartEvent_0ehypea_di" bpmnElement="Message_Parent_Start">
+        <dc:Bounds x="47" y="93" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="53" y="136" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScriptTask_1vtee1m_di" bpmnElement="Parent_Send_1000_Messages">
+        <dc:Bounds x="272" y="71" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="IntermediateCatchEvent_1brdtza_di" bpmnElement="Parent_Wait_For_Count_Finished">
+        <dc:Bounds x="425" y="93" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="409" y="136" width="71" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0mj7d6w_di" bpmnElement="Message_Parent_End">
+        <dc:Bounds x="527" y="93" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="535" y="136" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1ddn7y7_di" bpmnElement="SequenceFlow_1ddn7y7">
+        <di:waypoint x="83" y="111" />
+        <di:waypoint x="120" y="111" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_167uopy_di" bpmnElement="SequenceFlow_167uopy">
+        <di:waypoint x="372" y="111" />
+        <di:waypoint x="425" y="111" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ScriptTask_04skf00_di" bpmnElement="Parent_Sub_Increment_Count">
+        <dc:Bounds x="144" y="282" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_1qfi6sd_di" bpmnElement="ExclusiveGateway_1qfi6sd" isMarkerVisible="true">
+        <dc:Bounds x="306" y="297" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0sda4hp_di" bpmnElement="Message_Parent_Sub_End">
+        <dc:Bounds x="607" y="304" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="615" y="347" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_100t8d3_di" bpmnElement="SequenceFlow_100t8d3">
+        <di:waypoint x="244" y="322" />
+        <di:waypoint x="306" y="322" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_04grcqz_di" bpmnElement="SequenceFlow_04grcqz">
+        <di:waypoint x="356" y="322" />
+        <di:waypoint x="429" y="322" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="375.5" y="297" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_07orn3j_di" bpmnElement="SequenceFlow_07orn3j">
+        <di:waypoint x="86" y="322" />
+        <di:waypoint x="144" y="322" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0ncf537_di" bpmnElement="SequenceFlow_0ncf537">
+        <di:waypoint x="331" y="297" />
+        <di:waypoint x="331" y="250" />
+        <di:waypoint x="625" y="250" />
+        <di:waypoint x="625" y="304" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="471" y="232" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="SubProcess_1g775z0_di" bpmnElement="Task_1impxvz" isExpanded="true">
+        <dc:Bounds x="6" y="204" width="674" height="214" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_1dbs1gu_di" bpmnElement="Message_Parent_Sub_Start">
+        <dc:Bounds x="50" y="304" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="34" y="347" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1fbgkez_di" bpmnElement="SequenceFlow_1fbgkez">
+        <di:waypoint x="529" y="322" />
+        <di:waypoint x="607" y="322" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ScriptTask_0v5u63c_di" bpmnElement="Parent_Sub_Send_Count_Finished">
+        <dc:Bounds x="429" y="282" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_10225tq_di" bpmnElement="SequenceFlow_10225tq">
+        <di:waypoint x="220" y="111" />
+        <di:waypoint x="272" y="111" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ScriptTask_1gmslrl_di" bpmnElement="Parent_Set_Variables">
+        <dc:Bounds x="120" y="71" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_05douib_di" bpmnElement="SequenceFlow_05douib">
+        <di:waypoint x="461" y="111" />
+        <di:waypoint x="527" y="111" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

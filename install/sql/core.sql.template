@@ -1,0 +1,107 @@
+CREATE TABLE IF NOT EXISTS `cws_worker` (
+	`id` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+	`lock_owner` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+	`name` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+	`install_directory` varchar(1000) COLLATE utf8_bin DEFAULT NULL,
+	`cws_install_type` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+	`cws_worker_type` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+	`status` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+	`job_executor_max_pool_size` int(11) DEFAULT NULL,
+	`active_count` int(11) DEFAULT NULL,
+	`created_time` datetime DEFAULT NULL,
+	`last_heartbeat_time` datetime NOT NULL,
+	`disk_free_bytes` bigint DEFAULT NULL,
+	PRIMARY KEY (`id`, `name`),
+	UNIQUE KEY (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
+CREATE TABLE IF NOT EXISTS `cws_external_worker` (
+	`id` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+	`name` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+	`hostname` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+	`activeTopics` varchar(2000) COLLATE utf8_bin DEFAULT NULL,
+	`currentTopic` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+	`currentCommand` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+	`currentWorkingDir` varchar(1000) COLLATE utf8_bin DEFAULT NULL,
+	`created_time` datetime DEFAULT NULL,
+	`last_heartbeat_time` datetime NOT NULL,
+	PRIMARY KEY (`id`, `name`),
+	UNIQUE KEY (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
+CREATE TABLE IF NOT EXISTS `cws_log_usage` (
+	`worker_id` varchar(255) COLLATE utf8_bin NOT NULL,
+	`filename` varchar(255) COLLATE utf8_bin NOT NULL,
+	`size_bytes` bigint NOT NULL,
+	PRIMARY KEY (`worker_id`, `filename`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
+--  In Camunda 7.7 they got rid of KEY_ as a unique key, and therefore we can't create a foreign key on it anymore.
+--  CONSTRAINT `FK_ACT_RE_PROCDEF` FOREIGN KEY (`proc_def_key`) REFERENCES `ACT_RE_PROCDEF` (`KEY_`),
+CREATE TABLE IF NOT EXISTS `cws_worker_proc_def` (
+	`worker_id` varchar(255) COLLATE utf8_bin NOT NULL,
+	`proc_def_key` varchar(255) COLLATE utf8_bin NOT NULL,
+	`max_instances` int(11) DEFAULT NULL,
+	`deployment_id` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+	`accepting_new` TINYINT(1) NOT NULL,
+	PRIMARY KEY (`worker_id`,`proc_def_key`),
+	KEY `FK_ACT_RE_PROCDEF` (`proc_def_key`),
+	CONSTRAINT `FK_cws_worker` FOREIGN KEY (`worker_id`) REFERENCES `cws_worker` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
+CREATE TABLE IF NOT EXISTS `cws_code` (
+	`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+	`code` text NOT NULL,
+	PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+INSERT INTO cws_code (code)
+VALUES (
+'
+__CUSTOM_METHODS_JAVA__
+'
+);
+
+CREATE TABLE IF NOT EXISTS `cws_code_inprogress` (
+	`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+	`code` text NOT NULL,
+	PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
+CREATE TABLE IF NOT EXISTS `cws_sched_worker_proc_inst` (
+	`uuid` varchar(36) NOT NULL DEFAULT '',
+	`created_time` datetime NOT NULL,
+	`updated_time` datetime NOT NULL,
+	`proc_inst_id` varchar(255) DEFAULT NULL,
+	`proc_def_key` varchar(64) NOT NULL DEFAULT '',
+	`proc_business_key` varchar(64) NOT NULL DEFAULT '',
+	`priority` int(11) DEFAULT NULL,
+	`proc_variables` blob,
+	`status` varchar(32) NOT NULL DEFAULT '',
+	`error_message` varchar(4000) DEFAULT NULL,
+	`initiation_key` varchar(2000) DEFAULT NULL,
+	`claimed_by_worker` varchar(255) DEFAULT NULL,
+	`started_by_worker` varchar(255) DEFAULT NULL,
+	`last_rejection_worker` varchar(255) DEFAULT NULL,
+	`num_worker_attempts` int(11) DEFAULT NULL,
+	`claim_uuid` varchar(36) DEFAULT NULL,
+	PRIMARY KEY (`uuid`),
+	KEY `uuid` (`uuid`,`status`),
+	KEY `nothing_selected_order_by` (`proc_inst_id`, `created_time`),
+	KEY `proc_inst_id` (`proc_inst_id`),
+	KEY `claim_uuid` (`claim_uuid`),
+	KEY `claimKey` (`status`,`proc_def_key`,`priority`,`created_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE IF NOT EXISTS `cws_token` (
+	`token` varchar(255) NOT NULL,
+	`username` varchar(36) NOT NULL,
+	`expiration_time` datetime NOT NULL,
+	PRIMARY KEY (`token`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;

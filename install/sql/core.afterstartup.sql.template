@@ -1,0 +1,74 @@
+-- CWS PROCESS STATUS SUPPORT
+
+CREATE TABLE IF NOT EXISTS `cws_proc_inst_status` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `proc_inst_id` VARCHAR(255) NOT NULL,
+  `super_proc_inst_id` VARCHAR(255) NULL,
+  `proc_def_key` VARCHAR(255) NOT NULL,
+  `business_key` VARCHAR(255) NULL,
+  `status` VARCHAR(45) NOT NULL,
+  `start_time` DATETIME(3) NOT NULL,
+  `end_time` DATETIME(3) NULL,
+  PRIMARY KEY (`id`),
+  INDEX `IDX_PROC_INST_ID` (`proc_inst_id` ASC),
+  INDEX `IDX_STATUS` (`status` ASC),
+  INDEX `IDX_PROC_DEF_KEY_STATUS` (`proc_def_key` ASC, `status` ASC),
+  INDEX `IDX_DATE_RANGE` USING BTREE (`proc_inst_id`, `start_time`, `end_time`),
+  INDEX `IDX_BUSINESS_KEY_STATUS` USING BTREE (`business_key`,`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Create status row when process instance is run
+CREATE TRIGGER IF NOT EXISTS new_proc_inst AFTER INSERT ON ACT_HI_PROCINST
+FOR EACH ROW
+	INSERT INTO cws_proc_inst_status (status, proc_inst_id, super_proc_inst_id, proc_def_key, business_key, start_time)
+    VALUES ('running', NEW.PROC_INST_ID_, NEW.SUPER_PROCESS_INSTANCE_ID_, NEW.PROC_DEF_KEY_, NEW.BUSINESS_KEY_, NEW.START_TIME_);
+
+-- Delete status row when process instance is deleted
+CREATE TRIGGER IF NOT EXISTS proc_deleted AFTER DELETE ON ACT_HI_PROCINST
+FOR EACH ROW
+	DELETE FROM cws_proc_inst_status
+    WHERE proc_inst_id = OLD.PROC_INST_ID_;
+
+-- Change status to 'incident' when an incident occurs
+CREATE TRIGGER IF NOT EXISTS new_incident AFTER INSERT ON ACT_RU_INCIDENT
+FOR EACH ROW
+	UPDATE cws_proc_inst_status
+	SET status = 'incident'
+	WHERE proc_inst_id = NEW.PROC_INST_ID_;
+
+-- Change status back to 'running' when an incident is deleted
+CREATE TRIGGER IF NOT EXISTS incident_resolved AFTER DELETE ON ACT_RU_INCIDENT
+FOR EACH ROW
+	UPDATE cws_proc_inst_status
+    SET status = 'running'
+    WHERE proc_inst_id = OLD.PROC_INST_ID_;
+
+-- When a process instance is finished, mark it as failed / completed
+DELIMITER ///
+
+CREATE TRIGGER IF NOT EXISTS proc_inst_changed AFTER UPDATE ON ACT_HI_PROCINST
+    FOR EACH ROW
+    BEGIN
+        IF NEW.END_TIME_ IS NOT NULL THEN
+			UPDATE cws_proc_inst_status
+            SET status =
+				CASE WHEN
+                (
+					SELECT EXISTS
+						(
+							SELECT *
+							FROM ACT_HI_PROCINST PI
+							LEFT JOIN ACT_HI_ACTINST AI
+							ON PI.PROC_INST_ID_ = AI.PARENT_ACT_INST_ID_
+							WHERE (PI.END_TIME_ IS NOT NULL AND AI.ACT_TYPE_ IN ('noneEndEvent' , 'endEvent', 'escalationEndEvent', 'compensationEndEvent', 'signalEndEvent', 'terminateEndEvent'))
+							AND PI.PROC_INST_ID_ = NEW.PROC_INST_ID_
+						)
+				)
+                THEN 'complete'
+				ELSE 'fail'
+                END,
+                end_time = NEW.END_TIME_
+            WHERE proc_inst_id = NEW.PROC_INST_ID_;
+        END IF;
+    END;
+///
