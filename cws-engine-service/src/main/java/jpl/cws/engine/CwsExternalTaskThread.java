@@ -152,6 +152,10 @@ public class CwsExternalTaskThread extends Thread  {
 			fieldName = null;
 
 			executionId = task.getExecutionId();
+			if (executionId == null) {
+				log.error("executionId for task: " + task + " was null! Possible instance of https://jira.camunda.com/browse/CAM-10750. " +
+						"This hopefully will be fixed in Camunda 7.14");
+			}
 
 			if (task.getVariables().containsKey(activityId + "_cwsError")) {
 
