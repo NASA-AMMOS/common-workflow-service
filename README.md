@@ -17,10 +17,12 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
   - Mariadb or mysql database set up on either your local machine or a remote host. You will also need to create the following:
     - A database for CWS to use. `cws` is a good default.
     - A database user with full access to the above database.
-  - ITerm2: Currently these build scripts include commands to open new terminal windows using ITerm2, so they are best run from that terminal.
-  - Logstash: You will need to place the logstash 6.4.2 zip in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/past-releases/logstash-6-4-2).
-
-> **Note:** You will need to add your own Tomcat keystore and truststore to the `install/` directory for the CWS web console to work properly. See https://tomcat.apache.org/tomcat-9.0-doc/ssl-howto.html.
+  - [ITerm2](https://iterm2.com/): Currently these build scripts include commands to open new terminal windows using ITerm2, so they are best run from that terminal.
+  - **Logstash**: You will need to place the logstash 6.4.2 zip in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/past-releases/logstash-6-4-2).
+  - Tomcat **keystore and truststore files** (needed for CWS web console to work properly):
+    - You will need to add your own Tomcat keystore file to the `install/` direcotory
+    - You will need to add your own truststor file to the `install/tomcat_lib/` directory
+    - See: https://tomcat.apache.org/tomcat-9.0-doc/ssl-howto.html
 
 ## Building CWS
 
