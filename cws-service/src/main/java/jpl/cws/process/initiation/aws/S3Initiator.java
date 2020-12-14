@@ -403,10 +403,9 @@ public class S3Initiator extends CwsProcessInitiator implements InitializingBean
 	 *              The ETag reflects changes only to the contents of an object,
 	 *              not its metadata
 	 */
-	protected synchronized boolean skipScheduling(Map<String,String> partners)  {
-		S3DataManager s3 = new S3DataManager(aws_default_region);
+	protected synchronized boolean skipScheduling(Map<String,String> partners) throws Exception {
 
-		try {
+		try ( S3DataManager s3 = new S3DataManager(aws_default_region) ) {
 			// Get sorted list of s3ObjKey/etags for all partners
 			List<String> eTagList = new ArrayList<>();
 			for (String s3ObjKey : partners.values()) {
@@ -446,9 +445,6 @@ public class S3Initiator extends CwsProcessInitiator implements InitializingBean
 				}
 				return false;
 			}
-		}
-		finally {
-			s3.close();
 		}
 	}
 

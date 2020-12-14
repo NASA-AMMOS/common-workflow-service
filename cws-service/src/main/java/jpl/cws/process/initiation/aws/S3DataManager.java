@@ -25,7 +25,7 @@ import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 /**
  * @author ghollins, jwood, ztaylor
  */
-public class S3DataManager {
+public class S3DataManager implements AutoCloseable {
 	private static final Logger log = LoggerFactory.getLogger(S3DataManager.class);
 
 	public static final int OLD_SECONDS_BACK_THRESHOLD = 120;
@@ -43,7 +43,8 @@ public class S3DataManager {
 		regionUsed = Region.of(region);
 	}
 
-	public void close() {
+	@Override
+	public void close() throws Exception {
 		if (s3 != null) {
 			s3.close();
 		}
