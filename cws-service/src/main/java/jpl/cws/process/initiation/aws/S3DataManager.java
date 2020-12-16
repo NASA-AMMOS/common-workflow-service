@@ -25,26 +25,32 @@ import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 /**
  * @author ghollins, jwood, ztaylor
  */
-public class S3DataManager {
-		private static final Logger log = LoggerFactory.getLogger(S3DataManager.class);
+public class S3DataManager implements AutoCloseable {
+	private static final Logger log = LoggerFactory.getLogger(S3DataManager.class);
 
-		public static final int OLD_SECONDS_BACK_THRESHOLD = 120;
+	public static final int OLD_SECONDS_BACK_THRESHOLD = 120;
 
-		private Region regionUsed;
+	private Region regionUsed;
 
-		private S3Client s3;
+	private S3Client s3;
 
-		public S3DataManager(String region) {
-			init(region); // sets defaults
+	public S3DataManager(String region) {
+		init(region); // sets defaults
+	}
+
+	public void init(String region) {
+		s3 = S3Client.builder().region(Region.of(region)).build();
+		regionUsed = Region.of(region);
+	}
+
+	@Override
+	public void close() throws Exception {
+		if (s3 != null) {
+			s3.close();
 		}
+	}
 
-		public void init(String region) {
-			s3 = S3Client.builder().region(Region.of(region)).build();
-			regionUsed = Region.of(region);
-		}
-
-
-		public S3Client getClient() {
+	public S3Client getClient() {
 		return s3;
 	}
 	

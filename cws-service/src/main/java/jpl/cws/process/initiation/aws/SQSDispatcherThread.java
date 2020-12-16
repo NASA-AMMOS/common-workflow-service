@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This thread subscribes to an AWS SQS URL, and when a new message arrives,
@@ -56,7 +58,7 @@ public class SQSDispatcherThread extends Thread implements InitializingBean {
 
 	private SqsClient sqs;
 	private long lastClientRefreshTime;
-	private static final int TOKEN_REFRESH_FREQUENCY = 60 * 30 * 1000; // 30 minutes in milliseconds
+	private static final int TOKEN_REFRESH_FREQUENCY = 60 * 10 * 1000; // 10 minutes in milliseconds
 	private static final Integer SQS_CLIENT_WAIT_TIME_SECONDS = 20;
 	private Gson gson;
 
@@ -67,8 +69,19 @@ public class SQSDispatcherThread extends Thread implements InitializingBean {
 	private Map<String,HashSet<String>> dispatcherMap;
 	static final Object dispatcherMapLock = new Object();
 
+	// Maximum number of simultaneous threads that may be dispatched before throttling occurs.
+	//  If this value is met, then the SQS request rate will be throttled by the given amount until the
+	//  system can catch up.
+	//
+	@Value("${aws.sqs.dispatcher.maxThreads}") private Integer maxThreads;
+
+	// number of threads in messageHandlerThreadExecutor running at a given moment
+	private AtomicInteger numberThreads = new AtomicInteger(0);
+
 	private ExecutorService messageDeleterThreadExecutor = Executors.newFixedThreadPool(10);
 	private ExecutorService messageHandlerThreadExecutor = Executors.newFixedThreadPool(20);
+
+	private long avgMsgHandleTimeMillis = 100;
 
 	public SQSDispatcherThread() {
 		log.debug("SQSDispatcherThread ctor...........................................");
@@ -94,6 +107,9 @@ public class SQSDispatcherThread extends Thread implements InitializingBean {
 	    try {
             log.debug("SQSDispatcherThread STARTING...");
             gson = new Gson();
+
+		    // See:  https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/java-dg-jvm-ttl.html
+		    java.security.Security.setProperty("networkaddress.cache.ttl" , "60");
 
 			refreshAwsClient(true);
 
@@ -121,14 +137,23 @@ public class SQSDispatcherThread extends Thread implements InitializingBean {
                 }
 
                 try {
+	                // Will throttle looping if max number of threads has been exceeded
+	                if (numberThreads.get() > maxThreads) {
+		                long actualThrottleMillis = (long)(1.1 * avgMsgHandleTimeMillis) * (numberThreads.get() - maxThreads);
+		                log.warn("Throttling by {} ms ({}/{}) avgMsgHandleTime={}", actualThrottleMillis, numberThreads, maxThreads, avgMsgHandleTimeMillis);
+		                Thread.sleep(actualThrottleMillis);
+		                avgMsgHandleTimeMillis += 10; // backoff
+		                continue;
+	                }
+
                     log.trace("about to receive message...");
                     long t0 = System.currentTimeMillis();
-                    //
-                    // FIXME: This creates a new thread that doesn't get cleaned up!!
-                    //
+                    refreshAwsClient(false);
                     List<Message> messages = sqs.receiveMessage(receiveMessageRequest).messages();
                     long t1 = System.currentTimeMillis();
-                    log.debug("bufferedSqs.receiveMessage (in " + (t1 - t0) + "ms) [" + messages.size() + " messages]");
+	                log.debug("bufferedSqs.receiveMessage (in " + (t1 - t0) + "ms) [" +
+			                messages.size() + " messages, " +
+			                numberThreads.get() + " handlerThreads]");
 
                     if (messages.isEmpty()) {
                         log.trace("GOT " + messages.size() + " MESSAGE(S)");
@@ -140,6 +165,7 @@ public class SQSDispatcherThread extends Thread implements InitializingBean {
                             // For each received message
                             //
                             for (Message msg : messages) {
+	                            numberThreads.incrementAndGet();
 	                            handleMessageOnSeparateThread(msg);
                             }
                         }
@@ -219,6 +245,7 @@ public class SQSDispatcherThread extends Thread implements InitializingBean {
 				} catch (Exception e) {
 					log.error("Unable to parse message as JSON.  Deleting this message from queue, and moving on to next message...", e);
 					deleteMessageFromQueueOnSeparateThread(msg);
+					numberThreads.decrementAndGet();
 					return;
 				}
 
@@ -262,16 +289,23 @@ public class SQSDispatcherThread extends Thread implements InitializingBean {
 					}
 				} catch (Exception e) {
 					log.error("error while processing message", e);
+					numberThreads.decrementAndGet();
 					return;
 				}
 				finally {
 					deleteMessageFromQueueOnSeparateThread(msg);
 				}
 
-
-				if ((System.currentTimeMillis() - d0) > 100) {
-					log.debug("Handled message (in " + (System.currentTimeMillis() - d0) + " ms)");
+				int curThreads = numberThreads.decrementAndGet();
+				long handleDuration = (System.currentTimeMillis() - d0);
+				if (handleDuration > 100) {
+					log.debug("Handled message (in " + (System.currentTimeMillis() - d0) + " ms) " +
+							curThreads + " threads now active)");
 				}
+
+				// keep track of avg message handling duration...
+				if (avgMsgHandleTimeMillis > handleDuration) { avgMsgHandleTimeMillis--; } else { avgMsgHandleTimeMillis++; }
+				if (avgMsgHandleTimeMillis < 30) { avgMsgHandleTimeMillis = 30; } // floor
 			}
 		});
 
@@ -320,19 +354,15 @@ public class SQSDispatcherThread extends Thread implements InitializingBean {
 			lastClientRefreshTime == 0 ||
 			((System.currentTimeMillis() - lastClientRefreshTime) > TOKEN_REFRESH_FREQUENCY)) {
 
-		    log.debug("About to refresh AWS SQS client...");
+			log.debug("About to refresh AWS SQS client...");
+
+			if (sqs != null) {
+				sqs.close();
+			}
 
             sqs = SqsClient.builder()
                     .region(Region.of(aws_default_region))
                     .build();
-
-			// See:  https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/java-dg-jvm-ttl.html
-			log.debug("networkaddress.cache.ttl = " + java.security.Security.getProperty("networkaddress.cache.ttl"));
-			java.security.Security.setProperty("networkaddress.cache.ttl" , "60");
-			log.debug("networkaddress.cache.ttl = " + java.security.Security.getProperty("networkaddress.cache.ttl"));
-
-			// Create the buffered SQS client
-			//bufferedSqs = new AmazonSQSBufferedAsyncClient(sqsAsync);
 
 			lastClientRefreshTime = System.currentTimeMillis(); // update timestamp
 			log.debug("AWS credentials / client refreshed.");

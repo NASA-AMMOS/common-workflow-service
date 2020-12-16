@@ -403,49 +403,48 @@ public class S3Initiator extends CwsProcessInitiator implements InitializingBean
 	 *              The ETag reflects changes only to the contents of an object,
 	 *              not its metadata
 	 */
-	protected synchronized boolean skipScheduling(Map<String,String> partners)  {
-		S3DataManager s3 = new S3DataManager(aws_default_region);
+	protected synchronized boolean skipScheduling(Map<String,String> partners) throws Exception {
 
-		// Get sorted list of s3ObjKey/etags for all partners
-		List<String> eTagList = new ArrayList<>();
-		for (String s3ObjKey : partners.values()) {
-			HeadObjectResponse metaData = s3.getObjectMetadata(s3BucketName, s3ObjKey);
-			if (metaData != null) {
-				eTagList.add(s3ObjKey + metaData.eTag());
+		try ( S3DataManager s3 = new S3DataManager(aws_default_region) ) {
+			// Get sorted list of s3ObjKey/etags for all partners
+			List<String> eTagList = new ArrayList<>();
+			for (String s3ObjKey : partners.values()) {
+				HeadObjectResponse metaData = s3.getObjectMetadata(s3BucketName, s3ObjKey);
+				if (metaData != null) {
+					eTagList.add(s3ObjKey + metaData.eTag());
+				} else {
+					log.warn("Skipping scheduling process for inputs: " + partners +
+							", since they don't all exist for this initiator (" + initiatorId + ")");
+					return true; // not all objects exist, so skip scheduling
+				}
 			}
-			else {
-				log.warn("Skipping scheduling process for inputs: " + partners +
-						", since they don't all exist for this initiator (" + initiatorId + ")");
-				return true; // not all objects exist, so skip scheduling
+
+			// hashCode is different, depending on order, so sort
+			Collections.sort(eTagList);
+
+			// get hashcode
+			int hashCode = (initiatorId + eTagList.toString()).hashCode();
+			if (recentlyProcessedInputs.get(hashCode) != null) {
+				log.info("Skipping scheduling process for inputs: " + partners +
+						", since they have been recently scheduled (" + hashCode + ") for this initiator (" + initiatorId + ") " +
+						"within the last " + DUPLICATE_PREVENTION_PERIOD + " seconds.");
+				return true; // already processed this set of inputs
+			} else {
+				recentlyProcessedInputs.put(hashCode, hashCode);
+				// also add in, for each partner, a hashcode into another (new) TTL map
+				//		Then check this map in other parts of code .
+				//		If none are found in mem in other part of code, then schedule immediately.
+				// this avoids the false positive of "old".
+				// Also, cleanup models , like XYZ to produce new RDR versions...
+				log.debug("added hash code: " + hashCode + ", to recentlyProcessedInputs. " +
+						recentlyProcessedInputs.size() + " (initiatorId = " + initiatorId + ")");
+
+				for (String partner : partners.values()) {
+					hashCode = (initiatorId + partner).hashCode();
+					individualProcessedInputs.put(hashCode, hashCode);
+				}
+				return false;
 			}
-		}
-
-		// hashCode is different, depending on order, so sort
-		Collections.sort(eTagList);
-
-		// get hashcode
-		int hashCode = ( initiatorId + eTagList.toString() ).hashCode();
-		if (recentlyProcessedInputs.get(hashCode) != null) {
-			log.info("Skipping scheduling process for inputs: " + partners +
-				", since they have been recently scheduled (" + hashCode + ") for this initiator (" + initiatorId + ") " +
-				"within the last " + DUPLICATE_PREVENTION_PERIOD + " seconds.");
-			return true; // already processed this set of inputs
-		}
-		else {
-			recentlyProcessedInputs.put(hashCode, hashCode);
-			// also add in, for each partner, a hashcode into another (new) TTL map
-			//		Then check this map in other parts of code .
-			//		If none are found in mem in other part of code, then schedule immediately.
-			// this avoids the false positive of "old".
-			// Also, cleanup models , like XYZ to produce new RDR versions...
-			log.debug("added hash code: " + hashCode + ", to recentlyProcessedInputs. " +
-					recentlyProcessedInputs.size() + " (initiatorId = " + initiatorId + ")");
-
-			for (String partner : partners.values()) {
-				hashCode = (initiatorId + partner).hashCode();
-				individualProcessedInputs.put(hashCode, hashCode);
-			}
-			return false;
 		}
 	}
 
