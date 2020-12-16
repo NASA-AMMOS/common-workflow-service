@@ -609,12 +609,13 @@ public class InitiatorsService implements InitializingBean {
 		
 	}
 	
-	
-	public void disableAndStopInitiator(String initiatorId) throws Exception {
+	// Synchronized to prevent race conditions in refreshing the spring context
+	public synchronized void disableAndStopInitiator(String initiatorId) throws Exception {
 		disableAndStopInitiator(cwsConsoleService.getProcessInitiatorById(initiatorId));
 	}
-	
-	public void enableAndStartInitiator(String initiatorId) throws Exception {
+
+	// Synchronized to prevent race conditions in refreshing the spring context
+	public synchronized void enableAndStartInitiator(String initiatorId) throws Exception {
 		enableAndStartInitiator(cwsConsoleService.getProcessInitiatorById(initiatorId));
 	}
 	
