@@ -391,7 +391,7 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 									String successExitValues = getFieldValue(fieldName, fields, expressionManager, execution);
 									
 									fieldName = "exitCodeEvents";
-									String exitCodeEvents = getFieldValue(fieldName, fields, expressionManager, execution);
+									String exitCodeEvents = getFieldValue(fieldName, fields, expressionManager, execution).replaceAll("\\s+", "");
 									
 									fieldName = "throwOnFailures";
 									String throwOnFailures = getFieldValue(fieldName, fields, expressionManager, execution);
