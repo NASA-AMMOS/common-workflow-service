@@ -192,7 +192,7 @@ public class CwsExternalTaskThread extends Thread  {
 				successfulValues = (String)task.getVariables().get(fieldName);
 
 				fieldName = activityId + "_cwsExitCodeEvents";
-				String exitCodeEventsString = (String)task.getVariables().get(fieldName);
+				String exitCodeEventsString = ((String)task.getVariables().get(fieldName)).replaceAll("\\s+", "");
 
 				exitCodeEventsMap.clear();
 				String[] exitCodeMapArray = exitCodeEventsString.split(",");
