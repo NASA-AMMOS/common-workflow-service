@@ -34,11 +34,4 @@ done
 
 exec "$@"
 
-#counter=1
-#while true; do
-#    sleep 60
-#    counter=`expr $counter + 1`
-#    echo "Still up! $counter"
-#done
-
 tail -f cws/server/apache-tomcat-*/logs/catalina.out

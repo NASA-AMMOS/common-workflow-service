@@ -36,10 +36,10 @@ services:
       - frontend
       - backend
     environment:
-       - DB_HOST=<db_host>
+       - DB_HOST=__DB_HOST__
        - DB_USER=root
        - DB_PW=test
-       - ES_HOST=<es_host>
+       - ES_HOST=__ES_HOST__
        - ES_PORT=9200
     volumes:
       - ./config.properties:/home/cws_user/config.properties:ro
