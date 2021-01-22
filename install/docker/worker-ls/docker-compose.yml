@@ -1,0 +1,55 @@
+version: '3.2'
+
+services:
+  logstash:
+    labels:
+      com.example.service: "logstash"
+      com.example.description: "For logging data"
+    image: docker.elastic.co/logstash/logstash:6.4.2
+    container_name: cws-worker-logstash
+    volumes:
+      - logs-volume:/cws_logs:ro
+      - ./cws-logstash.conf:/home/cws_user/cws-logstash.conf:ro
+    command: logstash -f /home/cws_user/cws-logstash.conf
+    environment:
+      - XPACK_MONITORING_ENABLED=false
+    healthcheck:
+        test: ["CMD-SHELL", "curl --silent --fail localhost:9600 || exit 1"]
+        interval: 5s
+        timeout: 2s
+        retries: 12
+    ports:
+      - "9600:9600"
+    networks:
+      - frontend
+      - backend
+  cws:
+    container_name: cws-worker
+    labels:
+      com.example.service: "cws-server"
+      com.example.description: "Common Workflow Service"
+    image: nasa-ammos/common-workflow-service:2.0
+    depends_on:
+      - logstash
+    hostname: cws-worker
+    networks:
+      - frontend
+      - backend
+    environment:
+       - DB_HOST=<db_host>
+       - DB_USER=root
+       - DB_PW=test
+       - ES_HOST=<es_host>
+       - ES_PORT=9200
+    volumes:
+      - ./config.properties:/home/cws_user/config.properties:ro
+      - logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.33/logs
+
+volumes:
+  logs-volume:
+
+networks:
+  frontend:
+    driver: bridge         
+  backend:
+    driver: bridge
