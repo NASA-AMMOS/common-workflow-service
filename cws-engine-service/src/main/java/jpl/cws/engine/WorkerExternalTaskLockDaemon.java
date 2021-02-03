@@ -28,7 +28,7 @@ public class WorkerExternalTaskLockDaemon extends Thread {
 
     private Logger log;
 
-    private static final long SLEEP_MS       = 15 * 60 * 1000L;	// 15 minutes
+    private static final long SLEEP_MS       = 5 * 60 * 1000L;	// 5 minutes
     private static final long EXPIRATION     = 7  * 60 * 1000L; // 7  minutes
     private static final long LOCK_DURATION  = 10 * 60 * 1000L;	// 10 minutes
     private static final int  MAX_FAILURES   = 2;       		// Max retries on fatal error
