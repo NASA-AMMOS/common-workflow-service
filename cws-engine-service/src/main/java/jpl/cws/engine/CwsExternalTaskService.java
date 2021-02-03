@@ -38,7 +38,7 @@ public class CwsExternalTaskService implements InitializingBean {
 
 	private static final Object fetchAndLockSync = new Object();
 
-	private static final long LOCK_DURATION = 60 * 60 * 1000L; 		// Initially lock external task for 1 hour
+	private static final long LOCK_DURATION = 10 * 60 * 1000L; 		// Initially lock external task for 10 minutes
 
 	final ThreadFactory extTaskThreadFactory = new ThreadFactoryBuilder()
 		.setNameFormat("extTaskThread-%d")
