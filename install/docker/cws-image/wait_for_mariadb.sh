@@ -12,7 +12,7 @@ counter=1
 while ! mysql --host="${DB_HOST}" --user="${DB_USER}" --password="${DB_PW}" -e "SHOW DATABASES;" > /dev/null 2>&1; do
     sleep 1
     counter=`expr $counter + 1`
-    echo "retry $counter"
+    echo "Retry wait for DB: $counter"
     if [ $counter -gt $maxcounter ]; then
         >&2 echo "We have been waiting for MySQL too long already; failing."
         exit 1
@@ -21,7 +21,7 @@ done
 
 while ! curl -s http://$ES_HOST:$ES_PORT; do
 	sleep 1
-	echo "retry wait for ES"
+	echo "Retry wait for ES"
 done
 
 # Start app

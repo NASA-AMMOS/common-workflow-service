@@ -11,7 +11,6 @@ ENV TZ=America/Los_Angeles
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN useradd -ms /bin/bash cws_user && usermod -aG wheel cws_user
-#RUN adduser --quiet --disabled-password --shell /bin/bassh --home /home/dockeruser --uid 300 dockeruser
 
 WORKDIR /home/cws_user
 

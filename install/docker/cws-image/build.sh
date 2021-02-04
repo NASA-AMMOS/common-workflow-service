@@ -2,6 +2,10 @@
 
 ver='2.0'    # update this each CWS release
 
+echo
+echo "ATTENTION: If changes were made to the source code or config files, don't forget to rebuild the cws .tar.gz package file before running this script."
+echo
+
 CWS_PACKAGE=../../../dist/cws_server.tar.gz
 
 if [ ! -f "$CWS_PACKAGE" ]; then
