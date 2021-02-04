@@ -3,9 +3,6 @@
 javac -cp joda-time-2.1.jar getTime.java
 java -cp .:joda-time-2.1.jar getTime
 
-echo docker | sudo -S ntpd
-sleep 2
-
 ls /home/cws_user/cws/server/apache-tomcat-9.0.33/logs
 
 # Clear out any previous logs before starting (Note: Previous logs will cause CWS not to start)
