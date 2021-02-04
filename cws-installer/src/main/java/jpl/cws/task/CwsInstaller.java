@@ -1502,7 +1502,7 @@ public class CwsInstaller {
 
 		warningCount += validateDbConfig();
 		warningCount += validateTomcatPorts();
-		warningCount += validateTimeSyncService();
+                boolean timeSyncMissing = (validateTimeSyncService() == 1);
 
 		// Validate ES setting if installing console and not user provided ES.
 		if (installConsole && user_provided_elasticsearch.equalsIgnoreCase("N")) {
@@ -1531,7 +1531,7 @@ public class CwsInstaller {
 			warningCount += validateAmqPort();
 		}
 
-		if (warningCount > 0) {
+		if (warningCount > 0 || timeSyncMissing) {
 			print("");
 			print("*******************************");
 			print("*******************************");
@@ -1558,8 +1558,13 @@ public class CwsInstaller {
 
 				print("Okay. Proceed at your own risk...");
 			} else {
-				bailOutWithMessage(warningCount + " potential problems identified during configuration. Aborting...");
-			}
+                                if (warningCount > 0) {
+                                     // If there are other warnings not related to time sync daemon missing, then abort
+				    bailOutWithMessage(warningCount + " potential problems identified during configuration. Aborting...");
+                                }
+                                // Only warning present is time sync daemon missing... In this case, just continue with more warning message.
+                                print("Proceeding without a time sync daemon..."); 
+                        }
 
 		}
 		else {
