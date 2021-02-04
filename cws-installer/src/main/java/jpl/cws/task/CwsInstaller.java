@@ -1562,16 +1562,13 @@ public class CwsInstaller {
 
 				print("Okay. Proceed at your own risk...");
 			}
+			else if (timeSyncMissing && warningCount == 1) {
+				// Only warning present is time sync daemon missing... In this case, just continue with more warning message.
+				print("Time sync daemon not found.  Will not abort install as this may not be a problem on some systems (e.g. inside Docker).");
+			}
 			else {
-				if (timeSyncMissing) {
-					// Only warning present is time sync daemon missing... In this case, just continue with more warning message.
-					print("Time sync daemon not found.  Will not abort install as this may not be a problem on some systems (e.g. inside Docker).");
-				}
-
-				if (warningCount > 1) {
-					// If there are other warnings not related to time sync daemon missing, then abort
-					bailOutWithMessage(warningCount + " potential problems identified during configuration. Aborting...");
-				}
+				// If there are other warnings not related to time sync daemon missing, then abort
+				bailOutWithMessage(warningCount + " potential problems identified during configuration. Aborting...");
 			}
 		}
 		else {
