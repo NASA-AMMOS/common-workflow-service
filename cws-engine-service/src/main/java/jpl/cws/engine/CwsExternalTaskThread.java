@@ -452,7 +452,10 @@ public class CwsExternalTaskThread extends Thread  {
 		@Override
 		protected void processLine(String line, int level) {
 			if (numLinesCollected++ > 1000) {
-				log.warn("only collecting up to 1000 lines.");
+				if (numLinesCollected == 1001) {
+					// only log the warning the first time
+					log.warn("only collecting up to 1000 lines.");
+				}
 				return;
 			}
 			else {
