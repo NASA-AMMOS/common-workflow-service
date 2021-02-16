@@ -1,7 +1,7 @@
 FROM centos:7
 
 RUN yum update -y && \
-    yum install -y mariadb-server mariadb-client java-1.8.0-openjdk java-1.8.0-openjdk-devel ntp && \
+    yum install -y mariadb-server mariadb-client java-1.8.0-openjdk java-1.8.0-openjdk-devel && \
     yum clean all
 
 #TODO Update this because it might break later
