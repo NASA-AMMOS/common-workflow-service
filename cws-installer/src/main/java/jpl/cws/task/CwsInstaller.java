@@ -1502,7 +1502,11 @@ public class CwsInstaller {
 
 		warningCount += validateDbConfig();
 		warningCount += validateTomcatPorts();
-                boolean timeSyncMissing = (validateTimeSyncService() == 1);
+		boolean timeSyncMissing = validateTimeSyncService() == 1;
+
+		if (timeSyncMissing) {
+			warningCount++;
+		}
 
 		// Validate ES setting if installing console and not user provided ES.
 		if (installConsole && user_provided_elasticsearch.equalsIgnoreCase("N")) {
@@ -1531,7 +1535,7 @@ public class CwsInstaller {
 			warningCount += validateAmqPort();
 		}
 
-		if (warningCount > 0 || timeSyncMissing) {
+		if (warningCount > 0) {
 			print("");
 			print("*******************************");
 			print("*******************************");
@@ -1557,15 +1561,15 @@ public class CwsInstaller {
 				}
 
 				print("Okay. Proceed at your own risk...");
-			} else {
-                                if (warningCount > 0) {
-                                     // If there are other warnings not related to time sync daemon missing, then abort
-				    bailOutWithMessage(warningCount + " potential problems identified during configuration. Aborting...");
-                                }
-                                // Only warning present is time sync daemon missing... In this case, just continue with more warning message.
-                                print("Proceeding without a time sync daemon..."); 
-                        }
-
+			}
+			else if (timeSyncMissing && warningCount == 1) {
+				// Only warning present is time sync daemon missing... In this case, just continue with more warning message.
+				print("Time sync daemon not found.  Will not abort install as this may not be a problem on some systems (e.g. inside Docker).");
+			}
+			else {
+				// If there are other warnings not related to time sync daemon missing, then abort
+				bailOutWithMessage(warningCount + " potential problems identified during configuration. Aborting...");
+			}
 		}
 		else {
 			print("No issues found with installation configuration.");
