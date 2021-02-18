@@ -206,6 +206,7 @@ public class CwsConsoleService {
 		// Translate, and write out to final file (under cws/bpmn directory)
 		//
 		File finalFile = new File(getCwsHome() + "/bpmn/" + bpmnFile.getName());
+
 		BufferedWriter bw = null;
 		try {
 			bw = new BufferedWriter(new FileWriter(finalFile));
@@ -269,10 +270,9 @@ public class CwsConsoleService {
 
 		// Read data out of InputStream into a String
 		String bpmnXml;
-		try {
-			FileInputStream fs = new FileInputStream(file);
+
+		try (FileInputStream fs = new FileInputStream(file)) {
 			bpmnXml = IOUtils.toString(fs, "UTF-8");
-			fs.close();
 		} catch (IOException e) {
 			return "ERROR: " + e.getMessage();
 		}

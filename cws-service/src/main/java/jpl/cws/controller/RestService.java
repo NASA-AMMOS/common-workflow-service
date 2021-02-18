@@ -311,40 +311,26 @@ public class RestService extends MvcCore {
         	bufferedWriter.write(xmlData);
 		} catch (IOException e1) {
 			e1.printStackTrace();
+			return "ERROR: " + e1.getMessage();
 		} finally {
             try {
-                if (bufferedWriter != null) bufferedWriter.close();
+                if (bufferedWriter != null) {
+                	bufferedWriter.close();
+                }
             } catch(Exception e2) {
                  e2.printStackTrace();
             }
         }
-		FileInputStream input = null;
-		try {
-			input = new FileInputStream(f);
-		} catch (FileNotFoundException e3) {
-			// TODO Auto-generated catch block
-			e3.printStackTrace();
-		}
+
 		MultipartFile multipartFile = null;
-		try {
+		try (FileInputStream input = new FileInputStream(f)) {
 			multipartFile = new MockMultipartFile("f", f.getName(), "text/plain", IOUtils.toByteArray(input));
-		} catch (IOException e4) {
-			// TODO Auto-generated catch block
-			e4.printStackTrace();
-		}
-
-		try {
-			if (input != null) {
-				input.close();
-			}
-		} catch (IOException e5) {
-			// TODO Auto-generated catch block
-			e5.printStackTrace();
-		}
-
-		try {
 			return doDeployProcessDefinition(multipartFile);
-		} finally {
+		} catch (IOException e4) {
+			e4.printStackTrace();
+			return "ERROR: " + e4.getMessage();
+		}
+		finally {
 			f.delete();
 		}
 	}
