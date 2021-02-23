@@ -456,11 +456,11 @@ public class CwsExternalTaskThread extends Thread  {
 					// only log the warning the first time
 					log.warn("only collecting up to 1000 lines.");
 				}
-				return;
+				log.debug("LINE: " + line);
 			}
 			else {
 				lines.add((globalOutOrdering.incrementAndGet()) + "__" + line);
-				log.debug("LINE: " + line); // +", level="+level);
+				log.debug("LINE: " + line);
 			}
 		}
 
