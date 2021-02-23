@@ -498,6 +498,10 @@
 		<error-code>401</error-code>
 		<location>/not_authenticated.html</location>
 	</error-page>
+    <error-page>
+        <error-code>403</error-code>
+        <location>/not_authenticated.html</location>
+    </error-page>
 	
   <!-- A filter that sets various security related HTTP Response headers.   -->
   <!-- This filter supports the following initialization parameters         -->
