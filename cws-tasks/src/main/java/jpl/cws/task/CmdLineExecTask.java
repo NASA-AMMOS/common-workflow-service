@@ -296,11 +296,21 @@ public class CmdLineExecTask extends CwsTask {
 	 */
 	class CollectingLogOutputStream extends LogOutputStream {
 		private final List<String> lines = new LinkedList<String>();
+		private int numLinesCollected = 0;
 
 		@Override
 		protected void processLine(String line, int level) {
-			lines.add((globalOutOrdering.incrementAndGet()) + "__" + line);
-			log.debug("LINE: " + line); // +", level="+level);
+			if (numLinesCollected++ > 1000) {
+				if (numLinesCollected == 1001) {
+					// only log the warning the first time
+					log.warn("only collecting up to 1000 lines.");
+				}
+				log.debug("LINE: " + line);
+			}
+			else {
+				lines.add((globalOutOrdering.incrementAndGet()) + "__" + line);
+				log.debug("LINE: " + line);
+			}
 		}
 
 		public List<String> getLines() {
