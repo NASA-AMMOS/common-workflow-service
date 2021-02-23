@@ -227,11 +227,14 @@ public class Scheduler implements InitializingBean {
 	 */
 	private byte[] createProcReqData(Map<String,String> msgPayload)
 			throws IOException {
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		FSTObjectOutput out = new FSTObjectOutput(os);
-		out.writeObject(msgPayload);
-		out.close();
-		return os.toByteArray();
+		try (
+				ByteArrayOutputStream os = new ByteArrayOutputStream();
+				FSTObjectOutput out = new FSTObjectOutput(os);
+			)
+		{
+			out.writeObject(msgPayload);
+			return os.toByteArray();
+		}
 	}
 
 }

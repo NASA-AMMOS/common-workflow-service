@@ -38,6 +38,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+
 public class InitiatorsService implements InitializingBean {
 	private static final Logger log = LoggerFactory.getLogger(InitiatorsService.class);
 	
@@ -89,15 +90,14 @@ public class InitiatorsService implements InitializingBean {
 	 * 
 	 */
 	private String getFileContents(String classPathResource) throws Exception {
-		InputStream in = this.getClass().getClassLoader()
-			.getResource(classPathResource).openStream(); // getResourceAsStream() caches, use this instead
-		if (in == null) {
-			log.warn("Not able to locate resource: " + classPathResource);
-			return null;
+		try (InputStream in = this.getClass().getClassLoader()
+			.getResource(classPathResource).openStream()) { // getResourceAsStream() caches, use this instead
+			if (in == null) {
+				log.warn("Not able to locate resource: " + classPathResource);
+				return null;
+			}
+			return IOUtils.toString(in, "UTF-8");
 		}
-		String fileContents = IOUtils.toString(in, "UTF-8");
-		in.close();
-		return fileContents;
 	}
 	
 	
@@ -169,14 +169,12 @@ public class InitiatorsService implements InitializingBean {
 		File oldXmlContextFile = new File(xmlContextUrl.toURI());
 		String xmlContextFileAbsPath = oldXmlContextFile.getAbsolutePath();
 		oldXmlContextFile.delete();
-		
+
 		File newXmlContextFile = new File(xmlContextFileAbsPath);
 		
-		try {
-			FileWriter f2 = new FileWriter(newXmlContextFile, false);
+		try (FileWriter f2 = new FileWriter(newXmlContextFile, false)) {
 			f2.write(newXmlContext);
 			f2.flush();
-			f2.close();
 		} catch (Exception e) {
 			log.error("Unexpected problem", e);
 		}
@@ -336,16 +334,19 @@ public class InitiatorsService implements InitializingBean {
 	 * Source: https://stackoverflow.com/questions/4412848/xml-node-to-string-in-java
 	 */
 	private String nodeToString(Node node) {
-		StringWriter sw = new StringWriter();
-		try {
+		try (StringWriter sw = new StringWriter()) {
 			Transformer t = TransformerFactory.newInstance().newTransformer();
 			t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 			t.setOutputProperty(OutputKeys.INDENT, "yes");
 			t.transform(new DOMSource(node), new StreamResult(sw));
+			return sw.toString();
 		} catch (TransformerException te) {
 			log.debug("InitiatorService: nodeToString Transformer Exception", te);
+			return null;
+		} catch (IOException e) {
+			log.error("Exception in nodeToString", e);
+			return null;
 		}
-		return sw.toString();
 	}
 
 
