@@ -60,7 +60,11 @@
 			<groupId>org.camunda.bpm</groupId>
 			<artifactId>camunda-engine-spring</artifactId>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>org.camunda.spin</groupId>
+			<artifactId>camunda-spin-dataformat-all</artifactId>
+		</dependency>
 		<!-- Spring MVC framework -->
 		<dependency>
 			<groupId>org.springframework</groupId>

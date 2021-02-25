@@ -6,12 +6,12 @@ import java.util.Map;
 
 import javax.jms.Session;
 
+import com.google.gson.Gson;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.HtmlEmail;
 import org.camunda.bpm.application.PostDeploy;
 import org.camunda.bpm.application.PreUndeploy;
 import org.camunda.bpm.application.ProcessApplication;
-import org.camunda.bpm.application.impl.ServletProcessApplication;
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.RepositoryService;
@@ -26,10 +26,11 @@ import org.camunda.bpm.engine.impl.context.Context;
 import org.camunda.bpm.engine.impl.context.CoreExecutionContext;
 import org.camunda.bpm.engine.impl.core.instance.CoreExecution;
 import org.camunda.bpm.engine.impl.el.ExpressionManager;
-import org.camunda.bpm.engine.spring.application.SpringProcessApplication;
 import org.camunda.bpm.engine.spring.application.SpringServletProcessApplication;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
+import org.camunda.spin.plugin.variable.SpinValues;
+import org.camunda.spin.plugin.variable.value.JsonValue;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -364,7 +365,9 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 								final String activityId = execution.getCurrentActivityId();
 								
 								String fieldName = null;
-								
+
+								CmdLineInputFields cmdFields = new CmdLineInputFields();
+
 								try {
 									log.debug("Service Task with External Task's ExecutionId = " + execution.getId());
 									log.debug("Service task current ActivityId = " + execution.getCurrentActivityId());
@@ -378,62 +381,45 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 										.getExpressionManager();
 									
 									fieldName = "cmdLine";
-									String command    = getFieldValue(fieldName, fields, expressionManager, execution);
+									cmdFields.command = getFieldValue(fieldName, fields, expressionManager, execution);
 									
 									fieldName = "workingDir";
-									String workingDir = getFieldValue(fieldName, fields, expressionManager, execution);
+									cmdFields.workingDir = getFieldValue(fieldName, fields, expressionManager, execution);
 									
-									if (workingDir == null) {
-										workingDir = System.getProperty("user.home");
+									if (cmdFields.workingDir == null) {
+										cmdFields.workingDir = System.getProperty("user.home");
 									}
 
 									fieldName = "successExitValues";
-									String successExitValues = getFieldValue(fieldName, fields, expressionManager, execution);
+									cmdFields.successfulValues = getFieldValue(fieldName, fields, expressionManager, execution);
 									
 									fieldName = "exitCodeEvents";
-									String exitCodeEvents = getFieldValue(fieldName, fields, expressionManager, execution).replaceAll("\\s+", "");
+									cmdFields.exitCodeEvents = getFieldValue(fieldName, fields, expressionManager, execution).replaceAll("\\s+", "");
 									
 									fieldName = "throwOnFailures";
-									String throwOnFailures = getFieldValue(fieldName, fields, expressionManager, execution);
+									cmdFields.throwOnFailures = Boolean.parseBoolean(getFieldValue(fieldName, fields, expressionManager, execution));
 									
 									fieldName = "throwOnTruncatedVariable";
-									String throwOnTruncatedVariable = getFieldValue(fieldName, fields, expressionManager, execution);
+									cmdFields.throwOnTruncatedVariable = Boolean.parseBoolean(getFieldValue(fieldName, fields, expressionManager, execution));
 									
 									fieldName = "timeout";
-									String timeout = getFieldValue(fieldName, fields, expressionManager, execution);
+									cmdFields.timeout = Long.parseLong(getFieldValue(fieldName, fields, expressionManager, execution));
 									
 									fieldName = "retries";
-									String retries = getFieldValue(fieldName, fields, expressionManager, execution);
+									cmdFields.retries = Integer.parseInt(getFieldValue(fieldName, fields, expressionManager, execution));
 									
 									fieldName = "retryDelay";
-									String retryDelay = getFieldValue(fieldName, fields, expressionManager, execution);
+									cmdFields.retryDelay = Integer.parseInt(getFieldValue(fieldName, fields, expressionManager, execution));
 
-									execution.setVariable(activityId + "_cwsCommand", command);
-									execution.setVariable(activityId + "_cwsWorkingDir", workingDir);
-									execution.setVariable(activityId + "_cwsSuccessExitValues", successExitValues);
-									execution.setVariable(activityId + "_cwsExitCodeEvents", exitCodeEvents);
-									
-									fieldName = "throwOnFailures";
-									execution.setVariable(activityId + "_cwsThrowOnFailures", Boolean.parseBoolean(throwOnFailures));
-									
-									fieldName = "throwOnTruncatedVariable";
-									execution.setVariable(activityId + "_cwsThrowOnTruncatedVariable", Boolean.parseBoolean(throwOnTruncatedVariable));
-									
-									fieldName = "timeout";
-									execution.setVariable(activityId + "_cwsTimeout", Long.parseLong(timeout));
-									
-									fieldName = "retries";
-									execution.setVariable(activityId + "_cwsRetries", Integer.parseInt(retries));
-									
-									fieldName = "retryDelay";
-									execution.setVariable(activityId + "_cwsRetryDelay", Integer.parseInt(retryDelay));
+									JsonValue jsonValue = SpinValues.jsonValue(new Gson().toJson(cmdFields)).create();
+									execution.setVariable(activityId + "_input", jsonValue);
 								}
 								catch (Throwable t) {
 									log.error("Error parsing cmdLine fields", t);
 
 									String msg = "Error parsing field '" + fieldName + "': " + t.getMessage();
-									
-									execution.setVariable(activityId + "_cwsError", msg);
+
+									execution.setVariable(activityId + "_errorMsg", msg);
 								}
 								finally {
 									

@@ -39,6 +39,7 @@ import org.camunda.bpm.engine.history.UserOperationLogEntry;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonNull;
+import org.camunda.bpm.engine.impl.persistence.entity.HistoricDetailVariableInstanceUpdateEntity;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.DeploymentBuilder;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
@@ -474,9 +475,17 @@ public class CwsConsoleService {
 
 			if (detail instanceof HistoricVariableUpdate) {
 
-				HistoricVariableUpdate variable = (HistoricVariableUpdate)detail;
+				HistoricDetailVariableInstanceUpdateEntity variable = (HistoricDetailVariableInstanceUpdateEntity)detail;
 
-				String message = "Setting (" + variable.getTypeName() + ") " + variable.getVariableName() + " = " + variable.getValue();
+				String message = "";
+
+				if (variable.getSerializerName().equals("json")) {
+
+					message = "Setting (json) " + variable.getVariableName() + " = " + " <jsonData>";
+				}
+				else {
+					message = "Setting (" + variable.getTypeName() + ") " + variable.getVariableName() + " = " + variable.getValue();
+				}
 
 				HistoryDetail historyDetail = new HistoryDetail(variable.getTime(), "VarUpdate", variable.getActivityInstanceId().split(":")[0], message);
 
