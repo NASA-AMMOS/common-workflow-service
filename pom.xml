@@ -56,7 +56,8 @@
 		<junit.version>4.12</junit.version>
 		<jython-standalone.version>2.7.1b3</jython-standalone.version>
 		<!--<mariadb-java-client.version>2.0.3</mariadb-java-client.version>-->
-        <mariadb-java-client.version>2.6.1</mariadb-java-client.version>
+        <!--<mariadb-java-client.version>2.6.1</mariadb-java-client.version>-->
+		<mariadb-java-client.version>2.7.2</mariadb-java-client.version>
 
 		<maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
 		<maven-dependency-plugin.version>3.0.1</maven-dependency-plugin.version>
