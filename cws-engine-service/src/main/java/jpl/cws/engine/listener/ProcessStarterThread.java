@@ -79,7 +79,7 @@ public class ProcessStarterThread implements Runnable {
 
 					log.error("FIND process instance FAILED.  Will retry in " + waitTime  + " seconds.");
 
-					sleep(waitTime * 1000);
+					sleep((long)waitTime * 1000);
 
 					waitTime *= 2;  // Double the wait time each try
 				}
@@ -150,7 +150,7 @@ public class ProcessStarterThread implements Runnable {
 
 					log.error("START process instance FAILED.  Will retry in " + waitTime  + " seconds.");
 
-					sleep(waitTime * 1000);
+					sleep((long)waitTime * 1000);
 
 					waitTime *= 2;  // Double the wait time each try
 				}
