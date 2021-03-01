@@ -65,7 +65,7 @@ public class AwsMetricsPublisherBackgroundThread extends Thread {
 
 		while (true) {
 			try {
-				sleep(threadInterval * MILLIS_PER_SEC);
+				sleep((long)threadInterval * MILLIS_PER_SEC);
 				
 				// Publish the max queue pending time metric to AWS
 				Long maxPendingQueueTime = getMaxPendingQueueTime();

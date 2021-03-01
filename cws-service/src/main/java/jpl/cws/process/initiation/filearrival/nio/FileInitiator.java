@@ -230,7 +230,7 @@ public class FileInitiator extends CwsProcessInitiator implements MessageListene
 				try {
 					if (emptyPollsBeforeWait == NUM_TRIES_BEFORE_WAIT) {
 						emptyPollsBeforeWait = 0;
-						Thread.sleep(1000 * pollPeriod);
+						Thread.sleep(1000 * (long)pollPeriod);
 					}
 				} catch (InterruptedException ie) {
 					log.warn("Thread interrupted.");
