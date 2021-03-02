@@ -140,6 +140,9 @@ public class CwsExternalTaskThread extends Thread  {
 
 				// Create an incident
 				handleCamundaApiCall(Resolution.HANDLE_FAILURE, task.getId(), errorMsg, "", 0, 0L);
+
+				// Don't do anything else with this task -- go to the next one.
+				return;
 			}
 			else {
 				String inputFieldName = activityId + "_input";
@@ -154,9 +157,8 @@ public class CwsExternalTaskThread extends Thread  {
 							"This hopefully will be fixed in Camunda 7.14");
 				}
 
-				// Get input fields as json and convert to CmdLineFields object
+				// Get input fields as json and convert to CmdLineInputFields object
 				SpinJsonNode jsonNode = (SpinJsonNode)task.getVariables().get(inputFieldName);
-
 				cmdFields = new Gson().fromJson(jsonNode.toString(), CmdLineInputFields.class);
 
 				throwOnTruncatedVariableBoolean = cmdFields.throwOnTruncatedVariable;
@@ -178,15 +180,15 @@ public class CwsExternalTaskThread extends Thread  {
 		catch (Throwable t) {
 
 			// See if we have any more retries for variable lookup failure
-			String _fieldName = activityId + "_cwsVariableLookupFailRetries";
+			String fieldName = activityId + "_cwsVariableLookupFailRetries";
 			
 			// Initialize it to 3 if not already set
 			int variableLookupRetries = 3;
 			
-			if (task.getVariables().containsKey(_fieldName)) {
+			if (task.getVariables().containsKey(fieldName)) {
 
 				// It does exist, so read it in
-				variableLookupRetries = Integer.parseInt((String)task.getVariables().get(_fieldName));
+				variableLookupRetries = Integer.parseInt((String)task.getVariables().get(fieldName));
 			}
 
 			log.warn("runTask: Error: Failed to retrieve input variables from execution listener. " + variableLookupRetries + " retries remaining.");
@@ -197,7 +199,7 @@ public class CwsExternalTaskThread extends Thread  {
 				variableLookupRetries--;
 
 				// Update in database
-				setOutputVariable(_fieldName, variableLookupRetries + "");
+				setOutputVariable(fieldName, variableLookupRetries + "");
 
 				// Allow for this task to be fetched again and wait for the listener to set the input variables
 				//
@@ -217,14 +219,13 @@ public class CwsExternalTaskThread extends Thread  {
 
 				// Create an incident
 				handleCamundaApiCall(Resolution.HANDLE_FAILURE, task.getId(), msg, t.toString(), 0, 0L);
-
-				// Don't do anything else with this task -- go to the next one.
-				return;
 			}
+
+			// Don't do anything else with this task -- go to the next one.
+			return;
 		}
 
 		try {
-
 			setOutputVariable("lockedTime", lockedTime);
 
 			boolean success = executeTask(cmdFields);
@@ -515,7 +516,7 @@ public class CwsExternalTaskThread extends Thread  {
 			
 			// Don't require process to execute in a certain amount of time
 			//
-			ExecuteWatchdog watchdog = new ExecuteWatchdog(cmdLineFields.timeout);
+			ExecuteWatchdog watchdog = new ExecuteWatchdog(cmdLineFields.timeout * 1000);		// convert seconds to milliseconds
 			
 			Executor executor = new DefaultExecutor();
 			executor.setWatchdog(watchdog);
@@ -574,7 +575,7 @@ public class CwsExternalTaskThread extends Thread  {
 			//
 			success = false; // false until proven success
 			for (String successCode : cmdLineFields.successfulValues.split(",")) {
-				success = new Boolean(Integer.parseInt(successCode.trim()) == exitValue);
+				success = new Boolean(Integer.parseInt(successCode) == exitValue);
 				if (success) {
 					break; // found a match, so must be success
 				}
@@ -630,7 +631,7 @@ public class CwsExternalTaskThread extends Thread  {
 			// Check if process timed out
 			if (watchdog.killedProcess()) {
 			     // it was killed on purpose by the watchdog
-				throw new BpmnError(TIMEOUT_ERROR, "Execution exceeded timeout limit: " + cmdLineFields.timeout + "ms");
+				throw new BpmnError(TIMEOUT_ERROR, "Execution exceeded timeout limit: " + cmdLineFields.timeout + " sec");
 			}
 		} catch (BpmnError e) {
 			// Pass these along

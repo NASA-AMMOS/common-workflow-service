@@ -379,7 +379,7 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 									ExpressionManager expressionManager = Context
 										.getProcessEngineConfiguration()
 										.getExpressionManager();
-									
+
 									fieldName = "cmdLine";
 									cmdFields.command = getFieldValue(fieldName, fields, expressionManager, execution);
 									
@@ -391,11 +391,27 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 									}
 
 									fieldName = "successExitValues";
-									cmdFields.successfulValues = getFieldValue(fieldName, fields, expressionManager, execution);
-									
+									cmdFields.successfulValues = getFieldValue(fieldName, fields, expressionManager, execution).replaceAll("\\s+", "");
+
+									// Verify field format
+									for (String successCode : cmdFields.successfulValues.split(",")) {
+										Integer.parseInt(successCode);
+									}
+
 									fieldName = "exitCodeEvents";
 									cmdFields.exitCodeEvents = getFieldValue(fieldName, fields, expressionManager, execution).replaceAll("\\s+", "");
-									
+
+									// Verify field format
+									String[] exitCodeMapArray = cmdFields.exitCodeEvents.split(",");
+									for (String exitCodeMap : exitCodeMapArray) {
+
+										String[] keyVal = exitCodeMap.split("=");
+										if (keyVal.length != 2) {
+											throw new Exception("Bad format: " + exitCodeMap);
+										}
+										Integer.parseInt(keyVal[0]);
+									}
+
 									fieldName = "throwOnFailures";
 									cmdFields.throwOnFailures = Boolean.parseBoolean(getFieldValue(fieldName, fields, expressionManager, execution));
 									
