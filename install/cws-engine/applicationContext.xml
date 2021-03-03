@@ -75,6 +75,7 @@
         <property name="processEnginePlugins">
             <list>
                 <bean id="procAppEventListenerPlugin" class="org.camunda.bpm.application.impl.event.ProcessApplicationEventListenerPlugin" />
+				<bean id="spinProcessEnginePlugin" class="org.camunda.spin.plugin.impl.SpinProcessEnginePlugin" />
             </list>
         </property>
 

@@ -4,7 +4,6 @@ RUN yum update -y && \
     yum install -y mariadb-server mariadb-client java-1.8.0-openjdk java-1.8.0-openjdk-devel && \
     yum clean all
 
-#TODO Update this because it might break later
 ENV JAVA_HOME /usr/lib/jvm/java-1.8.0
 
 ENV TZ=America/Los_Angeles

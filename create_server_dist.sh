@@ -212,7 +212,6 @@ cp ${INSTALL_DIR}/refresh_cws_token.sh                 ${CWS}
 cp ${INSTALL_DIR}/deploy_proc_def.sh                   ${CWS}
 cp ${INSTALL_DIR}/launch_ls.sh                         ${CWS}
 cp ${INSTALL_DIR}/launch_es.sh                         ${CWS}
-cp -R ${INSTALL_DIR}/external_tasks                    ${CWS}
 
 print 'Copying Modeller scripts and libraries...'
 cp -R ${INSTALL_DIR}/modeler                    ${CWS}
