@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -299,7 +301,14 @@ public class RestService extends MvcCore {
 	public @ResponseBody String deployModelerFile(
 			@RequestParam("filename") String filename,
 			@RequestParam("xmlData") String xmlData) {
-		
+
+		// Don't allow filename to contain any special characters
+		Pattern p = Pattern.compile("^[\\w-]*$");
+		Matcher m = p.matcher(filename);
+		if (!m.matches()) {
+			return "ERROR: Input filename '" + filename + "' cannot contain any special characters";
+		}
+
 		BufferedWriter bufferedWriter = null;
 		File f = null;
 		try {
