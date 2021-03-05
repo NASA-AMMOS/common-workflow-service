@@ -29,6 +29,7 @@ import org.xml.sax.InputSource;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.Diff;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -225,6 +226,7 @@ public class InitiatorsService implements InitializingBean {
 		waitForWorkingFileWrite(newXmlContext);
 
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 		DocumentBuilder db = dbf.newDocumentBuilder();
 
 		// Load the files

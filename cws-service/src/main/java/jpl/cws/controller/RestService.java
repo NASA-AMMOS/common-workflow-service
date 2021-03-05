@@ -299,7 +299,12 @@ public class RestService extends MvcCore {
 	public @ResponseBody String deployModelerFile(
 			@RequestParam("filename") String filename,
 			@RequestParam("xmlData") String xmlData) {
-		
+
+		// Don't allow filename to contain path modifiers
+		if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
+			return "ERROR: Input filename '" + filename + "' cannot contain any path modifiers";
+		}
+
 		BufferedWriter bufferedWriter = null;
 		File f = null;
 		try {
