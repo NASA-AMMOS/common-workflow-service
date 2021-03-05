@@ -101,18 +101,18 @@ public class MvcService extends MvcCore {
 				.singleResult();
 		log.debug("user: " + user);
 		
-		String pattern =							// first part: some/relative/path
-			  "^"									// Anchor at the beginning of the string
-			+ "(?!\\/)"								// Assert the first character isn't a '/' (negative lookahead)
-			+ "(?!.*\\/\\/)"						// Assert there are no "//" present anywhere (negative lookahead)
-			+ "[A-Za-z0-9-\\/]+"					// Match one or more allowed characters
-			+ "(?<!\\/)"							// Assert the last character isn't a '/'
-													// second part: ?key=value
-			+ "(\\?"								// Match '?' (start capture group 1)
-			+   "[A-Za-z0-9-]+=[A-Za-z0-9-]+"		// Match key=value format one or more times
+		String pattern =                            // first part: some/relative/path
+			  "^"                                   // Anchor at the beginning of the string
+			+ "(?!\\/)"                             // Assert the first character isn't a '/' (negative lookahead)
+			+ "(?!.*\\/\\/)"                        // Assert there are no "//" present anywhere (negative lookahead)
+			+ "[A-Za-z0-9-\\/]+"                    // Match one or more allowed characters
+			+ "(?<!\\/)"                            // Assert the last character isn't a '/'
+			                                        // second part: ?key=value
+			+ "(\\?"                                // Match '?' (start capture group 1)
+			+   "[A-Za-z0-9-]+=[A-Za-z0-9-]+"       // Match key=value format one or more times
 			+     "(&[A-Za-z0-9-]+=[A-Za-z0-9-]+)*" // Followed by &key=value zero or more times
-			+   "){0,1}"							// Match capture group 1 zero or 1 times
-			+ "$";									// Anchor at the end of the string
+			+   "){0,1}"                            // Match capture group 1 zero or 1 times
+			+ "$";                                  // Anchor at the end of the string
 
 		// if target page is not null, then redirect to target page
 		//
