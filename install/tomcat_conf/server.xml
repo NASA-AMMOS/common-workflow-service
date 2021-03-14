@@ -73,6 +73,11 @@
               validationQuery="SELECT 1"
               validationInterval="30000"
               logValidationErrors="true"
+
+              timeBetweenEvictionRunsMillis="30000"
+              minEvictableIdleTimeMillis="60000"
+              removeAbandoned="true"
+              removeAbandonedTimeout="120"
               
               testOnBorrow="true"
               testWhileIdle="true"
