@@ -17,7 +17,6 @@ This software includes third party software subject to the following copyrights:
  - The AWS SDK for Java is Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  - The Camunda BPMN Platform is Copyright 2013-2020 Camunda Services GmbH.
  - The Camunda Modeler is Copyright (c) Camunda Services GmbH.
- - The Elasticsearch software is Copyright 2009-2018 Elasticsearch.
  - The Logstash software is Copyright 2009-2018 Elasticsearch.
  - The Bootstrap software has the following copyright holders:
    - Copyright (c) 2011-2020 Twitter, Inc.

@@ -41,6 +41,10 @@ public class RestPostTask extends CwsTask {
 	private boolean throwOnBadResponseBoolean;
 	private Expression allowInsecureRequests;
 	private boolean allowInsecureRequestsBoolean;
+	private Expression httpAuthUsername;
+	private String httpAuthUsernameString;
+	private Expression httpAuthPassword;
+	private String httpAuthPasswordString;
 	
 	// CWS token security scheme variables
 	//
@@ -60,6 +64,8 @@ public class RestPostTask extends CwsTask {
 	public void initParams() throws Exception {
 		urlString = getStringParam(url, "url");
 		allowInsecureRequestsBoolean = getBooleanParam(allowInsecureRequests, "allowInsecureRequests", DEFAULT_ALLOW_INSECURE_REQUESTS);
+		httpAuthUsernameString = getStringParam(httpAuthUsername, "httpAuthUsername", null);
+		httpAuthPasswordString = getStringParam(httpAuthPassword, "httpAuthPassword", null);
 		bodyString = getStringParam(body, "body", DEFAULT_BODY);
 		contentTypeString = getStringParam(contentType, "contentType", DEFAULT_MEDIA_TYPE);
 		throwOnBadResponseBoolean = getBooleanParam(throwOnBadResponse, "throwOnBadResponse", DEFAULT_THROW_ON_BAD_RESPONSE);
@@ -91,14 +97,27 @@ public class RestPostTask extends CwsTask {
 
 		// Make the REST POST
 		//
-		RestCallResult result = WebUtils.restCall(
-				urlString, "POST",
-				bodyString,
-				cookieToUse,
-				null,
-				contentTypeString,
-				allowInsecureRequestsBoolean);
-		
+		RestCallResult result;
+		if (httpAuthUsername == null) {
+			// Unauthenticated GET
+			result = WebUtils.restCall(
+					urlString, "POST",
+					bodyString,
+					cookieToUse,
+					null,
+					contentTypeString);
+		} else {
+			// Authenticated GET
+			result = WebUtils.restCall(
+					urlString, "POST",
+					bodyString,
+					cookieToUse,
+					null,
+					contentTypeString,
+					httpAuthUsernameString,
+					httpAuthPasswordString);
+		}
+
 		int responseCode = result.getResponseCode();
 		log.info("httpStatusCode: " + responseCode);
 		this.setOutputVariable("httpStatusCode", String.valueOf(responseCode));
@@ -183,6 +202,22 @@ public class RestPostTask extends CwsTask {
 	
 	public void setAllowInsecureRequests(Expression allowInsecureRequests) {
 		this.allowInsecureRequests = allowInsecureRequests;
+	}
+
+	public Expression getHttpAuthUsername() {
+		return httpAuthUsername;
+	}
+
+	public void setHttpAuthUsername(Expression httpAuthUsername) {
+		this.httpAuthUsername = httpAuthUsername;
+	}
+
+	public Expression getHttpAuthPassword() {
+		return httpAuthPassword;
+	}
+
+	public void setHttpAuthPassword(Expression httpAuthPassword) {
+		this.httpAuthPassword = httpAuthPassword;
 	}
 	
 	public Expression getBody() {

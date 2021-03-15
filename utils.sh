@@ -9,7 +9,6 @@ export CWS_VER='2.0'  # update this each CWS release
 export CAMUNDA_VER='7.13.0'
 export TOMCAT_VER='9.0.33'
 export LOGSTASH_VER='6.4.2'
-export ELASTICSEARCH_VER='6.4.2'
 
 # Prints the provided string, tagging with the script that called it
 function print () {
@@ -190,16 +189,21 @@ function auto_conf_data () {
     DB_NAME=${7}
     DB_USER=${8}
     DB_PASS=${9}
-    ENABLE_CLOUD_AS=${10}
-    SECURITY_SCHEME=${11}
-    THIS_HOSTNAME=${12}
-    NOTIFICATION_EMAILS=${13}
-    ADMIN_FIRSTNAME=${14}
-    ADMIN_LASTNAME=${15}
-    ADMIN_EMAIL=${16}
-    NUM_WORKERS=${17}
+    ES_HOST=${10}
+    ES_PORT=${11}
+    ES_USE_AUTH=${12}
+    ES_USERNAME=${13}
+    ES_PASSWORD=${14}
+    ENABLE_CLOUD_AS=${15}
+    SECURITY_SCHEME=${16}
+    THIS_HOSTNAME=${17}
+    NOTIFICATION_EMAILS=${18}
+    ADMIN_FIRSTNAME=${19}
+    ADMIN_LASTNAME=${20}
+    ADMIN_EMAIL=${21}
+    NUM_WORKERS=${22}
 
-    OUTPUT_FILE=${18}
+    OUTPUT_FILE=${23}
 
     source ${ROOT}/utils.sh
 
@@ -258,6 +262,8 @@ function auto_conf_data () {
         exit 1;
     fi
 
+    print ${OUTPUT_FILE}
+
     cat > ${OUTPUT_FILE} <<- EOF
     hostname=${THIS_HOSTNAME}
     install_type=${INSTALL_TYPE_CODE}
@@ -268,6 +274,11 @@ function auto_conf_data () {
     database_name=${DB_NAME}
     database_username=${DB_USER}
     database_password=${DB_PASS}
+    elasticsearch_host=${ES_HOST}
+    elasticsearch_port=${ES_PORT}
+    elasticsearch_use_auth=${ES_USE_AUTH}
+    elasticsearch_username=${ES_USERNAME}
+    elasticsearch_password=${ES_PASSWORD}
     admin_user=${LDAP_USERNAME}
     admin_firstname=${ADMIN_FIRSTNAME}
     admin_lastname=${ADMIN_LASTNAME}
@@ -289,7 +300,6 @@ function auto_conf_data () {
     brand_header=Test Console
     project_webapp_root=proj
     cws_enable_cloud_autoscaling=${ENABLE_CLOUD_AS}
-    elasticsearch_heapsize=4
     identity_plugin_type=$(echo ${SECURITY_SCHEME} | tr '[:lower:]' '[:upper:]')
     cws_ldap_url=${LDAP_SERVER_URL}
     cws_ldap_url_default=${LDAP_SERVER_URL}

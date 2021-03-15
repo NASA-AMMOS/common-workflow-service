@@ -11,6 +11,9 @@ source ${ROOT}/utils.sh
 
 ES_HOST='__ES_HOST__'
 ES_PORT='__ES_PORT__'
+ES_USE_AUTH='__ES_USE_AUTH__'
+ES_USERNAME='__ES_USERNAME__'
+ES_PASSWORD='__ES_PASSWORD__'
 DAYS_TO_LIVE=__CWS_HISTORY_DAYS_TO_LIVE__
 
 # Zero padded days using %d instead of %e
@@ -43,7 +46,10 @@ echo "$ALLLINES" | while read LINE
     if [[ ! -z "$FORMATEDLINE" ]] && [[ "$FORMATEDLINE" -lt "$DAYSAGO" ]]
     then
       TODELETE=$(echo $LINE | awk '{ print $3 }')
-      curl -X DELETE http://${ES_HOST}:${ES_PORT}/${TODELETE}
+      case $ES_USE_AUTH in
+        ([yY]) curl -X DELETE --user ${ES_USERNAME}:${ES_PASSWORD} http://${ES_HOST}:${ES_PORT}/${TODELETE} ;;
+        (*) curl -X DELETE http://${ES_HOST}:${ES_PORT}/${TODELETE} ;;
+      esac
       sleep 1
     fi
   done

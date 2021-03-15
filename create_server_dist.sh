@@ -59,15 +59,10 @@ fi
 print 'Copying Logstash zip into place...'
 cp ${INSTALL_DIR}/logging/logstash-${LOGSTASH_VER}.zip ${CWS}/server
 
-# -----------------
-# ELASTICSEARCH
-print 'Copying elasticsearch zip into place...'
-cp ${INSTALL_DIR}/elasticsearch/elasticsearch-${ELASTICSEARCH_VER}.zip ${CWS}/server
-
 # MOVE TEMPLATE CONFIG FILES INTO PLACE
 print 'Copying configuration templates...'
 CONFIG_TEMPLATES_DIR=${CWS}/config/templates
-mkdir -p ${CONFIG_TEMPLATES_DIR}/{cws-engine,cws-ui,tomcat_bin,tomcat_lib,tomcat_conf,camunda_mods,engine-rest_mods,elasticsearch,logging}
+mkdir -p ${CONFIG_TEMPLATES_DIR}/{cws-engine,cws-ui,tomcat_bin,tomcat_lib,tomcat_conf,camunda_mods,engine-rest_mods,logging}
 
 cp ${INSTALL_DIR}/tomcat_lib/css-jaas.cfg                     ${CONFIG_TEMPLATES_DIR}/tomcat_lib
 cp ${INSTALL_DIR}/tomcat_bin/setenv.sh                        ${CONFIG_TEMPLATES_DIR}/tomcat_bin
@@ -85,8 +80,6 @@ cp ${INSTALL_DIR}/cws-ui/*.ftl                                ${CONFIG_TEMPLATES
 cp ${INSTALL_DIR}/cws-ui/sqs_dispatcher_thread_bean.xml       ${CONFIG_TEMPLATES_DIR}/cws-ui
 cp ${INSTALL_DIR}/camunda_mods/web.xml                        ${CONFIG_TEMPLATES_DIR}/camunda_mods
 cp ${INSTALL_DIR}/engine-rest/web.xml                         ${CONFIG_TEMPLATES_DIR}/engine-rest_mods
-cp ${INSTALL_DIR}/elasticsearch/elasticsearch.yml             ${CONFIG_TEMPLATES_DIR}/elasticsearch
-cp ${INSTALL_DIR}/elasticsearch/jvm.options                   ${CONFIG_TEMPLATES_DIR}/elasticsearch
 cp ${INSTALL_DIR}/logging/cws-logstash.conf                   ${CONFIG_TEMPLATES_DIR}/logging
 cp ${INSTALL_DIR}/refresh_cws_token.sh                        ${CONFIG_TEMPLATES_DIR}
 cp ${INSTALL_DIR}/stop_cws.sh                                 ${CONFIG_TEMPLATES_DIR}
@@ -211,7 +204,6 @@ cp ${INSTALL_DIR}/stop_cws.sh                          ${CWS}
 cp ${INSTALL_DIR}/refresh_cws_token.sh                 ${CWS}
 cp ${INSTALL_DIR}/deploy_proc_def.sh                   ${CWS}
 cp ${INSTALL_DIR}/launch_ls.sh                         ${CWS}
-cp ${INSTALL_DIR}/launch_es.sh                         ${CWS}
 
 print 'Copying Modeller scripts and libraries...'
 cp -R ${INSTALL_DIR}/modeler                    ${CWS}

@@ -67,11 +67,6 @@ public class CwsInstaller {
 	// Number of bytes per gigabyte
 	private static final long BYTES_PER_GIG = (long) 1e+9;
 
-	// The maximum heap size in gigs we allow as a default for Elasticsearch
-	// This number is based on Elasticsearch's own recommendation for heap sizing
-	// See https://www.elastic.co/guide/en/elasticsearch/reference/6.4/heap-size.html
-	public static final int MAX_ES_HEAP_SIZE = 26;
-
 	// amount of time in milliseconds that a part of a CWS installation
 	// (database, worker, or console) can be off from the system time of
 	// this installation
@@ -120,7 +115,6 @@ public class CwsInstaller {
 	private static String installType;
 	private static boolean installConsole;
 	private static boolean installWorker;
-	private static boolean installElasticsearch;
 	private static String cws_worker_type;
 
 	private static String cws_engine_proc_start_req_listener;
@@ -168,18 +162,17 @@ public class CwsInstaller {
 	private static String aws_cloudwatch_endpoint;
 	private static String metrics_publishing_interval;
 	private static String cws_worker_id;
-	private static String elasticsearch_ver;
 	private static String cws_server_root;
 	private static String logstash_ver;
-	private static String elasticsearch_root;
 	private static String unique_broker_group_name;
 	private static String cws_security_filter_class;
 	private static String startup_autoregister_process_defs;
 	private static String cws_token_expiration_hours;
-	private static String user_provided_elasticsearch;
 	private static String elasticsearch_host;
 	private static String elasticsearch_port;
-	private static String elasticsearch_heapsize;
+	private static String elasticsearch_use_auth;
+	private static String elasticsearch_username;
+	private static String elasticsearch_password;
 	private static String user_provided_logstash;
 	private static String history_level;
 	private static String history_days_to_live;
@@ -254,10 +247,6 @@ public class CwsInstaller {
 			createFreshWorkDir();
 			updateFiles();
 
-			if (!reconfigure && installElasticsearch) {
-				installElasticSearch();
-			}
-
 			if (!reconfigure) {
 				installLogstash();
 			}
@@ -315,9 +304,6 @@ public class CwsInstaller {
 
 		logstash_ver = getenv("LOGSTASH_VER");
 		logstash_root = cws_server_root + SEP + "logstash-" + logstash_ver;
-
-		elasticsearch_ver = getenv("ELASTICSEARCH_VER");
-		elasticsearch_root = cws_server_root + SEP + "elasticsearch-" + elasticsearch_ver;
 
 		config_templates_dir = cws_root + SEP + "config" + SEP + "templates";
 		config_work_dir      = cws_root + SEP + "config" + SEP + "work";
@@ -1041,84 +1027,97 @@ public class CwsInstaller {
 
 	private static void setupElasticsearch() {
 
-		// PROMPT USER FOR USER PROVIDED ELASTIC SEARCH
-		user_provided_elasticsearch = getPreset("user_provided_elasticsearch");
+		// PROMPT USER FOR ELASTICSEARCH HOST
+		elasticsearch_host = getPreset("elasticsearch_host");
 
-		if (user_provided_elasticsearch == null) {
-			user_provided_elasticsearch = getPreset("default_user_provided_elasticsearch");
+		if (cws_installer_mode.equals("interactive")) {
+			if (elasticsearch_host == null) {
+				elasticsearch_host = readRequiredLine("Enter the Elasticsearch host: ",
+						"You must enter a hostname");
+			} else {
+				elasticsearch_host = readLine("Enter the Elasticsearch host. " +
+						"Default is " + elasticsearch_host + ": ", elasticsearch_host);
+			}
+		} else {
+			if (elasticsearch_host == null) {
+				bailOutMissingOption("elasticsearch_host");
+			}
+		}
+
+		log.debug("elasticsearch_host: " + elasticsearch_host);
+
+		// PROMPT USER FOR ELASTICSEARCH PORT
+		elasticsearch_port = getPreset("elasticsearch_port");
+
+		if (elasticsearch_port == null) {
+			elasticsearch_port = getPreset("default_elasticsearch_port");
 		}
 
 		if (cws_installer_mode.equals("interactive")) {
-			String read_user_provided_elasticsearch = "";
+			elasticsearch_port = readLine("Enter the Elasticsearch port. " +
+					"Default is " + elasticsearch_port + ": ", elasticsearch_port);
+		}
 
-			while (!read_user_provided_elasticsearch.equalsIgnoreCase("y") &&
-					!read_user_provided_elasticsearch.equalsIgnoreCase("n")) {
-				read_user_provided_elasticsearch =
-						readRequiredLine("Are you providing your own Elasticsearch service? (Y/N): ",
+		log.debug("elasticsearch_port: " + elasticsearch_port);
+
+		// PROMPT USER ELASTICSEARCH AUTH
+		elasticsearch_use_auth = getPreset("elasticsearch_use_auth");
+
+		if (elasticsearch_use_auth == null) {
+			elasticsearch_use_auth = getPreset("default_elasticsearch_use_auth");
+		}
+
+		if (cws_installer_mode.equals("interactive")) {
+			String read_elasticsearch_use_auth = "";
+
+			while (!read_elasticsearch_use_auth.equalsIgnoreCase("y") &&
+					!read_elasticsearch_use_auth.equalsIgnoreCase("n")) {
+				read_elasticsearch_use_auth =
+						readRequiredLine("Does you Elasticsearch cluster require authentication? (Y/N): ",
 								"ERROR: Must specify either 'Y' or 'N'");
 			}
 
-			user_provided_elasticsearch = read_user_provided_elasticsearch.toLowerCase();
+			user_provided_logstash = read_elasticsearch_use_auth.toLowerCase();
 		}
 
-		installElasticsearch = false;
+		elasticsearch_use_auth = getPreset("elasticsearch_password");
 
-		// PROMPT USER FOR ELASTICSEARCH HOST AND PORT
-		if (user_provided_elasticsearch.equalsIgnoreCase("Y")) {
+		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 
-			// PROMPT USER FOR ELASTICSEARCH HOST
-			elasticsearch_host = getPreset("elasticsearch_host");
+			elasticsearch_username = getPreset("elasticsearch_username");
 
+			// PROMPT USER FOR ELASTICSEARCH USERNAME
 			if (cws_installer_mode.equals("interactive")) {
-				if (elasticsearch_host == null) {
-					elasticsearch_host = readRequiredLine("Enter the Elasticsearch host: ",
-							"You must enter a hostname");
+				if (elasticsearch_username == null) {
+					elasticsearch_username = readRequiredLine("Enter the elasticsearch username: ",
+							"Must specify an elasticsearch username!");
 				} else {
-					elasticsearch_host = readLine("Enter the Elasticsearch host. " +
-							"Default is " + elasticsearch_host + ": ", elasticsearch_host);
+					elasticsearch_username = readLine("Enter the database username. " +
+							"Default is " + elasticsearch_username + ": ", elasticsearch_username);
 				}
 			} else {
-				if (elasticsearch_host == null) {
-					bailOutMissingOption("elasticsearch_host");
+				if (elasticsearch_username == null) {
+					bailOutMissingOption("elasticsearch_username");
 				}
 			}
 
-			// PROMPT USER FOR ELASTICSEARCH PORT
-			elasticsearch_port = getPreset("elasticsearch_port");
+			log.debug("elasticsearch_username: " + elasticsearch_username);
 
-			if (elasticsearch_port == null) {
-				elasticsearch_port = getPreset("default_elasticsearch_port");
-			}
-
+			// PROMPT USER FOR ELASTICSEARCH PASSWORD
 			if (cws_installer_mode.equals("interactive")) {
-				elasticsearch_port = readLine("Enter the Elasticsearch port. " +
-						"Default is " + elasticsearch_port + ": ", elasticsearch_port);
-			}
-		}
-		else {
-			// Use CWS's own Elasticsearch--set the elasticsearch host and port to the console, and install ES if this is a console
+				char[] password = readPassword("Enter the elasticsearch password: ");
 
-			if (installConsole) {
-				installElasticsearch = true;
-
-				elasticsearch_heapsize = getPreset("elasticsearch_heapsize");
-
-				if (elasticsearch_heapsize == null) {
-					// Determine the heap size we'll recommend as default, which is either
-					// one quarter of the available memory or a hard upper limit to ensure good
-					// performance from ES, whichever is smaller.
-					int recommended_heapsize = (int) Math.min(Math.ceil(physicalMemoryGigs / 4.0), MAX_ES_HEAP_SIZE);
-					elasticsearch_heapsize = String.valueOf(recommended_heapsize);
+				while (password == null || password.length < 1) {
+					print("Must specify an elasticsearch password!");
+					password = readPassword("Enter the elasticsearch password: ");
 				}
 
-				if (cws_installer_mode.equals("interactive")) {
-					elasticsearch_heapsize = readLine("Enter the desired Elasticsearch heap size in gigabytes. " +
-							"Default is " + elasticsearch_heapsize + ": ", elasticsearch_heapsize);
+				elasticsearch_password = String.valueOf(password);
+			} else {
+				if (elasticsearch_password == null) {
+					bailOutMissingOption("elasticsearch_password");
 				}
 			}
-
-			elasticsearch_host = cws_console_host;
-			elasticsearch_port = getPreset("default_elasticsearch_port");
 		}
 	}
 
@@ -1445,14 +1444,11 @@ public class CwsInstaller {
 		print("SMTP host                     = " + cws_smtp_hostname);
 		print("SMTP port                     = " + cws_smtp_port);
 		print("....................................................................................");
-		if (user_provided_elasticsearch.equalsIgnoreCase("Y")) {
-			print("Elasticsearch                 = User Provided");
-			print("Elasticsearch host            = " + elasticsearch_host);
-			print("Elasticsearch port            = " + elasticsearch_port);
-		}
-		else {
-			print("Elasticsearch                 = CWS Provided");
-			print("Elasticsearch heap size       = " + elasticsearch_heapsize);
+		print("Elasticsearch URL             = " + elasticsearch_host);
+		print("Elasticsearch Port            = " + elasticsearch_port);
+		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
+			print("Elasticsearch User            = " + elasticsearch_username);
+			print("Elasticsearch Password        = ****** (hidden) ");
 		}
 		print("....................................................................................");
 		if (user_provided_logstash.equalsIgnoreCase("Y")) {
@@ -1508,23 +1504,8 @@ public class CwsInstaller {
 			warningCount++;
 		}
 
-		// Validate ES setting if installing console and not user provided ES.
-		if (installConsole && user_provided_elasticsearch.equalsIgnoreCase("N")) {
-
-			// ElasticSearch seems to ignore lower limits on Macs.
-			if (!osName.equals("Mac OS X")) {
-				warningCount += validateElasticsearchProcThreads();
-				warningCount += validateElasticsearchFileDescriptors();
-			}
-
-			warningCount += validateElasticsearchHeapSize();
-		}
-
 		// Check that user provided Elasticsearch service is up and healthy
-		if (user_provided_elasticsearch.equalsIgnoreCase("Y")) {
-
-			warningCount += validateUserProvidedElasticsearch();
-		}
+		warningCount += validateElasticsearch();
 
 		if (installWorker && !installConsole) {
 			// Validate the AMQ host/port for worker only installations.
@@ -1826,11 +1807,17 @@ public class CwsInstaller {
 	 * Validates that User Provided ElasticSearch is running
 	 *
 	 */
-	private static int validateUserProvidedElasticsearch() {
+	private static int validateElasticsearch() {
 		print("checking that user provided Elasticsearch (" + elasticsearch_host + ":" + elasticsearch_port + ") is running...");
 
 		try {
 			String[] cmdArray = new String[] {"curl", "--fail", "http://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+
+			if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
+				// Add auth to curl
+				cmdArray = new String[] {"curl", "--fail", "--name", elasticsearch_username + ":" + elasticsearch_password, "http://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+			}
+
 			Process p = Runtime.getRuntime().exec(cmdArray);
 
 			// Wait for the process to complete
@@ -1852,167 +1839,6 @@ public class CwsInstaller {
 			log.error("error: ", e);
 			print("   [WARNING]");
 			print("       There was a problem determining if the user provided Elasticsearch is running or not.");
-			print("");
-			return 1;
-		}
-	}
-
-	/**
-	 * Validates that ElasticSearch limits are met
-	 *
-	 */
-	private static int validateElasticsearchProcThreads() {
-		print("checking for Elasticsearch prerequisite #1 (number of threads)...");
-
-		// max user processes
-		try {
-			String maxUserProcesses;
-			String[] cmdArray = new String[] {"bash", "-c", "ulimit -u"};
-			Process p = Runtime.getRuntime().exec(cmdArray);
-			BufferedReader input =
-					new BufferedReader(new InputStreamReader(p.getInputStream()));
-			maxUserProcesses = input.readLine();
-			input.close();
-
-			if (maxUserProcesses == null) {
-				throw new Exception("unable to determine max user processes ");
-			}
-
-			if (maxUserProcesses.equals("unlimited")) {
-				print("   [OK]  (# users processes = unlimited)");
-				print("");
-				return 0; // no warnings
-			}
-
-			int maxUserProcsInt = Integer.parseInt(maxUserProcesses);
-
-			if (maxUserProcsInt < 4096) {
-				print("   [WARNING]");
-				print("       It was determined (via the \"ulimit -u\" command)");
-				print("       that this user on this system can create only " + maxUserProcsInt + " threads.");
-				print("       Please work with a System Administrator to ensure that at user on");
-				print("       this system can create is at least 4096.");
-				print("       See:  https://www.elastic.co/guide/en/elasticsearch/reference/master/max-number-of-threads.html");
-				print("");
-				return 1;
-			}
-			print("   [OK]  (# users processes = " + maxUserProcsInt + ")");
-			print("");
-			return 0; // no warnings
-
-		} catch (Exception e) {
-			log.error("error during Elasticsearch thread count validation: ", e);
-			print("   [WARNING]");
-			print("       There was a problem determining (via the \"ulimit -u\" command)");
-			print("       how many processes can run on this system. ");
-			print("       Please work with a System Administrator to ensure that at user on");
-			print("       this system can create is at least 4096.");
-			print("       See:  https://www.elastic.co/guide/en/elasticsearch/reference/master/max-number-of-threads.html");
-			print("");
-			return 1;
-		}
-	}
-
-
-	/**
-	 * Validates that ElasticSearch limits are met
-	 *
-	 */
-	private static int validateElasticsearchFileDescriptors() {
-		print("checking for Elasticsearch prerequisite #2 (number of file descriptors)...");
-
-		// check file descriptors count
-		try {
-			String maxFileDescriptors;
-			String[] cmdArray = new String[] {"bash", "-c", "ulimit -n"};
-			Process p = Runtime.getRuntime().exec(cmdArray);
-			BufferedReader input =
-					new BufferedReader(new InputStreamReader(p.getInputStream()));
-			maxFileDescriptors = input.readLine();
-			input.close();
-
-			if (maxFileDescriptors == null) {
-				throw new Exception("unable to determine max file descriptors");
-			}
-
-			if (maxFileDescriptors.equals("unlimited")) {
-				print("   [OK]  (# file descriptors = unlimited)");
-				print("");
-				return 0; // no warnings
-			}
-
-			int maxFileDescriptorsInt = Integer.parseInt(maxFileDescriptors);
-
-			if (maxFileDescriptorsInt < 65536) {
-				print("   [WARNING]");
-				print("       It was determined (via the \"ulimit -n\" command)");
-				print("       that the max open file descriptors on this system is " + maxFileDescriptorsInt + ".");
-				print("       Please work with a System Administrator to ensure that this system ");
-				print("       that this limit is set to 65536.");
-				print("       See:  https://www.elastic.co/guide/en/elasticsearch/reference/current/file-descriptors.html");
-				print("");
-				return 1;
-			}
-			print("   [OK]  (# file descriptors = " + maxFileDescriptorsInt + ")");
-			print("");
-
-			return 0; // no warnings
-
-		} catch (Exception e) {
-			log.error("error during Elasticsearch file descriptor validation: ", e);;
-			print("   [WARNING]");
-			print("       There was a problem determining (via the \"ulimit -n\" command)");
-			print("       what the open file descriptors limit is on this system.");
-			print("       Please work with a System Administrator to ensure that this system ");
-			print("       that this limit is set to 65536.");
-			print("       See:  https://www.elastic.co/guide/en/elasticsearch/reference/current/file-descriptors.html");
-			print("");
-			return 1;
-		}
-	}
-
-	/**
-	 * Validates the user-provided heap size for Elasticsearch
-	 *
-	 */
-	private static int validateElasticsearchHeapSize() {
-		print("checking for Elasticsearch prerequisite #3 (valid heap size)...");
-
-		try {
-			int elasticsearchHeapSizeInt = Integer.parseInt(elasticsearch_heapsize);
-
-			// Make sure the user didn't request more than 50% of available RAM
-			if (elasticsearchHeapSizeInt > (physicalMemoryGigs / 2)) {
-				print("   [WARNING]");
-				print("      The provided Elasticsearch heap size (" + elasticsearch_heapsize + " GB) is ");
-				print("      larger than 50% of the available physical memory on the current machine (" + physicalMemoryGigs + " GB)");
-				print("      This could have an adverse effect on OS performance.");
-				print("      See: https://www.elastic.co/guide/en/elasticsearch/reference/current/heap-size.html");
-				print("");
-				return 1;
-			}
-
-			// Make sure the user didn't exceed the upper limit which would prevent compression of object pointers
-			if (elasticsearchHeapSizeInt > MAX_ES_HEAP_SIZE) {
-				print("   [WARNING]");
-				print("     The provided Elasticsearch heap size (" + elasticsearch_heapsize + " GB) is ");
-				print("     larger than the maximum recommended size of " + MAX_ES_HEAP_SIZE + ".");
-				print("     This could have an adverse effect on Elasticsearch JVM performance.");
-				print("     See: https://www.elastic.co/guide/en/elasticsearch/reference/current/heap-size.html");
-				print("");
-				return 1;
-			}
-
-			print("   [OK]  (heap size = " + elasticsearchHeapSizeInt + ")");
-			print("");
-
-			return 0; // no warnings
-
-		} catch (Exception e) {
-			log.error("error during Elasticsearch heap size validation: ", e);
-			print("   [WARNING]");
-			print("       There was a problem trying to parse the provided Elasticsearch heap size: " + elasticsearch_heapsize);
-			print("       Please ensure the provided heap size is a positive integer.");
 			print("");
 			return 1;
 		}
@@ -2093,7 +1919,6 @@ public class CwsInstaller {
 		mkDir(config_work_dir + SEP + "tomcat_conf");
 		mkDir(config_work_dir + SEP + "camunda_mods");
 		mkDir(config_work_dir + SEP + "engine-rest_mods");
-		mkDir(config_work_dir + SEP + "elasticsearch");
 		mkDir(config_work_dir + SEP + "logging");
 
 
@@ -2136,10 +1961,6 @@ public class CwsInstaller {
 				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP +  "ldap_plugin_ref.xml"));
 		copy(Paths.get( config_templates_dir + SEP + "camunda_mods" + SEP + "web.xml"),
 				Paths.get(config_work_dir + SEP + "camunda_mods" + SEP +  "web.xml"));
-		copy(Paths.get( config_templates_dir + SEP + "elasticsearch" + SEP + "elasticsearch.yml"),
-				Paths.get(config_work_dir + SEP + "elasticsearch" + SEP +  "elasticsearch.yml"));
-		copy(Paths.get( config_templates_dir + SEP + "elasticsearch" + SEP + "jvm.options"),
-				Paths.get(config_work_dir + SEP + "elasticsearch" + SEP +  "jvm.options"));
 		copy(Paths.get( config_templates_dir + SEP + "logging" + SEP + "cws-logstash.conf"),
 				Paths.get(config_work_dir + SEP + "logging" + SEP +  "cws-logstash.conf"));
 	}
@@ -2412,6 +2233,7 @@ public class CwsInstaller {
 		content = content.replace("__CWS_CONSOLE_SSL_PORT__",            cws_console_ssl_port);
 		content = content.replace("__CWS_ES_HOST__",                     elasticsearch_host);
 		content = content.replace("__CWS_ES_PORT__",                     elasticsearch_port);
+		content = content.replace("__CWS_ES_USE_AUTH__",                 elasticsearch_use_auth);
 		content = content.replace("__CWS_ENABLE_CLOUD_AUTOSCALING__",    cws_enable_cloud_autoscaling);
 		content = content.replace("__CWS_CLOUDWATCH_ENDPOINT__",         aws_cloudwatch_endpoint);
 		content = content.replace("__CWS_METRICS_PUBLISHING_INTERVAL__", metrics_publishing_interval);
@@ -2430,6 +2252,12 @@ public class CwsInstaller {
 		content = content.replace("__CWS_HISTORY_DAYS_TO_LIVE__",        history_days_to_live);
 		content = content.replace("__CWS_HISTORY_LEVEL__",     		     history_level);
 		content = content.replace("__AWS_DEFAULT_REGION__", 				  aws_default_region);
+
+		// ES auth might not be in use
+		if(elasticsearch_use_auth.equalsIgnoreCase("Y")) {
+			content = content.replace("__CWS_ES_USERNAME__", elasticsearch_username);
+			content = content.replace("__CWS_ES_PASSWORD__", elasticsearch_password);
+		}
 
 		// S3 Initiator might not be in use
 		if(aws_sqs_dispatcher_sqsUrl != null) {
@@ -2491,6 +2319,11 @@ public class CwsInstaller {
 		content = getFileContents(path);
 		content = content.replace("__ES_HOST__",      				elasticsearch_host);
 		content = content.replace("__ES_PORT__",  					elasticsearch_port);
+		content = content.replace("__ES_USE_AUTH__",                 elasticsearch_use_auth);
+		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
+			content = content.replace("__ES_USERNAME__",             elasticsearch_username);
+			content = content.replace("__ES_PASSWORD__",             elasticsearch_password);
+		}
 		content = content.replace("__CWS_HISTORY_DAYS_TO_LIVE__", 	history_days_to_live);
 		writeToFile(path, content);
 		copy(
@@ -2586,39 +2419,6 @@ public class CwsInstaller {
     }
 
 
-	private static void installElasticSearch() throws IOException {
-		// UNZIP / INSTALL ELASTICSEARCH
-		print(" Unzipping elasticsearch-" + elasticsearch_ver + ".zip...");
-		String elasticsearchZipFilePath = cws_server_root + SEP + "elasticsearch-" + elasticsearch_ver + ".zip";
-		String elasticsearchDestDirectory = cws_server_root;
-		unzipFile(elasticsearchZipFilePath, elasticsearchDestDirectory);
-
-		// Open up permissions of elastic search executables
-		openUpPermissions(elasticsearchDestDirectory + SEP + "elasticsearch-" + elasticsearch_ver + SEP + "bin" + SEP + "elasticsearch");
-		openUpPermissions(elasticsearchDestDirectory + SEP + "elasticsearch-" + elasticsearch_ver + SEP + "modules" + SEP + "x-pack-ml" + SEP + "platform" + SEP + "darwin-x86_64" + SEP + "bin" + SEP + "controller");
-		openUpPermissions(elasticsearchDestDirectory + SEP + "elasticsearch-" + elasticsearch_ver + SEP + "modules" + SEP + "x-pack-ml" + SEP + "platform" + SEP + "linux-x86_64" + SEP + "bin" + SEP + "controller");
-
-		// UPDATE elasticsearch.yml
-		print(" Updating elasticsearch.yml...");
-		Path elasticsearchFilePath = Paths.get(config_work_dir + SEP + "elasticsearch" + SEP + "elasticsearch.yml");
-		String content = getFileContents(elasticsearchFilePath);
-		content = content.replace("__CWS_ES_CLUSTERNAME__", unique_broker_group_name);
-		content = content.replace("__CWS_ES_HOST__", elasticsearch_host);
-		writeToFile(elasticsearchFilePath, content);
-
-		copy(elasticsearchFilePath, Paths.get(elasticsearch_root + SEP + "config" + SEP + "elasticsearch.yml"));
-
-		// UPDATE jvm.options
-		print(" Updating jvm.options...");
-		elasticsearchFilePath = Paths.get(config_work_dir + SEP + "elasticsearch" + SEP + "jvm.options");
-		content = getFileContents(elasticsearchFilePath);
-		content = content.replaceAll("__CWS_ES_HEAPSIZE__", elasticsearch_heapsize);
-		writeToFile(elasticsearchFilePath, content);
-
-		copy(elasticsearchFilePath, Paths.get(elasticsearch_root + SEP + "config" + SEP + "jvm.options"));
-	}
-
-
 	private static void deleteCwsUiWebApp() {
 		print(" Removing cws-ui app from webapps...");
 
@@ -2661,6 +2461,17 @@ public class CwsInstaller {
 
 		logstashContent = logstashContent.replace("__CWS_ES_HOST__", elasticsearch_host);
 		logstashContent = logstashContent.replace("__CWS_ES_PORT__", elasticsearch_port);
+		if (elasticsearch_use_auth.equalsIgnoreCase(("Y"))) {
+			// Construct the auth config for logstash
+			String user = "user => " + elasticsearch_username;
+			String pw = "password => " + elasticsearch_password;
+			logstashContent = logstashContent.replace("__LOGSTASH_ES_USERNAME__", user);
+			logstashContent = logstashContent.replace("__LOGSTASH_ES_PASSWORD__", pw);
+		} else {
+			// Remove these blocks if not using auth
+			logstashContent = logstashContent.replace("__LOGSTASH_ES_USERNAME__", "");
+			logstashContent = logstashContent.replace("__LOGSTASH_ES_PASSWORD__", "");
+		}
 		writeToFile(logstashFilePath, logstashContent);
 
 		print(" Put logstash conf file into place.");
@@ -2710,10 +2521,11 @@ public class CwsInstaller {
 		setPreset("metrics_publishing_interval", metrics_publishing_interval);
 		setPreset("cws_notification_emails", cws_notification_emails);
 		setPreset("cws_token_expiration_hours", cws_token_expiration_hours);
-		setPreset("user_provided_elasticsearch", user_provided_elasticsearch);
 		setPreset("elasticsearch_host", elasticsearch_host);
 		setPreset("elasticsearch_port", elasticsearch_port);
-		setPreset("elasticsearch_heapsize", elasticsearch_heapsize);
+		setPreset("elasticsearch_use_auth", elasticsearch_use_auth);
+		setPreset("elasticsearch_username", elasticsearch_username);
+		setPreset("elasticsearcH_password", elasticsearch_password);
 		setPreset("user_provided_logstash", user_provided_logstash);
 		setPreset("history_level", history_level);
 		setPreset("history_days_to_live", history_days_to_live);
