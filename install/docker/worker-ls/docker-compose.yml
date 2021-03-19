@@ -5,7 +5,7 @@ services:
     labels:
       com.example.service: "logstash"
       com.example.description: "For logging data"
-    image: docker.elastic.co/logstash/logstash:6.4.2
+    image: docker.elastic.co/logstash/logstash:7.9.0
     container_name: cws-worker-logstash
     volumes:
       - logs-volume:/cws_logs:ro

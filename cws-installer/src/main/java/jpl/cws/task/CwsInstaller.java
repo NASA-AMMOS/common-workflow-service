@@ -38,6 +38,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.TimeZone;
@@ -1080,8 +1081,6 @@ public class CwsInstaller {
 			user_provided_logstash = read_elasticsearch_use_auth.toLowerCase();
 		}
 
-		elasticsearch_use_auth = getPreset("elasticsearch_password");
-
 		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 
 			elasticsearch_username = getPreset("elasticsearch_username");
@@ -1102,6 +1101,8 @@ public class CwsInstaller {
 			}
 
 			log.debug("elasticsearch_username: " + elasticsearch_username);
+
+			elasticsearch_password = getPreset("elasticsearch_password");
 
 			// PROMPT USER FOR ELASTICSEARCH PASSWORD
 			if (cws_installer_mode.equals("interactive")) {
@@ -1815,7 +1816,7 @@ public class CwsInstaller {
 
 			if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 				// Add auth to curl
-				cmdArray = new String[] {"curl", "--fail", "--name", elasticsearch_username + ":" + elasticsearch_password, "http://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+				cmdArray = new String[] {"curl", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, "https://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 			}
 
 			Process p = Runtime.getRuntime().exec(cmdArray);
@@ -2463,14 +2464,20 @@ public class CwsInstaller {
 		logstashContent = logstashContent.replace("__CWS_ES_PORT__", elasticsearch_port);
 		if (elasticsearch_use_auth.equalsIgnoreCase(("Y"))) {
 			// Construct the auth config for logstash
-			String user = "user => " + elasticsearch_username;
-			String pw = "password => " + elasticsearch_password;
+			String user = "user => \"" + elasticsearch_username + "\"";
+			String pw = "password => \"" + elasticsearch_password + "\"";
 			logstashContent = logstashContent.replace("__LOGSTASH_ES_USERNAME__", user);
 			logstashContent = logstashContent.replace("__LOGSTASH_ES_PASSWORD__", pw);
+
+			// Tell logstash to use https
+			logstashContent = logstashContent.replace("__LOGSTASH_ES_USE_SSL__", "true");
 		} else {
 			// Remove these blocks if not using auth
 			logstashContent = logstashContent.replace("__LOGSTASH_ES_USERNAME__", "");
 			logstashContent = logstashContent.replace("__LOGSTASH_ES_PASSWORD__", "");
+
+			// Tell logstash to use http
+			logstashContent = logstashContent.replace("__LOGSTASH_ES_USE_SSL__", "false");
 		}
 		writeToFile(logstashFilePath, logstashContent);
 
