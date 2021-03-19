@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Base64;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -47,16 +48,29 @@ public class WebUtils {
 		return restCall(urlString, method, postData,
 			null,  // cookie
 			null,  // acceptType
-			null,  // contentType
-			false  // allowInsecureRequests
+			null  // contentType
 		);
+	}
+
+	/**
+	 * Performs an unauthenticated REST call
+	 */
+	public static RestCallResult restCall(String urlString, String method, String data, String cookie, String acceptType, String contentType) throws Exception {
+		return restCall(urlString, method, data, cookie, acceptType, contentType, true, null, null);
+	}
+
+	/**
+	 * Performs an authenticated REST call
+	 */
+	public static RestCallResult restCall(String urlString, String method, String data, String cookie, String acceptType, String contentType, String username, String password) throws Exception {
+		return restCall(urlString, method, data, cookie, acceptType, contentType, false, username, password);
 	}
 	
 	/**
 	 * Performs a REST call
 	 * 
 	 */
-	public static RestCallResult restCall(String urlString, String method, String data, String cookie, String acceptType, String contentType, Boolean allowInsecureRequests) throws Exception {
+	public static RestCallResult restCall(String urlString, String method, String data, String cookie, String acceptType, String contentType, Boolean allowInsecureRequests, String username, String password) throws Exception {
 		log.trace("urlString = " + urlString);
 		HttpURLConnection connection = null;
 		try {
@@ -72,7 +86,14 @@ public class WebUtils {
 			
 			URL url = new URL(urlString);
 			connection = (HttpURLConnection) url.openConnection();
-			
+
+			// Add authentication to request
+			if (username != null) {
+				String userpass = username + ":" + password;
+				String basicAuth = "Basic " + new String(Base64.getEncoder().encode(userpass.getBytes()));
+				connection.setRequestProperty ("Authorization", basicAuth);
+			}
+
 			if (allowInsecureRequests) {
 
 				log.info("SSL 'insecure' mode activated.");
@@ -136,10 +157,10 @@ public class WebUtils {
 					out.close();
 				}
 			}
-			
+
 			// Perform the connection
 			connection.connect();
-			
+
 			int responseCode = -1;
 			try {
 				responseCode = connection.getResponseCode();
@@ -149,7 +170,7 @@ public class WebUtils {
 			}
 			if (responseCode == 200) {
 				log.trace("REST "+method+" for " + url + " was successful (HTTP 200).");
-				
+
 				InputStream in = connection.getInputStream();
 				// FIXME: potential memory suck if response is large
 				String response = IOUtils.toString(in);
@@ -158,7 +179,7 @@ public class WebUtils {
 			}
 			else {
 				log.warn("REST " + method + " FAILED for " + url + ".  Response code was " + responseCode);
-				
+
 				return new RestCallResult(responseCode, null, connection.getResponseMessage());
 			}
 		}
@@ -179,8 +200,8 @@ public class WebUtils {
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * 
 	 */

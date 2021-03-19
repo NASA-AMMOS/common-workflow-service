@@ -112,6 +112,10 @@ public class RestService extends MvcCore {
 	@Value("${cws.elasticsearch.hostname}") private String elasticsearchHostname;
 	@Value("${cws.elasticsearch.port}") private String elasticsearchPort;
 
+	@Value("${cws.elasticsearch.use.auth}") private String elasticsearchUseAuth;
+	@Value("${cws.elasticsearch.username}") private String elasticsearchUsername;
+	@Value("${cws.elasticsearch.password}") private String elasticsearchPassword;
+
 	public RestService() {}
 	
 	
@@ -392,6 +396,27 @@ public class RestService extends MvcCore {
 			return e.getMessage();
 		}
 	}
+
+	/**
+	 * Constructs Elasticsearch URL
+	 *
+	 * @param subPath The subPath for the elasticsearch query, e.g., /_delete_by_query
+	 * @return fully constructed elasticsearch URL string
+	 */
+	private String constructElasticsearchUrl(String subPath) {
+		String urlString = elasticsearchUseAuth.equalsIgnoreCase("Y")? "https://" : "http://";
+		urlString += elasticsearchHostname + ":" + elasticsearchPort + subPath;
+
+		return urlString;
+	}
+
+	/**
+	 *
+	 * @return boolean indicating whether elasticsearch requires authentication
+	 */
+	private Boolean elasticsearchUseAuth() {
+		return elasticsearchUseAuth.equalsIgnoreCase("Y");
+	}
 	
 	
 	/**
@@ -603,14 +628,21 @@ public class RestService extends MvcCore {
 	@RequestMapping(value = "/logs/get/scroll", method = POST, produces="application/json")
 	public @ResponseBody String getLogsScroll(
 			@RequestParam(value = "scrollId") String scrollId) {
-		String urlString = "http://" + elasticsearchHostname + ":" + elasticsearchPort + "/_search/scroll";
+		String urlString = constructElasticsearchUrl("/_search/scroll");
 		String jsonData = "{ \"scroll\" : \"1m\", \"scroll_id\" : \"" + scrollId + "\" }";
 		
 		log.trace("REST getLogs query = " + urlString);
 		log.trace("REST getLogs jsonData = " + jsonData);
 		
 		try {
-			RestCallResult restCallResult = WebUtils.restCall(urlString, "POST", jsonData, null, null, "application/json; charset=utf-8", true);
+			RestCallResult restCallResult;
+			if (elasticsearchUseAuth()) {
+				// Authenticated call
+				restCallResult = WebUtils.restCall(urlString, "POST", jsonData, null, null, "application/json; charset=utf-8", elasticsearchUsername, elasticsearchPassword);
+			} else {
+				// Unauthenticated call
+				restCallResult = WebUtils.restCall(urlString, "POST", jsonData, null, null, "application/json; charset=utf-8");
+			}
 			if (restCallResult.getResponseCode() != 200) {
 				return "ERROR";
 			}
@@ -630,12 +662,19 @@ public class RestService extends MvcCore {
 	@RequestMapping(value = "/logs/get", method = GET, produces="application/json")
 	public @ResponseBody String getLogs(
 			@RequestParam(value = "source") String source) {
-		String urlString = "http://" + elasticsearchHostname + ":" + elasticsearchPort + "/_search?scroll=1m&source=" + source + "&source_content_type=application/json";
+		String urlString = constructElasticsearchUrl("/_search?scroll=1m&source=" + source + "&source_content_type=application/json");
 		
 		log.trace("REST getLogs query = " + urlString);
 		
 		try {
-			RestCallResult restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, "application/json; charset=utf-8", true);
+			RestCallResult restCallResult;
+			if (elasticsearchUseAuth()) {
+				// Authenticated call
+				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, "application/json; charset=utf-8", elasticsearchUsername, elasticsearchPassword);
+			} else {
+				// Unauthenticated call
+				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, "application/json; charset=utf-8");
+			}
 			if (restCallResult.getResponseCode() != 200) {
 				return "ERROR";
 			}
@@ -657,15 +696,21 @@ public class RestService extends MvcCore {
 			HttpServletResponse response,
 			@PathVariable String procDefKey
 			) {
-		
-		String urlString = "http://" + elasticsearchHostname + ":" + elasticsearchPort + "/*/_delete_by_query";
+		String urlString = constructElasticsearchUrl("/*/_delete_by_query");
 		log.debug("REST deleteLogsByProcDefKey url = " + urlString);
 		
 		String data = "{ \"query\": { \"bool\": { \"must\": [ { \"match\": { \"procDefKey\": \"" + procDefKey + "\" } } ] } } }";
 		log.debug("REST deleteLogsByProcDefKey data = " + data);
 		
 		try {
-			RestCallResult restCallResult = WebUtils.restCall(urlString, "POST", data, null, null, "application/json", true);
+			RestCallResult restCallResult;
+			if (elasticsearchUseAuth()) {
+				// Authenticated call
+				restCallResult = WebUtils.restCall(urlString, "POST", data, null, null, "application/json", elasticsearchUsername, elasticsearchPassword);
+			} else {
+				// Unauthenticated call
+				restCallResult = WebUtils.restCall(urlString, "POST", data, null, null, "application/json");
+			}
 			
 			if (restCallResult.getResponseCode() != 200) {
 				
@@ -733,12 +778,19 @@ public class RestService extends MvcCore {
 	 */
 	@RequestMapping(value = "/stats/es/indices", method = GET, produces="application/json")
 	public @ResponseBody String getElasticsearchIndices() {
-		String urlString = "http://" + elasticsearchHostname + ":" + elasticsearchPort + "/_cat/indices?v&bytes=b&s=index&format=json";
+		String urlString = constructElasticsearchUrl("/_cat/indices?v&bytes=b&s=index&format=json");
 		
 		log.trace("REST query = " + urlString);
 		
 		try {
-			RestCallResult restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, null, true);
+			RestCallResult restCallResult;
+			if (elasticsearchUseAuth()) {
+				// Authenticated call
+				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, null, elasticsearchUsername, elasticsearchPassword);
+			} else {
+				// Unauthenticated call
+				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, null);
+			}
 			if (restCallResult.getResponseCode() != 200) {
 				return "ERROR";
 			}
@@ -757,12 +809,19 @@ public class RestService extends MvcCore {
 	 */
 	@RequestMapping(value = "/stats/es/cluster/health", method = GET, produces="application/json")
 	public @ResponseBody String getElasticsearchClusterHealth() {
-		String urlString = "http://" + elasticsearchHostname + ":" + elasticsearchPort + "/_cluster/health";
+		String urlString = constructElasticsearchUrl("/_cluster/health");
 		
 		log.trace("REST query = " + urlString);
 		
 		try {
-			RestCallResult restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, null, true);
+			RestCallResult restCallResult;
+			if (elasticsearchUseAuth()) {
+				// Authenticated call
+				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, null, elasticsearchUsername, elasticsearchPassword);
+			} else {
+				// Unauthenticated call
+				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, null);
+			}
 			if (restCallResult.getResponseCode() != 200) {
 				return "ERROR";
 			}
@@ -781,12 +840,19 @@ public class RestService extends MvcCore {
 	 */
 	@RequestMapping(value = "/stats/es", method = GET, produces="application/json")
 	public @ResponseBody String getElasticsearchStats() {
-		String urlString = "http://" + elasticsearchHostname + ":" + elasticsearchPort + "/_nodes/stats/_all";
+		String urlString = constructElasticsearchUrl("/_nodes/stats/_all");
 		
 		log.trace("REST query = " + urlString);
 		
 		try {
-			RestCallResult restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, null, true);
+			RestCallResult restCallResult;
+			if (elasticsearchUseAuth()) {
+				// Authenticated call
+				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, null, elasticsearchUsername, elasticsearchPassword);
+			} else {
+				// Unauthenticated call
+				restCallResult = WebUtils.restCall(urlString, "GET", null);
+			}
 			if (restCallResult.getResponseCode() != 200) {
 				return "ERROR";
 			}
@@ -1390,7 +1456,7 @@ public class RestService extends MvcCore {
 		
 		RestCallResult restCallResult = null;
 		try {
-			restCallResult = WebUtils.restCall(url, "GET", null, null, acceptType, null, false);
+			restCallResult = WebUtils.restCall(url, "GET", null, null, acceptType, null);
 		} catch (Exception e) {
 			log.error("Exception occurred while making external GET request to: " + url, e);
 			return "ERROR";
@@ -1420,7 +1486,7 @@ public class RestService extends MvcCore {
 		
 		RestCallResult restCallResult = null;
 		try {
-			restCallResult = WebUtils.restCall(url, "POST", postPayload, null, null, contentType, false);
+			restCallResult = WebUtils.restCall(url, "POST", postPayload, null, null, contentType);
 		} catch (Exception e) {
 			log.error("Exception occurred while making external POST request to: " + url, e);
 			return "ERROR";
@@ -1451,7 +1517,7 @@ public class RestService extends MvcCore {
 		
 		RestCallResult restCallResult = null;
 		try {
-			restCallResult = WebUtils.restCall(url, "PUT", payload, null, null, contentType, false);
+			restCallResult = WebUtils.restCall(url, "PUT", payload, null, null, contentType);
 		} catch (Exception e) {
 			log.error("Exception occurred while making external PUT request to: " + url, e);
 			return "ERROR";

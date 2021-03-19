@@ -101,13 +101,6 @@ LS_KILL_PATTERN=${ROOT}/server/logstash-${LOGSTASH_VER}
 
 kill_proc "Logstash" ${LS_KILL_PATTERN}
 
-# ===========================
-# KILL ELASTICSEARCH PROCESS
-# ===========================
-ES_KILL_PATTERN=${ROOT}/server/elasticsearch-${ELASTICSEARCH_VER}
-
-kill_proc "Elasticsearch" ${ES_KILL_PATTERN}
-
 # ===================
 # TELL TOMCAT TO STOP
 # ===================
@@ -148,11 +141,9 @@ fi
 # =======================
 TOMCAT_PROC_COUNT=$(remaining_procs ${TOMCAT_KILL_PATTERN})
 LS_PROC_COUNT=$(remaining_procs ${LS_KILL_PATTERN})
-ES_PROC_COUNT=$(remaining_procs ${ES_KILL_PATTERN})
 print "---------------------------------------------------------------------------"
 print "${TOMCAT_PROC_COUNT} REMAINING TOMCAT PROCS        (${CWS_TOMCAT_HOME})"
 print "${LS_PROC_COUNT} REMAINING LOGSTASH PROCS      (${ROOT}/server/logstash-${LOGSTASH_VER})"
-print "${ES_PROC_COUNT} REMAINING ELASTICSEARCH PROCS (${ROOT}/server/elasticsearch-${ELASTICSEARCH_VER})"
 print "If any processes still remain, they should be manually terminated."
 print "---------------------------------------------------------------------------"
 

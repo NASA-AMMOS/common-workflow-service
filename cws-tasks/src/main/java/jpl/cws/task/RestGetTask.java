@@ -3,7 +3,6 @@ package jpl.cws.task;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.net.URL;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -44,6 +43,10 @@ public class RestGetTask extends CwsTask {
 	private String acceptTypeString;
 	private Expression allowInsecureRequests;
 	private boolean allowInsecureRequestsBoolean;
+	private Expression httpAuthUsername;
+	private String httpAuthUsernameString;
+	private Expression httpAuthPassword;
+	private String httpAuthPasswordString;
 	
 	// CWS token security scheme variables
 	//
@@ -53,7 +56,7 @@ public class RestGetTask extends CwsTask {
 	private String cwsCookieNameString;
 	private Expression cwsCookieValue;      // cookie value -- this is the CWS "token"
 	private String cwsCookieValueString;
-	
+
 	
 	public RestGetTask() {
 		log.trace("RestGetTask constructor...");
@@ -63,6 +66,8 @@ public class RestGetTask extends CwsTask {
 	public void initParams() throws Exception {
 		urlString = getStringParam(url, "url");
 		allowInsecureRequestsBoolean = getBooleanParam(allowInsecureRequests, "allowInsecureRequests", DEFAULT_ALLOW_INSECURE_REQUESTS);
+		httpAuthUsernameString = getStringParam(httpAuthUsername, "httpAuthUsername", null);
+		httpAuthPasswordString = getStringParam(httpAuthPassword, "httpAuthPassword", null);
 		throwOnBadResponseBoolean = getBooleanParam(throwOnBadResponse, "throwOnBadResponse", DEFAULT_THROW_ON_BAD_RESPONSE);
 		acceptTypeString = getStringParam(acceptType, "acceptType", null);
 
@@ -92,13 +97,26 @@ public class RestGetTask extends CwsTask {
 		
 		// Make the REST GET
 		//
-		RestCallResult result = WebUtils.restCall(
-				urlString, "GET",
-				null, // no POST args, since we are making a GET call
-				cookieToUse,
-				acceptTypeString,
-				null,
-				allowInsecureRequestsBoolean);
+		RestCallResult result;
+		if (httpAuthUsername == null) {
+			// Unauthenticated GET
+			result = WebUtils.restCall(
+					urlString, "GET",
+					null, // no POST args, since we are making a GET call
+					cookieToUse,
+					acceptTypeString,
+					null);
+		} else {
+			// Authenticated GET
+			result = WebUtils.restCall(
+					urlString, "GET",
+					null, // no POST args, since we are making a GET call
+					cookieToUse,
+					acceptTypeString,
+					null,
+					httpAuthUsernameString,
+					httpAuthPasswordString);
+		}
 		
 		int responseCode = result.getResponseCode();
 		log.info("httpStatusCode: " + responseCode);
@@ -181,6 +199,22 @@ public class RestGetTask extends CwsTask {
 	
 	public void setAllowInsecureRequests(Expression allowInsecureRequests) {
 		this.allowInsecureRequests = allowInsecureRequests;
+	}
+
+	public Expression getHttpAuthUsername() {
+		return httpAuthUsername;
+	}
+
+	public void setHttpAuthUsername(Expression httpAuthUsername) {
+		this.httpAuthUsername = httpAuthUsername;
+	}
+
+	public Expression getHttpAuthPassword() {
+		return httpAuthPassword;
+	}
+
+	public void setHttpAuthPassword(Expression httpAuthPassword) {
+		this.httpAuthPassword = httpAuthPassword;
 	}
 	
 	public Expression getThrowOnBadResponse() {

@@ -18,7 +18,8 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
     - A database for CWS to use. `cws` is a good default.
     - A database user with full access to the above database.
   - [ITerm2](https://iterm2.com/): Currently these build scripts include commands to open new terminal windows using ITerm2, so they are best run from that terminal.
-  - **Logstash**: You will need to place the logstash 6.4.2 zip in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/past-releases/logstash-6-4-2).
+  - **Logstash 7.9+**: You will need to place the logstash 7.9.0 zip in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/past-releases/logstash-7-9-0).
+  - **Elasticsearch 7.9+**: CWS requires an externally-configured elasticsearch cluster to be set up. You can use elasticsearch with or without authentication. Please note that CWS currently only supports basic HTTP authentication.
   - Tomcat **keystore and truststore files** (needed for CWS web console to work properly):
     - You will need to add your own Tomcat keystore file to the `install/` direcotory
     - You will need to add your own truststor file to the `install/tomcat_lib/` directory

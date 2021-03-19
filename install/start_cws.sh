@@ -147,14 +147,12 @@ print "CWS install type is ${INSTALL_TYPE}"
 # ============================
 TOMCAT_PROC_COUNT=$(remaining_procs ${CWS_TOMCAT_HOME}/bin/bootstrap.jar)
 LS_PROC_COUNT=$(remaining_procs ${ROOT}/server/logstash-${LOGSTASH_VER})
-ES_PROC_COUNT=$(remaining_procs ${ROOT}/server/elasticsearch-${ELASTICSEARCH_VER})
 
-if [[ ${TOMCAT_PROC_COUNT} -gt 0 ]] || [[ ${LS_PROC_COUNT} -gt 0 ]] || [[ ${ES_PROC_COUNT} -gt 0 ]]
+if [[ ${TOMCAT_PROC_COUNT} -gt 0 ]] || [[ ${LS_PROC_COUNT} -gt 0 ]]
 then
 	print "---------------------------------------------------------------------------"
 	print "${TOMCAT_PROC_COUNT} ACTIVE TOMCAT PROCS    (${CWS_TOMCAT_HOME})"
 	print "${LS_PROC_COUNT} ACTIVE LOGSTASH PROCS      (${ROOT}/server/logstash-${LOGSTASH_VER})"
-	print "${ES_PROC_COUNT} ACTIVE ELASTICSEARCH PROCS (${ROOT}/server/elasticsearch-${ELASTICSEARCH_VER})"
 	print
 	print "+--------------------------------------------------------------+"
 	print "| It appears that some CWS process(es) are still running.      |"
@@ -232,25 +230,6 @@ else
 	export JPDA_TRANSPORT=dt_socket
 	print "Starting CWS application server in debug mode (JPDA_ADRESS = ${JPDA_ADDRESS})..."
 	nohup ${CWS_TOMCAT_HOME}/bin/catalina.sh jpda start
-fi
-
-# ===================
-# START ELASTICSEARCH
-# ===================
-# Start ES only for console installations where user is not providing their own Elasticsearch
-if [[ "${INSTALL_TYPE}" = "1" ]] || [[ "${INSTALL_TYPE}" = "2" ]]; then
-    USER_ES=`grep ^user_provided_elasticsearch ${CWS_INSTALLER_CONFIG_FILE} | grep -v "#" | cut -d"=" -f 2`
-
-    if [[ ${USER_ES} =~ $(echo "^(n|N)$") ]]; then
-		nohup env -i ${ROOT}/launch_es.sh ${ELASTICSEARCH_VER} ${JAVA_HOME} > ${ROOT}/logs/cws_launch_es.log 2>&1 &
-
-        if [[ $? -ne 0 ]]; then
-            print "ERROR: Problem launching Elasticsearch. Please check the log under ${ROOT}/logs/cws_launch_es.log."
-            exit 1
-        fi
-	else
-	    print "Using user provided Elasticsearch..."
-	fi
 fi
 
 # ==============
