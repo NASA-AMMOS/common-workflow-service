@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 		<artifactId>common-workflow-service</artifactId>
-		<version>2.0</version><!-- update this each CWS release -->
+		<version>2.1.0-pre.3</version><!-- update this each CWS release -->
 	</parent>
 	<artifactId>cws-engine-service</artifactId>
 	
@@ -215,19 +215,6 @@
 					<forkCount>1</forkCount>
 					<runOrder>random</runOrder>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>report-aggregate</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>report-aggregate</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
