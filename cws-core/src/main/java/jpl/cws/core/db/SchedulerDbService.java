@@ -55,7 +55,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			"  status='"+PENDING+"' AND " +
 			"  proc_def_key=? " +
 			"ORDER BY " +
-			"  priority DESC, " +    // higher number priorities   favored
+			"  priority ASC, " +     // lower priorities    favored
 			"  created_time ASC " +  // older dates (FIFO)  favored
 			"LIMIT ?";
 
