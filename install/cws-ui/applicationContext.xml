@@ -100,6 +100,11 @@
 		instead we will let Spring shutdown the broker
 	-->
 	<amq:broker brokerName="cwsConsoleBroker" persistent="true" useJmx="true" dataDirectory="" useShutdownHook="false">
+		<!--
+		USE THIS FOR FUTURE SETTING ABOVE:
+		tmpDataDirectory="__CWS_ROOT_DIR__/server/amq_tmp_storage"
+		CURRENTLY, this defaults to /cwsConsoleBroker/tmp_storage
+		-->
 		<amq:managementContext>
 			<amq:managementContext connectorPort="__CWS_AMQ_JMX_PORT__" jmxDomainName="cws-broker" />
 		</amq:managementContext>
@@ -112,13 +117,13 @@
 		<amq:systemUsage>
 			<amq:systemUsage>
 				<amq:memoryUsage>
-					<amq:memoryUsage limit="128 mb"></amq:memoryUsage>
+					<amq:memoryUsage limit="256 mb"></amq:memoryUsage>
 				</amq:memoryUsage>
 				<amq:storeUsage>
-					<amq:storeUsage limit="1 gb"></amq:storeUsage>
+					<amq:storeUsage limit="2 gb"></amq:storeUsage>
 				</amq:storeUsage>
 				<amq:tempUsage>
-					<amq:tempUsage limit="100 mb"></amq:tempUsage>
+					<amq:tempUsage limit="200 mb"></amq:tempUsage>
 				</amq:tempUsage>
 			</amq:systemUsage>
 		</amq:systemUsage>
