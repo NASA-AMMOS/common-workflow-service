@@ -50,11 +50,11 @@ public class ProcessStartReqProcessor implements Runnable {
 		
 		log.trace("ProcessStartReqProcessor run()...");
 		try {
-			// Sleep for a random amount (up to a second).
+			// Sleep for a random amount (up to a quarter second).
 			// This is to avoid all workers hitting the database at the exact same time
 			// when a process request (topic) comes in.
 			//
-			//Thread.sleep((long)(Math.random() * 1000.0));
+			Thread.sleep((long)(Math.random() * 250.0));
 			
 			// Attempt to claim a start request
 			//
