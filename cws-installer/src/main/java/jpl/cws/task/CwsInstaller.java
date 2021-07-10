@@ -1812,13 +1812,15 @@ public class CwsInstaller {
 		print("checking that user provided Elasticsearch (" + elasticsearch_host + ":" + elasticsearch_port + ") is running...");
 
 		try {
-			String[] cmdArray = new String[] {"curl", "--fail", "http://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+			String[] cmdArray = new String[] {"curl", "-Lkv", "--fail", "http://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 
 			if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 				// Add auth to curl
-				cmdArray = new String[] {"curl", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, "https://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+				cmdArray = new String[] {"curl", "-Lkv", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, "https://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 			}
-
+			print("Executing command:");
+			print(String.join(" ", cmdArray));
+			
 			Process p = Runtime.getRuntime().exec(cmdArray);
 
 			// Wait for the process to complete
