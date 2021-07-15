@@ -24,8 +24,66 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
     - You will need to add your own Tomcat keystore file to the `install/` direcotory
     - You will need to add your own truststor file to the `install/tomcat_lib/` directory
     - See: https://tomcat.apache.org/tomcat-9.0-doc/ssl-howto.html
+    
+  - **Apache Maven 3.8.1+**: Install Maven by following these steps:
+    - See: https://maven.apache.org/install.html
+    
+#### Development Environment Configuration
+
+#####Tomcat Server
+
+Check if Apache Tomcat server is active:
+* Locate Apache-Tomcat directory
+* Move into `/bin` and run command: 
+
+```
+./catalina.sh
+```
+* Confirm Tomcat server is running by opening browser and checking localhost
+
+```
+http://localhost:8080
+```
+
+##### Generate mariaDB Docker Container and Create Database
+```
+docker run -d -p 3306:3306 -e MYSQL_DATABASE=__DB_NAME__ -e MYSQL_ROOT_PASSWORD=__ROOT_PW__ -e TZ=America/Los_Angeles --name mdb103 mariadb:1
+```
+
+`__DB_NAME__` and `__ROOT_PW__` must match parameters set in script file: `dev.sh`
+
+######Directly access mariaDB with:
+
+```
+mysql -h 127.0.0.1 -u root -p
+```
+
+
 
 ## Building CWS
+
+####Pre-CWS Build: Activate ElasticSearch
+
+Move into `/install/docker` directory: 
+```
+/project_path/common-workflow-service/install/docker
+```
+
+
+Extract elasticsearch from `es-only.tar` TAR file, `cd` into /es-only, run Docker Compose:
+
+```
+tar xzvf es-only.tar
+```
+
+```
+cd es-only
+```
+```
+docker-compose.yml
+```
+
+#### Build CWS
 
 To build and run CWS, use the `dev.sh` script - its usage is as follows:
 ```
