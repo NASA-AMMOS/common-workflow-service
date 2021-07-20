@@ -140,7 +140,9 @@ To build and run CWS, use your <personal-dev.sh> i.e.:`jsmith.sh` script - its u
 ./jsmith.sh
 ```
 
-Running this script will pass the configuration to `dev.sh`
+Running this script will pass the configuration to `dev.sh`:
+
+
 `
 ./dev.sh <Install directory> <ldap_username> <DB type - mariadb|mysql> <DB host> <DB port> <DB name> <DB user> <DB password> <Enable cloud? y|n> <Security scheme - CAMUNDA|LDAP> <hostname> <Emails list for alerts> <Admin first name> <Admin last name> <Admin email> <Number of workers>
 `
