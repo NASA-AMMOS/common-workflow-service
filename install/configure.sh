@@ -153,7 +153,6 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
 	print "  DB USER:   ${DB_USER}"
 	print "This script will now create the database necessary for CWS to function."
 
-
 	while [[ ! ${REPLY} =~ $(echo "^(y|Y|n|N)$") ]]; do
 		if [[ "${PROMPT_VALUE}" == "" ]]; then
 			read -p "Continue? (Y/N): " REPLY
