@@ -15,7 +15,7 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
 ## Prerequisites
 
   - Mariadb or mysql database set up on either your local machine or a remote host. You will also need to create the following:
-    - A database for CWS to use. `cws` is a good default.
+    - A database for CWS to use. `cws_dev` is a good default.
     - A database user with full access to the above database.
   - [ITerm2](https://iterm2.com/): Currently these build scripts include commands to open new terminal windows using ITerm2, so they are best run from that terminal.
   - **Logstash 7.9+**: You will need to place the logstash 7.9.0 zip in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/past-releases/logstash-7-9-0).
@@ -50,7 +50,7 @@ http://localhost:8080
 docker run -d -p 3306:3306 -e MYSQL_DATABASE=__DB_NAME__ -e MYSQL_ROOT_PASSWORD=__ROOT_PW__ -e TZ=America/Los_Angeles --name mdb103 mariadb:1
 ```
 
-`__DB_NAME__` and `__ROOT_PW__` must match parameters set in script file: `dev.sh`
+`__DB_NAME__` and `__ROOT_PW__` must match parameters set in script file: `<personal-dev>.sh`
 
 ######Directly access mariaDB with:
 
@@ -90,9 +90,11 @@ To build and run CWS, use the `dev.sh` script - its usage is as follows:
 ./dev.sh <Install directory> <ldap_username> <DB type - mariadb|mysql> <DB host> <DB port> <DB name> <DB user> <DB password> <Enable cloud? y|n> <Security scheme - CAMUNDA|LDAP> <hostname> <Emails list for alerts> <Admin first name> <Admin last name> <Admin email> <Number of workers>
 ```
 
-For development we tend to create our own build scripts that call `dev.sh`. Here's an example that will work for development on a local machine:
+For development we tend to create our own separate build scripts `<personal-dev.sh>` (firstinitial-lastname.sh) i.e.:`jsmith.sh` that call `dev.sh`. Here's an template for your personal build script that will work for development on a local machine:
 
 ```
+#File: jsmith.sh
+
 #!/bin/bash
 
 HOSTNAME=localhost
@@ -107,26 +109,33 @@ SECURITY="camunda"
 
 # DB config
 DB_TYPE=mariadb
-DB_HOST=localhost
-DB_NAME=<your database name> # needs to match the db you set up beforehand
-DB_USER=<your database user> # needs to match the user you set up beforehand
-DB_PASS=<your database pass> # could also be specified with environment vars
+DB_HOST=127.0.0.1
+DB_NAME=cws_dev # needs to match the db you set up beforehand
+DB_USER=root # needs to match the user you set up beforehand
+DB_PASS=     # could also be specified with environment vars
 DB_PORT=3306 # mariadb default
 
-USER=<your username for cws login>
-CLOUD=<y|n> # Enable cloudwatch monitoring
+USER=   # Username
+CLOUD=  # Enable cloudwatch monitoring
 
-EMAIL_LIST="<comma separated list of admin emails>"
+EMAIL_LIST="{email}"
 
-ADMIN_FIRST="<admin first name>"
-ADMIN_LAST="<admin last name>"
-ADMIN_EMAIL="<admin email>"
+ADMIN_FIRST="{first}"
+ADMIN_LAST="{last}"
+ADMIN_EMAIL="{email}"
+
+# ES config
+ES_HOST="localhost"
+ES_PORT=9200
+ES_USE_AUTH=n
+ES_USERNAME="na"
+ES_PASSWORD="na"
 
 # Num of workers to start. 1 is the minimum.
 NUM_WORKERS=1
 
 # Run the dev script
-./dev.sh `pwd` ${USER} ${DB_TYPE} ${DB_HOST} ${DB_PORT} ${DB_NAME} ${DB_USER} ${DB_PASS} ${CLOUD} ${SECURITY} ${HOSTNAME} ${EMAIL_LIST} ${ADMIN_FIRST} ${ADMIN_LAST} ${ADMIN_EMAIL} ${NUM_WORKERS}
+./dev.sh `pwd` ${USER} ${DB_TYPE} ${DB_HOST} ${DB_PORT} ${DB_NAME} ${DB_USER} ${DB_PASS} ${ES_HOST} ${ES_PORT} ${ES_USE_AUTH} ${ES_USERNAME} ${ES_PASSWORD} ${CLOUD} ${SECURITY} ${HOSTNAME} ${EMAIL_LIST} ${ADMIN_FIRST} ${ADMIN_LAST} ${ADMIN_EMAIL} ${NUM_WORKERS}
 ```
 
 The above script will build CWS, verify your configuration, then will start the CWS console and workers. The script will provide a link to access the console dashboard once everything has started up!
