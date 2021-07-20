@@ -85,10 +85,6 @@ docker-compose.yml
 
 #### Build CWS
 
-To build and run CWS, use the `dev.sh` script - its usage is as follows:
-```
-./dev.sh <Install directory> <ldap_username> <DB type - mariadb|mysql> <DB host> <DB port> <DB name> <DB user> <DB password> <Enable cloud? y|n> <Security scheme - CAMUNDA|LDAP> <hostname> <Emails list for alerts> <Admin first name> <Admin last name> <Admin email> <Number of workers>
-```
 
 For development we tend to create our own separate build scripts `<personal-dev.sh>` (firstinitial-lastname.sh) i.e.:`jsmith.sh` that call `dev.sh`. Here's an template for your personal build script that will work for development on a local machine:
 
@@ -137,6 +133,18 @@ NUM_WORKERS=1
 # Run the dev script
 ./dev.sh `pwd` ${USER} ${DB_TYPE} ${DB_HOST} ${DB_PORT} ${DB_NAME} ${DB_USER} ${DB_PASS} ${ES_HOST} ${ES_PORT} ${ES_USE_AUTH} ${ES_USERNAME} ${ES_PASSWORD} ${CLOUD} ${SECURITY} ${HOSTNAME} ${EMAIL_LIST} ${ADMIN_FIRST} ${ADMIN_LAST} ${ADMIN_EMAIL} ${NUM_WORKERS}
 ```
+
+To build and run CWS, use your <personal-dev.sh> i.e.:`jsmith.sh` script - its usage is as follows:
+
+```
+./jsmith.sh
+```
+
+Running this script will pass the configuration to `dev.sh`
+`
+./dev.sh <Install directory> <ldap_username> <DB type - mariadb|mysql> <DB host> <DB port> <DB name> <DB user> <DB password> <Enable cloud? y|n> <Security scheme - CAMUNDA|LDAP> <hostname> <Emails list for alerts> <Admin first name> <Admin last name> <Admin email> <Number of workers>
+`
+
 
 The above script will build CWS, verify your configuration, then will start the CWS console and workers. The script will provide a link to access the console dashboard once everything has started up!
 
