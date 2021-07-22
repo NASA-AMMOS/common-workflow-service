@@ -30,7 +30,7 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
     
 #### Development Environment Configuration
 
-#####Tomcat Server
+##### Tomcat Server
 
 Check if Apache Tomcat server is active:
 * Locate Apache-Tomcat directory
@@ -52,7 +52,7 @@ docker run -d -p 3306:3306 -e MYSQL_DATABASE=__DB_NAME__ -e MYSQL_ROOT_PASSWOR
 
 `__DB_NAME__` and `__ROOT_PW__` must match parameters set in script file: `<personal-dev>.sh`
 
-######Directly access mariaDB with:
+##### Directly access mariaDB with:
 
 ```
 mysql -h 127.0.0.1 -u root -p
@@ -62,19 +62,16 @@ mysql -h 127.0.0.1 -u root -p
 
 ## Building CWS
 
-####Pre-CWS Build: Activate ElasticSearch
+#### Pre-CWS Build: Activate ElasticSearch
 
-Move into `/install/docker` directory: 
+* Move into `/install/docker/es-only` directory: 
 ```
-/project_path/common-workflow-service/install/docker
+/project_path/common-workflow-service/install/docker/es-only
 ```
 
 
-Extract elasticsearch from `es-only.tar` TAR file, `cd` into /es-only, run Docker Compose:
+* `cd` into /es-only, run Docker Compose:
 
-```
-tar xzvf es-only.tar
-```
 
 ```
 cd es-only
