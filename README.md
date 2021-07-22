@@ -64,7 +64,7 @@ mysql -h 127.0.0.1 -u root -p
 
 #### Pre-CWS Build: Activate ElasticSearch
 
-* Move into `/install/docker/es-only` directory: 
+* `cd` into `/install/docker/es-only` directory: 
 ```
 /project_path/common-workflow-service/install/docker/es-only
 ```
