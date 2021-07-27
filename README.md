@@ -25,21 +25,12 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
     - You will need to add your own truststor file to the `install/tomcat_lib/` directory
     - See: https://tomcat.apache.org/tomcat-9.0-doc/ssl-howto.html
     
-  - **Apache Maven 3.8.1+**: Install Maven by following these steps:
-    - See: https://maven.apache.org/install.html
-    
+
 #### Development Environment Configuration
 
-##### Start CWS Server
 
 
-* `cd` into `install` folder and run command: 
-
-```
-./start_cws.sh
-```
-
-##### Generate mariaDB Docker Container and Create Database
+##### Generate mariaDB Docker Container and Create Database Instance for CWS:
 ```
 docker run -d -p 3306:3306 -e MYSQL_DATABASE=__DB_NAME__ -e MYSQL_ROOT_PASSWORD=__ROOT_PW__ -e TZ=America/Los_Angeles --name mdb103 mariadb:1
 ```
@@ -52,11 +43,12 @@ docker run -d -p 3306:3306 -e MYSQL_DATABASE=__DB_NAME__ -e MYSQL_ROOT_PASSWOR
 mysql -h 127.0.0.1 -u root -p
 ```
 
-
+_Make sure `cws_dev` database in created mariaDB instance before moving forward to build CWS_
 
 ## Building CWS
 
-#### Pre-CWS Build: Activate ElasticSearch
+#### Pre-CWS Build: Start ElasticSearch
+Open new Shell terminal designated for running ElasticSearch.
 
 * `cd` into `install/docker/es-only` directory and run Docker Compose: 
 ```
@@ -67,8 +59,9 @@ docker-compose up
 
 #### Build CWS
 
+_In a different terminal window `cd` into root of **common-workflow-service** folder and follow Build CWS instructions._
 
-For development we tend to create our own separate build scripts `<personal-dev.sh>` (firstinitial-lastname.sh) i.e.:`jsmith.sh` that call `dev.sh`. Here's an template for your personal build script that will work for development on a local machine:
+For development we tend to create our own separate build script `<personal-dev.sh>` (firstinitial-lastname.sh), i.e.:`jsmith.sh`, that calls `dev.sh`. Here's an template for your personal build script that will work for development on a local machine:
 
 ```
 #File: jsmith.sh
@@ -116,6 +109,7 @@ NUM_WORKERS=1
 ./dev.sh `pwd` ${USER} ${DB_TYPE} ${DB_HOST} ${DB_PORT} ${DB_NAME} ${DB_USER} ${DB_PASS} ${ES_HOST} ${ES_PORT} ${ES_USE_AUTH} ${ES_USERNAME} ${ES_PASSWORD} ${CLOUD} ${SECURITY} ${HOSTNAME} ${EMAIL_LIST} ${ADMIN_FIRST} ${ADMIN_LAST} ${ADMIN_EMAIL} ${NUM_WORKERS}
 ```
 
+######Run Personal Dev Script
 To build and run CWS, use your <personal-dev.sh> i.e.:`jsmith.sh` script - its usage is as follows:
 
 ```
