@@ -64,21 +64,12 @@ mysql -h 127.0.0.1 -u root -p
 
 #### Pre-CWS Build: Activate ElasticSearch
 
-* `cd` into `/install/docker/es-only` directory: 
+* `cd` into `install/docker/es-only` directory and run Docker Compose: 
 ```
-/project_path/common-workflow-service/install/docker/es-only
+docker-compose up
 ```
 
 
-* `cd` into /es-only, run Docker Compose:
-
-
-```
-cd es-only
-```
-```
-docker-compose.yml
-```
 
 #### Build CWS
 
