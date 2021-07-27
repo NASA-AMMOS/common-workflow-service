@@ -30,9 +30,9 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
     
 #### Development Environment Configuration
 
-##### Tomcat Server
+##### Start CWS Server
 
-Start CWS Server:
+
 * `cd` into `install` folder and run command: 
 
 ```
