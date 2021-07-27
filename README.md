@@ -32,17 +32,11 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
 
 ##### Tomcat Server
 
-Check if Apache Tomcat server is active:
-* Locate Apache-Tomcat directory
-* Move into `/bin` and run command: 
+Start CWS Server:
+* `cd` into `install` folder and run command: 
 
 ```
-./catalina.sh
-```
-* Confirm Tomcat server is running by opening browser and checking localhost
-
-```
-http://localhost:8080
+./start_cws.sh
 ```
 
 ##### Generate mariaDB Docker Container and Create Database
@@ -128,12 +122,6 @@ To build and run CWS, use your <personal-dev.sh> i.e.:`jsmith.sh` script - its u
 ./jsmith.sh
 ```
 
-Running this script will pass the configuration to `dev.sh`:
-
-
-`
-./dev.sh <Install directory> <ldap_username> <DB type - mariadb|mysql> <DB host> <DB port> <DB name> <DB user> <DB password> <Enable cloud? y|n> <Security scheme - CAMUNDA|LDAP> <hostname> <Emails list for alerts> <Admin first name> <Admin last name> <Admin email> <Number of workers>
-`
 
 
 The above script will build CWS, verify your configuration, then will start the CWS console and workers. The script will provide a link to access the console dashboard once everything has started up!
