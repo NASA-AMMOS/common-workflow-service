@@ -109,7 +109,7 @@ NUM_WORKERS=1
 ./dev.sh `pwd` ${USER} ${DB_TYPE} ${DB_HOST} ${DB_PORT} ${DB_NAME} ${DB_USER} ${DB_PASS} ${ES_HOST} ${ES_PORT} ${ES_USE_AUTH} ${ES_USERNAME} ${ES_PASSWORD} ${CLOUD} ${SECURITY} ${HOSTNAME} ${EMAIL_LIST} ${ADMIN_FIRST} ${ADMIN_LAST} ${ADMIN_EMAIL} ${NUM_WORKERS}
 ```
 
-######Run Personal Dev Script
+###### Run Personal Dev Script
 To build and run CWS, use your <personal-dev.sh> i.e.:`jsmith.sh` script - its usage is as follows:
 
 ```
