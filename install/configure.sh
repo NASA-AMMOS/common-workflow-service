@@ -6,6 +6,22 @@
 
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+if [ ! -d "${ROOT}/clean_" ]
+then
+    echo "File does not exist. Creating now"
+    mkdir clean_
+    echo "File created"
+    rsync -av --exclude='/clean_' --exclude='/.idea' ${ROOT}/ ${ROOT}/clean_
+else
+    echo "File exists"
+fi
+
+mkdir "backup_$(date)"
+
+cd "${ROOT}/clean_"
+rsync -av --exclude='/clean_' --exclude='/.idea' ${ROOT}/ ${ROOT}/"backup_$(date)"
+
+
 source ${ROOT}/utils.sh
 
 # ================
