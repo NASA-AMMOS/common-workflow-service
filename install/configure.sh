@@ -14,12 +14,10 @@ then
     cp ${ROOT}/ ${ROOT}/.clean_
 else
     echo "File exists"
-
 fi
 
 mkdir "backup_$(date '+%F_%T')"
 cd ${ROOT}/ ${ROOT}/"backup_$(date '+%F_%T')"
-
 
 source ${ROOT}/utils.sh
 
