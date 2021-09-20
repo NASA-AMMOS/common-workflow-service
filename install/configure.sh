@@ -11,20 +11,21 @@ then
     echo "Clean_ directory does not exist. Creating now"
     mkdir .clean_
     # Save clean CWS before configure.sh is run and directory is modified
-    cp -r `ls -A | grep -v ".clean_"` ${ROOT}/.clean_/
+    cp -r * ${ROOT}/.clean_
 else
     echo "Clean_ directory exists"
 
     # Make backup_ folder for current CWS property version
-    mkdir backup_$(date '+%F_%T')
-    cp -r `ls -A | grep -v "backup_$(date '+%F_%T')"` ${ROOT}/backup_$(date '+%F_%T')/
-    rm -rf ${ROOT}/backup_$(date '+%F_%T')/backup_*/
+    mkdir .backup_$(date '+%F_%T')
+    cp -r `ls -A | grep -v ".backup_$(date '+%F_%T')"` ${ROOT}/.backup_$(date '+%F_%T')/
+    rm -rf ${ROOT}/.backup_$(date '+%F_%T')/.backup_*/
+    rm -rf ${ROOT}/.backup_$(date '+%F_%T')/.clean_/
 
     # Remove the older, modified CWS content in root dir (except backup_ folders)
-    ls ${ROOT}/ | grep -v 'backup_*' | xargs rm -r
+    ls ${ROOT}/ | grep -v '.backup_*' | grep -v '.clean_' | grep -v 'bpmn' | xargs rm -r
     # Replace CWS dir with clean_ cws
-    cp -a ${ROOT}/backup_$(date '+%F_%T')/.clean_/. ${ROOT}/
-    mkdir ${ROOT}/.clean_
+    cp -a ${ROOT}/.clean_/. ${ROOT}/
+
 
 fi
 
