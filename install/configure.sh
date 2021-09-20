@@ -8,16 +8,29 @@ ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [ ! -d "${ROOT}/.clean_" ]
 then
-    echo "File does not exist. Creating now"
+    echo "Clean_ directory does not exist. Creating now"
     mkdir .clean_
-    echo "File created"
-    cp ${ROOT}/ ${ROOT}/.clean_
+    # Save clean CWS before configure.sh is run and directory is modified
+    cp -r `ls -A | grep -v ".clean_"` ${ROOT}/.clean_/
 else
-    echo "File exists"
+    echo "Clean_ directory exists"
+
+    # Make backup_ folder for current CWS property version
+    mkdir backup_$(date '+%F_%T')
+    cp -r `ls -A | grep -v "backup_$(date '+%F_%T')"` ${ROOT}/backup_$(date '+%F_%T')/
+    rm -rf ${ROOT}/backup_$(date '+%F_%T')/backup_*/
+
+    # Remove the older, modified CWS content in root dir (except backup_ folders)
+    ls ${ROOT}/ | grep -v 'backup_*' | xargs rm -r
+    # Replace CWS dir with clean_ cws
+    cp -a ${ROOT}/backup_$(date '+%F_%T')/.clean_/. ${ROOT}/
+    mkdir ${ROOT}/.clean_
+
 fi
 
-mkdir "backup_$(date '+%F_%T')"
-cd ${ROOT}/ ${ROOT}/"backup_$(date '+%F_%T')"
+
+
+
 
 source ${ROOT}/utils.sh
 
