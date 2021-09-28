@@ -6,32 +6,28 @@
 
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+echo ROOT=${ROOT}
+
 if [ ! -d "${ROOT}/.clean_" ]
 then
-    echo "Clean_ directory does not exist. Creating now"
-    mkdir .clean_
+    echo "Initializing CWS directory... "
+    mkdir ${ROOT}/.clean_
     # Save clean CWS before configure.sh is run and directory is modified
-    cp -r * ${ROOT}/.clean_
-    rm -rf ${ROOT}/.clean_/bpmn
+    cp -r ${ROOT}/* ${ROOT}/.clean_ && rm -rf ${ROOT}/.clean_/bpmn
 else
-    echo "Clean_ directory exists"
+    echo "Re-running CWS Config, backing up previous configuration(s). Refer to .backups_ folder."
 
     # Make backup_ folder for current CWS property version
     mkdir -p .backups_/.backup_$(date '+%F_%T')
     cp -r * ${ROOT}/.backups_/.backup_$(date '+%F_%T')
 
-
     # Remove the older, modified CWS content in root dir (except backup_ folders)
-    ls ${ROOT}/ | grep -v '.backups_*' | grep -v '.clean_' | grep -v 'bpmn' | grep -v 'configure.sh' | xargs rm -r
+    ls ${ROOT}/ | grep -v '.backups_' | grep -v '.clean_' | grep -v 'bpmn' | grep -v 'configuration.properties' | xargs rm -r
 
     # Replace CWS dir with clean_ cws
     cp -a ${ROOT}/.clean_/. ${ROOT}/
 
-
 fi
-
-
-
 
 
 source ${ROOT}/utils.sh
