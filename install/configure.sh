@@ -18,15 +18,16 @@ else
     echo "Re-running CWS Config, backing up current configuration. Refer to .backups_ folder for all backups."
 
     # Make backup_ folder for current CWS property version
-    mkdir -p .backups_/.backup_$(date '+%F_%T')
-    cp -r ${ROOT}/* ${ROOT}/.backups_/.backup_$(date '+%F_%T')
+    BACKUP_DIR=${ROOT}/.backups_/.backup_$(date '+%F_%T')
+    mkdir -p ${BACKUP_DIR}
+    cp -r ${ROOT}/* ${BACKUP_DIR}
 
     # Remove the older, modified CWS content in root dir (except backup_ folders)
-    ls ${ROOT}/ | grep -v '.backups_' | grep -v '.clean_' | grep -v 'bpmn' | grep -v 'configuration.properties' | xargs rm -r
+    ls ${ROOT}/ | grep -v 'bpmn'  | grep -v 'configure.sh' | grep -v 'configuration.properties' | xargs rm -r
 
     # Replace CWS dir with clean_ cws
     cp -a ${ROOT}/.clean_/. ${ROOT}/
-
+    rm ${ROOT}/.installType ${ROOT}/.databaseCreated ${ROOT}/.databaseTablesCreated
 fi
 
 
