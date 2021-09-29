@@ -15,11 +15,11 @@ then
     # Save clean CWS before configure.sh is run and directory is modified
     cp -r ${ROOT}/* ${ROOT}/.clean_ && rm -rf ${ROOT}/.clean_/bpmn
 else
-    echo "Re-running CWS Config, backing up previous configuration(s). Refer to .backups_ folder."
+    echo "Re-running CWS Config, backing up current configuration. Refer to .backups_ folder for all backups."
 
     # Make backup_ folder for current CWS property version
     mkdir -p .backups_/.backup_$(date '+%F_%T')
-    cp -r * ${ROOT}/.backups_/.backup_$(date '+%F_%T')
+    cp -r ${ROOT}/* ${ROOT}/.backups_/.backup_$(date '+%F_%T')
 
     # Remove the older, modified CWS content in root dir (except backup_ folders)
     ls ${ROOT}/ | grep -v '.backups_' | grep -v '.clean_' | grep -v 'bpmn' | grep -v 'configuration.properties' | xargs rm -r
