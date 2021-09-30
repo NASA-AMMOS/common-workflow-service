@@ -13,7 +13,7 @@ then
     echo "Initializing CWS directory... "
     mkdir ${ROOT}/.clean_
     # Save clean CWS before configure.sh is run and directory is modified
-    cp -r ${ROOT}/* ${ROOT}/.clean_ && rm -rf ${ROOT}/.clean_/bpmn
+    rsync -av --exclude='bpmn' ${ROOT}/* ${ROOT}/.clean_ > /dev/null 2>&1
 else
     echo "Re-running CWS Config, backing up current configuration. Refer to .backups_ folder for all backups."
 
@@ -26,7 +26,7 @@ else
     ls ${ROOT}/ | grep -v 'bpmn'  | grep -v 'configure.sh' | grep -v 'configuration.properties' | xargs rm -r
 
     # Replace CWS dir with clean_ cws
-    cp -a ${ROOT}/.clean_/. ${ROOT}/
+    rsync -av --exclude='configuration.properties' ${ROOT}/.clean_/* ${ROOT}/ > /dev/null 2>&1
     rm ${ROOT}/.installType ${ROOT}/.databaseCreated ${ROOT}/.databaseTablesCreated
 fi
 
