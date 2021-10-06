@@ -15,14 +15,15 @@ then
     # Save clean CWS before configure.sh is run and directory is modified
     rsync -av --exclude='bpmn' ${ROOT}/* ${ROOT}/.clean_ > /dev/null 2>&1
 else
-    echo "Re-running CWS Config, backing up current configuration. Refer to .backups_ folder for all backups."
+    echo "Re-running CWS Config, backing up current configuration. Refer to .backups folder for all backups."
 
-    # Make backup_ folder for current CWS property version
-    BACKUP_DIR=${ROOT}/.backups_/.backup_$(date '+%F_%T')
+    # Make .backups folder for current CWS property version
+    BACKUP_DIR=${ROOT}/.backups/backup_$(date '+%Y%m%d_%H%M%S')
+
     mkdir -p ${BACKUP_DIR}
     cp -r ${ROOT}/* ${BACKUP_DIR}
 
-    # Remove the older, modified CWS content in root dir (except backup_ folders)
+    # Remove the older, modified CWS content in root dir (except .backups folders)
     ls ${ROOT}/ | grep -v 'bpmn'  | grep -v 'configure.sh' | grep -v 'configuration.properties' | xargs rm -r
 
     # Replace CWS dir with clean_ cws
