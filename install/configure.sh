@@ -21,7 +21,7 @@ else
     BACKUP_DIR=${ROOT}/.backups/backup_$(date '+%Y%m%d_%H%M%S')
 
     mkdir -p ${BACKUP_DIR}
-    cp -r ${ROOT}/* ${BACKUP_DIR}
+    (shopt -u dotglob; cp -R ${ROOT}/* ${BACKUP_DIR}/)
 
     # Remove the older, modified CWS content in root dir (except .backups folders)
     ls ${ROOT}/ | grep -v 'bpmn'  | grep -v 'configure.sh' | grep -v 'configuration.properties' | xargs rm -r
