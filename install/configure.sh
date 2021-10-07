@@ -24,7 +24,7 @@ else
     (shopt -u dotglob; cp -R ${ROOT}/* ${BACKUP_DIR}/)
 
     # Remove the older, modified CWS content in root dir (except .backups folders)
-    ls ${ROOT}/ | grep -v 'bpmn'  | grep -v 'configure.sh' | grep -v 'configuration.properties' | xargs rm -r
+    find "${ROOT}/." | grep -vE '.clean_|.backups|bpmn|configure.sh|configuration.properties' | xargs rm -r > /dev/null 2>&1
 
     # Replace CWS dir with clean_ cws
     rsync -av --exclude='configuration.properties' ${ROOT}/.clean_/* ${ROOT}/ > /dev/null 2>&1
