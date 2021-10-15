@@ -23,23 +23,21 @@
 	<context:component-scan base-package="jpl.cws.consumer"/>
 	<context:component-scan base-package="jpl.cws.process.initiation"/>
 
-	<jee:jndi-lookup id="dbDataSource" jndi-name="java:comp/env/jdbc/ProcessEngine" expected-type="javax.sql.DataSource" />
 
-	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-		<constructor-arg ref="dbDataSource"/>
-	</bean>
-
-	<bean id="namedJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
-		<constructor-arg ref="dbDataSource"/>
+	<bean id="bpmDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+		<property name="driverClass" value="__CWS_DB_DRIVER__" />
+		<property name="url"         value="__CWS_DB_URL__" />
+		<property name="username"    value="__CWS_DB_USERNAME__" />
+		<property name="password"    value="__CWS_DB_PASSWORD__" />
 	</bean>
 
 	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource" ref="dbDataSource" />
+		<property name="dataSource" ref="bpmDataSource" />
 	</bean>
 
 	<bean id="processEngineConfiguration"  class="org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration">
         <property name="processEngineName" value="default" />
-		<property name="dataSource" ref="dbDataSource" />
+		<property name="dataSource" ref="bpmDataSource" />
 		<property name="transactionManager" ref="transactionManager" />
 		<property name="databaseSchemaUpdate" value="true" />
 		<property name="jobExecutorActivate" value="__JOB_EXECUTOR_ACTIVATE__" />
@@ -294,6 +292,16 @@
 			<ref bean="processInitiatorTopic" />
 		</property>
 		<property name="pubSubDomain" value="true"/>
+	</bean>
+	
+	<jee:jndi-lookup id="dbDataSource" jndi-name="java:comp/env/jdbc/ProcessEngine" expected-type="javax.sql.DataSource" />
+	
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<constructor-arg ref="dbDataSource"/>
+	</bean>
+	
+	<bean id="namedJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+		<constructor-arg ref="dbDataSource"/>
 	</bean>
 	
 	<bean id="cwsConfig"            class="jpl.cws.core.CwsConfig" />

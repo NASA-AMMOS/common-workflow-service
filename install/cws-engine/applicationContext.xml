@@ -45,14 +45,22 @@
 	<bean id="workerExternalTaskLockDaemon" class="jpl.cws.engine.WorkerExternalTaskLockDaemon" />
 	<bean id="cwsEmailerService"       		class="jpl.cws.core.log.CwsEmailerService" />
 
+
+    <bean id="bpmDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+        <property name="driverClass" value="__CWS_DB_DRIVER__" />
+        <property name="url"         value="__CWS_DB_URL__" />
+        <property name="username"    value="__CWS_DB_USERNAME__" />
+        <property name="password"    value="__CWS_DB_PASSWORD__" />
+    </bean>
+
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dbDataSource" />
+        <property name="dataSource" ref="bpmDataSource" />
     </bean>
 
 	<bean id="processEngineConfiguration"
 		  class="org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration">
         <property name="processEngineName" value="default2" />
-        <property name="dataSource" ref="dbDataSource" />
+        <property name="dataSource" ref="bpmDataSource" />
         <property name="transactionManager" ref="transactionManager" />
         <property name="databaseSchemaUpdate" value="true" />
         <property name="jobExecutorActivate" value="__JOB_EXECUTOR_ACTIVATE__" />
