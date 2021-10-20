@@ -77,8 +77,41 @@
               timeBetweenEvictionRunsMillis="30000"
               minEvictableIdleTimeMillis="60000"
               removeAbandoned="true"
-              removeAbandonedTimeout="120"
+              removeAbandonedTimeout="900"
               
+              testOnBorrow="true"
+              testWhileIdle="true"
+              testOnReturn="true"
+
+              logAbandoned="true"
+
+              defaultTransactionIsolation="READ_COMMITTED" />
+
+    <Resource name="jdbc/cws"
+              auth="Container"
+              type="javax.sql.DataSource"
+              factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
+              uniqueResourceName="process-engine"
+              driverClassName="__CWS_DB_DRIVER__"
+              url="__CWS_DB_URL__"
+              username="__CWS_DB_USERNAME__"
+              password="__CWS_DB_PASSWORD__"
+
+              initialSize="__CWS_DB_NUM_CONNECTIONS__"
+              minIdle="__CWS_DB_NUM_CONNECTIONS__"
+
+              maxIdle="20"
+              maxActive="20"
+
+              validationQuery="SELECT 1"
+              validationInterval="30000"
+              logValidationErrors="true"
+
+              timeBetweenEvictionRunsMillis="30000"
+              minEvictableIdleTimeMillis="60000"
+              removeAbandoned="true"
+              removeAbandonedTimeout="900"
+
               testOnBorrow="true"
               testWhileIdle="true"
               testOnReturn="true"

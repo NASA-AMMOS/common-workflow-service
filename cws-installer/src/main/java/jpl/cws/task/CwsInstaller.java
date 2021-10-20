@@ -2030,7 +2030,7 @@ public class CwsInstaller {
 			content = content.replace("__CWS_DB_NUM_CONNECTIONS__", "2");
 		}
 		else {
-			content = content.replace("__CWS_DB_NUM_CONNECTIONS__", "5");
+			content = content.replace("__CWS_DB_NUM_CONNECTIONS__", "1");
 		}
 
 		writeToFile(filePath, content);
