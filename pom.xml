@@ -22,7 +22,7 @@
 	<properties>
 		<activemq.version>5.15.9</activemq.version>
 		<activeio-core.version>3.1.4</activeio-core.version>
-		<software.amazon.awssdk.version>2.15.47</software.amazon.awssdk.version>
+		<software.amazon.awssdk.version>2.16.93</software.amazon.awssdk.version>
 		<!-- <boon.version>0.12</boon.version> -->
 		<camunda.version>7.13.0</camunda.version>
 		<camunda-spin.version>1.9.0</camunda-spin.version>
