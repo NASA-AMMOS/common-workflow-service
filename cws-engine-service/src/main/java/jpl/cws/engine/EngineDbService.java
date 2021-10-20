@@ -153,7 +153,11 @@ public class EngineDbService extends DbService implements InitializingBean {
 			String workerName = null;
 			while (numTries++ < 10 && numUpdated != 1) {
 				Timestamp tsNow = new Timestamp(DateTime.now().getMillis());
-				workerName = "worker" + String.format("%1$4s", numWorkers()).replace(' ', '0');
+
+				// Determine a worker name, using current system time in milliseconds.
+				// TODO: In the future, we might want to do a more elegant algorithm,
+				//       but this may just be fine for the long-run
+				workerName = "worker-" + System.currentTimeMillis();
 				
 				try {
 					log.info("Inserting row (attempt #" + numTries +", workerName='"+workerName+"') into cws_worker table...");
