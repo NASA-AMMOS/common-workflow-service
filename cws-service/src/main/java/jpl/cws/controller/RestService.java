@@ -411,12 +411,21 @@ public class RestService extends MvcCore {
 		return urlString;
 	}
 
+
+	/**
+	 *
+	 * @return boolean indicating whether elasticsearch use https or http
+	 */
+	private Boolean elasticsearchUseUnsecured() {
+		return elasticsearchUseUnsecured.equalsIgnoreCase("N");
+	}
+
 	/**
 	 *
 	 * @return boolean indicating whether elasticsearch requires authentication
 	 */
-	private Boolean elasticsearchUseUnsecured() {
-		return elasticsearchUseUnsecured.equalsIgnoreCase("N");
+	private Boolean elasticsearchUseAuth() {
+		return elasticsearchUseAuth.equalsIgnoreCase("Y");
 	}
 	
 	
@@ -620,32 +629,28 @@ public class RestService extends MvcCore {
 	public @ResponseBody String doSystemShutdown() {
 		return cwsConsoleService.doSystemShutdown();
 	}
-	
-	
+
+
 	/**
 	 * REST method used to get logs
-	 * 
+	 *
 	 */
 	@RequestMapping(value = "/logs/get/scroll", method = POST, produces="application/json")
 	public @ResponseBody String getLogsScroll(
 			@RequestParam(value = "scrollId") String scrollId) {
 		String urlString = constructElasticsearchUrl("/_search/scroll");
 		String jsonData = "{ \"scroll\" : \"1m\", \"scroll_id\" : \"" + scrollId + "\" }";
-		
+
 		log.trace("REST getLogs query = " + urlString);
 		log.trace("REST getLogs jsonData = " + jsonData);
-		
+
 		try {
 			RestCallResult restCallResult;
-			if (elasticsearchUseUnsecured()) {
-				// Secured call
-				if (elasticsearchUsername.equalsIgnoreCase("N") &&
-						elasticsearchPassword.equalsIgnoreCase("N") ) {
-
-				}
+			if (elasticsearchUseAuth()) {
+				// Authenticated call
 				restCallResult = WebUtils.restCall(urlString, "POST", jsonData, null, null, "application/json; charset=utf-8", elasticsearchUsername, elasticsearchPassword);
 			} else {
-				// Unsecured call
+				// Unauthenticated call
 				restCallResult = WebUtils.restCall(urlString, "POST", jsonData, null, null, "application/json; charset=utf-8");
 			}
 			if (restCallResult.getResponseCode() != 200) {
@@ -655,7 +660,7 @@ public class RestService extends MvcCore {
 		} catch (Exception e) {
 			log.error("Problem performing REST call to get log data", e);
 		}
-		
+
 		return "ERROR";
 	}
 	

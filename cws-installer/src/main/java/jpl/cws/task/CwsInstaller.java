@@ -1079,14 +1079,39 @@ public class CwsInstaller {
 								"ERROR: Must specify either 'Y' or 'N'");
 			}
 
-			user_provided_logstash = read_elasticsearch_use_unsecured.toLowerCase();
+			//user_provided_logstash = read_elasticsearch_use_unsecured.toLowerCase();
 		}
 
-		if (elasticsearch_use_unsecured.equalsIgnoreCase("N")) {
+		log.debug("elasticsearch_host: " + elasticsearch_use_unsecured);
+
+
+		// PROMPT USER ELASTICSEARCH AUTH
+		elasticsearch_use_auth = getPreset("elasticsearch_use_auth");
+
+		if (elasticsearch_use_auth == null) {
+			elasticsearch_use_auth = getPreset("default_elasticsearch_use_auth");
+		}
+
+		if (cws_installer_mode.equals("interactive")) {
+			String read_elasticsearch_use_auth = "";
+
+			while (!read_elasticsearch_use_auth.equalsIgnoreCase("y") &&
+					!read_elasticsearch_use_auth.equalsIgnoreCase("n")) {
+				read_elasticsearch_use_auth =
+						readRequiredLine("Does you Elasticsearch cluster require authentication? (Y/N): ",
+								"ERROR: Must specify either 'Y' or 'N'");
+			}
+
+			user_provided_logstash = read_elasticsearch_use_auth.toLowerCase();
+		}
+
+		log.debug("elasticsearch_host: " + elasticsearch_use_auth);
+
+
+
+		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 
 			elasticsearch_username = getPreset("elasticsearch_username");
-
-
 
 			// PROMPT USER FOR ELASTICSEARCH USERNAME
 			if (cws_installer_mode.equals("interactive")) {
@@ -1099,14 +1124,11 @@ public class CwsInstaller {
 				}
 			} else {
 				if (elasticsearch_username == null) {
-					//bailOutMissingOption("elasticsearch_username");
-					log.debug("elasticsearch_username: " + "[NULL]");
-				} else {
-					log.debug("elasticsearch_username: " + elasticsearch_username);
+					bailOutMissingOption("elasticsearch_username");
 				}
 			}
 
-
+			log.debug("elasticsearch_username: " + elasticsearch_username);
 
 			elasticsearch_password = getPreset("elasticsearch_password");
 
@@ -1122,13 +1144,13 @@ public class CwsInstaller {
 				elasticsearch_password = String.valueOf(password);
 			} else {
 				if (elasticsearch_password == null) {
-					//bailOutMissingOption("elasticsearch_password");
-					log.debug("elasticsearch_password: " + "[NULL]");
-				} else {
-					log.debug("elasticsearch_password: " + elasticsearch_password);
+					bailOutMissingOption("elasticsearch_password");
 				}
 			}
 		}
+
+
+
 	}
 
 
@@ -1825,7 +1847,7 @@ public class CwsInstaller {
 
 			if (elasticsearch_use_unsecured.equalsIgnoreCase("N")) {
 				// Add auth to curl
-				if (elasticsearch_username != null && elasticsearch_password != null) {
+				if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 					cmdArray = new String[] {"curl", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, "https://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 				} else {
 					cmdArray = new String[] {"curl", "--fail", "https://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};

@@ -192,18 +192,19 @@ function auto_conf_data () {
     ES_HOST=${10}
     ES_PORT=${11}
     ES_USE_UNSECURED=${12}
-    ES_USERNAME=${13}
-    ES_PASSWORD=${14}
-    ENABLE_CLOUD_AS=${15}
-    SECURITY_SCHEME=${16}
-    THIS_HOSTNAME=${17}
-    NOTIFICATION_EMAILS=${18}
-    ADMIN_FIRSTNAME=${19}
-    ADMIN_LASTNAME=${20}
-    ADMIN_EMAIL=${21}
-    NUM_WORKERS=${22}
+    ES_USE_AUTH=${13}
+    ES_USERNAME=${14}
+    ES_PASSWORD=${15}
+    ENABLE_CLOUD_AS=${16}
+    SECURITY_SCHEME=${17}
+    THIS_HOSTNAME=${18}
+    NOTIFICATION_EMAILS=${19}
+    ADMIN_FIRSTNAME=${20}
+    ADMIN_LASTNAME=${21}
+    ADMIN_EMAIL=${22}
+    NUM_WORKERS=${23}
 
-    OUTPUT_FILE=${23}
+    OUTPUT_FILE=${24}
 
     source ${ROOT}/utils.sh
 
@@ -277,6 +278,7 @@ function auto_conf_data () {
     elasticsearch_host=${ES_HOST}
     elasticsearch_port=${ES_PORT}
     elasticsearch_use_unsecured=${ES_USE_UNSECURED}
+    elasticsearch_use_auth=${ES_USE_AUTH}
     elasticsearch_username=${ES_USERNAME}
     elasticsearch_password=${ES_PASSWORD}
     admin_user=${LDAP_USERNAME}
