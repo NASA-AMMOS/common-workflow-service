@@ -112,6 +112,7 @@ public class RestService extends MvcCore {
 	@Value("${cws.elasticsearch.hostname}") private String elasticsearchHostname;
 	@Value("${cws.elasticsearch.port}") private String elasticsearchPort;
 
+	@Value("${cws.elasticsearch.use.unsecured}") private String elasticsearchUseUnsecured;
 	@Value("${cws.elasticsearch.use.auth}") private String elasticsearchUseAuth;
 	@Value("${cws.elasticsearch.username}") private String elasticsearchUsername;
 	@Value("${cws.elasticsearch.password}") private String elasticsearchPassword;
@@ -404,7 +405,7 @@ public class RestService extends MvcCore {
 	 * @return fully constructed elasticsearch URL string
 	 */
 	private String constructElasticsearchUrl(String subPath) {
-		String urlString = elasticsearchUseAuth.equalsIgnoreCase("Y")? "https://" : "http://";
+		String urlString = elasticsearchUseUnsecured.equalsIgnoreCase("N")? "https://" : "http://";
 		urlString += elasticsearchHostname + ":" + elasticsearchPort + subPath;
 
 		return urlString;
@@ -414,8 +415,8 @@ public class RestService extends MvcCore {
 	 *
 	 * @return boolean indicating whether elasticsearch requires authentication
 	 */
-	private Boolean elasticsearchUseAuth() {
-		return elasticsearchUseAuth.equalsIgnoreCase("Y");
+	private Boolean elasticsearchUseUnsecured() {
+		return elasticsearchUseUnsecured.equalsIgnoreCase("N");
 	}
 	
 	
@@ -636,11 +637,15 @@ public class RestService extends MvcCore {
 		
 		try {
 			RestCallResult restCallResult;
-			if (elasticsearchUseAuth()) {
-				// Authenticated call
+			if (elasticsearchUseUnsecured()) {
+				// Secured call
+				if (elasticsearchUsername.equalsIgnoreCase("N") &&
+						elasticsearchPassword.equalsIgnoreCase("N") ) {
+
+				}
 				restCallResult = WebUtils.restCall(urlString, "POST", jsonData, null, null, "application/json; charset=utf-8", elasticsearchUsername, elasticsearchPassword);
 			} else {
-				// Unauthenticated call
+				// Unsecured call
 				restCallResult = WebUtils.restCall(urlString, "POST", jsonData, null, null, "application/json; charset=utf-8");
 			}
 			if (restCallResult.getResponseCode() != 200) {

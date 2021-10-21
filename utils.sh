@@ -191,7 +191,7 @@ function auto_conf_data () {
     DB_PASS=${9}
     ES_HOST=${10}
     ES_PORT=${11}
-    ES_USE_AUTH=${12}
+    ES_USE_UNSECURED=${12}
     ES_USERNAME=${13}
     ES_PASSWORD=${14}
     ENABLE_CLOUD_AS=${15}
@@ -276,7 +276,7 @@ function auto_conf_data () {
     database_password=${DB_PASS}
     elasticsearch_host=${ES_HOST}
     elasticsearch_port=${ES_PORT}
-    elasticsearch_use_auth=${ES_USE_AUTH}
+    elasticsearch_use_unsecured=${ES_USE_UNSECURED}
     elasticsearch_username=${ES_USERNAME}
     elasticsearch_password=${ES_PASSWORD}
     admin_user=${LDAP_USERNAME}

@@ -171,6 +171,7 @@ public class CwsInstaller {
 	private static String cws_token_expiration_hours;
 	private static String elasticsearch_host;
 	private static String elasticsearch_port;
+	private static String elasticsearch_use_unsecured;
 	private static String elasticsearch_use_auth;
 	private static String elasticsearch_username;
 	private static String elasticsearch_password;
@@ -1061,29 +1062,31 @@ public class CwsInstaller {
 
 		log.debug("elasticsearch_port: " + elasticsearch_port);
 
-		// PROMPT USER ELASTICSEARCH AUTH
-		elasticsearch_use_auth = getPreset("elasticsearch_use_auth");
+		// PROMPT USER ELASTICSEARCH SECURED OPTION
+		elasticsearch_use_unsecured = getPreset("elasticsearch_use_unsecured");
 
-		if (elasticsearch_use_auth == null) {
-			elasticsearch_use_auth = getPreset("default_elasticsearch_use_auth");
+		if (elasticsearch_use_unsecured == null) {
+			elasticsearch_use_unsecured = getPreset("default_elasticsearch_use_unsecured");
 		}
 
 		if (cws_installer_mode.equals("interactive")) {
-			String read_elasticsearch_use_auth = "";
+			String read_elasticsearch_use_unsecured = "";
 
-			while (!read_elasticsearch_use_auth.equalsIgnoreCase("y") &&
-					!read_elasticsearch_use_auth.equalsIgnoreCase("n")) {
-				read_elasticsearch_use_auth =
-						readRequiredLine("Does you Elasticsearch cluster require authentication? (Y/N): ",
+			while (!read_elasticsearch_use_unsecured.equalsIgnoreCase("y") &&
+					!read_elasticsearch_use_unsecured.equalsIgnoreCase("n")) {
+				read_elasticsearch_use_unsecured =
+						readRequiredLine("Does your Elasticsearch cluster use unsecured HTTP communication? (Y/N): ",
 								"ERROR: Must specify either 'Y' or 'N'");
 			}
 
-			user_provided_logstash = read_elasticsearch_use_auth.toLowerCase();
+			user_provided_logstash = read_elasticsearch_use_unsecured.toLowerCase();
 		}
 
-		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
+		if (elasticsearch_use_unsecured.equalsIgnoreCase("N")) {
 
 			elasticsearch_username = getPreset("elasticsearch_username");
+
+
 
 			// PROMPT USER FOR ELASTICSEARCH USERNAME
 			if (cws_installer_mode.equals("interactive")) {
@@ -1096,11 +1099,14 @@ public class CwsInstaller {
 				}
 			} else {
 				if (elasticsearch_username == null) {
-					bailOutMissingOption("elasticsearch_username");
+					//bailOutMissingOption("elasticsearch_username");
+					log.debug("elasticsearch_username: " + "[NULL]");
+				} else {
+					log.debug("elasticsearch_username: " + elasticsearch_username);
 				}
 			}
 
-			log.debug("elasticsearch_username: " + elasticsearch_username);
+
 
 			elasticsearch_password = getPreset("elasticsearch_password");
 
@@ -1116,7 +1122,10 @@ public class CwsInstaller {
 				elasticsearch_password = String.valueOf(password);
 			} else {
 				if (elasticsearch_password == null) {
-					bailOutMissingOption("elasticsearch_password");
+					//bailOutMissingOption("elasticsearch_password");
+					log.debug("elasticsearch_password: " + "[NULL]");
+				} else {
+					log.debug("elasticsearch_password: " + elasticsearch_password);
 				}
 			}
 		}
@@ -1814,9 +1823,13 @@ public class CwsInstaller {
 		try {
 			String[] cmdArray = new String[] {"curl", "--fail", "http://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 
-			if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
+			if (elasticsearch_use_unsecured.equalsIgnoreCase("N")) {
 				// Add auth to curl
-				cmdArray = new String[] {"curl", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, "https://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+				if (elasticsearch_username != null && elasticsearch_password != null) {
+					cmdArray = new String[] {"curl", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, "https://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+				} else {
+					cmdArray = new String[] {"curl", "--fail", "https://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+				}
 			}
 
 			Process p = Runtime.getRuntime().exec(cmdArray);
