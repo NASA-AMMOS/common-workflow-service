@@ -68,6 +68,7 @@
 		<mockito.version>1.9.5</mockito.version>
 		<mybatis.version>3.5.3</mybatis.version>
 		<mysql-connector.version>8.0.16</mysql-connector.version>
+		<hikaricp.version>4.0.3</hikaricp.version>
 		<phantomjsdriver.version>1.0.4</phantomjsdriver.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<quartz.version>2.3.2</quartz.version>
@@ -286,6 +287,19 @@
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>
 				<version>${mysql-connector.version}</version>
+			</dependency>
+
+			<!-- HikariCP database connection pool -->
+			<dependency>
+				<groupId>com.zaxxer</groupId>
+				<artifactId>HikariCP</artifactId>
+				<version>${hikaricp.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-api</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 
 			<!-- Apache Commons -->
