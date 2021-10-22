@@ -2026,13 +2026,6 @@ public class CwsInstaller {
 		content = content.replace("__CWS_SHUTDOWN_PORT__",         cws_shutdown_port);
 		content = content.replace("__CWS_TOMCAT_CONF_DIR__",       cws_tomcat_conf);
 
-		if (cws_worker_type.equals("run_external_tasks_only")) {
-			content = content.replace("__CWS_DB_NUM_CONNECTIONS__", "2");
-		}
-		else {
-			content = content.replace("__CWS_DB_NUM_CONNECTIONS__", "1");
-		}
-
 		writeToFile(filePath, content);
 		copy(
 			Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "server.xml"),
