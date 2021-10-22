@@ -55,7 +55,7 @@
               factory="com.zaxxer.hikari.HikariJNDIFactory"
               poolName="camunda-pool"
 
-              maximumPoolSize="10"
+              maximumPoolSize="5"
               connectionTimeout="300000"
 
               driverClassName="__CWS_DB_DRIVER__"
@@ -71,7 +71,7 @@
               factory="com.zaxxer.hikari.HikariJNDIFactory"
               poolName="cws-pool"
 
-              maximumPoolSize="10"
+              maximumPoolSize="5"
               connectionTimeout="300000"
 
               driverClassName="__CWS_DB_DRIVER__"
