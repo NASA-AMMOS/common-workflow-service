@@ -1034,10 +1034,10 @@ public class CwsInstaller {
 
 		if (cws_installer_mode.equals("interactive")) {
 			if (elasticsearch_host == null) {
-				elasticsearch_host = readRequiredLine("Enter the Elasticsearch host: ",
-						"You must enter a hostname");
+				elasticsearch_host = readRequiredLine("Enter the Elasticsearch endpoint (including protocol 'http://' or 'https://'): ",
+						"You must enter an Elasticsearch endpoint (including protocol 'http://' or 'https://')");
 			} else {
-				elasticsearch_host = readLine("Enter the Elasticsearch host. " +
+				elasticsearch_host = readLine("Enter the Elasticsearch endpoint. " +
 						"Default is " + elasticsearch_host + ": ", elasticsearch_host);
 			}
 		} else {
@@ -1062,28 +1062,6 @@ public class CwsInstaller {
 
 		log.debug("elasticsearch_port: " + elasticsearch_port);
 
-		// PROMPT USER ELASTICSEARCH SECURED OPTION
-		elasticsearch_use_unsecured = getPreset("elasticsearch_use_unsecured");
-
-		if (elasticsearch_use_unsecured == null) {
-			elasticsearch_use_unsecured = getPreset("default_elasticsearch_use_unsecured");
-		}
-
-		if (cws_installer_mode.equals("interactive")) {
-			String read_elasticsearch_use_unsecured = "";
-
-			while (!read_elasticsearch_use_unsecured.equalsIgnoreCase("y") &&
-					!read_elasticsearch_use_unsecured.equalsIgnoreCase("n")) {
-				read_elasticsearch_use_unsecured =
-						readRequiredLine("Does your Elasticsearch cluster use unsecured HTTP communication? (Y/N): ",
-								"ERROR: Must specify either 'Y' or 'N'");
-			}
-
-			//user_provided_logstash = read_elasticsearch_use_unsecured.toLowerCase();
-		}
-
-		log.debug("elasticsearch_host: " + elasticsearch_use_unsecured);
-
 
 		// PROMPT USER ELASTICSEARCH AUTH
 		elasticsearch_use_auth = getPreset("elasticsearch_use_auth");
@@ -1105,7 +1083,7 @@ public class CwsInstaller {
 			user_provided_logstash = read_elasticsearch_use_auth.toLowerCase();
 		}
 
-		log.debug("elasticsearch_host: " + elasticsearch_use_auth);
+		log.debug("elasticsearch_use_auth: " + elasticsearch_use_auth);
 
 
 
