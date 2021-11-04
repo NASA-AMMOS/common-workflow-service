@@ -14,18 +14,17 @@ DB_USER=${7}
 DB_PASS=${8}
 ES_HOST=${9}
 ES_PORT=${10}
-ES_USE_UNSECURED=${11}
-ES_USE_AUTH=${12}
-ES_USERNAME=${13}
-ES_PASSWORD=${14}
-ENABLE_CLOUD_AS=${15}
-SECURITY_SCHEME=${16}
-THIS_HOSTNAME=${17}
-NOTIFICATION_EMAILS=${18}
-ADMIN_FIRSTNAME=${19}
-ADMIN_LASTNAME=${20}
-ADMIN_EMAIL=${21}
-NUM_WORKERS=${22}
+ES_USE_AUTH=${11}
+ES_USERNAME=${12}
+ES_PASSWORD=${13}
+ENABLE_CLOUD_AS=${14}
+SECURITY_SCHEME=${15}
+THIS_HOSTNAME=${16}
+NOTIFICATION_EMAILS=${17}
+ADMIN_FIRSTNAME=${18}
+ADMIN_LASTNAME=${19}
+ADMIN_EMAIL=${20}
+NUM_WORKERS=${21}
 
 source ${ROOT}/utils.sh
 
@@ -72,7 +71,7 @@ BASE_PORT=8000
 tab ${DIST}/console-only/cws "./start_cws.sh -d $BASE_PORT; tail -f $LOG_FILE"
 
 print "Waiting for console startup..."
-sleep 100
+sleep 160
 
 # -----------------
 # CONFIGURE WORKERS
@@ -99,7 +98,7 @@ done
 # START WORKERS
 # -------------
 for ((WORKER_NUM=1; WORKER_NUM <= $NUM_WORKERS; WORKER_NUM++)); do
-	sleep 5
+	sleep 20
 
 	print "Starting worker ${WORKER_NUM}..."
 	WORKER_TAG="worker${WORKER_NUM}"
