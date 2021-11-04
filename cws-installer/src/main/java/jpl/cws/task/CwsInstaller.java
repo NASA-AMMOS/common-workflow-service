@@ -1030,14 +1030,23 @@ public class CwsInstaller {
 
 		// PROMPT USER FOR ELASTICSEARCH HOST
 		elasticsearch_host = getPreset("elasticsearch_host");
+		String read_elasticsearch_host = "";
 
 		if (cws_installer_mode.equals("interactive")) {
 			if (elasticsearch_host == null) {
-				elasticsearch_host = readRequiredLine("Enter the Elasticsearch host: ",
-						"You must enter a hostname");
+
+				while (!read_elasticsearch_host.startsWith("https://") &&
+						!read_elasticsearch_host.startsWith("http://")) {
+
+					elasticsearch_host = readRequiredLine("Enter the Elasticsearch host (be sure to include protocol in URL: http:// or https://): ",
+							"You must enter a hostname");
+				}
 			} else {
-				elasticsearch_host = readLine("Enter the Elasticsearch host. " +
-						"Default is " + elasticsearch_host + ": ", elasticsearch_host);
+				while (!read_elasticsearch_host.startsWith("https://") &&
+						!read_elasticsearch_host.startsWith("http://")) {
+					elasticsearch_host = readLine("Enter the Elasticsearch host. " +
+							"Default is " + elasticsearch_host + ": ", elasticsearch_host);
+				}
 			}
 		} else {
 			if (elasticsearch_host == null) {
