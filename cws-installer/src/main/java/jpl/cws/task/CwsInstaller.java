@@ -721,10 +721,10 @@ public class CwsInstaller {
 			} else {
 				if (cws_auth_scheme.equalsIgnoreCase("LDAP")) {
 					cws_user = readLine("Enter name of LDAP user to be used as initial administrator. " +
-									"Default is " + cws_user + ": ", cws_user);
+							"Default is " + cws_user + ": ", cws_user);
 				} else {
 					cws_user = readLine("Enter username to be used as initial administrator. " +
-									"Default is " + cws_user + ": ", cws_user);
+							"Default is " + cws_user + ": ", cws_user);
 				}
 			}
 		} else {
@@ -795,7 +795,7 @@ public class CwsInstaller {
 						"Must specify at least one email address!");
 			} else {
 				cws_notification_emails = readLine("Enter email addresses used to notify of system errors. " +
-								"Default is " + cws_notification_emails + ": ", cws_notification_emails);
+						"Default is " + cws_notification_emails + ": ", cws_notification_emails);
 			}
 		} else {
 			if (cws_notification_emails == null) {
@@ -1030,14 +1030,23 @@ public class CwsInstaller {
 
 		// PROMPT USER FOR ELASTICSEARCH HOST
 		elasticsearch_host = getPreset("elasticsearch_host");
+		String read_elasticsearch_host = "";
 
 		if (cws_installer_mode.equals("interactive")) {
 			if (elasticsearch_host == null) {
-				elasticsearch_host = readRequiredLine("Enter the Elasticsearch host: ",
-						"You must enter a hostname");
+
+				while (!read_elasticsearch_host.startsWith("https://") &&
+						!read_elasticsearch_host.startsWith("http://")) {
+
+					elasticsearch_host = readRequiredLine("Enter the Elasticsearch host (be sure to include protocol in URL: http:// or https://): ",
+							"You must enter a hostname");
+				}
 			} else {
-				elasticsearch_host = readLine("Enter the Elasticsearch host. " +
-						"Default is " + elasticsearch_host + ": ", elasticsearch_host);
+				while (!read_elasticsearch_host.startsWith("https://") &&
+						!read_elasticsearch_host.startsWith("http://")) {
+					elasticsearch_host = readLine("Enter the Elasticsearch host. " +
+							"Default is " + elasticsearch_host + ": ", elasticsearch_host);
+				}
 			}
 		} else {
 			if (elasticsearch_host == null) {
@@ -1231,7 +1240,7 @@ public class CwsInstaller {
 
 		if (cws_installer_mode.equals("interactive")) {
 			cws_brand_header = readLine("Enter the brand header text that will display at the top of the web console. " +
-							"Default is \"" + cws_brand_header + "\": ", cws_brand_header);
+					"Default is \"" + cws_brand_header + "\": ", cws_brand_header);
 		}
 	}
 
@@ -1812,11 +1821,16 @@ public class CwsInstaller {
 		print("checking that user provided Elasticsearch (" + elasticsearch_host + ":" + elasticsearch_port + ") is running...");
 
 		try {
-			String[] cmdArray = new String[] {"curl", "--fail", "http://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+			String[] cmdArray = new String[] {"curl", "--fail", elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 
 			if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 				// Add auth to curl
-				cmdArray = new String[] {"curl", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, "https://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+				cmdArray = new String[] {"curl", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+			}
+
+			if (elasticsearch_use_auth.equalsIgnoreCase("N")) {
+				// Add auth to curl
+				cmdArray = new String[] {"curl", "--fail", elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 			}
 
 			Process p = Runtime.getRuntime().exec(cmdArray);
@@ -1860,8 +1874,8 @@ public class CwsInstaller {
 			while ((process = input.readLine()) != null) {
 				//System.out.println(line);
 				if (process.contains("ntpd") ||
-					process.contains("chronyd") ||
-					process.contains("usr/libexec/timed")) {
+						process.contains("chronyd") ||
+						process.contains("usr/libexec/timed")) {
 					print("   [OK]");
 					print("");
 					return 0; // no warnings
@@ -1982,8 +1996,8 @@ public class CwsInstaller {
 		content = content.replace("__CWS_AUTH_SCHEME__",       cws_auth_scheme);
 		writeToFile(filePath, content);
 		copy(
-			Paths.get(config_work_dir + SEP + "refresh_cws_token.sh"),
-			Paths.get(cws_root + SEP + "refresh_cws_token.sh"));
+				Paths.get(config_work_dir + SEP + "refresh_cws_token.sh"),
+				Paths.get(cws_root + SEP + "refresh_cws_token.sh"));
 
 		if (installConsole) {
 			updateCwsUiConfig();
@@ -1998,19 +2012,19 @@ public class CwsInstaller {
 		content = content.replace("__CWS_CONSOLE_SSL_PORT__", cws_console_ssl_port);
 		writeToFile(filePath, content);
 		copy(
-			Paths.get(config_work_dir + SEP + "stop_cws.sh"),
-			Paths.get(cws_root + SEP + "stop_cws.sh"));
+				Paths.get(config_work_dir + SEP + "stop_cws.sh"),
+				Paths.get(cws_root + SEP + "stop_cws.sh"));
 
 		// UPDATE bpm-platform.xml
 		//
 		copy(
-			Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "bpm-platform.xml"),
-			Paths.get(cws_tomcat_root + SEP + "conf" + SEP + "bpm-platform.xml"));
+				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "bpm-platform.xml"),
+				Paths.get(cws_tomcat_root + SEP + "conf" + SEP + "bpm-platform.xml"));
 
 		// COPY css-jaas.cfg to tomcat/lib
 		copy(
-			Paths.get(config_work_dir + SEP + "tomcat_lib" + SEP + "css-jaas.cfg"),
-			Paths.get(cws_tomcat_root + SEP + "lib" + SEP + "css-jaas.cfg"));
+				Paths.get(config_work_dir + SEP + "tomcat_lib" + SEP + "css-jaas.cfg"),
+				Paths.get(cws_tomcat_root + SEP + "lib" + SEP + "css-jaas.cfg"));
 
 		// UPDATE server.xml
 		print(" Updating server.xml (to point to CWS database)...");
@@ -2028,8 +2042,8 @@ public class CwsInstaller {
 
 		writeToFile(filePath, content);
 		copy(
-			Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "server.xml"),
-			Paths.get(cws_tomcat_root + SEP + "conf"        + SEP + "server.xml"));
+				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "server.xml"),
+				Paths.get(cws_tomcat_root + SEP + "conf"        + SEP + "server.xml"));
 
 		updateWorkerAppContext();
 		updateWorkerProperties();
@@ -2064,8 +2078,8 @@ public class CwsInstaller {
 		}
 		writeToFile(filePath, content);
 		copy(
-			Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "web.xml"),
-			Paths.get(cws_tomcat_root + SEP + "conf" + SEP + "web.xml"));
+				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "web.xml"),
+				Paths.get(cws_tomcat_root + SEP + "conf" + SEP + "web.xml"));
 
 		// UPDATE camunda/web.xml
 		print(" Updating webapps/camunda/WEB_INF/web.xml..");
@@ -2076,8 +2090,8 @@ public class CwsInstaller {
 
 		writeToFile(filePath, content);
 		copy(
-			Paths.get(config_work_dir + SEP + "camunda_mods" + SEP + "web.xml"),
-			Paths.get(cws_tomcat_webapps + SEP + "camunda" + SEP + "WEB-INF" + SEP + "web.xml"));
+				Paths.get(config_work_dir + SEP + "camunda_mods" + SEP + "web.xml"),
+				Paths.get(cws_tomcat_webapps + SEP + "camunda" + SEP + "WEB-INF" + SEP + "web.xml"));
 
 		// UPDATE engine-rest/web.xml
 		print(" Updating webapps/engine-rest/WEB_INF/web.xml..");
@@ -2087,8 +2101,8 @@ public class CwsInstaller {
 		content = content.replace("__CWS_SECURITY_FILTER_CLASS__", cws_security_filter_class);
 		writeToFile(filePath, content);
 		copy(
-			Paths.get(config_work_dir + SEP + "engine-rest_mods" + SEP + "web.xml"),
-			Paths.get(cws_tomcat_webapps + SEP + "engine-rest" + SEP + "WEB-INF" + SEP + "web.xml"));
+				Paths.get(config_work_dir + SEP + "engine-rest_mods" + SEP + "web.xml"),
+				Paths.get(cws_tomcat_webapps + SEP + "engine-rest" + SEP + "WEB-INF" + SEP + "web.xml"));
 
 		deleteDirectory(new File(cws_tomcat_webapps + SEP + "h2"));
 		deleteDirectory(new File(cws_tomcat_webapps + SEP + "manager"));
@@ -2167,8 +2181,8 @@ public class CwsInstaller {
 		}
 		writeToFile(filePath, content);
 		copy(
-			Paths.get(config_work_dir + SEP + "cws-engine" + SEP + "cws-engine.properties"),
-			Paths.get(cws_tomcat_webapps + SEP + "cws-engine" + SEP + "WEB-INF" + SEP + "classes" + SEP + "cws-engine.properties"));
+				Paths.get(config_work_dir + SEP + "cws-engine" + SEP + "cws-engine.properties"),
+				Paths.get(cws_tomcat_webapps + SEP + "cws-engine" + SEP + "WEB-INF" + SEP + "classes" + SEP + "cws-engine.properties"));
 	}
 
 
@@ -2196,12 +2210,12 @@ public class CwsInstaller {
 		content = content.replace("__CWS_AMQ_HOST__", cws_amq_host);
 		content = content.replace("__CWS_AMQ_PORT__", cws_amq_port);
 
-        content = updateIdentityPluginContent(content);
+		content = updateIdentityPluginContent(content);
 
 		writeToFile(filePath, content);
 		copy(
-			Paths.get(config_work_dir + SEP + "cws-engine" + SEP + "applicationContext.xml"),
-			Paths.get(cws_tomcat_webapps + SEP + "cws-engine" + SEP + "WEB-INF" + SEP + "applicationContext.xml"));
+				Paths.get(config_work_dir + SEP + "cws-engine" + SEP + "applicationContext.xml"),
+				Paths.get(cws_tomcat_webapps + SEP + "cws-engine" + SEP + "WEB-INF" + SEP + "applicationContext.xml"));
 	}
 
 
@@ -2261,8 +2275,8 @@ public class CwsInstaller {
 
 		writeToFile(filePath, content);
 		copy(
-			Paths.get(config_work_dir + SEP + "cws-ui" + SEP + "cws-ui.properties"),
-			Paths.get(cws_tomcat_webapps + SEP + "cws-ui" + SEP + "WEB-INF" + SEP + "classes" + SEP + "cws-ui.properties"));
+				Paths.get(config_work_dir + SEP + "cws-ui" + SEP + "cws-ui.properties"),
+				Paths.get(cws_tomcat_webapps + SEP + "cws-ui" + SEP + "WEB-INF" + SEP + "classes" + SEP + "cws-ui.properties"));
 	}
 
 
@@ -2300,12 +2314,12 @@ public class CwsInstaller {
 		}
 		content = content.replace("__UNIQUE_BROKER_GROUP_NAME__", unique_broker_group_name);
 
-        content = updateIdentityPluginContent(content);
+		content = updateIdentityPluginContent(content);
 
-        writeToFile(path, content);
+		writeToFile(path, content);
 
 		copy(path,
-			Paths.get(cws_tomcat_webapps + SEP + "cws-ui" + SEP + "WEB-INF" + SEP + "applicationContext.xml"));
+				Paths.get(cws_tomcat_webapps + SEP + "cws-ui" + SEP + "WEB-INF" + SEP + "applicationContext.xml"));
 
 
 		// Update clean_es_history.sh file
@@ -2321,8 +2335,8 @@ public class CwsInstaller {
 		content = content.replace("__CWS_HISTORY_DAYS_TO_LIVE__", 	history_days_to_live);
 		writeToFile(path, content);
 		copy(
-			Paths.get(config_work_dir + SEP + "clean_es_history.sh"),
-			Paths.get(cws_root + SEP + "clean_es_history.sh"));
+				Paths.get(config_work_dir + SEP + "clean_es_history.sh"),
+				Paths.get(cws_root + SEP + "clean_es_history.sh"));
 
 
 		// UPDATE cws-ui brand name in FTL files
@@ -2362,55 +2376,55 @@ public class CwsInstaller {
 			mkDir(cws_tomcat_webapps + SEP + cws_project_webapp_root);
 			Path indexHtml = Paths.get(cws_tomcat_webapps + SEP + cws_project_webapp_root + SEP + "index.html");
 			writeToFile(indexHtml,
-				"<html><head><meta http-equiv=\"refresh\" content=\"10;url=/cws-ui/\" /></head>" +
-				"<body>You have configured CWS to have a project web page.\n" +
-				"Put your custom content here by editing the '" + indexHtml + "' file...<br/><br/><hr/>" +
-				"Automatically redirecting to <a href=\"/cws-ui\">CWS Home</a> in 10 seconds...</body></html>");
+					"<html><head><meta http-equiv=\"refresh\" content=\"10;url=/cws-ui/\" /></head>" +
+							"<body>You have configured CWS to have a project web page.\n" +
+							"Put your custom content here by editing the '" + indexHtml + "' file...<br/><br/><hr/>" +
+							"Automatically redirecting to <a href=\"/cws-ui\">CWS Home</a> in 10 seconds...</body></html>");
 		}
 	}
 
 
-    private static String updateIdentityPluginContent(String content) throws IOException {
-        //
-        // Update identity plugin content
-        //
-        if (cws_auth_scheme.equals("LDAP")) {
-            // Erase the __CUSTOM_IDENTITY_PLUGIN_XML__token
-            content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", "");
+	private static String updateIdentityPluginContent(String content) throws IOException {
+		//
+		// Update identity plugin content
+		//
+		if (cws_auth_scheme.equals("LDAP")) {
+			// Erase the __CUSTOM_IDENTITY_PLUGIN_XML__token
+			content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", "");
 
-            // Fill in the __LDAP_PLUGIN_BEAN__
-            String ldapBeanContent = getFileContents(
-            		Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml"));
+			// Fill in the __LDAP_PLUGIN_BEAN__
+			String ldapBeanContent = getFileContents(
+					Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml"));
 			content = content.replace("__LDAP_PLUGIN_BEAN__", ldapBeanContent);
 
 			String ldapRefContent = getFileContents(
 					Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_ref.xml"));
 			content = content.replace("__LDAP_PLUGIN_REF__", ldapRefContent);
 
-            content = content.replace("__CWS_IDENTITY_PLUGIN_CLASS__", cws_identity_plugin_class);
-            content = content.replace("__CWS_LDAP_URL__",              cws_ldap_url);
-        }
-        else if (cws_auth_scheme.equals("CAMUNDA")) {
-            // Erase the unneeded tokens
-            content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", "<!-- CUSTOM_IDENTITY_PLUGIN_XML -->"); // erase token
-            content = content.replace("__LDAP_PLUGIN_BEAN__",    "<!-- LDAP_PLUGIN_BEAN -->"); // erase token
+			content = content.replace("__CWS_IDENTITY_PLUGIN_CLASS__", cws_identity_plugin_class);
+			content = content.replace("__CWS_LDAP_URL__",              cws_ldap_url);
+		}
+		else if (cws_auth_scheme.equals("CAMUNDA")) {
+			// Erase the unneeded tokens
+			content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", "<!-- CUSTOM_IDENTITY_PLUGIN_XML -->"); // erase token
+			content = content.replace("__LDAP_PLUGIN_BEAN__",    "<!-- LDAP_PLUGIN_BEAN -->"); // erase token
 			content = content.replace("__LDAP_PLUGIN_REF__",     "<!-- LDAP_PLUGIN_REF -->"); // erase token
-        }
-        else {  // cws_auth_scheme.equals("CUSTOM")
-            // Erase the __LDAP_PLUGIN_*__ tokens
+		}
+		else {  // cws_auth_scheme.equals("CUSTOM")
+			// Erase the __LDAP_PLUGIN_*__ tokens
 			content = content.replace("__LDAP_PLUGIN_BEAN__", "<!-- LDAP_PLUGIN_BEAN -->"); // erase token
 			content = content.replace("__LDAP_PLUGIN_REF__",  "<!-- LDAP_PLUGIN_REF -->"); // erase token
-            // Fill in the __CUSTOM_IDENTITY_PLUGIN_XML__
-            //There is no custom_identity_plugin.xml file now.
-            Path replaceFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "custom_identity_plugin.xml");
-            String replaceContent = getFileContents(replaceFilePath);
-            content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", replaceContent);
-        }
+			// Fill in the __CUSTOM_IDENTITY_PLUGIN_XML__
+			//There is no custom_identity_plugin.xml file now.
+			Path replaceFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "custom_identity_plugin.xml");
+			String replaceContent = getFileContents(replaceFilePath);
+			content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", replaceContent);
+		}
 
 		content = content.replace("__CWS_LDAP_USER__",             cws_user);
 
-        return content;
-    }
+		return content;
+	}
 
 
 	private static void deleteCwsUiWebApp() {
@@ -2476,8 +2490,8 @@ public class CwsInstaller {
 
 		print(" Put logstash conf file into place.");
 		copy(
-			Paths.get(config_work_dir + SEP + "logging" + SEP + "cws-logstash.conf"),
-			Paths.get(logstash_root   + SEP + "cws-logstash.conf"));
+				Paths.get(config_work_dir + SEP + "logging" + SEP + "cws-logstash.conf"),
+				Paths.get(logstash_root   + SEP + "cws-logstash.conf"));
 	}
 
 	private static void writeOutConfigurationFile() {

@@ -112,6 +112,7 @@ public class RestService extends MvcCore {
 	@Value("${cws.elasticsearch.hostname}") private String elasticsearchHostname;
 	@Value("${cws.elasticsearch.port}") private String elasticsearchPort;
 
+	@Value("${cws.elasticsearch.use.unsecured}") private String elasticsearchUseUnsecured;
 	@Value("${cws.elasticsearch.use.auth}") private String elasticsearchUseAuth;
 	@Value("${cws.elasticsearch.username}") private String elasticsearchUsername;
 	@Value("${cws.elasticsearch.password}") private String elasticsearchPassword;
@@ -397,6 +398,7 @@ public class RestService extends MvcCore {
 		}
 	}
 
+
 	/**
 	 * Constructs Elasticsearch URL
 	 *
@@ -404,11 +406,26 @@ public class RestService extends MvcCore {
 	 * @return fully constructed elasticsearch URL string
 	 */
 	private String constructElasticsearchUrl(String subPath) {
-		String urlString = elasticsearchUseAuth.equalsIgnoreCase("Y")? "https://" : "http://";
-		urlString += elasticsearchHostname + ":" + elasticsearchPort + subPath;
+		//String urlString = elasticsearchUseUnsecured.equalsIgnoreCase("N")? "https://" : "http://";
+		//urlString += elasticsearchHostname + ":" + elasticsearchPort + subPath;
+		String urlString = elasticsearchHostname + ":" + elasticsearchPort + subPath;
+
+		System.out.println("**************************************************");
+		System.out.println(urlString);
+		System.out.println("**************************************************");
 
 		return urlString;
 	}
+
+
+	/**
+	 *
+	 * @return boolean indicating whether elasticsearch use https or http
+	 */
+	private Boolean elasticsearchUseUnsecured() {
+		return elasticsearchUseUnsecured.equalsIgnoreCase("N");
+	}
+
 
 	/**
 	 *
@@ -619,21 +636,21 @@ public class RestService extends MvcCore {
 	public @ResponseBody String doSystemShutdown() {
 		return cwsConsoleService.doSystemShutdown();
 	}
-	
-	
+
+
 	/**
 	 * REST method used to get logs
-	 * 
+	 *
 	 */
 	@RequestMapping(value = "/logs/get/scroll", method = POST, produces="application/json")
 	public @ResponseBody String getLogsScroll(
 			@RequestParam(value = "scrollId") String scrollId) {
 		String urlString = constructElasticsearchUrl("/_search/scroll");
 		String jsonData = "{ \"scroll\" : \"1m\", \"scroll_id\" : \"" + scrollId + "\" }";
-		
+
 		log.trace("REST getLogs query = " + urlString);
 		log.trace("REST getLogs jsonData = " + jsonData);
-		
+
 		try {
 			RestCallResult restCallResult;
 			if (elasticsearchUseAuth()) {
@@ -650,7 +667,7 @@ public class RestService extends MvcCore {
 		} catch (Exception e) {
 			log.error("Problem performing REST call to get log data", e);
 		}
-		
+
 		return "ERROR";
 	}
 	
