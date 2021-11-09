@@ -112,7 +112,6 @@ public class RestService extends MvcCore {
 	@Value("${cws.elasticsearch.hostname}") private String elasticsearchHostname;
 	@Value("${cws.elasticsearch.port}") private String elasticsearchPort;
 
-	@Value("${cws.elasticsearch.use.unsecured}") private String elasticsearchUseUnsecured;
 	@Value("${cws.elasticsearch.use.auth}") private String elasticsearchUseAuth;
 	@Value("${cws.elasticsearch.username}") private String elasticsearchUsername;
 	@Value("${cws.elasticsearch.password}") private String elasticsearchPassword;
@@ -415,15 +414,6 @@ public class RestService extends MvcCore {
 		System.out.println("**************************************************");
 
 		return urlString;
-	}
-
-
-	/**
-	 *
-	 * @return boolean indicating whether elasticsearch use https or http
-	 */
-	private Boolean elasticsearchUseUnsecured() {
-		return elasticsearchUseUnsecured.equalsIgnoreCase("N");
 	}
 
 
