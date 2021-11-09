@@ -71,7 +71,7 @@ BASE_PORT=8000
 tab ${DIST}/console-only/cws "./start_cws.sh -d $BASE_PORT; tail -f $LOG_FILE"
 
 print "Waiting for console startup..."
-sleep 160
+sleep 100
 
 # -----------------
 # CONFIGURE WORKERS
@@ -98,7 +98,7 @@ done
 # START WORKERS
 # -------------
 for ((WORKER_NUM=1; WORKER_NUM <= $NUM_WORKERS; WORKER_NUM++)); do
-	sleep 20
+	sleep 5
 
 	print "Starting worker ${WORKER_NUM}..."
 	WORKER_TAG="worker${WORKER_NUM}"
