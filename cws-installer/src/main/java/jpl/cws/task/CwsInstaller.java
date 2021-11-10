@@ -721,10 +721,10 @@ public class CwsInstaller {
 			} else {
 				if (cws_auth_scheme.equalsIgnoreCase("LDAP")) {
 					cws_user = readLine("Enter name of LDAP user to be used as initial administrator. " +
-									"Default is " + cws_user + ": ", cws_user);
+							"Default is " + cws_user + ": ", cws_user);
 				} else {
 					cws_user = readLine("Enter username to be used as initial administrator. " +
-									"Default is " + cws_user + ": ", cws_user);
+							"Default is " + cws_user + ": ", cws_user);
 				}
 			}
 		} else {
@@ -795,7 +795,7 @@ public class CwsInstaller {
 						"Must specify at least one email address!");
 			} else {
 				cws_notification_emails = readLine("Enter email addresses used to notify of system errors. " +
-								"Default is " + cws_notification_emails + ": ", cws_notification_emails);
+						"Default is " + cws_notification_emails + ": ", cws_notification_emails);
 			}
 		} else {
 			if (cws_notification_emails == null) {
@@ -1030,23 +1030,22 @@ public class CwsInstaller {
 
 		// PROMPT USER FOR ELASTICSEARCH HOST
 		elasticsearch_host = getPreset("elasticsearch_host");
-		String read_elasticsearch_host = "";
 
 		if (cws_installer_mode.equals("interactive")) {
 			if (elasticsearch_host == null) {
 
+				String read_elasticsearch_host = "";
+
 				while (!read_elasticsearch_host.startsWith("https://") &&
 						!read_elasticsearch_host.startsWith("http://")) {
-
-					elasticsearch_host = readRequiredLine("Enter the Elasticsearch host (be sure to include protocol in URL: http:// or https://): ",
+					read_elasticsearch_host = readRequiredLine("Enter the Elasticsearch host (be sure to include protocol in URL: http:// or https://):  ",
 							"You must enter a hostname");
 				}
+
+
 			} else {
-				while (!read_elasticsearch_host.startsWith("https://") &&
-						!read_elasticsearch_host.startsWith("http://")) {
-					elasticsearch_host = readLine("Enter the Elasticsearch host. " +
-							"Default is " + elasticsearch_host + ": ", elasticsearch_host);
-				}
+				elasticsearch_host = readLine("Enter the Elasticsearch host. " +
+						"Default is " + elasticsearch_host + ": ", elasticsearch_host);
 			}
 		} else {
 			if (elasticsearch_host == null) {
@@ -1240,7 +1239,7 @@ public class CwsInstaller {
 
 		if (cws_installer_mode.equals("interactive")) {
 			cws_brand_header = readLine("Enter the brand header text that will display at the top of the web console. " +
-							"Default is \"" + cws_brand_header + "\": ", cws_brand_header);
+					"Default is \"" + cws_brand_header + "\": ", cws_brand_header);
 		}
 	}
 
@@ -1874,8 +1873,8 @@ public class CwsInstaller {
 			while ((process = input.readLine()) != null) {
 				//System.out.println(line);
 				if (process.contains("ntpd") ||
-					process.contains("chronyd") ||
-					process.contains("usr/libexec/timed")) {
+						process.contains("chronyd") ||
+						process.contains("usr/libexec/timed")) {
 					print("   [OK]");
 					print("");
 					return 0; // no warnings
@@ -1996,8 +1995,8 @@ public class CwsInstaller {
 		content = content.replace("__CWS_AUTH_SCHEME__",       cws_auth_scheme);
 		writeToFile(filePath, content);
 		copy(
-			Paths.get(config_work_dir + SEP + "refresh_cws_token.sh"),
-			Paths.get(cws_root + SEP + "refresh_cws_token.sh"));
+				Paths.get(config_work_dir + SEP + "refresh_cws_token.sh"),
+				Paths.get(cws_root + SEP + "refresh_cws_token.sh"));
 
 		if (installConsole) {
 			updateCwsUiConfig();
@@ -2012,19 +2011,19 @@ public class CwsInstaller {
 		content = content.replace("__CWS_CONSOLE_SSL_PORT__", cws_console_ssl_port);
 		writeToFile(filePath, content);
 		copy(
-			Paths.get(config_work_dir + SEP + "stop_cws.sh"),
-			Paths.get(cws_root + SEP + "stop_cws.sh"));
+				Paths.get(config_work_dir + SEP + "stop_cws.sh"),
+				Paths.get(cws_root + SEP + "stop_cws.sh"));
 
 		// UPDATE bpm-platform.xml
 		//
 		copy(
-			Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "bpm-platform.xml"),
-			Paths.get(cws_tomcat_root + SEP + "conf" + SEP + "bpm-platform.xml"));
+				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "bpm-platform.xml"),
+				Paths.get(cws_tomcat_root + SEP + "conf" + SEP + "bpm-platform.xml"));
 
 		// COPY css-jaas.cfg to tomcat/lib
 		copy(
-			Paths.get(config_work_dir + SEP + "tomcat_lib" + SEP + "css-jaas.cfg"),
-			Paths.get(cws_tomcat_root + SEP + "lib" + SEP + "css-jaas.cfg"));
+				Paths.get(config_work_dir + SEP + "tomcat_lib" + SEP + "css-jaas.cfg"),
+				Paths.get(cws_tomcat_root + SEP + "lib" + SEP + "css-jaas.cfg"));
 
 		// UPDATE server.xml
 		print(" Updating server.xml (to point to CWS database)...");
@@ -2042,8 +2041,8 @@ public class CwsInstaller {
 
 		writeToFile(filePath, content);
 		copy(
-			Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "server.xml"),
-			Paths.get(cws_tomcat_root + SEP + "conf"        + SEP + "server.xml"));
+				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "server.xml"),
+				Paths.get(cws_tomcat_root + SEP + "conf"        + SEP + "server.xml"));
 
 		updateWorkerAppContext();
 		updateWorkerProperties();
@@ -2319,7 +2318,7 @@ public class CwsInstaller {
 		writeToFile(path, content);
 
 		copy(path,
-			Paths.get(cws_tomcat_webapps + SEP + "cws-ui" + SEP + "WEB-INF" + SEP + "applicationContext.xml"));
+				Paths.get(cws_tomcat_webapps + SEP + "cws-ui" + SEP + "WEB-INF" + SEP + "applicationContext.xml"));
 
 
 		// Update clean_es_history.sh file
@@ -2377,9 +2376,9 @@ public class CwsInstaller {
 			Path indexHtml = Paths.get(cws_tomcat_webapps + SEP + cws_project_webapp_root + SEP + "index.html");
 			writeToFile(indexHtml,
 					"<html><head><meta http-equiv=\"refresh\" content=\"10;url=/cws-ui/\" /></head>" +
-					"<body>You have configured CWS to have a project web page.\n" +
-					"Put your custom content here by editing the '" + indexHtml + "' file...<br/><br/><hr/>" +
-					"Automatically redirecting to <a href=\"/cws-ui\">CWS Home</a> in 10 seconds...</body></html>");
+							"<body>You have configured CWS to have a project web page.\n" +
+							"Put your custom content here by editing the '" + indexHtml + "' file...<br/><br/><hr/>" +
+							"Automatically redirecting to <a href=\"/cws-ui\">CWS Home</a> in 10 seconds...</body></html>");
 		}
 	}
 
@@ -2490,8 +2489,8 @@ public class CwsInstaller {
 
 		print(" Put logstash conf file into place.");
 		copy(
-			Paths.get(config_work_dir + SEP + "logging" + SEP + "cws-logstash.conf"),
-			Paths.get(logstash_root   + SEP + "cws-logstash.conf"));
+				Paths.get(config_work_dir + SEP + "logging" + SEP + "cws-logstash.conf"),
+				Paths.get(logstash_root   + SEP + "cws-logstash.conf"));
 	}
 
 	private static void writeOutConfigurationFile() {

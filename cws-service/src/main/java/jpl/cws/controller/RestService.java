@@ -408,14 +408,8 @@ public class RestService extends MvcCore {
 		//String urlString = elasticsearchUseUnsecured.equalsIgnoreCase("N")? "https://" : "http://";
 		//urlString += elasticsearchHostname + ":" + elasticsearchPort + subPath;
 		String urlString = elasticsearchHostname + ":" + elasticsearchPort + subPath;
-
-		System.out.println("**************************************************");
-		System.out.println(urlString);
-		System.out.println("**************************************************");
-
 		return urlString;
 	}
-
 
 	/**
 	 *
