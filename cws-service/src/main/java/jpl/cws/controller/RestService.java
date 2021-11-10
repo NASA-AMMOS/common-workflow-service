@@ -405,8 +405,6 @@ public class RestService extends MvcCore {
 	 * @return fully constructed elasticsearch URL string
 	 */
 	private String constructElasticsearchUrl(String subPath) {
-		//String urlString = elasticsearchUseUnsecured.equalsIgnoreCase("N")? "https://" : "http://";
-		//urlString += elasticsearchHostname + ":" + elasticsearchPort + subPath;
 		String urlString = elasticsearchHostname + ":" + elasticsearchPort + subPath;
 		return urlString;
 	}
