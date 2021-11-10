@@ -1827,11 +1827,6 @@ public class CwsInstaller {
 				cmdArray = new String[] {"curl", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 			}
 
-			if (elasticsearch_use_auth.equalsIgnoreCase("N")) {
-				// Add auth to curl
-				cmdArray = new String[] {"curl", "--fail", elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
-			}
-
 			Process p = Runtime.getRuntime().exec(cmdArray);
 
 			// Wait for the process to complete
