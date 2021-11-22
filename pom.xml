@@ -59,6 +59,8 @@
 		<mariadb-java-client.version>2.7.2</mariadb-java-client.version>
 
 		<maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven-dependency-plugin.version>3.0.1</maven-dependency-plugin.version>
 		<maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
 		<maven-install-plugin.version>2.5.2</maven-install-plugin.version>
