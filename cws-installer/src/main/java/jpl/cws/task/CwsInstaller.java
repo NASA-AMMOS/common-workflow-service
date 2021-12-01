@@ -2533,7 +2533,7 @@ public class CwsInstaller {
 		setPreset("elasticsearch_port", elasticsearch_port);
 		setPreset("elasticsearch_use_auth", elasticsearch_use_auth);
 		setPreset("elasticsearch_username", elasticsearch_username);
-		setPreset("elasticsearcH_password", elasticsearch_password);
+		setPreset("elasticsearch_password", elasticsearch_password);
 		setPreset("user_provided_logstash", user_provided_logstash);
 		setPreset("history_level", history_level);
 		setPreset("history_days_to_live", history_days_to_live);
