@@ -21,7 +21,7 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
 - [**ITerm2**](https://iterm2.com/): Currently these build scripts include commands to open new terminal windows using ITerm2, so they are best run from that terminal.
 - **Logstash 7.9+**: You will need to place the logstash 7.9.0 zip in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/past-releases/logstash-7-9-0).
 - **Elasticsearch 7.9+**: CWS requires an externally-configured elasticsearch cluster to be set up. You can use an SSL Secure Elasticsearch with or without authentication, or an Insecure HTTP Elasticsearch. In Please note that CWS currently only supports basic HTTP authentication.
-    - The "Elasticsearch Setup" instruction below provides a Contained Dockerized way of running Elasticsearch. This serves as an alternative to installing Elasticsearch.
+    - The "Elasticsearch Setup" instruction below provides a contained Dockerized way of running Elasticsearch. This serves as an alternative to installing Elasticsearch.
 - Tomcat **keystore and truststore files** (needed for CWS web console to work properly):
     - You will need to add your own Tomcat keystore file to this path: `install/.keystore`
     - You will need to add your own truststore file to this path: `install/tomcat_lib/cws_truststore.jks`
@@ -68,7 +68,7 @@ _In a different terminal window `cd` into root of **common-workflow-service** fo
 For development we tend to create our own separate build script `<personal-dev.sh>` (firstinitial-lastname.sh), i.e.:`jsmith.sh`, that calls `dev.sh`. Here's an template for your personal build script that will work for development on a local machine:
 
 * Correctly set the Elasticsearch configuration within your personal script by including the proper protocol `http://` or `https://` in the Elasticsearch endpoint.
-    * Example: `http://localhost`
+    * Example: `ES_HOST="http://localhost"`
 
 ```
 #File: jsmith.sh
