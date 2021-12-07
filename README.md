@@ -8,36 +8,38 @@ While this repository is mostly complete, the documentation will be a work-in-pr
 
 While documentation is still in the works, please feel free to [open an issue](https://github.com/NASA-AMMOS/commoan-workflow-service/issues/new/choose) with your inquiry.
 
-See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for more information. 
+See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for more information.
 
 # Installation
 
 ## Prerequisites
 
-  - Mariadb or mysql database set up on either your local machine or a remote host. You will also need to create the following:
+- [**Docker**](https://docs.docker.com/get-docker/): Used to run external Elasticsearch, and create and configure mariaDB database container
+- MariaDB or MySQL database set up on either your local machine or a remote host. You will also need to create the following:
     - A database for CWS to use. `cws_dev` is a good default.
     - A database user with full access to the above database.
-  - [ITerm2](https://iterm2.com/): Currently these build scripts include commands to open new terminal windows using ITerm2, so they are best run from that terminal.
-  - **Logstash 7.9+**: You will need to place the logstash 7.9.0 zip in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/past-releases/logstash-7-9-0).
-  - **Elasticsearch 7.9+**: CWS requires an externally-configured elasticsearch cluster to be set up. You can use elasticsearch with or without authentication. Please note that CWS currently only supports basic HTTP authentication.
-  - Tomcat **keystore and truststore files** (needed for CWS web console to work properly):
+- [**ITerm2**](https://iterm2.com/): Currently these build scripts include commands to open new terminal windows using ITerm2, so they are best run from that terminal.
+- **Logstash 7.9+**: You will need to place the logstash 7.9.0 zip in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/past-releases/logstash-7-9-0).
+- **Elasticsearch 7.9+**: CWS requires an externally-configured elasticsearch cluster to be set up. You can use an SSL Secure Elasticsearch with or without authentication, or an Insecure HTTP Elasticsearch. In Please note that CWS currently only supports basic HTTP authentication.
+    - The "Elasticsearch Setup" instruction below provides a Contained Dockerized way of running Elasticsearch. This serves as an alternative to installing Elasticsearch.
+- Tomcat **keystore and truststore files** (needed for CWS web console to work properly):
     - You will need to add your own Tomcat keystore file to this path: `install/.keystore`
     - You will need to add your own truststore file to this path: `install/tomcat_lib/cws_truststore.jks`
     - See: https://tomcat.apache.org/tomcat-9.0-doc/ssl-howto.html
-    
-
-#### Development Environment Configuration
 
 
+### **Development Environment Configuration**
 
-##### Generate mariaDB Docker Container and Create Database Instance for CWS:
+### _MariaDB Setup_
+
+Generate mariaDB Docker Container and Create Database Instance for CWS:
 ```
-docker run -d -p 3306:3306 -e MYSQL_DATABASE=__DB_NAME__ -e MYSQL_ROOT_PASSWORD=__ROOT_PW__ -e TZ=America/Los_Angeles --name mdb103 mariadb:1
+docker run -d -p 3306:3306 -e MYSQL_DATABASE=__DB_NAME__ -e MYSQL_ROOT_PASSWORD=__ROOT_PW__ -e TZ=America/Los_Angeles --name mdb103 mariadb:10.3
 ```
 
 `__DB_NAME__` and `__ROOT_PW__` must match parameters set in script file: `<personal-dev>.sh`
 
-##### Directly access mariaDB with:
+Directly access mariaDB with:
 
 ```
 mysql -h 127.0.0.1 -u root -p
@@ -45,23 +47,28 @@ mysql -h 127.0.0.1 -u root -p
 
 _Make sure `cws_dev` database in created mariaDB instance before moving forward to build CWS_
 
-## Building CWS
-
-#### Pre-CWS Build: Start ElasticSearch
+### _Elasticsearch Setup_
 Open new Shell terminal designated for running ElasticSearch.
 
-* `cd` into `install/docker/es-only` directory and run Docker Compose: 
+* `cd` into `install/docker/es-only` directory and run Docker Compose:
 ```
 docker-compose up
 ```
 
 
 
-#### Build CWS
+-----
+## Building CWS
+
 
 _In a different terminal window `cd` into root of **common-workflow-service** folder and follow Build CWS instructions._
 
+
+
 For development we tend to create our own separate build script `<personal-dev.sh>` (firstinitial-lastname.sh), i.e.:`jsmith.sh`, that calls `dev.sh`. Here's an template for your personal build script that will work for development on a local machine:
+
+* Correctly set the Elasticsearch configuration within your personal script by including the proper protocol `http://` or `https://` in the Elasticsearch endpoint.
+    * Example: `http://localhost`
 
 ```
 #File: jsmith.sh
@@ -96,7 +103,7 @@ ADMIN_LAST="{last}"
 ADMIN_EMAIL="{email}"
 
 # ES config
-ES_HOST="localhost"
+ES_HOST="http://localhost"
 ES_PORT=9200
 ES_USE_AUTH=n
 ES_USERNAME="na"
