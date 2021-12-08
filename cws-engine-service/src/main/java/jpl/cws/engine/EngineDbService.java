@@ -158,9 +158,13 @@ public class EngineDbService extends DbService implements InitializingBean {
 				// TODO: In the future, we might want to do a more elegant algorithm,
 				//       but this may just be fine for the long-run
 				workerName = "worker-" + System.currentTimeMillis();
+				if (cwsInstallType.equals("console_only")) {
+					workerName = "worker" + "0000";
+				}
 				
 				try {
 					log.info("Inserting row (attempt #" + numTries +", workerName='"+workerName+"') into cws_worker table...");
+					log.info("-- cwsInstallType:" + cwsInstallType + "--");
 
 					numUpdated = jdbcTemplate.update(
 							"INSERT INTO cws_worker" +
