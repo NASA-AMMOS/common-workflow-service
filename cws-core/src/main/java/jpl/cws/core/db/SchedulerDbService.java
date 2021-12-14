@@ -605,6 +605,32 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 				"where proc_def_key=?",
 				new Object[] {procDefKey});
 	}
+
+
+	/**
+	 *
+	 */
+	public void deleteDeadWorkers(String workerId) {
+		jdbcTemplate.update(
+			"UPDATE cws_worker_proc_def " +
+				"set max_instances=0, accepting_new=0 " +
+				"where worker_id in " +
+				"(select id from cws_worker where status='down')",
+			new Object[] {workerId});
+
+		jdbcTemplate.update(
+			"DELETE FROM cws_worker_proc_def " +
+			"where worker_id in " +
+			"(select id from cws_worker where status='down')",
+			new Object[] {workerId});
+
+		jdbcTemplate.update(
+			"DELETE FROM cws_worker " +
+				"where worker_id in " +
+				"(select id from cws_worker where status='down')",
+			new Object[] {workerId});
+
+	}
 	
 	/**
 	*

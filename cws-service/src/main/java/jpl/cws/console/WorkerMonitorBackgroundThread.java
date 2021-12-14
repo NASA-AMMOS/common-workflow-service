@@ -74,6 +74,31 @@ public class WorkerMonitorBackgroundThread extends Thread {
 					//
 					workersThatWentDown = schedulerDbService.detectDeadWorkers(THRESHOLD_MILLIS_FOR_DEAD_WORKER);
 				}
+
+
+				// ---------------------------------
+				// CHECK FOR DOWN WORKERS & DELETE WORKERS THAT ARE PAST THE ABANDONED WORKER LIMIT "remove_abandoned_workers_after_days"
+				// ---------------------------------
+
+				while (!workersThatWentDown.isEmpty()) {
+					//
+					// Get first worker in List
+					//
+					Map<String,Object> worker = workersThatWentDown.get(0);
+					String workerId = worker.get("id").toString();
+					Timestamp lastHeartbeatTime = (Timestamp) worker.get("last_heartbeat_time");
+
+					// Check lastHeartbeatTime against remove_abandoned_workers_after_days value
+					if (lastHeartbeatTime > ) {
+						// Remove "dead" worker from the database
+						//
+						schedulerDbService.deleteDeadWorkers(workerId);
+
+						log.warn("Detected (and removed row in DB) worker '" + workerId +
+							"' (threshold milliseconds since last worker heartbeat is ");
+
+					}
+				}
 				
 				
 				// ---------------------------------
@@ -106,6 +131,8 @@ public class WorkerMonitorBackgroundThread extends Thread {
 					//
 					externalWorkersThatWentDown = schedulerDbService.detectDeadExternalWorkers(THRESHOLD_MILLIS_FOR_DEAD_WORKER);
 				}
+
+
 
 				// Successful thread iteration, so reset failure variables back to nominal
 				failures = 0;

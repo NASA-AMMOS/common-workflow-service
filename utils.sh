@@ -202,8 +202,9 @@ function auto_conf_data () {
     ADMIN_LASTNAME=${20}
     ADMIN_EMAIL=${21}
     NUM_WORKERS=${22}
+    REMOVE_ABANDONED_WORKERS_AFTER_DAYS=${23}
 
-    OUTPUT_FILE=${23}
+    OUTPUT_FILE=${24}
 
     source ${ROOT}/utils.sh
 
