@@ -152,13 +152,12 @@ public class EngineDbService extends DbService implements InitializingBean {
 				//
 				// ROW FOR CONSOLE ONLY WORKER ALREADY EXISTS
 				//
-				log.info("Worker Row with cws_install_type: " + cwsInstallType + ", already exists. ");
+				log.warn("Worker Row with cws_install_type: " + cwsInstallType + ", already exists. ");
 			}
 			else {
 				//
 				// ROW FOR WORKER DOES NOT EXIST, SO CREATE ONE
 				//
-
 				int numUpdated = 0;
 				int numTries = 0;
 				String workerName = null;
@@ -171,7 +170,7 @@ public class EngineDbService extends DbService implements InitializingBean {
 					workerName = "worker-" + System.currentTimeMillis();
 					// newly added
 					if (cwsInstallType.equals("console_only")) {
-						workerName = "worker-" + "0000";
+						workerName = "worker0000";
 					}
 
 					try {
