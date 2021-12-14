@@ -148,11 +148,11 @@ public class EngineDbService extends DbService implements InitializingBean {
 	 */
 	public void createOrUpdateWorkerRow(String lockOwner) {
 		if (!workerExists()) {
-			if ( (cwsInstallType.equals("console_only") && workerConsoleOnlyTypeExists()) ) {
+			if ( cwsInstallType.equals("console_only") && workerConsoleOnlyTypeExists() ) {
 				//
 				// ROW FOR CONSOLE ONLY WORKER ALREADY EXISTS
 				//
-				log.info("Worker Row with cws_install_type: " + cwsInstallType ", already exists. ");
+				log.info("Worker Row with cws_install_type: " + cwsInstallType + ", already exists. ");
 			}
 			else {
 				//
