@@ -9,6 +9,10 @@ import org.camunda.bpm.engine.externaltask.ExternalTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
+import java.io.FileWriter;   // Import the FileWriter class
+import java.io.IOException;
 
 import jpl.cws.core.db.SchedulerDbService;
 
@@ -18,7 +22,7 @@ public class WorkerMonitorBackgroundThread extends Thread {
 	@Autowired private SchedulerDbService schedulerDbService;
 	@Autowired private ExternalTaskService externalTaskService;
 
-	@Value("${cws.num.days.after.to.remove.abandoned.workers}") 	private String numDaysAfterRemoveDeadWorkers;
+	@Value("${cws.num.days.after.to.remove.abandoned.workers}") 	private long numDaysAfterRemoveDeadWorkers;
 
 	private static final int THRESHOLD_MILLIS_FOR_DEAD_WORKER = 60000;
 	private static final int THIRTY_SECONDS = 30000;
@@ -85,15 +89,20 @@ public class WorkerMonitorBackgroundThread extends Thread {
 					//
 					// Get first worker in List
 					//
+
+
 					Map<String,Object> worker = workersThatWentDown.get(0);
 					String workerId = worker.get("id").toString();
 					Timestamp lastHeartbeatTime = (Timestamp) worker.get("last_heartbeat_time");
-					lastHeartbeatTime = lastHeartbeatTime.getTime();
+					long currentTime = System.currentTimeMillis();
+					long lastHeartbeatTimeMillis = lastHeartbeatTime.getTime();
+					long workerDeadTimeMillis = currentTime - lastHeartbeatTimeMillis;
 
-					numDaysAfterRemoveDeadWorkers = numDaysAfterRemoveDeadWorkers * 86400000
+					numDaysAfterRemoveDeadWorkers = numDaysAfterRemoveDeadWorkers * 86400000;
+
 
 					// Check lastHeartbeatTime against remove_abandoned_workers_after_days value
-					if ( (System.currentTimeMillis() - lastHeartbeatTime) > numDaysAfterRemoveDeadWorkers) {
+					if (workerDeadTimeMillis > numDaysAfterRemoveDeadWorkers) {
 						// Remove "dead" worker from the database
 						//
 						schedulerDbService.deleteDeadWorkers(workerId);
@@ -102,6 +111,8 @@ public class WorkerMonitorBackgroundThread extends Thread {
 							"' (threshold milliseconds since last worker heartbeat is ");
 
 					}
+
+
 				}
 				
 				
