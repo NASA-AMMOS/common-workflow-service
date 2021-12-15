@@ -177,6 +177,7 @@ public class CwsInstaller {
 	private static String user_provided_logstash;
 	private static String history_level;
 	private static String history_days_to_live;
+	private static String num_days_after_to_remove_abandoned_workers;
 
 	private static String aws_default_region;
 	private static String aws_sqs_dispatcher_sqsUrl;
@@ -860,6 +861,19 @@ public class CwsInstaller {
 		}
 	}
 
+	private static void setupLimitToRemoveAbandonedWorkersByDays() {
+		num_days_after_to_remove_abandoned_workers = getPreset("num_days_after_to_remove_abandoned_workers");
+
+		if (num_days_after_to_remove_abandoned_workers == null) {
+			num_days_after_to_remove_abandoned_workers = getPreset("default_num_days_after_to_remove_abandoned_workers");
+		}
+
+		if (cws_installer_mode.equals("interactive")) {
+			num_days_after_to_remove_abandoned_workers = readLine("Enter the number of days after worker(s) are abandoned to remove worker(s) from the database. " +
+				"Default is " + num_days_after_to_remove_abandoned_workers + ": ", num_days_after_to_remove_abandoned_workers);
+		}
+	}
+
 
 	private static void setupPorts() {
 		// PROMPT USER FOR CWS WEB PORT
@@ -1462,6 +1476,7 @@ public class CwsInstaller {
 		print("CWS Notification Emails       = " + cws_notification_emails);
 		print("CWS Token Expiration In Hours = " + cws_token_expiration_hours);
 		print("History Level                 = " + history_level);
+		print("Days Remove Abandoned Workers = " + num_days_after_to_remove_abandoned_workers);
 		if (installConsole) {
 			print("History Days to Live          = " + history_days_to_live);
 			print("....................................................................................");
@@ -2245,6 +2260,7 @@ public class CwsInstaller {
 		content = content.replace("__CWS_AUTH_SCHEME__",                 cws_auth_scheme);
 		content = content.replace("__CWS_HISTORY_DAYS_TO_LIVE__",        history_days_to_live);
 		content = content.replace("__CWS_HISTORY_LEVEL__",     		     history_level);
+		content = content.replace("__CWS_NUM_DAYS_AFTER_TO_REMOVE_ABANDONED_WORKERS__",		num_days_after_to_remove_abandoned_workers);
 		content = content.replace("__AWS_DEFAULT_REGION__", 				  aws_default_region);
 
 		// ES auth might not be in use
@@ -2319,6 +2335,7 @@ public class CwsInstaller {
 			content = content.replace("__ES_PASSWORD__",             elasticsearch_password);
 		}
 		content = content.replace("__CWS_HISTORY_DAYS_TO_LIVE__", 	history_days_to_live);
+		content = content.replace("__CWS_NUM_DAYS_AFTER_TO_REMOVE_ABANDONED_WORKERS__",		num_days_after_to_remove_abandoned_workers);
 		writeToFile(path, content);
 		copy(
 			Paths.get(config_work_dir + SEP + "clean_es_history.sh"),
@@ -2529,6 +2546,7 @@ public class CwsInstaller {
 		setPreset("user_provided_logstash", user_provided_logstash);
 		setPreset("history_level", history_level);
 		setPreset("history_days_to_live", history_days_to_live);
+		setPreset("num_days_after_to_remove_abandoned_workers", num_days_after_to_remove_abandoned_workers);
 		setPreset("aws_default_region", aws_default_region);
 		setPreset("aws_sqs_dispatcher_sqsUrl", aws_sqs_dispatcher_sqsUrl);
 		setPreset("aws_sqs_dispatcher_msgFetchLimit", aws_sqs_dispatcher_msgFetchLimit);

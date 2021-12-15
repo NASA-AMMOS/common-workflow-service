@@ -17,7 +17,9 @@ public class WorkerMonitorBackgroundThread extends Thread {
 	
 	@Autowired private SchedulerDbService schedulerDbService;
 	@Autowired private ExternalTaskService externalTaskService;
-	
+
+	@Value("${cws.num.days.after.to.remove.abandoned.workers}") 	private String numDaysAfterRemoveDeadWorkers;
+
 	private static final int THRESHOLD_MILLIS_FOR_DEAD_WORKER = 60000;
 	private static final int THIRTY_SECONDS = 30000;
 	
@@ -79,7 +81,6 @@ public class WorkerMonitorBackgroundThread extends Thread {
 				// ---------------------------------
 				// CHECK FOR DOWN WORKERS & DELETE WORKERS THAT ARE PAST THE ABANDONED WORKER LIMIT "remove_abandoned_workers_after_days"
 				// ---------------------------------
-
 				while (!workersThatWentDown.isEmpty()) {
 					//
 					// Get first worker in List
@@ -87,9 +88,12 @@ public class WorkerMonitorBackgroundThread extends Thread {
 					Map<String,Object> worker = workersThatWentDown.get(0);
 					String workerId = worker.get("id").toString();
 					Timestamp lastHeartbeatTime = (Timestamp) worker.get("last_heartbeat_time");
+					lastHeartbeatTime = lastHeartbeatTime.getTime();
+
+					numDaysAfterRemoveDeadWorkers = numDaysAfterRemoveDeadWorkers * 86400000
 
 					// Check lastHeartbeatTime against remove_abandoned_workers_after_days value
-					if (lastHeartbeatTime > ) {
+					if ( (System.currentTimeMillis() - lastHeartbeatTime) > numDaysAfterRemoveDeadWorkers) {
 						// Remove "dead" worker from the database
 						//
 						schedulerDbService.deleteDeadWorkers(workerId);
@@ -131,8 +135,6 @@ public class WorkerMonitorBackgroundThread extends Thread {
 					//
 					externalWorkersThatWentDown = schedulerDbService.detectDeadExternalWorkers(THRESHOLD_MILLIS_FOR_DEAD_WORKER);
 				}
-
-
 
 				// Successful thread iteration, so reset failure variables back to nominal
 				failures = 0;
