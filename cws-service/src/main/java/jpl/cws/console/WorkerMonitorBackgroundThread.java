@@ -11,9 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.io.FileWriter;   // Import the FileWriter class
-import java.io.IOException;
-import java.lang.*;
 
 import jpl.cws.core.db.SchedulerDbService;
 
@@ -113,7 +110,7 @@ public class WorkerMonitorBackgroundThread extends Thread {
 
 					// Check lastHeartbeatTime against "num_days_after_to_remove_abandoned_workers" value
 
-					//schedulerDbService.deleteAbandonedWorkers(workerId);
+					schedulerDbService.deleteAbandonedWorkers(workerId);
 
 					log.warn("Detected (and removed abandoned row in DB) cws_worker '" + workerId +
 						"' (threshold milliseconds since last worker heartbeat is " +

@@ -578,6 +578,10 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 	public List<Map<String,Object>> detectAbandonedWorkers(int thresholdMilliseconds) {
 		try {
 			Timestamp thresholdTimeAgo = new Timestamp(DateTime.now().minusMillis(thresholdMilliseconds).getMillis());
+			//thresholdTimeAgo = "2021-11-16 14:51:28";
+			//String timeTest = "2021-11-16 14:51:28";
+			log.debug("DOWNTIME THRESHOLD INFO: " + thresholdTimeAgo);
+
 			return jdbcTemplate.queryForList("SELECT * FROM cws_worker " +
 					"WHERE last_heartbeat_time < ? AND status = 'down'",
 				new Object[] { thresholdTimeAgo });
@@ -634,20 +638,20 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		jdbcTemplate.update(
 			"UPDATE cws_worker_proc_def " +
 				"set max_instances=0, accepting_new=0 " +
-				"where ? in " +
-				"(select id from cws_worker where status='down')",
+				"where worker_id=? in " +
+				"(select id=? from cws_worker where status='down')",
 			new Object[] {workerId});
 
 		jdbcTemplate.update(
 			"DELETE FROM cws_worker_proc_def " +
-			"where ? in " +
-			"(select id from cws_worker where status='down')",
+			"where worker_id=? in " +
+			"(select id=? from cws_worker where status='down')",
 			new Object[] {workerId});
 
 		jdbcTemplate.update(
 			"DELETE FROM cws_worker " +
-				"where ? in " +
-				"(select id from cws_worker where status='down')",
+				"where id=? in " +
+				"(select id=? from cws_worker where status='down')",
 			new Object[] {workerId});
 
 	}
