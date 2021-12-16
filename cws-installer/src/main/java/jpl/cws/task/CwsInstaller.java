@@ -2261,7 +2261,7 @@ public class CwsInstaller {
 		content = content.replace("__CWS_AUTH_SCHEME__",                 cws_auth_scheme);
 		content = content.replace("__CWS_HISTORY_DAYS_TO_LIVE__",        history_days_to_live);
 		content = content.replace("__CWS_HISTORY_LEVEL__",     		     history_level);
-		//content = content.replace("__CWS_NUM_DAYS_AFTER_TO_REMOVE_ABANDONED_WORKERS__",		num_days_after_to_remove_abandoned_workers);
+		content = content.replace("__CWS_NUM_DAYS_AFTER_TO_REMOVE_ABANDONED_WORKERS__",		num_days_after_to_remove_abandoned_workers);
 		content = content.replace("__AWS_DEFAULT_REGION__", 				  aws_default_region);
 
 		// ES auth might not be in use
@@ -2293,7 +2293,7 @@ public class CwsInstaller {
 		content = content.replace("__CWS_DB_PASSWORD__", cws_db_password);
 		content = content.replace("__JOB_EXECUTOR_ACTIVATE__", "false");
 		content = content.replace("__HISTORY_LEVEL__", history_level);
-		//content = content.replace("__CWS_NUM_DAYS_AFTER_TO_REMOVE_ABANDONED_WORKERS__", num_days_after_to_remove_abandoned_workers);
+		content = content.replace("__CWS_NUM_DAYS_AFTER_TO_REMOVE_ABANDONED_WORKERS__", num_days_after_to_remove_abandoned_workers);
 
 		content = content.replace("__CWS_AMQ_HOST__",     cws_amq_host);
 		content = content.replace("__CWS_AMQ_PORT__",     cws_amq_port);

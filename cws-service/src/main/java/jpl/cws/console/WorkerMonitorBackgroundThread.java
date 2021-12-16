@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.io.FileWriter;   // Import the FileWriter class
 import java.io.IOException;
+import java.lang.*;
 
 import jpl.cws.core.db.SchedulerDbService;
 
@@ -23,14 +24,10 @@ public class WorkerMonitorBackgroundThread extends Thread {
 	@Autowired private ExternalTaskService externalTaskService;
 
 	@Value("${cws.num.days.after.to.remove.abandoned.workers}")		private String numDaysAfterRemoveDeadWorkers;
+	@Value("${cws.history.days.to.live}") 	private String historyDaysToLive;
 
 	private static final int THRESHOLD_MILLIS_FOR_DEAD_WORKER = 60000;
 	private static final int THIRTY_SECONDS = 30000;
-
-	private int THRESHOLD_MILLIS_FOR_ABANDONED_WORKER = Integer.parseInt(numDaysAfterRemoveDeadWorkers) * 86400000;
-
-
-	//long number = Long.valueOf(numDaysAfterRemoveDeadWorkers).longValue();
 
 
 	public void run() {
@@ -88,15 +85,24 @@ public class WorkerMonitorBackgroundThread extends Thread {
 				}
 
 
+				//log.debug("DOWNTIME LOG INFO: " + numDaysAfterRemoveDeadWorkers);
+				//log.debug("DOWNTIME LOG INFO: " + historyDaysToLive);
+				//String numsTest = "5";
+				//int THRESHOLD_MILLIS_FOR_ABANDONED_WORKER = Integer.parseInt(numsTest) * 86400000;
+				//log.warn("DOWNTIME TIME: -- " + THRESHOLD_MILLIS_FOR_ABANDONED_WORKER);
+
+
 
 				// ---------------------------------
-				// CHECK FOR DOWN WORKERS & DELETE WORKERS THAT ARE PAST THE ABANDONED WORKER LIMIT "remove_abandoned_workers_after_days"
+				// CHECK FOR DOWN WORKERS & DELETE WORKERS THAT ARE PAST THE ABANDONED WORKER LIMIT "num_days_after_to_remove_abandoned_workers"
 				// ---------------------------------
+				int THRESHOLD_MILLIS_FOR_ABANDONED_WORKER = Integer.parseInt(numDaysAfterRemoveDeadWorkers) * 86400000;
+
 				List<Map<String,Object>> workersThatAreAbandoned = schedulerDbService.detectAbandonedWorkers(THRESHOLD_MILLIS_FOR_ABANDONED_WORKER);
 
-				log.warn("DOWNTIME LOG INFO: " + numDaysAfterRemoveDeadWorkers);
-				String val1 = schedulerDbService.showJodaTime(THRESHOLD_MILLIS_FOR_ABANDONED_WORKER);
-				log.warn("DOWNTIME TIME: -- " + val1);
+				//log.debug("DOWNTIME LOG INFO: " + numDaysAfterRemoveDeadWorkers);
+				//String val1 = schedulerDbService.showJodaTime(THRESHOLD_MILLIS_FOR_ABANDONED_WORKER);
+				//log.debug("DOWNTIME TIME: -- " + val1);
 
 				while (!workersThatAreAbandoned.isEmpty()) {
 					//
@@ -105,7 +111,7 @@ public class WorkerMonitorBackgroundThread extends Thread {
 					Map<String,Object> worker = workersThatWentDown.get(0);
 					String workerId = worker.get("id").toString();
 
-					// Check lastHeartbeatTime against remove_abandoned_workers_after_days value
+					// Check lastHeartbeatTime against "num_days_after_to_remove_abandoned_workers" value
 
 					//schedulerDbService.deleteAbandonedWorkers(workerId);
 
@@ -113,6 +119,9 @@ public class WorkerMonitorBackgroundThread extends Thread {
 
 
 				}
+
+
+				 **/
 
 
 				
