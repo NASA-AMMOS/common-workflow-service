@@ -237,6 +237,7 @@ public class CwsInstaller {
 				setupCloudAutoscaling();
 				setupAwsSqs();
 			}
+			setupLimitToRemoveAbandonedWorkersByDays();
 			genUniqueWorkerId();
 			setupStartupAutoregisterProcessDefs();
 			showInstallationInfo();

@@ -569,6 +569,26 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			throw e;
 		}
 	}
+
+
+	/**
+	 * Gets a list of abandoned workers.
+	 *
+	 */
+	public List<Map<String,Object>> detectAbandonedWorkers(int thresholdMilliseconds) {
+		try {
+			Timestamp thresholdTimeAgo = new Timestamp(DateTime.now().minusMillis(thresholdMilliseconds).getMillis());
+			return jdbcTemplate.queryForList("SELECT * FROM cws_worker " +
+					"WHERE last_heartbeat_time < ? AND status = 'down'",
+				new Object[] { thresholdTimeAgo });
+		}
+		catch (Throwable e) {
+			cwsEmailerService.sendNotificationEmails("CWS Database Error", "Severe Error!\n\nCould not query database for abandoned workers.\n\nDetails: " + e.getMessage());
+			log.error("Problem occurred while querying the database for abandoned workers.", e);
+
+			throw e;
+		}
+	}
 	
 	
 	/**
@@ -610,27 +630,39 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 	/**
 	 *
 	 */
-	public void deleteDeadWorkers(String workerId) {
+	public void deleteAbandonedWorkers(String workerId) {
 		jdbcTemplate.update(
 			"UPDATE cws_worker_proc_def " +
 				"set max_instances=0, accepting_new=0 " +
-				"where worker_id in " +
+				"where ? in " +
 				"(select id from cws_worker where status='down')",
 			new Object[] {workerId});
 
 		jdbcTemplate.update(
 			"DELETE FROM cws_worker_proc_def " +
-			"where worker_id in " +
+			"where ? in " +
 			"(select id from cws_worker where status='down')",
 			new Object[] {workerId});
 
 		jdbcTemplate.update(
 			"DELETE FROM cws_worker " +
-				"where worker_id in " +
+				"where ? in " +
 				"(select id from cws_worker where status='down')",
 			new Object[] {workerId});
 
 	}
+
+
+	/**
+	 *
+	 */
+	public String showJodaTime(int thresholdMilliseconds) {
+		Timestamp thresholdTimeAgo = new Timestamp(DateTime.now().minusMillis(thresholdMilliseconds).getMillis());
+		String str1 = thresholdTimeAgo.toString();
+		return str1;
+	}
+
+
 	
 	/**
 	*
