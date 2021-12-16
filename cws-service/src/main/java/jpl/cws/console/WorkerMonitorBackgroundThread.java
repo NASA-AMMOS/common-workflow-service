@@ -85,12 +85,12 @@ public class WorkerMonitorBackgroundThread extends Thread {
 				}
 
 
+
 				//log.debug("DOWNTIME LOG INFO: " + numDaysAfterRemoveDeadWorkers);
 				//log.debug("DOWNTIME LOG INFO: " + historyDaysToLive);
 				//String numsTest = "5";
 				//int THRESHOLD_MILLIS_FOR_ABANDONED_WORKER = Integer.parseInt(numsTest) * 86400000;
 				//log.warn("DOWNTIME TIME: -- " + THRESHOLD_MILLIS_FOR_ABANDONED_WORKER);
-
 
 
 				// ---------------------------------
@@ -115,13 +115,16 @@ public class WorkerMonitorBackgroundThread extends Thread {
 
 					//schedulerDbService.deleteAbandonedWorkers(workerId);
 
+					log.warn("Detected (and removed abandoned row in DB) cws_worker '" + workerId +
+						"' (threshold milliseconds since last worker heartbeat is " +
+						THRESHOLD_MILLIS_FOR_ABANDONED_WORKER);
+
+					//
+					// Get up to date list of abandoned workers
+					//
 					workersThatAreAbandoned = schedulerDbService.detectAbandonedWorkers(THRESHOLD_MILLIS_FOR_ABANDONED_WORKER);
-
-
 				}
 
-
-				 **/
 
 
 				
