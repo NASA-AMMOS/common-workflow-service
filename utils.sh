@@ -202,7 +202,7 @@ function auto_conf_data () {
     ADMIN_LASTNAME=${20}
     ADMIN_EMAIL=${21}
     NUM_WORKERS=${22}
-    NUM_DAYS_AFTER_TO_REMOVE_ABANDONED_WORKERS=${23}
+    WORKER_ABANDONED_DAYS=${23}
 
     OUTPUT_FILE=${24}
 
@@ -295,7 +295,7 @@ function auto_conf_data () {
     cws_amq_jmx_port=${CWS_AMQ_JMX_PORT}
     cws_jmx_port=${CWS_JMX_PORT}
     history_days_to_live=2
-    num_days_after_to_remove_abandoned_workers=${NUM_DAYS_AFTER_TO_REMOVE_ABANDONED_WORKERS}
+    worker_abandoned_days=${WORKER_ABANDONED_DAYS}
     notify_users_email=y
     email_subject=[CWS] You have been assigned a task (CWS_TASK_NAME)
     email_body=fn:CWS_USER_FIRSTNAME<br/>ln:CWS_USER_LASTNAME,<br/>tn:(CWS_TASK_NAME), em:CWS_USER_EMAIL

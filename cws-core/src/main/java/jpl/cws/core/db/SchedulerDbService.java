@@ -578,13 +578,9 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 	public List<Map<String,Object>> detectAbandonedWorkers(int thresholdMilliseconds) {
 		try {
 			Timestamp thresholdTimeAgo = new Timestamp(DateTime.now().minusMillis(thresholdMilliseconds).getMillis());
-			//thresholdTimeAgo = "2021-11-16 14:51:28";
-			//String timeTest = "2021-11-16 14:51:28";
-			log.debug("DOWNTIME THRESHOLD INFO: " + thresholdTimeAgo);
 
-			return jdbcTemplate.queryForList("SELECT * FROM cws_worker " +
-					"WHERE last_heartbeat_time < ? AND status = 'down'",
-				new Object[] { thresholdTimeAgo });
+			String query = "SELECT * FROM cws_worker WHERE last_heartbeat_time < ? AND status = 'down'";
+			return jdbcTemplate.queryForList(query, new Object[] { thresholdTimeAgo });
 		}
 		catch (Throwable e) {
 			cwsEmailerService.sendNotificationEmails("CWS Database Error", "Severe Error!\n\nCould not query database for abandoned workers.\n\nDetails: " + e.getMessage());
@@ -631,39 +627,24 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 	}
 
 
-	/**
-	 *
-	 */
-	public void deleteAbandonedWorkers(String workerId) {
-		jdbcTemplate.update(
-			"UPDATE cws_worker_proc_def " +
-				"set max_instances=0, accepting_new=0 " +
-				"where worker_id=? in " +
-				"(select id=? from cws_worker where status='down')",
-			new Object[] {workerId});
-
-		jdbcTemplate.update(
-			"DELETE FROM cws_worker_proc_def " +
-			"where worker_id=? in " +
-			"(select id=? from cws_worker where status='down')",
-			new Object[] {workerId});
-
-		jdbcTemplate.update(
-			"DELETE FROM cws_worker " +
-				"where id=? in " +
-				"(select id=? from cws_worker where status='down')",
-			new Object[] {workerId});
-
-	}
-
 
 	/**
-	 *
+	 * Delete an abandoned worker
+	 * Deletes entries from both cws_worker_proc_def and cws_worker
 	 */
-	public String showJodaTime(int thresholdMilliseconds) {
-		Timestamp thresholdTimeAgo = new Timestamp(DateTime.now().minusMillis(thresholdMilliseconds).getMillis());
-		String str1 = thresholdTimeAgo.toString();
-		return str1;
+	public void deleteAbandonedWorker(String workerId) {
+
+		// Disable the worker for all process definitions (might not be necessary)
+		String query =  "UPDATE cws_worker_proc_def " + "SET max_instances=0, accepting_new=0 " + "WHERE worker_id=?";
+		jdbcTemplate.update(query, new Object[] {workerId});
+
+		// Delete the (worker, proc_def) entries from the proc def table
+		query = "DELETE FROM cws_worker_proc_def WHERE worker_id=?";
+		jdbcTemplate.update(query, new Object[] {workerId});
+
+		// Delete worker from cws_worker table
+		query = "DELETE FROM cws_worker WHERE id=?";
+		jdbcTemplate.update(query, new Object[] {workerId});
 	}
 
 

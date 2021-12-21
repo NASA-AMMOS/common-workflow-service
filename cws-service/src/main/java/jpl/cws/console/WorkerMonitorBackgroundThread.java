@@ -20,11 +20,11 @@ public class WorkerMonitorBackgroundThread extends Thread {
 	@Autowired private SchedulerDbService schedulerDbService;
 	@Autowired private ExternalTaskService externalTaskService;
 
-	@Value("${cws.num.days.after.to.remove.abandoned.workers}")		private String numDaysAfterRemoveDeadWorkers;
-	@Value("${cws.history.days.to.live}") 	private String historyDaysToLive;
+	@Value("${cws.worker.abandoned.days}")		private String numDaysAfterRemoveDeadWorkers;
 
 	private static final int THRESHOLD_MILLIS_FOR_DEAD_WORKER = 60000;
 	private static final int THIRTY_SECONDS = 30000;
+	private static final int ONE_DAY = 1000 * 60 * 60 * 24;
 
 
 	public void run() {
@@ -83,45 +83,31 @@ public class WorkerMonitorBackgroundThread extends Thread {
 
 
 
-				//log.debug("DOWNTIME LOG INFO: " + numDaysAfterRemoveDeadWorkers);
-				//log.debug("DOWNTIME LOG INFO: " + historyDaysToLive);
-				//String numsTest = "5";
-				//int THRESHOLD_MILLIS_FOR_ABANDONED_WORKER = Integer.parseInt(numsTest) * 86400000;
-				//log.warn("DOWNTIME TIME: -- " + THRESHOLD_MILLIS_FOR_ABANDONED_WORKER);
-
-
 				// ---------------------------------
-				// CHECK FOR DOWN WORKERS & DELETE WORKERS THAT ARE PAST THE ABANDONED WORKER LIMIT "num_days_after_to_remove_abandoned_workers"
+				// CHECK FOR DOWN WORKERS & DELETE WORKERS THAT ARE PAST THE ABANDONED WORKER LIMIT "worker_abandoned_days"
 				// ---------------------------------
-				int THRESHOLD_MILLIS_FOR_ABANDONED_WORKER = Integer.parseInt(numDaysAfterRemoveDeadWorkers) * 86400000;
+				float numDaysFloat = Float.parseFloat(numDaysAfterRemoveDeadWorkers);
+				float numDaysFloat_Millis = (float) numDaysFloat * (float) ONE_DAY;
+
+				int THRESHOLD_MILLIS_FOR_ABANDONED_WORKER = Math.round(numDaysFloat_Millis);
 
 				List<Map<String,Object>> workersThatAreAbandoned = schedulerDbService.detectAbandonedWorkers(THRESHOLD_MILLIS_FOR_ABANDONED_WORKER);
-
-				//log.debug("DOWNTIME LOG INFO: " + numDaysAfterRemoveDeadWorkers);
-				//String val1 = schedulerDbService.showJodaTime(THRESHOLD_MILLIS_FOR_ABANDONED_WORKER);
-				//log.debug("DOWNTIME TIME: -- " + val1);
 
 				while (!workersThatAreAbandoned.isEmpty()) {
 					//
 					// Get first worker in List
 					//
-					Map<String,Object> worker = workersThatWentDown.get(0);
+					Map<String,Object> worker = workersThatAreAbandoned.get(0);
+					workersThatAreAbandoned.remove(0); // pop from list
+
 					String workerId = worker.get("id").toString();
 
-					// Check lastHeartbeatTime against "num_days_after_to_remove_abandoned_workers" value
+					// Delete abandoned worker from the database
+					schedulerDbService.deleteAbandonedWorker(workerId);
 
-					schedulerDbService.deleteAbandonedWorkers(workerId);
-
-					log.warn("Detected (and removed abandoned row in DB) cws_worker '" + workerId +
-						"' (threshold milliseconds since last worker heartbeat is " +
-						THRESHOLD_MILLIS_FOR_ABANDONED_WORKER);
-
-					//
-					// Get up to date list of abandoned workers
-					//
-					workersThatAreAbandoned = schedulerDbService.detectAbandonedWorkers(THRESHOLD_MILLIS_FOR_ABANDONED_WORKER);
+					log.warn("Worker '" + workerId + "' last heartbeat passed the abandoned millisecond threshold: " + THRESHOLD_MILLIS_FOR_ABANDONED_WORKER
+						+ ". It has been detected and removed from Database table - cws_worker.");
 				}
-
 
 
 				
