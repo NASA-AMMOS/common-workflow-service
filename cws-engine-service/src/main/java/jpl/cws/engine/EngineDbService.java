@@ -152,7 +152,7 @@ public class EngineDbService extends DbService implements InitializingBean {
 				//
 				// ROW FOR CONSOLE ONLY WORKER ALREADY EXISTS
 				//
-				log.warn("Worker Row with cws_install_type: " + cwsInstallType + ", already exists. ");
+				log.error("Worker Row with cws_install_type: " + cwsInstallType + ", already exists. ");
 			}
 			else {
 				//
