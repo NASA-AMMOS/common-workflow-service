@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jpl.cws.core.CmdLineInputFields;
+import jpl.cws.core.CmdLineOutputFields;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecuteResultHandler;
 import org.apache.commons.exec.DefaultExecutor;
@@ -40,6 +42,8 @@ import jersey.repackaged.com.google.common.base.Function;
 import jersey.repackaged.com.google.common.collect.Collections2;
 import jpl.cws.task.CwsTaskLogger;
 import org.camunda.spin.json.SpinJsonNode;
+import org.camunda.spin.plugin.variable.SpinValues;
+import org.camunda.spin.plugin.variable.value.JsonValue;
 
 public class CwsExternalTaskThread extends Thread  {
 
@@ -131,7 +135,8 @@ public class CwsExternalTaskThread extends Thread  {
 		log.debug("runTask: Running external task for procInstId = " + task.getProcessInstanceId() + ", taskId = " + task.getId() + ", activityId = " + task.getActivityId() +
 				", executionId = " + task.getExecutionId() + ", with topic = " + task.getTopicName() + ", task priority = " + task.getPriority() + "...");
 
-		CmdLineInputFields cmdFields = new CmdLineInputFields();
+		CmdLineInputFields cmdInputFields = new CmdLineInputFields();
+		CmdLineOutputFields cmdOutputFields = new CmdLineOutputFields();
 
 		try {
 			if (task.getVariables().containsKey(activityId + "_errorMsg")) {
@@ -145,7 +150,7 @@ public class CwsExternalTaskThread extends Thread  {
 				return;
 			}
 			else {
-				String inputFieldName = activityId + "_input";
+				String inputFieldName = activityId + "_in";
 
 				if (!task.getVariables().containsKey(inputFieldName)) {
 					throw new Exception("Task does not contain the input fields variable.");
@@ -159,12 +164,12 @@ public class CwsExternalTaskThread extends Thread  {
 
 				// Get input fields as json and convert to CmdLineInputFields object
 				SpinJsonNode jsonNode = (SpinJsonNode)task.getVariables().get(inputFieldName);
-				cmdFields = new Gson().fromJson(jsonNode.toString(), CmdLineInputFields.class);
+				cmdInputFields = new Gson().fromJson(jsonNode.toString(), CmdLineInputFields.class);
 
-				throwOnTruncatedVariableBoolean = cmdFields.throwOnTruncatedVariable;
+				throwOnTruncatedVariableBoolean = cmdInputFields.throwOnTruncatedVariable;
 
 				exitCodeEventsMap.clear();
-				String[] exitCodeMapArray = cmdFields.exitCodeEvents.split(",");
+				String[] exitCodeMapArray = cmdInputFields.exitCodeEvents.split(",");
 				for (String exitCodeMap : exitCodeMapArray) {
 
 					String[] keyVal = exitCodeMap.split("=");
@@ -204,7 +209,7 @@ public class CwsExternalTaskThread extends Thread  {
 				// Allow for this task to be fetched again and wait for the listener to set the input variables
 				//
 				// Get retries for this task
-				int taskRetries = getAndIncrementRetriesForTask(task, cmdFields.retries);
+				int taskRetries = getAndIncrementRetriesForTask(task, cmdInputFields.retries);
 
 				// Retry this external task
 				handleCamundaApiCall(Resolution.HANDLE_FAILURE, task.getId(), "Retrying due to variable lookup failure...", t.toString(), taskRetries, 3000L);
@@ -227,8 +232,9 @@ public class CwsExternalTaskThread extends Thread  {
 
 		try {
 			setOutputVariable("lockedTime", lockedTime);
+			cmdOutputFields.lockedTime = lockedTime;
 
-			boolean success = executeTask(cmdFields);
+			boolean success = executeTask(cmdInputFields, cmdOutputFields);
 
 			if (success) {
 				log.debug("runTask: External task completed successfully!");
@@ -243,14 +249,14 @@ public class CwsExternalTaskThread extends Thread  {
 
 			// BpmnError occurred, retry or signal a Bpmn Error
 			//
-			int taskRetries = getAndDecrementRetriesForTask(task, cmdFields.retries);
+			int taskRetries = getAndDecrementRetriesForTask(task, cmdInputFields.retries);
 
 			if (taskRetries > 0) {
 
-				log.warn("runTask: handleFailure: (BpmnError: " + e.getMessage() + ") (retries remaining: " + taskRetries + ") (retrying in: " + cmdFields.retryDelay + "ms)", e);
+				log.warn("runTask: handleFailure: (BpmnError: " + e.getMessage() + ") (retries remaining: " + taskRetries + ") (retrying in: " + cmdInputFields.retryDelay + "ms)", e);
 
 				// Do retry
-				handleCamundaApiCall(Resolution.HANDLE_FAILURE, task.getId(), "Retrying...", e.toString(), taskRetries, cmdFields.retryDelay);
+				handleCamundaApiCall(Resolution.HANDLE_FAILURE, task.getId(), "Retrying...", e.toString(), taskRetries, cmdInputFields.retryDelay);
 			}
 			else {
 				// Create Bpmn Error
@@ -259,7 +265,7 @@ public class CwsExternalTaskThread extends Thread  {
 		}
 		catch (OptimisticLockingException e) {
 
-			int taskRetries = getAndIncrementRetriesForTask(task, cmdFields.retries);
+			int taskRetries = getAndIncrementRetriesForTask(task, cmdInputFields.retries);
 
 			log.error("runTask: Error: Optimistic locking exception occurred! Retrying this job.", e);
 
@@ -269,7 +275,7 @@ public class CwsExternalTaskThread extends Thread  {
 		catch (BatchExecutorException e) {
 			// Retry database exceptions such as foreign key constraint failures, as they are typically recoverable
 
-			int taskRetries = getAndIncrementRetriesForTask(task, cmdFields.retries);
+			int taskRetries = getAndIncrementRetriesForTask(task, cmdInputFields.retries);
 
 			log.error("runTask: Error: Foreign key exception occurred! Retrying this job.", e);
 
@@ -279,7 +285,7 @@ public class CwsExternalTaskThread extends Thread  {
 		catch (ProcessEngineException e) {
 			// These are typically issues with the database which are fixed by retrying the job
 
-			int taskRetries = getAndIncrementRetriesForTask(task, cmdFields.retries);
+			int taskRetries = getAndIncrementRetriesForTask(task, cmdInputFields.retries);
 
 			log.error("runTask: Error: Process engine exception occurred! Retrying this job. Caused by: " + e.getClass().getCanonicalName(), e);
 
@@ -486,15 +492,15 @@ public class CwsExternalTaskThread extends Thread  {
 			}
 		}
 	}
+
 	
-	
-	private Boolean executeTask(CmdLineInputFields cmdLineFields) {
+	private Boolean executeTask(CmdLineInputFields cmdInputFields, CmdLineOutputFields cmdOutputFields) {
 		Boolean success = null;
 		CollectingLogOutputStream collectingLogOutStream = null;
 		CollectingLogOutputStream collectingLogErrStream = null;
 		
 		try {
-			log.info("CmdLineExec (" + cmdLineFields.command + ")\nWorkingDir (" + cmdLineFields.workingDir + ")");
+			log.info("CmdLineExec (" + cmdInputFields.command + ")\nWorkingDir (" + cmdInputFields.workingDir + ")");
 			
 			// ------------------------------------------------------------------
 			// Workaround for issues in Commons-exec where extra quotes are added.
@@ -502,7 +508,7 @@ public class CwsExternalTaskThread extends Thread  {
 			//   See:
 			//   https://commons.apache.org/proper/commons-exec/faq.html
 			//
-			List<String> cmdTokens = ArgumentTokenizer.tokenize(cmdLineFields.command);
+			List<String> cmdTokens = ArgumentTokenizer.tokenize(cmdInputFields.command);
 			CommandLine cmdLine = CommandLine.parse(cmdTokens.get(0));
 			int i = 0;
 			for (String token : cmdTokens) {
@@ -510,13 +516,13 @@ public class CwsExternalTaskThread extends Thread  {
 				log.trace("Added token: " + token);
 				cmdLine.addArgument(token, false);
 			}
-			log.debug("Parsed command: '" + cmdLineFields.command + "' into: " + cmdLine);
+			log.debug("Parsed command: '" + cmdInputFields.command + "' into: " + cmdLine);
 			
 			DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
 			
 			// Don't require process to execute in a certain amount of time
 			//
-			ExecuteWatchdog watchdog = new ExecuteWatchdog(cmdLineFields.timeout * 1000);		// convert seconds to milliseconds
+			ExecuteWatchdog watchdog = new ExecuteWatchdog(cmdInputFields.timeout * 1000);		// convert seconds to milliseconds
 			
 			Executor executor = new DefaultExecutor();
 			executor.setWatchdog(watchdog);
@@ -527,15 +533,15 @@ public class CwsExternalTaskThread extends Thread  {
 			executor.setStreamHandler(psh);
 
 			// Check if working directory is valid
-			if (!Files.exists(Paths.get(cmdLineFields.workingDir))) {
+			if (!Files.exists(Paths.get(cmdInputFields.workingDir))) {
 				// Working directory does not exist
-				log.error("Problem executing command line: '" + cmdLineFields.command
-						+ "', working directory " + cmdLineFields.workingDir + " does not exist.");
+				log.error("Problem executing command line: '" + cmdInputFields.command
+						+ "', working directory " + cmdInputFields.workingDir + " does not exist.");
 
 				throw new BpmnError(WORKING_DIR_NOT_FOUND_ERROR, "Working directory not found");
 			}
 
-			executor.setWorkingDirectory(new File(cmdLineFields.workingDir));
+			executor.setWorkingDirectory(new File(cmdInputFields.workingDir));
 			
 			//
 			// Set environment variables for execution based on convention that CWS variables
@@ -565,16 +571,17 @@ public class CwsExternalTaskThread extends Thread  {
 			// Get the exit value, log it, and put it in return map
 			//
 			int exitValue = resultHandler.getExitValue();
-			log.info("Command '" + cmdLineFields.command + "' exit value:" + exitValue + ". Ran in: " + (t1 - t0) + " ms.");
+			log.info("Command '" + cmdInputFields.command + "' exit code:" + exitValue + ".  Ran in: " + (t1 - t0) + " ms.");
 			
 			// putting redundant names here on purpose to reduce operator error
 			setOutputVariable("exitValue", exitValue + "");
 			setOutputVariable("exitCode", exitValue + "");
+			cmdOutputFields.exitCode = exitValue;
 			
 			// Set "success" variable based on comparison with successExitValue
 			//
 			success = false; // false until proven success
-			for (String successCode : cmdLineFields.successfulValues.split(",")) {
+			for (String successCode : cmdInputFields.successfulValues.split(",")) {
 				success = new Boolean(Integer.parseInt(successCode) == exitValue);
 				if (success) {
 					break; // found a match, so must be success
@@ -585,12 +592,14 @@ public class CwsExternalTaskThread extends Thread  {
 				log.warn("Exit value " + exitValue + " determined to be a FAILURE");
 			}
 			setOutputVariable("success", success.toString());
+			cmdOutputFields.success = success;
 
 			// Detect whether a certain event case applies (based on exit code)
 			//
 			for (String eventCode : exitCodeEventsMap.keySet()) {
 				if (new Boolean(Integer.parseInt(eventCode) == exitValue)) {
 					setOutputVariable("event", exitCodeEventsMap.get(eventCode));
+					cmdOutputFields.event = exitCodeEventsMap.get(eventCode);
 					break; // can only be one event
 				}
 			}
@@ -617,27 +626,40 @@ public class CwsExternalTaskThread extends Thread  {
 
 			// Set stdout output into variable
 			//
-			setOutputVariable("stdout",
-					StringUtils.join(Collections2.transform(stdOutLines, new StripOrderId<String, String>()), '\n'));
+			String stdoutStr = StringUtils.join(Collections2.transform(stdOutLines, new StripOrderId<String, String>()), '\n');
+			setOutputVariable("stdout", stdoutStr);
+			cmdOutputFields.stdout = stdoutStr;
 
 			// Set stderr output into variable
 			//
-			setOutputVariable("stderr",
-					StringUtils.join(Collections2.transform(stdErrLines, new StripOrderId<String, String>()), '\n'));
+			String stderrStr = StringUtils.join(Collections2.transform(stdErrLines, new StripOrderId<String, String>()), '\n');
+			setOutputVariable("stderr", stderrStr);
+			cmdOutputFields.stderr = stderrStr;
+
+			// Log outputs
+			if (cmdOutputFields.event != null) {
+				log.info("Command '" + cmdInputFields.command + "' event: " + cmdOutputFields.event);
+			}
+			log.info("Command '" + cmdInputFields.command + "' stdout: " + cmdOutputFields.stdout);
+			log.info("Command '" + cmdInputFields.command + "' stderr: " + cmdOutputFields.stderr);
 
 			setStdOutVariables(stdOutLines);
 			//log.debug("-------- TASK TIME = " +(System.currentTimeMillis()-t0) + " --------------");
-			
+
+			// Write all outputs into one variable
+			JsonValue jsonValue = SpinValues.jsonValue(new Gson().toJson(cmdOutputFields)).create();
+			setOutputVariable("out", jsonValue);
+
 			// Check if process timed out
 			if (watchdog.killedProcess()) {
 			     // it was killed on purpose by the watchdog
-				throw new BpmnError(TIMEOUT_ERROR, "Execution exceeded timeout limit: " + cmdLineFields.timeout + " sec");
+				throw new BpmnError(TIMEOUT_ERROR, "Execution exceeded timeout limit: " + cmdInputFields.timeout + " sec");
 			}
 		} catch (BpmnError e) {
 			// Pass these along
 			throw e;
 		} catch (Throwable e) {
-			log.error("Problem executing command line: '" + cmdLineFields.command + "'", e);
+			log.error("Problem executing command line: '" + cmdInputFields.command + "'", e);
 			throw new BpmnError(UNEXPECTED_ERROR, e.getMessage());
 
 			// What happens to underlying process if it's running??
@@ -657,7 +679,7 @@ public class CwsExternalTaskThread extends Thread  {
 
 		// set BpmnError due to non-success return code if necessary
 		//
-		if (cmdLineFields.throwOnFailures && !success) {
+		if (cmdInputFields.throwOnFailures && !success) {
 			throw new BpmnError(EXECUTION_NOT_SUCCESS, "throwOnFailuresBoolean is true, and the execution was NOT successful.");
 		}
 		
