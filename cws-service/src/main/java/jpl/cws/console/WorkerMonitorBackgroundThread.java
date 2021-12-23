@@ -9,6 +9,8 @@ import org.camunda.bpm.engine.externaltask.ExternalTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
 
 import jpl.cws.core.db.SchedulerDbService;
 
@@ -17,10 +19,13 @@ public class WorkerMonitorBackgroundThread extends Thread {
 	
 	@Autowired private SchedulerDbService schedulerDbService;
 	@Autowired private ExternalTaskService externalTaskService;
-	
+
+	@Value("${cws.worker.abandoned.days}")		private String numDaysAfterRemoveDeadWorkers;
+
 	private static final int THRESHOLD_MILLIS_FOR_DEAD_WORKER = 60000;
 	private static final int THIRTY_SECONDS = 30000;
-	
+
+
 	public void run() {
 		log.debug("WorkerMonitorBackgroundThread starting...");
 
@@ -74,7 +79,33 @@ public class WorkerMonitorBackgroundThread extends Thread {
 					//
 					workersThatWentDown = schedulerDbService.detectDeadWorkers(THRESHOLD_MILLIS_FOR_DEAD_WORKER);
 				}
-				
+
+
+
+				// ---------------------------------
+				// CHECK FOR DOWN WORKERS & DELETE WORKERS THAT ARE PAST THE ABANDONED WORKER LIMIT "worker_abandoned_days"
+				// ---------------------------------
+				int daysToAbandoned = Integer.parseInt(numDaysAfterRemoveDeadWorkers);
+
+				List<Map<String,Object>> workersThatAreAbandoned = schedulerDbService.detectAbandonedWorkers(daysToAbandoned);
+
+				while (!workersThatAreAbandoned.isEmpty()) {
+					//
+					// Get first worker in List
+					//
+					Map<String,Object> worker = workersThatAreAbandoned.get(0);
+					workersThatAreAbandoned.remove(0); // pop from list
+
+					String workerId = worker.get("id").toString();
+
+					// Delete abandoned worker from the database
+					schedulerDbService.deleteAbandonedWorker(workerId);
+
+					log.warn("Worker '" + workerId + "' last heartbeat is past the " + numDaysAfterRemoveDeadWorkers + "-day threshold."
+							+ " It has been removed from database table - cws_worker.");
+				}
+
+
 				
 				// ---------------------------------
 				// CHECK FOR DOWN EXTERNAL WORKERS
