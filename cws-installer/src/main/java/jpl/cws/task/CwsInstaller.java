@@ -869,9 +869,30 @@ public class CwsInstaller {
 			worker_abandoned_days = getPreset("default_worker_abandoned_days");
 		}
 
+		// make sure preset is valid positive integer
+		try {
+			if (Integer.parseInt(worker_abandoned_days) <= 0) {
+				log.warn("Worker abandoned days must be a positive integer. Got: " + worker_abandoned_days + ". Defaulting to 1.");
+				worker_abandoned_days = "1";
+			}
+		} catch (NumberFormatException e) {
+			log.warn("Worker abandoned days failed to parse as an integer. Got: " + worker_abandoned_days + ". Defaulting to 1.");
+			worker_abandoned_days = "1";
+		}
+
 		if (cws_installer_mode.equals("interactive")) {
-			worker_abandoned_days = readLine("Enter the number of days after worker(s) are abandoned to remove worker(s) from the database. " +
-				"Default is " + worker_abandoned_days + ": ", worker_abandoned_days);
+			boolean done = false;
+			while (!done) {
+				worker_abandoned_days = readLine("Enter the number of days after worker(s) are abandoned to remove worker(s) from the database. " +
+						"Default is " + worker_abandoned_days + ": ", worker_abandoned_days);
+
+				// make sure input was valid
+				try {
+					done = Integer.parseInt(worker_abandoned_days) >= 1;
+				} catch (NumberFormatException e) {
+					// bad input, try again
+				}
+			}
 		}
 	}
 

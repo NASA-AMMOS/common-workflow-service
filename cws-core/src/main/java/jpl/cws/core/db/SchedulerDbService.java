@@ -575,9 +575,9 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 	 * Gets a list of abandoned workers.
 	 *
 	 */
-	public List<Map<String,Object>> detectAbandonedWorkers(int thresholdMilliseconds) {
+	public List<Map<String,Object>> detectAbandonedWorkers(int daysToAbandoned) {
 		try {
-			Timestamp thresholdTimeAgo = new Timestamp(DateTime.now().minusMillis(thresholdMilliseconds).getMillis());
+			Timestamp thresholdTimeAgo = new Timestamp(DateTime.now().minusDays(daysToAbandoned).getMillis());
 
 			String query = "SELECT * FROM cws_worker WHERE last_heartbeat_time < ? AND status = 'down'";
 			return jdbcTemplate.queryForList(query, new Object[] { thresholdTimeAgo });

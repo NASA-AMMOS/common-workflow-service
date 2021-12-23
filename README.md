@@ -105,7 +105,7 @@ ES_PASSWORD="na"
 # Num of workers to start. 1 is the minimum.
 NUM_WORKERS=1
 
-# Default value is 1. Maximum is 20. Specifies the number of days until the
+# Default value is 1. Specifies the number of days (int) until the
 # abandoned workers in the cws_workers database table are cleaned out.
 WORKER_ABANDONED_DAYS=1
 

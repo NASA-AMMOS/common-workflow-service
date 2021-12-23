@@ -24,7 +24,6 @@ public class WorkerMonitorBackgroundThread extends Thread {
 
 	private static final int THRESHOLD_MILLIS_FOR_DEAD_WORKER = 60000;
 	private static final int THIRTY_SECONDS = 30000;
-	private static final int ONE_DAY = 1000 * 60 * 60 * 24;
 
 
 	public void run() {
@@ -86,12 +85,9 @@ public class WorkerMonitorBackgroundThread extends Thread {
 				// ---------------------------------
 				// CHECK FOR DOWN WORKERS & DELETE WORKERS THAT ARE PAST THE ABANDONED WORKER LIMIT "worker_abandoned_days"
 				// ---------------------------------
-				float numDaysFloat = Float.parseFloat(numDaysAfterRemoveDeadWorkers);
-				float numDaysFloat_Millis = (float) numDaysFloat * (float) ONE_DAY;
+				int daysToAbandoned = Integer.parseInt(numDaysAfterRemoveDeadWorkers);
 
-				int THRESHOLD_MILLIS_FOR_ABANDONED_WORKER = Math.round(numDaysFloat_Millis);
-
-				List<Map<String,Object>> workersThatAreAbandoned = schedulerDbService.detectAbandonedWorkers(THRESHOLD_MILLIS_FOR_ABANDONED_WORKER);
+				List<Map<String,Object>> workersThatAreAbandoned = schedulerDbService.detectAbandonedWorkers(daysToAbandoned);
 
 				while (!workersThatAreAbandoned.isEmpty()) {
 					//
@@ -105,8 +101,8 @@ public class WorkerMonitorBackgroundThread extends Thread {
 					// Delete abandoned worker from the database
 					schedulerDbService.deleteAbandonedWorker(workerId);
 
-					log.warn("Worker '" + workerId + "' last heartbeat passed the abandoned millisecond threshold: " + THRESHOLD_MILLIS_FOR_ABANDONED_WORKER
-						+ ". It has been detected and removed from Database table - cws_worker.");
+					log.warn("Worker '" + workerId + "' last heartbeat is past the " + numDaysAfterRemoveDeadWorkers + "-day threshold."
+							+ " It has been removed from database table - cws_worker.");
 				}
 
 
