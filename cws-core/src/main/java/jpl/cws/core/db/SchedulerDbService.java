@@ -55,7 +55,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			"  status='"+PENDING+"' AND " +
 			"  proc_def_key=? " +
 			"ORDER BY " +
-			"  priority DESC, " +    // higher number priorities   favored
+			"  priority ASC, " +     // lower priorities    favored
 			"  created_time ASC " +  // older dates (FIFO)  favored
 			"LIMIT ?";
 
@@ -247,89 +247,92 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 	/**
 	 * Attempt to claim a process start request in the database.
 	 * 
-	 * @param limitToTheseProcessDefs -- if specified, only attempt to claim these types of process defs
-	 * @return number of rows claimed
+	 * @param procDefKey -- only attempt to claim rows for this process definition
+	 * @return mappings of claimUuids and claimedRowUuids
+	 *
 	 */
-	public Map<String,List<String>> claimHighestPriorityStartReq(String workerId, List<String> limitToTheseProcessDefs, String procDefKey, int limit) {
+	public Map<String,List<String>> claimHighestPriorityStartReq(String workerId, String procDefKey, int limit) {
 		List<String> claimUuids = new ArrayList<String>();
 		List<String> rowUuids = new ArrayList<String>();
 		List<String> claimedRowUuids = new ArrayList<String>();
 		long t0 = System.currentTimeMillis();
-		int numUpdated = 0;
+		int numClaimed = 0;
 		String claimUuid = null;
-		if (procDefKey == null) {
-			log.error("procDefKey is null!! code should not reach here");
-		}
-		else {
-			// Try to update, until we succeed.
-			//
-			int attempts = 0;
-			
-			while (attempts++ < 10) {
-				// ---------------------------------
-				// SELECT then UPDATE methodology
-				// ---------------------------------
-				try {
-					// SELECT CANDIDATE ROWS
-					//
-					rowUuids = jdbcTemplate.queryForList(
-							FIND_CLAIMABLE_ROWS_SQL, String.class,
-							new Object[] {procDefKey, limit});
-					
-					if (!rowUuids.isEmpty()) {
-						// Iterate over candidates, trying to update them
-						//
-						for (String uuid : rowUuids) {
-							claimUuid = UUID.randomUUID().toString();
-							int updateCount = jdbcTemplate.update(UPDATE_CLAIMABLE_ROW_SQL,
-									new Object[] {workerId, claimUuid, uuid, workerId});
-							
-							// FIXME:  IS THERE A WAY TO MAKE THIS DO BATCH UPDATES, INSTEAD OF ONE AT A TIME??
+		int attempts = 0;
 
-							if (updateCount == 1) {
-								numUpdated++;
-								claimUuids.add(claimUuid);
-								claimedRowUuids.add(uuid);
-								log.debug("CLAIMED " + claimUuid + " (uuid=" +uuid+")");
-							}
-							//else {
-							//	log.info("DID NOT CLAIM " + claimUuid + " (uuid=" +uuid+")");
-							//}
+		// Try, until succeeding in claiming at least one row
+		//
+		while (attempts++ < 10) {
+			try {
+				// Find claimable rows
+				//
+				rowUuids = jdbcTemplate.queryForList(
+						FIND_CLAIMABLE_ROWS_SQL, String.class,
+						new Object[] {procDefKey,
+								limit*2}); // over-find because some workers might compete with this set
+
+				if (!rowUuids.isEmpty()) {
+					// Found some claimable rows, so now try to claim them..
+					//
+					for (String uuid : rowUuids) {
+						claimUuid = UUID.randomUUID().toString();
+						int updateCount = jdbcTemplate.update(UPDATE_CLAIMABLE_ROW_SQL,
+								new Object[] {workerId, claimUuid, uuid, workerId});
+
+						if (updateCount == 1) {
+							numClaimed++;
+							claimUuids.add(claimUuid);
+							claimedRowUuids.add(uuid);
+							log.debug("CLAIMED " + claimUuid + " (uuid=" +uuid+") for procDefKey '" + procDefKey + "'");
 						}
-						//log.debug("updated " + numUpdated + " / " + rowUuids.size());
+
+						if (numClaimed == limit) {
+							break; // we have claimed up to the limit, so stop claiming
+						}
 					}
-					else if (log.isTraceEnabled()) {
-						log.trace("NO CLAIMABLE CANDIDATES AT THIS TIME");
+
+					if (numClaimed == 0) {
+						// other workers beat us to claiming the rows
+						log.warn("Attempted to claim " + rowUuids.size() + " rows for procDefKey '" + procDefKey + "', but claimed none! " +
+								(attempts < 10 ? "Retrying..." : "GIVING UP!"));
+						continue; // retry finding claimable rows
 					}
-					
-					break; // no retry needed
-				}
-				catch (DeadlockLoserDataAccessException e) {
-					if (attempts == 10) {
-						log.error("Caught a DeadlockLoserDataAccessException.  NOT Retyring as 10 attempts have been tried already!..");
-						break; // give up
+					else {
+						log.debug("Claimed (" + numClaimed + " of " + rowUuids.size() + ") for procDefKey '" + procDefKey + "'");
 					}
-					log.warn("Caught a DeadlockLoserDataAccessException.  Retrying..");
-					continue; // retry
 				}
-				catch (Throwable t) {
-					log.error("Unexpected exception.  Not retrying..", t);
-					break; // abort
+				else if (log.isTraceEnabled()) {
+					log.trace("NO CLAIMABLE CANDIDATES AT THIS TIME");
 				}
-			} // end while (attempts)
-		}
+
+				break; // no retry needed
+			}
+			catch (DeadlockLoserDataAccessException e) {
+				if (attempts == 10) {
+					log.error("Caught a DeadlockLoserDataAccessException.  NOT Retrying as 10 attempts have been tried already!..");
+					break; // give up
+				}
+				log.warn("Caught a DeadlockLoserDataAccessException.  Retrying..");
+				continue; // retry
+			}
+			catch (Throwable t) {
+				log.error("Unexpected exception.  Not retrying..", t);
+				break; // abort
+			}
+		} // end while (attempts)
+
 		long timeTaken = System.currentTimeMillis() - t0;
 		if (timeTaken > SLOW_WARN_THRESHOLD) {
 			log.warn("CLAIM cws_sched_worker_proc_inst took " + timeTaken + " ms!");
 		}
-		if (numUpdated >= 1) {
-			log.info("worker " + workerId + " claimed " + numUpdated + " row(s).");
+		if (numClaimed >= 1) {
+			log.info("worker " + workerId + " claimed " + numClaimed + " row(s).");
 		}
 		else {
 			log.trace("no rows claimed by worker: " + workerId);
 		}
 		
-		if (numUpdated != claimUuids.size()) {
+		if (numClaimed != claimUuids.size()) {
 			log.error("numUpdated != claimUuids.size()" );
 		}
 		
@@ -381,7 +384,6 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		List<Map<String,Object>> list = jdbcTemplate.queryForList(
 			"SELECT * FROM cws_sched_worker_proc_inst " +
 			"WHERE claim_uuid IN (" + claimUuidsStr + ")");
-			//new Object[] {claimUuid});
 		long timeTaken = System.currentTimeMillis() - t0;
 		if (timeTaken > SLOW_WARN_THRESHOLD) {
 			log.warn("SELECT * FROM cws_sched_worker_proc_inst by claim_uuid took " + timeTaken + " ms!");
@@ -567,6 +569,26 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			throw e;
 		}
 	}
+
+
+	/**
+	 * Gets a list of abandoned workers.
+	 *
+	 */
+	public List<Map<String,Object>> detectAbandonedWorkers(int daysToAbandoned) {
+		try {
+			Timestamp thresholdTimeAgo = new Timestamp(DateTime.now().minusDays(daysToAbandoned).getMillis());
+
+			String query = "SELECT * FROM cws_worker WHERE last_heartbeat_time < ? AND status = 'down'";
+			return jdbcTemplate.queryForList(query, new Object[] { thresholdTimeAgo });
+		}
+		catch (Throwable e) {
+			cwsEmailerService.sendNotificationEmails("CWS Database Error", "Severe Error!\n\nCould not query database for abandoned workers.\n\nDetails: " + e.getMessage());
+			log.error("Problem occurred while querying the database for abandoned workers.", e);
+
+			throw e;
+		}
+	}
 	
 	
 	/**
@@ -603,6 +625,29 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 				"where proc_def_key=?",
 				new Object[] {procDefKey});
 	}
+
+
+
+	/**
+	 * Delete an abandoned worker
+	 * Deletes entries from both cws_worker_proc_def and cws_worker
+	 */
+	public void deleteAbandonedWorker(String workerId) {
+
+		// Disable the worker for all process definitions (might not be necessary)
+		String query =  "UPDATE cws_worker_proc_def " + "SET max_instances=0, accepting_new=0 " + "WHERE worker_id=?";
+		jdbcTemplate.update(query, new Object[] {workerId});
+
+		// Delete the (worker, proc_def) entries from the proc def table
+		query = "DELETE FROM cws_worker_proc_def WHERE worker_id=?";
+		jdbcTemplate.update(query, new Object[] {workerId});
+
+		// Delete worker from cws_worker table
+		query = "DELETE FROM cws_worker WHERE id=?";
+		jdbcTemplate.update(query, new Object[] {workerId});
+	}
+
+
 	
 	/**
 	*

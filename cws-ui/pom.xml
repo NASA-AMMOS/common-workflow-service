@@ -24,6 +24,15 @@
 					<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 					<artifactId>cws-adaptation</artifactId>
 				</dependency>
+
+				<dependency>
+					<groupId>org.camunda.bpm</groupId>
+					<artifactId>camunda-engine-plugin-spin</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.camunda.spin</groupId>
+					<artifactId>camunda-spin-dataformat-all</artifactId>
+				</dependency>
 			</dependencies>
 		</profile>
 	</profiles>

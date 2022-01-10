@@ -368,7 +368,7 @@ public class SQSDispatcherThread extends Thread implements InitializingBean {
 			log.debug("AWS credentials / client refreshed.");
 		}
 		else {
-            log.debug("Refresh of AWS SQS client not necessary.");
+            log.trace("Refresh of AWS SQS client not necessary.");
         }
 	}
 	

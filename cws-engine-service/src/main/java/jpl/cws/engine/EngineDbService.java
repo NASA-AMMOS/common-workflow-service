@@ -1,19 +1,17 @@
 package jpl.cws.engine;
 
-import java.io.File;
-import java.sql.Timestamp;
-import java.util.List;
-import java.util.Map;
-
+import jpl.cws.core.db.DbService;
+import jpl.cws.core.log.CwsWorkerLoggerFactory;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataAccessException;
 
-import jpl.cws.core.db.DbService;
-import jpl.cws.core.log.CwsWorkerLoggerFactory;
+import java.io.File;
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Helper / service methods related to the database.
@@ -44,6 +42,10 @@ public class EngineDbService extends DbService implements InitializingBean {
 	
 	public boolean workerExists() {
 		return jdbcTemplate.queryForObject("SELECT count(*) FROM cws_worker WHERE id=?", new Object[]{workerId}, Integer.class) > 0;
+	}
+
+	public boolean workerConsoleOnlyTypeExists() {
+		return jdbcTemplate.queryForObject("SELECT count(*) FROM cws_worker WHERE cws_install_type=?", new Object[]{cwsInstallType}, Integer.class) > 0;
 	}
 	
 	private boolean workerLogExists(String filename) {
@@ -140,62 +142,94 @@ public class EngineDbService extends DbService implements InitializingBean {
 	
 	
 	/**
-	 * Create a row (if not already exists) in the database for this worker
+	 * Creates a row (if not already exists) in the database for this worker.
+	 * Updates the row, if it already exists.
+	 *
 	 */
 	public void createOrUpdateWorkerRow(String lockOwner) {
 		if (!workerExists()) {
-			log.info("Inserting row into cws_worker table...");
-			
-			int numUpdated = 0;
-			int numTries = 0;
-			while (numTries++ < 10 && numUpdated != 1) {
-				Timestamp tsNow = new Timestamp(DateTime.now().getMillis());
-				String workerName = "worker" + String.format("%1$4s", numWorkers()).replace(' ', '0');
-				
-				try {
-					numUpdated = jdbcTemplate.update(
-							"INSERT INTO cws_worker" +
-							"   (id, lock_owner, name, install_directory, cws_install_type, cws_worker_type, " +
-							"    status, job_executor_max_pool_size, created_time, last_heartbeat_time) " +
-							"VALUES (?,?,?,?,?,?,?,?,?,?)",
-							new Object[] {
-									workerId,
-									lockOwner,
-									workerName,
-									"install_directory_TODO",
-									cwsInstallType,
-									cwsWorkerType,
-									null, // status will be changed to null once the worker is fully initialized
-									maxExecutorServicePoolSize, // changeable later via the UI..
-									tsNow, // created_time
-									tsNow  // last_heartbeat_time
-							});
-				}
-				catch (DataAccessException e) {
-					
+			if ( cwsInstallType.equals("console_only") && workerConsoleOnlyTypeExists() ) {
+				//
+				// ROW FOR CONSOLE ONLY WORKER ALREADY EXISTS
+				//
+				log.error("Worker Row with cws_install_type: " + cwsInstallType + ", already exists. ");
+			}
+			else {
+				//
+				// ROW FOR WORKER DOES NOT EXIST, SO CREATE ONE
+				//
+				int numUpdated = 0;
+				int numTries = 0;
+				String workerName = null;
+				while (numTries++ < 10 && numUpdated != 1) {
+					Timestamp tsNow = new Timestamp(DateTime.now().getMillis());
+
+					// Determine a worker name, using current system time in milliseconds.
+					// TODO: In the future, we might want to do a more elegant algorithm,
+					//       but this may just be fine for the long-run
+					workerName = "worker-" + System.currentTimeMillis();
+					// newly added
+					if (cwsInstallType.equals("console_only")) {
+						workerName = "worker0000";
+					}
+
 					try {
-						// Could not update database, wait and retry again
-						Thread.sleep((long)(Math.random() * 500.0));
+						log.info("Inserting row (attempt #" + numTries + ", workerName='" + workerName + "') into cws_worker table...");
+						log.info("cwsInstallType:" + cwsInstallType);
+
+						numUpdated = jdbcTemplate.update(
+							"INSERT INTO cws_worker" +
+								"   (id, lock_owner, name, install_directory, cws_install_type, cws_worker_type, " +
+								"    status, job_executor_max_pool_size, created_time, last_heartbeat_time) " +
+								"VALUES (?,?,?,?,?,?,?,?,?,?)",
+							new Object[]{
+								workerId,
+								lockOwner,
+								workerName,
+								"install_directory_TODO",
+								cwsInstallType,
+								cwsWorkerType,
+								null, // status will be changed to null once the worker is fully initialized
+								maxExecutorServicePoolSize, // changeable later via the UI..
+								tsNow, // created_time
+								tsNow  // last_heartbeat_time
+							});
+					} catch (Exception e) {
+						log.error("Problem encountered while inserting row (attempt #" +
+							numTries + ", workerName='" + workerName + "') into cws_worker table", e);
+						try {
+							// Could not update database, wait and retry again
+							Thread.sleep((long) (Math.random() * 500.0));
+						} catch (InterruptedException ex) {
+							log.warn("Thread interrupt encountered while sleeping for inserting row (attempt #" +
+								numTries + ", workerName='" + workerName + "')");
+						}
 					}
-					catch (InterruptedException ex) {
-						
-					}
+				} // end while try to insert
+
+				if (numUpdated != 1) {
+					log.error("Could not create worker row for (workerId='" + workerId + "', workerName='" + workerName + "', " +
+						"numUpdated=" + numUpdated + ") " +
+						" after " + numTries + " attempts!");
+				} else {
+					log.debug("Inserted cws_worker row for (workerId='" + workerId + "', workerName='" + workerName + "')");
 				}
+
 			}
-			
-			if (numUpdated != 1) {
-				log.error("Could not create worker row for workerId " + workerId + " !");
-			}
+
 		}
 		else {
-			log.info("Updating row in cws_worker table...");
-			
+			//
+			// ROW FOR WORKER ALREADY EXISTS, SO UPDATE IT
+			//
+
 			int numUpdated = 0;
 			int numTries = 0;
 			while (numTries++ < 10 && numUpdated != 1) {
 				Timestamp tsNow = new Timestamp(DateTime.now().getMillis());
 				
 				try {
+					log.info("Updating row (attempt #" + numTries +", workerId='"+workerId+"') in cws_worker table...");
 					numUpdated = jdbcTemplate.update(
 							"UPDATE cws_worker SET lock_owner=?, job_executor_max_pool_size=?, last_heartbeat_time=? WHERE id=?", 
 							new Object[] {
@@ -205,23 +239,27 @@ public class EngineDbService extends DbService implements InitializingBean {
 									workerId
 							});
 				}
-				catch (DataAccessException e) {
-					
+				catch (Exception e) {
+					log.error("Problem encountered while updating row (attempt #" +
+							numTries +", workerId='"+workerId+"') in cws_worker table", e);
 					try {
 						// Could not update database, wait and retry again
 						Thread.sleep((long)(Math.random() * 500.0));
 					}
 					catch (InterruptedException ex) {
-						
+						log.warn("Thread interrupt encountered while sleeping for updating of row (attempt #" +
+								numTries +", workerId='"+workerId+"')");
 					}
 				}
-			}
+			} // end while try to update row
 			
 			if (numUpdated != 1) {
-				log.error("Could not update worker row for workerId " + workerId + " !");
+				log.error("Could not update worker row for (workerId='"+workerId+"', " +
+						"numUpdated="+numUpdated+") after "+numTries+" attempts!");
 			}
-			
-			log.debug("Updated cws_worker row for ID: "+workerId);
+			else {
+				log.debug("Updated cws_worker row for workerId: " + workerId);
+			}
 		}
 	}
 	

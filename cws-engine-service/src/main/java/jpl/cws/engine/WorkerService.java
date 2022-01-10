@@ -693,7 +693,7 @@ public class WorkerService implements InitializingBean {
 					// claim for remainder (marks DB rows as "claimedByWorker")
 					Map<String,List<String>> claimRowData = 
 						schedulerDbService.claimHighestPriorityStartReq(
-							workerId, null, procDefKey, queryLimit);
+							workerId, procDefKey, queryLimit);
 					
 					List<String> claimed = claimRowData.get("claimUuids");
 					
@@ -707,7 +707,7 @@ public class WorkerService implements InitializingBean {
 						procStartReqUuidStartedThisWorker.addAll(claimRowData.get("claimedRowUuids"));
 						//log.debug("procStartReqUuidStartedThisWorker = " + procStartReqUuidStartedThisWorker);
 						
-						log.debug("(CLAIMED " + claimed.size() + " / " + queryLimit + ", max=" + procMaxNumber + ")  for procDef '" + procDefKey + "' (limitToProcDefKey="+limitToProcDefKey+")");
+						log.debug("(CLAIMED " + claimed.size() + " / " + queryLimit + ", maxProcs=" + procMaxNumber + ")  for procDef '" + procDefKey + "' (limitToProcDefKey="+limitToProcDefKey+")");
 						
 						claimUuids.addAll(claimed);
 					}

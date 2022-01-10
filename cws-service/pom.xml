@@ -126,6 +126,12 @@
 					<artifactId>mysql-connector-java</artifactId>
 				</dependency>
 
+				<!-- HikariCP database connection pool -->
+				<dependency>
+					<groupId>com.zaxxer</groupId>
+					<artifactId>HikariCP</artifactId>
+				</dependency>
+
 				<dependency>
 					<groupId>commons-fileupload</groupId>
 					<artifactId>commons-fileupload</artifactId>

@@ -9,6 +9,8 @@ import org.camunda.bpm.engine.externaltask.ExternalTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
 
 import jpl.cws.core.db.SchedulerDbService;
 
@@ -17,16 +19,23 @@ public class WorkerMonitorBackgroundThread extends Thread {
 	
 	@Autowired private SchedulerDbService schedulerDbService;
 	@Autowired private ExternalTaskService externalTaskService;
-	
+
+	@Value("${cws.worker.abandoned.days}")		private String numDaysAfterRemoveDeadWorkers;
+
 	private static final int THRESHOLD_MILLIS_FOR_DEAD_WORKER = 60000;
-	private static final int THIS_THREAD_REPEAT_DELAY = 30000;
-	
+	private static final int THIRTY_SECONDS = 30000;
+
+
 	public void run() {
 		log.debug("WorkerMonitorBackgroundThread starting...");
-		
+
+		int failures = 0;
+		int maxFailures = 20;
+		long failWait = 100; // start with 100 milliseconds to wait in between retries
+
 		while (true) {
 			try {
-				sleep(THIS_THREAD_REPEAT_DELAY);
+				sleep(THIRTY_SECONDS);
 				
 				// ---------------------------------
 				// CHECK FOR DOWN WORKERS
@@ -70,7 +79,33 @@ public class WorkerMonitorBackgroundThread extends Thread {
 					//
 					workersThatWentDown = schedulerDbService.detectDeadWorkers(THRESHOLD_MILLIS_FOR_DEAD_WORKER);
 				}
-				
+
+
+
+				// ---------------------------------
+				// CHECK FOR DOWN WORKERS & DELETE WORKERS THAT ARE PAST THE ABANDONED WORKER LIMIT "worker_abandoned_days"
+				// ---------------------------------
+				int daysToAbandoned = Integer.parseInt(numDaysAfterRemoveDeadWorkers);
+
+				List<Map<String,Object>> workersThatAreAbandoned = schedulerDbService.detectAbandonedWorkers(daysToAbandoned);
+
+				while (!workersThatAreAbandoned.isEmpty()) {
+					//
+					// Get first worker in List
+					//
+					Map<String,Object> worker = workersThatAreAbandoned.get(0);
+					workersThatAreAbandoned.remove(0); // pop from list
+
+					String workerId = worker.get("id").toString();
+
+					// Delete abandoned worker from the database
+					schedulerDbService.deleteAbandonedWorker(workerId);
+
+					log.warn("Worker '" + workerId + "' last heartbeat is past the " + numDaysAfterRemoveDeadWorkers + "-day threshold."
+							+ " It has been removed from database table - cws_worker.");
+				}
+
+
 				
 				// ---------------------------------
 				// CHECK FOR DOWN EXTERNAL WORKERS
@@ -102,17 +137,37 @@ public class WorkerMonitorBackgroundThread extends Thread {
 					//
 					externalWorkersThatWentDown = schedulerDbService.detectDeadExternalWorkers(THRESHOLD_MILLIS_FOR_DEAD_WORKER);
 				}
-				
+
+				// Successful thread iteration, so reset failure variables back to nominal
+				failures = 0;
+				failWait = 100;
 				
 			} catch (InterruptedException e) {
 				log.warn("Interrupted. Must be shutting down..");
-				break;
+				break; // break out of loop to stop this thread
 			}
 			catch (Throwable e) {
-				log.error("Unexpected error occured.  Details: ", e);
-				break;
+				failures++;
+				if (failures > maxFailures) {
+					log.error("Unexpected error occurred. Exiting WorkerMonitorBackgroundThread, as there have already been " +
+							failures + " failures. Details: ", e);
+					break; // break out of loop to abort this thread
+				}
+				else {
+
+					// wait, before trying again
+					try {
+						log.warn("Unexpected error occurred.  Waiting " + failWait + " milliseconds, before trying next attempt (" +
+								failures + "/" + maxFailures+") ...", e);
+						Thread.sleep(failWait);
+					} catch (InterruptedException ex) {
+						ex.printStackTrace();
+					}
+
+					failWait = failWait * 2; // update exponential backoff wait time
+				}
 			}
-		}
+		} // end while true
 		
 		log.debug("WorkerMonitorBackgroundThread stopping...");
 	}

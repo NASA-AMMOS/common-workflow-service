@@ -34,4 +34,6 @@
     
     <ResourceLink name="jdbc/ProcessEngine" global="jdbc/ProcessEngine" type="javax.sql.DataSource" />
 
+    <ResourceLink name="jdbc/cws" global="jdbc/cws" type="javax.sql.DataSource" />
+
 </Context>
