@@ -12,18 +12,17 @@
 	</properties>
 	
 	<dependencies>
-		
-		<!-- LOGGING:  [Spring/JCL to log4j],  [CWS/slf4j to log4j] -->
- 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<scope>provided</scope>
- 		</dependency>
-				
-		<!-- https://mvnrepository.com/artifact/log4j/apache-log4j-extras -->
+
 		<dependency>
-		    <groupId>log4j</groupId>
-		    <artifactId>apache-log4j-extras</artifactId>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<!--	log4j-appserver jar for Tomcat to use log4j2	-->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-appserver</artifactId>
 		</dependency>
 		
 		<dependency>

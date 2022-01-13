@@ -25,6 +25,8 @@
 #-Djava.net.preferIPv4Stack=true
 #-Djavax.net.ssl.trustStore=__CWS_TOMCAT_ROOT__/lib/cws_truststore.jks"
 
+# Configure Log4J2 as logging backend for Tomcat
+export CLASSPATH=__CWS_TOMCAT_ROOT__/log4j2/lib/*:__CWS_TOMCAT_ROOT__/log4j2/conf
 
 export CATALINA_OPTS="-Xmx8g -server -XX:+HeapDumpOnOutOfMemoryError -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=__CWS_JMX_PORT__ -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost -Djava.net.preferIPv4Stack=true -Djavax.net.ssl.trustStore=__CWS_TOMCAT_ROOT__/lib/cws_truststore.jks"
 

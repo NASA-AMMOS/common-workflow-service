@@ -90,6 +90,7 @@ cp ${INSTALL_DIR}/clean_es_history.sh                         ${CONFIG_TEMPLATES
 # ==============================================
 TOMCAT_LIB_DIR=${CWS_TOMCAT_ROOT}/lib
 TOMCAT_BIN_DIR=${CWS_TOMCAT_ROOT}/bin
+TOMCAT_CONF_DIR=${CWS_TOMCAT_ROOT}/conf
 
 print 'Installing key and trust store to Tomcat...'
 cp ${INSTALL_DIR}/.keystore ${CWS_TOMCAT_ROOT}/conf/.keystore
@@ -116,11 +117,10 @@ print 'Installing core libraries to Tomcat...'
 cp ${ROOT}/cws-core/target/cws-core.jar                     ${TOMCAT_LIB_DIR}
 
 rm -f ${TOMCAT_LIB_DIR}/slf4j*.jar
-cp ${ROOT}/cws-core/cws-core-libs/slf4j-log4j12-*.jar       ${TOMCAT_LIB_DIR}
 cp ${ROOT}/cws-core/cws-core-libs/slf4j-api-*.jar           ${TOMCAT_LIB_DIR}
+cp ${ROOT}/cws-core/cws-core-libs/log4j-slf4j-impl*.jar     ${TOMCAT_LIB_DIR}
 
 cp ${ROOT}/cws-core/cws-core-libs/log4j-*.jar               ${TOMCAT_LIB_DIR}
-cp ${ROOT}/cws-core/cws-core-libs/apache-log4j-extras-*.jar ${TOMCAT_LIB_DIR}
 cp ${ROOT}/cws-core/cws-core-libs/jython*.jar               ${TOMCAT_LIB_DIR}
 
 print 'Installing cws-tasks libraries to Tomcat...'
@@ -188,14 +188,24 @@ cp ${INSTALL_DIR}/sql/core.afterstartup.sql.template           ${CWS}/sql/cws/co
 rm ${DIST}/snippets.java
 rm ${DIST}/snippets.java.bak
 
-print 'Installing log4j Properties file to Tomcat...'
-cp ${INSTALL_DIR}/tomcat_lib/log4j.properties ${TOMCAT_LIB_DIR}
+print 'Setting up Log4J as the logging backend for Tomcat...'
+LOG4J2_LIB=${CWS_TOMCAT_ROOT}/log4j2/lib
+LOG4J2_CONF=${CWS_TOMCAT_ROOT}/log4j2/conf
+mkdir -p ${LOG4J2_LIB}
+mkdir -p ${LOG4J2_CONF}
+cp ${ROOT}/cws-core/cws-core-libs/log4j-api-*.jar          ${LOG4J2_LIB}
+cp ${ROOT}/cws-core/cws-core-libs/log4j-core-*.jar         ${LOG4J2_LIB}
+cp ${ROOT}/cws-core/cws-core-libs/log4j-appserver-*.jar    ${LOG4J2_LIB}
+cp ${INSTALL_DIR}/tomcat_lib/log4j2-tomcat.properties      ${LOG4J2_CONF}
+
+print 'Removing default logging.properties from Tomcat...'
+rm ${TOMCAT_CONF_DIR}/logging.properties
 
 print 'Copying Installer scripts and libraries...'
 cp ${ROOT}/utils.sh                                          ${CWS}
 cp ${ROOT}/cws-installer/cws-installer-libs/*                ${CWS}/installer
 cp ${ROOT}/cws-installer/target/cws-installer.jar            ${CWS}/installer
-cp ${ROOT}/cws-installer/src/main/resources/log4j.properties ${CWS}/installer
+cp ${ROOT}/cws-installer/src/main/resources/log4j2.properties ${CWS}/installer
 
 cp ${INSTALL_DIR}/configure.sh                         ${CWS}
 cp ${INSTALL_DIR}/installerPresets.properties          ${CWS}/config

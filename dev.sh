@@ -66,7 +66,7 @@ print "Done configuring console installation."
 # --------------
 # START CONSOLE
 # --------------
-LOG_FILE="server/apache-tomcat-${TOMCAT_VER}/logs/catalina.out"
+LOG_FILE="server/apache-tomcat-${TOMCAT_VER}/logs/cws.log"
 BASE_PORT=8000
 
 tab ${DIST}/console-only/cws "./start_cws.sh -d $BASE_PORT; tail -f $LOG_FILE"
