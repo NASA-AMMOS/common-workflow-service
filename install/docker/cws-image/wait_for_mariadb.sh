@@ -34,4 +34,4 @@ done
 
 exec "$@"
 
-tail -f cws/server/apache-tomcat-*/logs/catalina.out
+tail -f cws/server/apache-tomcat-*/logs/cws.log
