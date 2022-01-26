@@ -1877,6 +1877,13 @@ public class CwsInstaller {
 				return 1;
 			}
 
+			if (!(elasticsearch_host.startsWith("https://") || elasticsearch_host.startsWith("http://")) ) {
+				print("   [WARNING]");
+				print("       It was determined that the user provided Elasticsearch endpoint '" + elasticsearch_host + "' did not properly set or include protocol 'http://' OR 'https://'");
+				print("");
+				return 1;
+			}
+
 			print("   [OK]");
 			print("");
 			return 0; // no warnings
