@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 		<artifactId>common-workflow-service</artifactId>
-		<version>2.1.0-pre.3</version><!-- update this each CWS release -->
+		<version>2.2.0-pre</version><!-- update this each CWS release -->
 	</parent>
 	<artifactId>cws-adaptation</artifactId>
 	

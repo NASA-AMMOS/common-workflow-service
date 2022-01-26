@@ -1077,6 +1077,7 @@ public class CwsInstaller {
 					read_elasticsearch_host = readRequiredLine("Enter the Elasticsearch host (be sure to include protocol in URL: http:// or https://):  ",
 							"You must enter a hostname");
 				}
+
 				elasticsearch_host = read_elasticsearch_host.toLowerCase();
 			} else {
 				elasticsearch_host = readLine("Enter the Elasticsearch host. " +
