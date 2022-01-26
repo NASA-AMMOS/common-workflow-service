@@ -1078,8 +1078,6 @@ public class CwsInstaller {
 							"You must enter a hostname");
 				}
 				elasticsearch_host = read_elasticsearch_host.toLowerCase();
-
-
 			} else {
 				elasticsearch_host = readLine("Enter the Elasticsearch host. " +
 						"Default is " + elasticsearch_host + ": ", elasticsearch_host);
