@@ -5,10 +5,10 @@
 # Shell utility functions and environment settings used throughout CWS setup scripts
 
 # Update versions as necessary
-export CWS_VER='2.1.0-pre.3'  # update this each CWS release
+export CWS_VER='2.2.0-pre'  # update this each CWS release
 export CAMUNDA_VER='7.13.0'
 export TOMCAT_VER='9.0.33'
-export LOGSTASH_VER='7.9.0'
+export LOGSTASH_VER='7.16.2'
 
 # Prints the provided string, tagging with the script that called it
 function print () {

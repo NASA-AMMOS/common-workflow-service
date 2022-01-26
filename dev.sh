@@ -72,7 +72,7 @@ BASE_PORT=8000
 tab ${DIST}/console-only/cws "./start_cws.sh -d $BASE_PORT; tail -f $LOG_FILE"
 
 print "Waiting for console startup..."
-sleep 100
+sleep 180
 
 # -----------------
 # CONFIGURE WORKERS
