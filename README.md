@@ -19,9 +19,9 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
     - A database for CWS to use. `cws_dev` is a good default.
     - A database user with full access to the above database.
 - [**ITerm2**](https://iterm2.com/): Currently these build scripts include commands to open new terminal windows using ITerm2, so they are best run from that terminal.
-- **Logstash 7.9+**: You will need to place the logstash 7.9.0 zip in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/past-releases/logstash-7-9-0).
-- **Elasticsearch 7.9+**: CWS requires an externally-configured elasticsearch cluster to be set up. You can use an SSL Secure Elasticsearch with or without authentication, or an Insecure HTTP Elasticsearch. In Please note that CWS currently only supports basic HTTP authentication.
-    - The "Elasticsearch Setup" instruction below provides a contained Dockerized way of running Elasticsearch. This serves as an alternative to installing Elasticsearch.
+- **Logstash 7.16.2+**: Download Logstash (OSS version) for the Windows platform. Rename the ZIP file from 'logstash-oss-7.16.2-windows-x86_64.zip' to 'logstash-7.16.2.zip' and place in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/past-releases/logstash-oss-7-16-2).
+- **Elasticsearch 7.16.2+**: CWS requires an externally-configured elasticsearch cluster to be set up. You can use an SSL Secure Elasticsearch with or without authentication, or an Insecure HTTP Elasticsearch.
+  - The "Elasticsearch Setup" instruction below provides a contained Dockerized way of running Elasticsearch. This serves as an alternative to installing Elasticsearch.
 - Tomcat **keystore and truststore files** (needed for CWS web console to work properly):
     - You will need to add your own Tomcat keystore file to this path: `install/.keystore`
     - You will need to add your own truststore file to this path: `install/tomcat_lib/cws_truststore.jks`
