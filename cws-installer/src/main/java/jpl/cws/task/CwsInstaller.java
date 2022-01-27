@@ -1122,7 +1122,7 @@ public class CwsInstaller {
 								"ERROR: Must specify either 'Y' or 'N'");
 			}
 
-			user_provided_logstash = read_elasticsearch_use_auth.toLowerCase();
+			elasticsearch_use_auth = read_elasticsearch_use_auth.toLowerCase();
 		}
 
 		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
