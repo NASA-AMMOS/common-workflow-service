@@ -12,7 +12,7 @@ if [ ! -f "$CWS_PACKAGE" ]; then
   echo "Error: Build package not found."
   echo "Need to build CWS package first: run './build.sh' in root dir to build cws_server.tar.gz."
   exit 1
-fiÏ
+fi
 
 cp "$CWS_PACKAGE" .
 cp ../../../cws-core/cws-core-libs/joda-time-2.1.jar .
