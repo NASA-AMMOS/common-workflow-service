@@ -28,7 +28,7 @@ services:
     labels:
       com.example.service: "cws-server"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.2.0-pre
+    image: nasa-ammos/common-workflow-service:2.2.0-pre.1    # update this each CWS release
     depends_on:
       - logstash
     hostname: cws-worker
