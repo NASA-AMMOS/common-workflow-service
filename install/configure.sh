@@ -8,58 +8,6 @@ ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 echo ROOT=${ROOT}
 
-# logic for repeat configure runs
-
-# if this is the very first time configure has been run:
-#  - save the clean CWS distribution code to .backups/clean
-# if this is a repeat run (check if .backups/clean exists)
-#  - create a timestamp-named backup of the current CWS distribution code under ./backups/backup_YYYYMMDD_hhmmss
-#  - remove everything in the current distribution except for user-configured items:
-#    * BPMN models (saved in /path/to/bpmn)
-#    * Code Snippets (saved in the database)
-#    * Initiators (saved in /path/to/cws-process-initiators.xml)
-#  - rsync the ./backups/clean dir back into the current distribution, EXCLUDING the above items
-
-BACKUP_DIR=${ROOT}/.backups
-BACKUP_CLEAN=${BACKUP_DIR}/clean
-
-if [ ! -d "${BACKUP_CLEAN}" ]; then
-    echo "Initializing CWS backup directory... "
-    mkdir -p "${BACKUP_CLEAN}"
-
-    # Save clean CWS before configure.sh is run and directory is modified
-    rsync -a --exclude='.backups' "${ROOT}/" "${BACKUP_CLEAN}/"
-else
-    echo "Detected re-run of configure.sh, backing up current distribution..."
-
-    # Make .backups folder for current CWS property version
-    BACKUP_CURR=${BACKUP_DIR}/backup_$(date '+%Y%m%d_%H%M%S') # .backups/backup_YYYYMMDD_hhmmss format
-
-    # Copy a backup, (excluding the backups dir, we don't want recursive backups)
-    echo -n "Saving backup of current CWS distribution to ${BACKUP_CURR}..."
-    mkdir -p "${BACKUP_CURR}"
-    rsync -a --exclude=".backups" "${ROOT}/" "${BACKUP_CURR}/"
-    echo "done."
-
-    # Due to quirks in MacOS file deletion, this is actually the safest way to delete everything
-    echo -n "Cleaning out CWS distribution files (this may take a while)..."
-    find "${ROOT}/" -mindepth 1 \
-      -not -name "configure.sh" \
-      -not -name "configuration.properties" \
-      -not -name "*cws-process-initiators*" \
-      -not -path "*.backups" \
-      -not -path "*.backups/*" \
-      -not -path "*bpmn/*" \
-      -not -path "*bpmn" \
-      -type f \
-      -exec rm -r {} \; &> /dev/null
-    echo "done."
-
-    # Sync files back in from clean CWS distribution, but don't overwrite anything we left intentionally
-    rsync -a --ignore-existing "${BACKUP_CLEAN}/" "${ROOT}/"
-fi
-
-
 source ${ROOT}/utils.sh
 
 # ================
@@ -129,6 +77,60 @@ else
 	    # Merge provided configuration with installer presets (defaults)
 	    cat ${CONF_FILE} ${ROOT}/config/installerPresets.properties | awk -F= '!a[$1]++' > ${CWS_INSTALLER_PRESET_FILE}
 	fi
+fi
+
+# logic for repeat configure runs
+
+# if this is the very first time configure has been run:
+#  - save the clean CWS distribution code to .backups/clean
+# if this is a repeat run (check if .backups/clean exists)
+#  - create a timestamp-named backup of the current CWS distribution code under ./backups/backup_YYYYMMDD_hhmmss
+#  - remove everything in the current distribution except for user-configured items:
+#    * BPMN models (saved in /path/to/bpmn)
+#    * Code Snippets (saved in the database)
+#    * Initiators (saved in /path/to/cws-process-initiators.xml)
+#  - rsync the ./backups/clean dir back into the current distribution, EXCLUDING the above items
+
+BACKUP_DIR=${ROOT}/.backups
+BACKUP_CLEAN=${BACKUP_DIR}/clean
+
+if [ ! -d "${BACKUP_CLEAN}" ]; then
+    echo "Initializing CWS backup directory... "
+    mkdir -p "${BACKUP_CLEAN}"
+
+    # Save clean CWS before configure.sh is run and directory is modified
+    rsync -a --exclude='.backups' "${ROOT}/" "${BACKUP_CLEAN}/"
+else
+    echo "Detected re-run of configure.sh, backing up current distribution..."
+
+    # Make .backups folder for current CWS property version
+    BACKUP_CURR=${BACKUP_DIR}/backup_$(date '+%Y%m%d_%H%M%S') # .backups/backup_YYYYMMDD_hhmmss format
+
+    # Copy a backup, (excluding the backups dir, we don't want recursive backups)
+    echo -n "Saving backup of current CWS distribution to ${BACKUP_CURR}..."
+    mkdir -p "${BACKUP_CURR}"
+    rsync -a --exclude=".backups" "${ROOT}/" "${BACKUP_CURR}/"
+    echo "done."
+
+    CONFIGFILE_BASENAME=$(basename ${CONF_FILE})
+
+    # Due to quirks in MacOS file deletion, this is actually the safest way to delete everything
+    echo -n "Cleaning out CWS distribution files (this may take a while)..."
+    find "${ROOT}/" -mindepth 1 \
+      -not -name "configure.sh" \
+      -not -name "configuration.properties" \
+      -not -name "${CONFIGFILE_BASENAME}" \
+      -not -name "*cws-process-initiators*" \
+      -not -path "*.backups" \
+      -not -path "*.backups/*" \
+      -not -path "*bpmn/*" \
+      -not -path "*bpmn" \
+      -type f \
+      -exec rm -r {} \; &> /dev/null
+    echo "done."
+
+    # Sync files back in from clean CWS distribution, but don't overwrite anything we left intentionally
+    rsync -a --ignore-existing "${BACKUP_CLEAN}/" "${ROOT}/"
 fi
 
 # --------------------------------------------
