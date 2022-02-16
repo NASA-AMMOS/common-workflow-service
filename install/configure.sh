@@ -112,7 +112,11 @@ else
     rsync -a --exclude=".backups" "${ROOT}/" "${BACKUP_CURR}/"
     echo "done."
 
-    CONFIGFILE_BASENAME=$(basename ${CONF_FILE})
+    if [[ "${CONF_FILE}" == "" ]]; then
+        CONFIGFILE_BASENAME=""
+    else
+    	  CONFIGFILE_BASENAME=$(basename ${CONF_FILE})
+    fi
 
     # Due to quirks in MacOS file deletion, this is actually the safest way to delete everything
     echo -n "Cleaning out CWS distribution files (this may take a while)..."
