@@ -1,7 +1,7 @@
 FROM oraclelinux:8
 
 RUN yum update -y && \
-    yum install -y mariadb-server java-1.8.0-openjdk java-1.8.0-openjdk-devel rsync && \
+    yum install -y mariadb-server java-1.8.0-openjdk java-1.8.0-openjdk-devel rsync which && \
     yum clean all
 
 ENV JAVA_HOME /usr/lib/jvm/java-1.8.0
