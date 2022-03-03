@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-ver='2.2.0-pre.1'    # update this each CWS release
+ver='2.2.0'    # update this each CWS release
 
 echo
 echo "ATTENTION: If changes were made to the source code or config files, don't forget to rebuild the cws .tar.gz package file before running this script."
