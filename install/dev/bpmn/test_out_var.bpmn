@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_108uoww" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.1.1">
+  <bpmn:process id="test_out_var" name="Test Out Var" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" camunda:asyncBefore="true">
+      <bpmn:outgoing>Flow_0yma2ov</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0yma2ov" sourceRef="StartEvent_1" targetRef="cmd1" />
+    <bpmn:serviceTask id="cmd1" name="Cmd 1" camunda:modelerTemplate="jpl.cws.task.CmdLineExecTask" camunda:type="external" camunda:topic="__CWS_CMD_TOPIC__">
+      <bpmn:extensionElements>
+        <camunda:field name="cmdLine">
+          <camunda:expression>bash -c "exit 4"</camunda:expression>
+        </camunda:field>
+        <camunda:field name="workingDir">
+          <camunda:expression>/</camunda:expression>
+        </camunda:field>
+        <camunda:field name="successExitValues">
+          <camunda:expression>4</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnFailures">
+          <camunda:expression>true</camunda:expression>
+        </camunda:field>
+        <camunda:field name="exitCodeEvents">
+          <camunda:expression>4=success,0=fail</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnTruncatedVariable">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition" />
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+        <camunda:field name="timeout">
+          <camunda:expression>86400</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retries">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retryDelay">
+          <camunda:expression>1000</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0yma2ov</bpmn:incoming>
+      <bpmn:outgoing>Flow_1kjv1lp</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1kjv1lp" sourceRef="cmd1" targetRef="Gateway_1lzh9zu" />
+    <bpmn:endEvent id="Event_0k2ib7q">
+      <bpmn:incoming>Flow_1u0ro6d</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="Gateway_1lzh9zu" default="Flow_01ktrkz">
+      <bpmn:incoming>Flow_1kjv1lp</bpmn:incoming>
+      <bpmn:outgoing>Flow_11p4ycr</bpmn:outgoing>
+      <bpmn:outgoing>Flow_01ktrkz</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_11p4ycr" sourceRef="Gateway_1lzh9zu" targetRef="cmd2">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${cmd1_out.jsonPath("$.exitCode").numberValue() == 4}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_01ktrkz" sourceRef="Gateway_1lzh9zu" targetRef="Activity_0syz75j" />
+    <bpmn:serviceTask id="Activity_0syz75j" name="Log Cmd1 Failed" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>Command 1 FAILED!</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_01ktrkz</bpmn:incoming>
+      <bpmn:outgoing>Flow_1paip9l</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1paip9l" sourceRef="Activity_0syz75j" targetRef="Event_080vfyg" />
+    <bpmn:sequenceFlow id="Flow_1e80hbh" sourceRef="Activity_1ajcnmh" targetRef="Activity_1rd9kou" />
+    <bpmn:serviceTask id="Activity_1ajcnmh" name="Log cmd3_out" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>Output:
+
+
+${cmd3_out}</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_05a5ztn</bpmn:incoming>
+      <bpmn:outgoing>Flow_1e80hbh</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_080vfyg">
+      <bpmn:incoming>Flow_1paip9l</bpmn:incoming>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_0rlxmoq" errorRef="Error_1er3leq" />
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0967c53" sourceRef="Activity_1rd9kou" targetRef="cmd4" />
+    <bpmn:scriptTask id="Activity_1rd9kou" name="Parse cmd 3 json output" scriptFormat="JavaScript">
+      <bpmn:incoming>Flow_1e80hbh</bpmn:incoming>
+      <bpmn:outgoing>Flow_0967c53</bpmn:outgoing>
+      <bpmn:script>// Extract data from output variable
+
+var out = execution.getVariable("cmd3_out");
+
+java.lang.System.out.println("cmd3 out = " + out);
+
+// Get event
+var event = S(out).prop("event");
+java.lang.System.out.println("event = " + event);
+
+// Get exitCode
+var exitCode = S(out).prop("exitCode");
+java.lang.System.out.println("exitCode = " + exitCode);
+
+// Get stdout
+var stdout = S(out).prop("stdout");
+
+java.lang.System.out.println("my script stdout prop = " + stdout);
+
+var data = JSON.parse(stdout);
+java.lang.System.out.println("data = " + data);
+
+// json from stdout output needs to be parsed again to convert to Javascript object
+var data2 = JSON.parse(data);
+java.lang.System.out.println("data2 = " + data2);
+
+// read real javascript object data
+java.lang.System.out.println("Current employee name = " + data2['employee'].name);
+java.lang.System.out.println("Number of employees = " + data2['employees'].length);</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_117ndqs" sourceRef="cmd2" targetRef="Gateway_09nobxq" />
+    <bpmn:exclusiveGateway id="Gateway_09nobxq" default="Flow_18ojisv">
+      <bpmn:incoming>Flow_117ndqs</bpmn:incoming>
+      <bpmn:outgoing>Flow_1wcrsaw</bpmn:outgoing>
+      <bpmn:outgoing>Flow_18ojisv</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1wcrsaw" sourceRef="Gateway_09nobxq" targetRef="cmd3">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${cmd2_out.jsonPath("$.success").boolValue() == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="cmd2" name="Cmd 2" camunda:modelerTemplate="jpl.cws.task.CmdLineExecTask" camunda:type="external" camunda:topic="__CWS_CMD_TOPIC__">
+      <bpmn:extensionElements>
+        <camunda:field name="cmdLine">
+          <camunda:expression>bash -c "exit 2"</camunda:expression>
+        </camunda:field>
+        <camunda:field name="workingDir">
+          <camunda:expression>/</camunda:expression>
+        </camunda:field>
+        <camunda:field name="successExitValues">
+          <camunda:expression>2</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnFailures">
+          <camunda:expression>true</camunda:expression>
+        </camunda:field>
+        <camunda:field name="exitCodeEvents">
+          <camunda:expression>0=failed,1=successful</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnTruncatedVariable">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition" />
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+        <camunda:field name="timeout">
+          <camunda:expression>86400</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retries">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retryDelay">
+          <camunda:expression>1000</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_11p4ycr</bpmn:incoming>
+      <bpmn:outgoing>Flow_117ndqs</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_18ojisv" sourceRef="Gateway_09nobxq" targetRef="Activity_007nzqg" />
+    <bpmn:serviceTask id="Activity_007nzqg" name="Log Cmd2 Failed" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>Command 2 FAILED!</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_18ojisv</bpmn:incoming>
+      <bpmn:outgoing>Flow_008vit1</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_008vit1" sourceRef="Activity_007nzqg" targetRef="Event_0z6updw" />
+    <bpmn:endEvent id="Event_0z6updw">
+      <bpmn:incoming>Flow_008vit1</bpmn:incoming>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_0ka2ffc" errorRef="Error_0rxo1ul" />
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0qzygus" sourceRef="cmd3" targetRef="Gateway_1fsa424" />
+    <bpmn:serviceTask id="cmd3" name="Cmd 3 (echo json)" camunda:modelerTemplate="jpl.cws.task.CmdLineExecTask" camunda:type="external" camunda:topic="__CWS_CMD_TOPIC__">
+      <bpmn:extensionElements>
+        <camunda:field name="cmdLine">
+          <camunda:expression>echo {'"date"': '"07-12-2021"', \
+        '"code"': 43, \
+        '"status"': true, \
+        '"message"': '"This is good json"', \
+        '"employee"': { \
+                '"name"': '"John"', \
+                '"age"': 30, \
+                '"address"': { \
+                        '"street"': '"432 Park Ave"', \
+                        '"city"': '"New York"', \
+                        '"state"': '"NY"', \
+                        '"zip"': 10001 \
+                } \
+        }, \
+        '"employees"': ['"John"', '"Anna"', '"Peter"'] \
+     }</camunda:expression>
+        </camunda:field>
+        <camunda:field name="workingDir">
+          <camunda:expression>.</camunda:expression>
+        </camunda:field>
+        <camunda:field name="successExitValues">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnFailures">
+          <camunda:expression>true</camunda:expression>
+        </camunda:field>
+        <camunda:field name="exitCodeEvents">
+          <camunda:expression>0=good,1=fail</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnTruncatedVariable">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition" />
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+        <camunda:field name="timeout">
+          <camunda:expression>86400</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retries">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retryDelay">
+          <camunda:expression>1000</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1wcrsaw</bpmn:incoming>
+      <bpmn:outgoing>Flow_0qzygus</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_1fsa424" default="Flow_0ukful1">
+      <bpmn:incoming>Flow_0qzygus</bpmn:incoming>
+      <bpmn:outgoing>Flow_05a5ztn</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0ukful1</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_05a5ztn" sourceRef="Gateway_1fsa424" targetRef="Activity_1ajcnmh">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${cmd3_out.jsonPath("$.event").stringValue() == "good"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0ukful1" sourceRef="Gateway_1fsa424" targetRef="Activity_1rb19c8" />
+    <bpmn:sequenceFlow id="Flow_1r687td" sourceRef="Activity_1rb19c8" targetRef="Event_0l87kz1" />
+    <bpmn:endEvent id="Event_0l87kz1">
+      <bpmn:incoming>Flow_1r687td</bpmn:incoming>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_1vlc8vf" errorRef="Error_0v0vdvw" />
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_1rb19c8" name="Log Cmd3 Failed" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>Command 3 FAILED!</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0ukful1</bpmn:incoming>
+      <bpmn:outgoing>Flow_1r687td</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1qg56f1" sourceRef="Activity_0h8qd0i" targetRef="cmd7" />
+    <bpmn:serviceTask id="Activity_0h8qd0i" name="Log Complete" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>Model Completed SUCCESSFULLY! 
+
+New variables from cmd5:
+
+cmd5_foo = ${cmd5_foo}
+cmd5_zzz = ${cmd5_zzz}</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_02ov772</bpmn:incoming>
+      <bpmn:outgoing>Flow_1qg56f1</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0qws5mc" sourceRef="cmd4" targetRef="cmd5" />
+    <bpmn:serviceTask id="cmd4" name="Cmd4 w/ Large output" camunda:modelerTemplate="jpl.cws.task.CmdLineExecTask" camunda:type="external" camunda:topic="__CWS_CMD_TOPIC__">
+      <bpmn:extensionElements>
+        <camunda:field name="cmdLine">
+          <camunda:expression>ls -alR</camunda:expression>
+        </camunda:field>
+        <camunda:field name="workingDir">
+          <camunda:expression>/usr/bin</camunda:expression>
+        </camunda:field>
+        <camunda:field name="successExitValues">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnFailures">
+          <camunda:expression>true</camunda:expression>
+        </camunda:field>
+        <camunda:field name="exitCodeEvents">
+          <camunda:expression>0=success,1=error</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnTruncatedVariable">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition" />
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+        <camunda:field name="timeout">
+          <camunda:expression>86400</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retries">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retryDelay">
+          <camunda:expression>1000</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0967c53</bpmn:incoming>
+      <bpmn:outgoing>Flow_0qws5mc</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0nknnjp" sourceRef="cmd5" targetRef="cmd6" />
+    <bpmn:serviceTask id="cmd5" name="cmd5 output cwsVariables" camunda:modelerTemplate="jpl.cws.task.CmdLineExecTask" camunda:type="external" camunda:topic="__CWS_CMD_TOPIC__">
+      <bpmn:extensionElements>
+        <camunda:field name="cmdLine">
+          <camunda:expression>bash -c 'echo -e "cmd5 normal output here\ncwsVariables : {\"foo\" : \"bar\", \"zzz\" : 123}"\\ncmd5 more normal output here'</camunda:expression>
+        </camunda:field>
+        <camunda:field name="workingDir">
+          <camunda:expression>.</camunda:expression>
+        </camunda:field>
+        <camunda:field name="successExitValues">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnFailures">
+          <camunda:expression>true</camunda:expression>
+        </camunda:field>
+        <camunda:field name="exitCodeEvents">
+          <camunda:expression>0=success,1=fail</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnTruncatedVariable">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition" />
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+        <camunda:field name="timeout">
+          <camunda:expression>86400</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retries">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retryDelay">
+          <camunda:expression>1000</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0qws5mc</bpmn:incoming>
+      <bpmn:outgoing>Flow_0nknnjp</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_02ov772" sourceRef="cmd6" targetRef="Activity_0h8qd0i" />
+    <bpmn:serviceTask id="cmd6" name="cmd6 to stderr" camunda:modelerTemplate="jpl.cws.task.CmdLineExecTask" camunda:type="external" camunda:topic="__CWS_CMD_TOPIC__">
+      <bpmn:extensionElements>
+        <camunda:field name="cmdLine">
+          <camunda:expression>bash -c "&gt;&amp;2 echo 'this is to stderr'"</camunda:expression>
+        </camunda:field>
+        <camunda:field name="workingDir">
+          <camunda:expression>.</camunda:expression>
+        </camunda:field>
+        <camunda:field name="successExitValues">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnFailures">
+          <camunda:expression>true</camunda:expression>
+        </camunda:field>
+        <camunda:field name="exitCodeEvents">
+          <camunda:expression>0=success,1=fail</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnTruncatedVariable">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition" />
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+        <camunda:field name="timeout">
+          <camunda:expression>86400</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retries">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retryDelay">
+          <camunda:expression>1000</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0nknnjp</bpmn:incoming>
+      <bpmn:outgoing>Flow_02ov772</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1u0ro6d" sourceRef="cmd7" targetRef="Event_0k2ib7q" />
+    <bpmn:serviceTask id="cmd7" name="cmd7 (short lived)" camunda:modelerTemplate="jpl.cws.task.CmdLineExecTaskNonExt" camunda:class="jpl.cws.task.CmdLineExecTask">
+      <bpmn:extensionElements>
+        <camunda:field name="cmdLine">
+          <camunda:expression>ls -al</camunda:expression>
+        </camunda:field>
+        <camunda:field name="workingDir">
+          <camunda:expression>/usr/lib</camunda:expression>
+        </camunda:field>
+        <camunda:field name="successExitValues">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnFailures">
+          <camunda:expression>true</camunda:expression>
+        </camunda:field>
+        <camunda:field name="exitCodeEvents">
+          <camunda:expression>0=success</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnTruncatedVariable">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1qg56f1</bpmn:incoming>
+      <bpmn:outgoing>Flow_1u0ro6d</bpmn:outgoing>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmn:error id="Error_1er3leq" name="Error_35ptg77" errorCode="1" camunda:errorMessage="Failed cmd 1" />
+  <bpmn:error id="Error_0rxo1ul" name="Error_2bdvv73" errorCode="2" camunda:errorMessage="Failed cmd 2" />
+  <bpmn:error id="Error_0v0vdvw" name="Error_1cg9pus" errorCode="3" camunda:errorMessage="Failed cmd 3" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="test_out_var">
+      <bpmndi:BPMNEdge id="Flow_02ov772_di" bpmnElement="Flow_02ov772">
+        <di:waypoint x="1680" y="750" />
+        <di:waypoint x="1740" y="750" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0nknnjp_di" bpmnElement="Flow_0nknnjp">
+        <di:waypoint x="1530" y="750" />
+        <di:waypoint x="1580" y="750" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qws5mc_di" bpmnElement="Flow_0qws5mc">
+        <di:waypoint x="1380" y="750" />
+        <di:waypoint x="1430" y="750" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1qg56f1_di" bpmnElement="Flow_1qg56f1">
+        <di:waypoint x="1840" y="750" />
+        <di:waypoint x="1900" y="750" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1r687td_di" bpmnElement="Flow_1r687td">
+        <di:waypoint x="1090" y="530" />
+        <di:waypoint x="1132" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ukful1_di" bpmnElement="Flow_0ukful1">
+        <di:waypoint x="955" y="530" />
+        <di:waypoint x="990" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05a5ztn_di" bpmnElement="Flow_05a5ztn">
+        <di:waypoint x="930" y="555" />
+        <di:waypoint x="930" y="750" />
+        <di:waypoint x="970" y="750" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qzygus_di" bpmnElement="Flow_0qzygus">
+        <di:waypoint x="830" y="530" />
+        <di:waypoint x="905" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_008vit1_di" bpmnElement="Flow_008vit1">
+        <di:waypoint x="830" y="360" />
+        <di:waypoint x="882" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18ojisv_di" bpmnElement="Flow_18ojisv">
+        <di:waypoint x="685" y="360" />
+        <di:waypoint x="730" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wcrsaw_di" bpmnElement="Flow_1wcrsaw">
+        <di:waypoint x="660" y="385" />
+        <di:waypoint x="660" y="530" />
+        <di:waypoint x="730" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_117ndqs_di" bpmnElement="Flow_117ndqs">
+        <di:waypoint x="590" y="360" />
+        <di:waypoint x="635" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0967c53_di" bpmnElement="Flow_0967c53">
+        <di:waypoint x="1220" y="750" />
+        <di:waypoint x="1280" y="750" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1e80hbh_di" bpmnElement="Flow_1e80hbh">
+        <di:waypoint x="1070" y="750" />
+        <di:waypoint x="1120" y="750" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1paip9l_di" bpmnElement="Flow_1paip9l">
+        <di:waypoint x="590" y="120" />
+        <di:waypoint x="652" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_01ktrkz_di" bpmnElement="Flow_01ktrkz">
+        <di:waypoint x="430" y="192" />
+        <di:waypoint x="430" y="120" />
+        <di:waypoint x="490" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11p4ycr_di" bpmnElement="Flow_11p4ycr">
+        <di:waypoint x="430" y="242" />
+        <di:waypoint x="430" y="360" />
+        <di:waypoint x="490" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1kjv1lp_di" bpmnElement="Flow_1kjv1lp">
+        <di:waypoint x="370" y="217" />
+        <di:waypoint x="405" y="217" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0yma2ov_di" bpmnElement="Flow_0yma2ov">
+        <di:waypoint x="215" y="217" />
+        <di:waypoint x="270" y="217" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1u0ro6d_di" bpmnElement="Flow_1u0ro6d">
+        <di:waypoint x="2000" y="750" />
+        <di:waypoint x="2052" y="750" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="199" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_01607uc_di" bpmnElement="cmd1">
+        <dc:Bounds x="270" y="177" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1lzh9zu_di" bpmnElement="Gateway_1lzh9zu" isMarkerVisible="true">
+        <dc:Bounds x="405" y="192" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1priph8_di" bpmnElement="Activity_0syz75j">
+        <dc:Bounds x="490" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ce7034_di" bpmnElement="Activity_1ajcnmh">
+        <dc:Bounds x="970" y="710" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1yripam_di" bpmnElement="Event_080vfyg">
+        <dc:Bounds x="652" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1cjkefp_di" bpmnElement="Activity_1rd9kou">
+        <dc:Bounds x="1120" y="710" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_09nobxq_di" bpmnElement="Gateway_09nobxq" isMarkerVisible="true">
+        <dc:Bounds x="635" y="335" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_05wexf7_di" bpmnElement="cmd2">
+        <dc:Bounds x="490" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0il9zln_di" bpmnElement="Activity_007nzqg">
+        <dc:Bounds x="730" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1vi6vkr_di" bpmnElement="Event_0z6updw">
+        <dc:Bounds x="882" y="342" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1tjgm0a_di" bpmnElement="cmd3">
+        <dc:Bounds x="730" y="490" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1fsa424_di" bpmnElement="Gateway_1fsa424" isMarkerVisible="true">
+        <dc:Bounds x="905" y="505" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0k7k49d_di" bpmnElement="Event_0l87kz1">
+        <dc:Bounds x="1132" y="512" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0mj4aho_di" bpmnElement="Activity_1rb19c8">
+        <dc:Bounds x="990" y="490" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0xnksyq_di" bpmnElement="Activity_0h8qd0i">
+        <dc:Bounds x="1740" y="710" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1253fm7_di" bpmnElement="cmd4">
+        <dc:Bounds x="1280" y="710" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_172x0rv_di" bpmnElement="cmd5">
+        <dc:Bounds x="1430" y="710" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1160923_di" bpmnElement="cmd6">
+        <dc:Bounds x="1580" y="710" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0k2ib7q_di" bpmnElement="Event_0k2ib7q">
+        <dc:Bounds x="2052" y="732" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1vmre4l_di" bpmnElement="cmd7">
+        <dc:Bounds x="1900" y="710" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

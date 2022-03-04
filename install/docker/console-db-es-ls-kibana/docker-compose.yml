@@ -23,7 +23,7 @@ services:
     labels:
       com.example.service: "es"
       com.example.description: "For searching and indexing data"
-    image: elasticsearch:7.9.0
+    image: elasticsearch:7.16.2
     container_name: cws-es
     networks:
       - frontend
@@ -49,56 +49,56 @@ services:
         #soft: 65536
         #hard: 65536
     #mem_limit: 2g
-  kibana:
-    labels:
-      com.example.service: "kibana"
-      com.example.description: "Data visualisation and for log aggregation"
-    image: kibana:7.9.0
-    container_name: cws-kibana
-    ports:
-      - "5601:5601"
-    networks:
-      - frontend
-      - backend
-    environment:
-      - ELASTICSEARCH_URL=http://es:9200
-    depends_on:
-      - es
-  logstash:
-    labels:
-      com.example.service: "logstash"
-      com.example.description: "For logging data"
-    image: docker.elastic.co/logstash/logstash:7.9.0
-    container_name: cws_logstash
-    volumes:
-      - ./cws-logstash.conf:/home/cws_user/cws-logstash.conf:ro
-      - logs-volume:/cws_logs:ro
-    command: logstash -f /home/cws_user/cws-logstash.conf
-    environment:
-      - XPACK_MONITORING_ENABLED=false
-    healthcheck:
-        test: ["CMD-SHELL", "curl --silent --fail localhost:9600 || exit 1"]
-        interval: 5s
-        timeout: 2s
-        retries: 12
-    depends_on:
-    - es
-    ports:
-      - "9600:9600"
-    networks:
-      - frontend
-      - backend
+#  kibana:
+#    labels:
+#      com.example.service: "kibana"
+#      com.example.description: "Data visualisation and for log aggregation"
+#    image: kibana:7.16.2
+#    container_name: cws-kibana
+#    ports:
+#      - "5601:5601"
+#    networks:
+#      - frontend
+#      - backend
+#    environment:
+#      - ELASTICSEARCH_URL=http://es:9200
+#    depends_on:
+#      - es
+#  logstash:
+#    labels:
+#      com.example.service: "logstash"
+#      com.example.description: "For logging data"
+#    image: docker.elastic.co/logstash/logstash:7.16.2
+#    container_name: cws_logstash
+#    volumes:
+#      - ./cws-logstash.conf:/home/cws_user/cws-logstash.conf:ro
+#      - logs-volume:/cws_logs:ro
+#    command: logstash -f /home/cws_user/cws-logstash.conf
+#    environment:
+#      - XPACK_MONITORING_ENABLED=false
+#    healthcheck:
+#        test: ["CMD-SHELL", "curl --silent --fail localhost:9600 || exit 1"]
+#        interval: 5s
+#        timeout: 2s
+#        retries: 12
+#    depends_on:
+#    - es
+#    ports:
+#      - "9600:9600"
+#    networks:
+#      - frontend
+#      - backend
   cws:
     container_name: cws-console
     labels:
       com.example.service: "cws-server"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.0
+    image: nasa-ammos/common-workflow-service:2.2.0    # update this each CWS release
     depends_on:
       - db
       - es
-      - logstash
-      - kibana
+#      - logstash
+#      - kibana
     ports:
       - "38080:38080"
       - "38443:38443"
@@ -111,7 +111,7 @@ services:
        - DB_HOST=db
        - DB_USER=root
        - DB_PW=test
-       - ES_HOST=es
+       - ES_HOST=http://es
        - ES_PORT=9200
     volumes:
       - ./config.properties:/home/cws_user/config.properties:ro

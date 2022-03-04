@@ -21,8 +21,7 @@ creds.txt
 cws-test/newCWSDir
 
 .DS_Store
-install/logging/logstash-7.9.0.zip
-install/logging/logstash-6.4.2.zip
+install/logging/logstash-*.zip
 
 *personal_dev.sh
 

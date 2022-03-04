@@ -1,34 +1,34 @@
 version: '3.2'
 
 services:
-  logstash:
-    labels:
-      com.example.service: "logstash"
-      com.example.description: "For logging data"
-    image: docker.elastic.co/logstash/logstash:7.9.0
-    container_name: cws-worker-logstash
-    volumes:
-      - logs-volume:/cws_logs:ro
-      - ./cws-logstash.conf:/home/cws_user/cws-logstash.conf:ro
-    command: logstash -f /home/cws_user/cws-logstash.conf
-    environment:
-      - XPACK_MONITORING_ENABLED=false
-    healthcheck:
-        test: ["CMD-SHELL", "curl --silent --fail localhost:9600 || exit 1"]
-        interval: 5s
-        timeout: 2s
-        retries: 12
-    ports:
-      - "9600:9600"
-    networks:
-      - frontend
-      - backend
+#  logstash:
+#    labels:
+#      com.example.service: "logstash"
+#      com.example.description: "For logging data"
+#    image: docker.elastic.co/logstash/logstash:7.16.2
+#    container_name: cws-worker-logstash
+#    volumes:
+#      - logs-volume:/cws_logs:ro
+#      - ./cws-logstash.conf:/home/cws_user/cws-logstash.conf:ro
+#    command: logstash -f /home/cws_user/cws-logstash.conf
+#    environment:
+#      - XPACK_MONITORING_ENABLED=false
+#    healthcheck:
+#        test: ["CMD-SHELL", "curl --silent --fail localhost:9600 || exit 1"]
+#        interval: 5s
+#        timeout: 2s
+#        retries: 12
+#    ports:
+#      - "9600:9600"
+#    networks:
+#      - frontend
+#      - backend
   cws:
     container_name: cws-worker
     labels:
       com.example.service: "cws-server"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.0
+    image: nasa-ammos/common-workflow-service:2.2.0    # update this each CWS release
     depends_on:
       - logstash
     hostname: cws-worker

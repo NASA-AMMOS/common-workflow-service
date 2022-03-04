@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.jms.Session;
 
 import com.google.gson.Gson;
+import jpl.cws.core.CmdLineInputFields;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.HtmlEmail;
 import org.camunda.bpm.application.PostDeploy;
@@ -428,7 +429,7 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 									cmdFields.retryDelay = Integer.parseInt(getFieldValue(fieldName, fields, expressionManager, execution));
 
 									JsonValue jsonValue = SpinValues.jsonValue(new Gson().toJson(cmdFields)).create();
-									execution.setVariable(activityId + "_input", jsonValue);
+									execution.setVariable(activityId + "_in", jsonValue);
 								}
 								catch (Throwable t) {
 									log.error("Error parsing cmdLine fields", t);

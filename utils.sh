@@ -5,10 +5,10 @@
 # Shell utility functions and environment settings used throughout CWS setup scripts
 
 # Update versions as necessary
-export CWS_VER='2.1.0-pre.3'  # update this each CWS release
+export CWS_VER='2.2.0'    # update this each CWS release
 export CAMUNDA_VER='7.13.0'
 export TOMCAT_VER='9.0.33'
-export LOGSTASH_VER='7.9.0'
+export LOGSTASH_VER='7.16.2'
 
 # Prints the provided string, tagging with the script that called it
 function print () {
@@ -202,8 +202,9 @@ function auto_conf_data () {
     ADMIN_LASTNAME=${20}
     ADMIN_EMAIL=${21}
     NUM_WORKERS=${22}
+    WORKER_ABANDONED_DAYS=${23}
 
-    OUTPUT_FILE=${23}
+    OUTPUT_FILE=${24}
 
     source ${ROOT}/utils.sh
 
@@ -294,6 +295,7 @@ function auto_conf_data () {
     cws_amq_jmx_port=${CWS_AMQ_JMX_PORT}
     cws_jmx_port=${CWS_JMX_PORT}
     history_days_to_live=2
+    worker_abandoned_days=${WORKER_ABANDONED_DAYS}
     notify_users_email=y
     email_subject=[CWS] You have been assigned a task (CWS_TASK_NAME)
     email_body=fn:CWS_USER_FIRSTNAME<br/>ln:CWS_USER_LASTNAME,<br/>tn:(CWS_TASK_NAME), em:CWS_USER_EMAIL

@@ -569,6 +569,26 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			throw e;
 		}
 	}
+
+
+	/**
+	 * Gets a list of abandoned workers.
+	 *
+	 */
+	public List<Map<String,Object>> detectAbandonedWorkers(int daysToAbandoned) {
+		try {
+			Timestamp thresholdTimeAgo = new Timestamp(DateTime.now().minusDays(daysToAbandoned).getMillis());
+
+			String query = "SELECT * FROM cws_worker WHERE last_heartbeat_time < ? AND status = 'down'";
+			return jdbcTemplate.queryForList(query, new Object[] { thresholdTimeAgo });
+		}
+		catch (Throwable e) {
+			cwsEmailerService.sendNotificationEmails("CWS Database Error", "Severe Error!\n\nCould not query database for abandoned workers.\n\nDetails: " + e.getMessage());
+			log.error("Problem occurred while querying the database for abandoned workers.", e);
+
+			throw e;
+		}
+	}
 	
 	
 	/**
@@ -605,6 +625,29 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 				"where proc_def_key=?",
 				new Object[] {procDefKey});
 	}
+
+
+
+	/**
+	 * Delete an abandoned worker
+	 * Deletes entries from both cws_worker_proc_def and cws_worker
+	 */
+	public void deleteAbandonedWorker(String workerId) {
+
+		// Disable the worker for all process definitions (might not be necessary)
+		String query =  "UPDATE cws_worker_proc_def " + "SET max_instances=0, accepting_new=0 " + "WHERE worker_id=?";
+		jdbcTemplate.update(query, new Object[] {workerId});
+
+		// Delete the (worker, proc_def) entries from the proc def table
+		query = "DELETE FROM cws_worker_proc_def WHERE worker_id=?";
+		jdbcTemplate.update(query, new Object[] {workerId});
+
+		// Delete worker from cws_worker table
+		query = "DELETE FROM cws_worker WHERE id=?";
+		jdbcTemplate.update(query, new Object[] {workerId});
+	}
+
+
 	
 	/**
 	*

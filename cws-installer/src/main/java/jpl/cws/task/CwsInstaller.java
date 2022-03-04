@@ -177,6 +177,7 @@ public class CwsInstaller {
 	private static String user_provided_logstash;
 	private static String history_level;
 	private static String history_days_to_live;
+	private static String worker_abandoned_days;
 
 	private static String aws_default_region;
 	private static String aws_sqs_dispatcher_sqsUrl;
@@ -236,6 +237,7 @@ public class CwsInstaller {
 				setupCloudAutoscaling();
 				setupAwsSqs();
 			}
+			setupLimitToRemoveAbandonedWorkersByDays();
 			genUniqueWorkerId();
 			setupStartupAutoregisterProcessDefs();
 			showInstallationInfo();
@@ -860,6 +862,40 @@ public class CwsInstaller {
 		}
 	}
 
+	private static void setupLimitToRemoveAbandonedWorkersByDays() {
+		worker_abandoned_days = getPreset("worker_abandoned_days");
+
+		if (worker_abandoned_days == null) {
+			worker_abandoned_days = getPreset("default_worker_abandoned_days");
+		}
+
+		// make sure preset is valid positive integer
+		try {
+			if (Integer.parseInt(worker_abandoned_days) <= 0) {
+				log.warn("Worker abandoned days must be a positive integer. Got: " + worker_abandoned_days + ". Defaulting to 1.");
+				worker_abandoned_days = "1";
+			}
+		} catch (NumberFormatException e) {
+			log.warn("Worker abandoned days failed to parse as an integer. Got: " + worker_abandoned_days + ". Defaulting to 1.");
+			worker_abandoned_days = "1";
+		}
+
+		if (cws_installer_mode.equals("interactive")) {
+			boolean done = false;
+			while (!done) {
+				worker_abandoned_days = readLine("Enter the number of days after worker(s) are abandoned to remove worker(s) from the database. " +
+						"Default is " + worker_abandoned_days + ": ", worker_abandoned_days);
+
+				// make sure input was valid
+				try {
+					done = Integer.parseInt(worker_abandoned_days) >= 1;
+				} catch (NumberFormatException e) {
+					// bad input, try again
+				}
+			}
+		}
+	}
+
 
 	private static void setupPorts() {
 		// PROMPT USER FOR CWS WEB PORT
@@ -1033,8 +1069,16 @@ public class CwsInstaller {
 
 		if (cws_installer_mode.equals("interactive")) {
 			if (elasticsearch_host == null) {
-				elasticsearch_host = readRequiredLine("Enter the Elasticsearch host: ",
-						"You must enter a hostname");
+
+				String read_elasticsearch_host = "";
+
+				while (!read_elasticsearch_host.startsWith("https://") &&
+						!read_elasticsearch_host.startsWith("http://")) {
+					read_elasticsearch_host = readRequiredLine("Enter the Elasticsearch host (be sure to include protocol in URL: http:// or https://):  ",
+							"You must enter a hostname");
+				}
+
+				elasticsearch_host = read_elasticsearch_host.toLowerCase();
 			} else {
 				elasticsearch_host = readLine("Enter the Elasticsearch host. " +
 						"Default is " + elasticsearch_host + ": ", elasticsearch_host);
@@ -1078,7 +1122,7 @@ public class CwsInstaller {
 								"ERROR: Must specify either 'Y' or 'N'");
 			}
 
-			user_provided_logstash = read_elasticsearch_use_auth.toLowerCase();
+			elasticsearch_use_auth = read_elasticsearch_use_auth.toLowerCase();
 		}
 
 		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
@@ -1231,7 +1275,7 @@ public class CwsInstaller {
 
 		if (cws_installer_mode.equals("interactive")) {
 			cws_brand_header = readLine("Enter the brand header text that will display at the top of the web console. " +
-							"Default is \"" + cws_brand_header + "\": ", cws_brand_header);
+					"Default is \"" + cws_brand_header + "\": ", cws_brand_header);
 		}
 	}
 
@@ -1462,6 +1506,7 @@ public class CwsInstaller {
 		print("CWS Notification Emails       = " + cws_notification_emails);
 		print("CWS Token Expiration In Hours = " + cws_token_expiration_hours);
 		print("History Level                 = " + history_level);
+		print("Days Remove Abandoned Workers = " + worker_abandoned_days);
 		if (installConsole) {
 			print("History Days to Live          = " + history_days_to_live);
 			print("....................................................................................");
@@ -1812,11 +1857,11 @@ public class CwsInstaller {
 		print("checking that user provided Elasticsearch (" + elasticsearch_host + ":" + elasticsearch_port + ") is running...");
 
 		try {
-			String[] cmdArray = new String[] {"curl", "--fail", "http://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+			String[] cmdArray = new String[] {"curl", "--fail", elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 
 			if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 				// Add auth to curl
-				cmdArray = new String[] {"curl", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, "https://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+				cmdArray = new String[] {"curl", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 			}
 
 			Process p = Runtime.getRuntime().exec(cmdArray);
@@ -1828,6 +1873,13 @@ public class CwsInstaller {
 			if (p.exitValue() != 0) {
 				print("   [WARNING]");
 				print("       It was determined that the user provided Elasticsearch is not running or is inaccessible.");
+				print("");
+				return 1;
+			}
+
+			if (!(elasticsearch_host.startsWith("https://") || elasticsearch_host.startsWith("http://")) ) {
+				print("   [WARNING]");
+				print("       It was determined that the user provided Elasticsearch endpoint '" + elasticsearch_host + "' did not properly set or include protocol 'http://' OR 'https://'");
 				print("");
 				return 1;
 			}
@@ -2196,7 +2248,7 @@ public class CwsInstaller {
 		content = content.replace("__CWS_AMQ_HOST__", cws_amq_host);
 		content = content.replace("__CWS_AMQ_PORT__", cws_amq_port);
 
-        content = updateIdentityPluginContent(content);
+	content = updateIdentityPluginContent(content);
 
 		writeToFile(filePath, content);
 		copy(
@@ -2245,6 +2297,7 @@ public class CwsInstaller {
 		content = content.replace("__CWS_AUTH_SCHEME__",                 cws_auth_scheme);
 		content = content.replace("__CWS_HISTORY_DAYS_TO_LIVE__",        history_days_to_live);
 		content = content.replace("__CWS_HISTORY_LEVEL__",     		     history_level);
+		content = content.replace("__CWS_WORKER_ABANDONED_DAYS__",		worker_abandoned_days);
 		content = content.replace("__AWS_DEFAULT_REGION__", 				  aws_default_region);
 
 		// ES auth might not be in use
@@ -2276,6 +2329,7 @@ public class CwsInstaller {
 		content = content.replace("__CWS_DB_PASSWORD__", cws_db_password);
 		content = content.replace("__JOB_EXECUTOR_ACTIVATE__", "false");
 		content = content.replace("__HISTORY_LEVEL__", history_level);
+		content = content.replace("__CWS_WORKER_ABANDONED_DAYS__", worker_abandoned_days);
 
 		content = content.replace("__CWS_AMQ_HOST__",     cws_amq_host);
 		content = content.replace("__CWS_AMQ_PORT__",     cws_amq_port);
@@ -2300,9 +2354,9 @@ public class CwsInstaller {
 		}
 		content = content.replace("__UNIQUE_BROKER_GROUP_NAME__", unique_broker_group_name);
 
-        content = updateIdentityPluginContent(content);
+	content = updateIdentityPluginContent(content);
 
-        writeToFile(path, content);
+	writeToFile(path, content);
 
 		copy(path,
 			Paths.get(cws_tomcat_webapps + SEP + "cws-ui" + SEP + "WEB-INF" + SEP + "applicationContext.xml"));
@@ -2370,47 +2424,47 @@ public class CwsInstaller {
 	}
 
 
-    private static String updateIdentityPluginContent(String content) throws IOException {
-        //
-        // Update identity plugin content
-        //
-        if (cws_auth_scheme.equals("LDAP")) {
-            // Erase the __CUSTOM_IDENTITY_PLUGIN_XML__token
-            content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", "");
+	private static String updateIdentityPluginContent(String content) throws IOException {
+		//
+		// Update identity plugin content
+		//
+		if (cws_auth_scheme.equals("LDAP")) {
+			// Erase the __CUSTOM_IDENTITY_PLUGIN_XML__token
+			content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", "");
 
-            // Fill in the __LDAP_PLUGIN_BEAN__
-            String ldapBeanContent = getFileContents(
-            		Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml"));
+			// Fill in the __LDAP_PLUGIN_BEAN__
+			String ldapBeanContent = getFileContents(
+					Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml"));
 			content = content.replace("__LDAP_PLUGIN_BEAN__", ldapBeanContent);
 
 			String ldapRefContent = getFileContents(
 					Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_ref.xml"));
 			content = content.replace("__LDAP_PLUGIN_REF__", ldapRefContent);
 
-            content = content.replace("__CWS_IDENTITY_PLUGIN_CLASS__", cws_identity_plugin_class);
-            content = content.replace("__CWS_LDAP_URL__",              cws_ldap_url);
-        }
-        else if (cws_auth_scheme.equals("CAMUNDA")) {
-            // Erase the unneeded tokens
-            content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", "<!-- CUSTOM_IDENTITY_PLUGIN_XML -->"); // erase token
-            content = content.replace("__LDAP_PLUGIN_BEAN__",    "<!-- LDAP_PLUGIN_BEAN -->"); // erase token
+			content = content.replace("__CWS_IDENTITY_PLUGIN_CLASS__", cws_identity_plugin_class);
+			content = content.replace("__CWS_LDAP_URL__",              cws_ldap_url);
+		}
+		else if (cws_auth_scheme.equals("CAMUNDA")) {
+			// Erase the unneeded tokens
+			content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", "<!-- CUSTOM_IDENTITY_PLUGIN_XML -->"); // erase token
+			content = content.replace("__LDAP_PLUGIN_BEAN__",    "<!-- LDAP_PLUGIN_BEAN -->"); // erase token
 			content = content.replace("__LDAP_PLUGIN_REF__",     "<!-- LDAP_PLUGIN_REF -->"); // erase token
-        }
-        else {  // cws_auth_scheme.equals("CUSTOM")
-            // Erase the __LDAP_PLUGIN_*__ tokens
+		}
+		else {  // cws_auth_scheme.equals("CUSTOM")
+			// Erase the __LDAP_PLUGIN_*__ tokens
 			content = content.replace("__LDAP_PLUGIN_BEAN__", "<!-- LDAP_PLUGIN_BEAN -->"); // erase token
 			content = content.replace("__LDAP_PLUGIN_REF__",  "<!-- LDAP_PLUGIN_REF -->"); // erase token
-            // Fill in the __CUSTOM_IDENTITY_PLUGIN_XML__
-            //There is no custom_identity_plugin.xml file now.
-            Path replaceFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "custom_identity_plugin.xml");
-            String replaceContent = getFileContents(replaceFilePath);
-            content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", replaceContent);
-        }
+			// Fill in the __CUSTOM_IDENTITY_PLUGIN_XML__
+			//There is no custom_identity_plugin.xml file now.
+			Path replaceFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "custom_identity_plugin.xml");
+			String replaceContent = getFileContents(replaceFilePath);
+			content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", replaceContent);
+		}
 
 		content = content.replace("__CWS_LDAP_USER__",             cws_user);
 
-        return content;
-    }
+		return content;
+	}
 
 
 	private static void deleteCwsUiWebApp() {
@@ -2525,10 +2579,11 @@ public class CwsInstaller {
 		setPreset("elasticsearch_port", elasticsearch_port);
 		setPreset("elasticsearch_use_auth", elasticsearch_use_auth);
 		setPreset("elasticsearch_username", elasticsearch_username);
-		setPreset("elasticsearcH_password", elasticsearch_password);
+		setPreset("elasticsearch_password", elasticsearch_password);
 		setPreset("user_provided_logstash", user_provided_logstash);
 		setPreset("history_level", history_level);
 		setPreset("history_days_to_live", history_days_to_live);
+		setPreset("worker_abandoned_days", worker_abandoned_days);
 		setPreset("aws_default_region", aws_default_region);
 		setPreset("aws_sqs_dispatcher_sqsUrl", aws_sqs_dispatcher_sqsUrl);
 		setPreset("aws_sqs_dispatcher_msgFetchLimit", aws_sqs_dispatcher_msgFetchLimit);

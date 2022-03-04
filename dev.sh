@@ -25,6 +25,7 @@ ADMIN_FIRSTNAME=${18}
 ADMIN_LASTNAME=${19}
 ADMIN_EMAIL=${20}
 NUM_WORKERS=${21}
+WORKER_ABANDONED_DAYS=${22}
 
 source ${ROOT}/utils.sh
 
@@ -65,13 +66,13 @@ print "Done configuring console installation."
 # --------------
 # START CONSOLE
 # --------------
-LOG_FILE="server/apache-tomcat-${TOMCAT_VER}/logs/catalina.out"
+LOG_FILE="server/apache-tomcat-${TOMCAT_VER}/logs/cws.log"
 BASE_PORT=8000
 
 tab ${DIST}/console-only/cws "./start_cws.sh -d $BASE_PORT; tail -f $LOG_FILE"
 
 print "Waiting for console startup..."
-sleep 100
+sleep 180
 
 # -----------------
 # CONFIGURE WORKERS

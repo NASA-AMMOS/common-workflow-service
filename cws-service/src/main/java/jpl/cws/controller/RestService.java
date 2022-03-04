@@ -397,6 +397,7 @@ public class RestService extends MvcCore {
 		}
 	}
 
+
 	/**
 	 * Constructs Elasticsearch URL
 	 *
@@ -404,9 +405,7 @@ public class RestService extends MvcCore {
 	 * @return fully constructed elasticsearch URL string
 	 */
 	private String constructElasticsearchUrl(String subPath) {
-		String urlString = elasticsearchUseAuth.equalsIgnoreCase("Y")? "https://" : "http://";
-		urlString += elasticsearchHostname + ":" + elasticsearchPort + subPath;
-
+		String urlString = elasticsearchHostname + ":" + elasticsearchPort + subPath;
 		return urlString;
 	}
 
@@ -619,21 +618,21 @@ public class RestService extends MvcCore {
 	public @ResponseBody String doSystemShutdown() {
 		return cwsConsoleService.doSystemShutdown();
 	}
-	
-	
+
+
 	/**
 	 * REST method used to get logs
-	 * 
+	 *
 	 */
 	@RequestMapping(value = "/logs/get/scroll", method = POST, produces="application/json")
 	public @ResponseBody String getLogsScroll(
 			@RequestParam(value = "scrollId") String scrollId) {
 		String urlString = constructElasticsearchUrl("/_search/scroll");
 		String jsonData = "{ \"scroll\" : \"1m\", \"scroll_id\" : \"" + scrollId + "\" }";
-		
+
 		log.trace("REST getLogs query = " + urlString);
 		log.trace("REST getLogs jsonData = " + jsonData);
-		
+
 		try {
 			RestCallResult restCallResult;
 			if (elasticsearchUseAuth()) {
@@ -650,7 +649,7 @@ public class RestService extends MvcCore {
 		} catch (Exception e) {
 			log.error("Problem performing REST call to get log data", e);
 		}
-		
+
 		return "ERROR";
 	}
 	

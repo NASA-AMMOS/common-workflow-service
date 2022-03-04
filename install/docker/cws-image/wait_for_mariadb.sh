@@ -19,7 +19,7 @@ while ! mysql --host="${DB_HOST}" --user="${DB_USER}" --password="${DB_PW}" -e "
     fi;
 done
 
-while ! curl -s http://$ES_HOST:$ES_PORT; do
+while ! curl -s $ES_HOST:$ES_PORT; do
 	sleep 1
 	echo "Retry wait for ES"
 done
@@ -34,4 +34,4 @@ done
 
 exec "$@"
 
-tail -f cws/server/apache-tomcat-*/logs/catalina.out
+tail -f cws/server/apache-tomcat-*/logs/cws.log
