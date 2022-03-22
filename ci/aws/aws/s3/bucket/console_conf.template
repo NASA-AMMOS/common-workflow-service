@@ -1,0 +1,136 @@
+# ---------------------------------------------------------------------------
+#  This is an example properties file that can be used when configuring CWS
+#  for the first time.
+#  
+#  To use:
+#
+#    1)  Fill in the correct values where you see [YourXXX] below, for example
+#        [YourHostname].
+#        The hard-coded values are suggested to be used, but can be changed if
+#        desired.
+# 
+#    2)  Run CWS configuration program with this properties file:
+#        ./configure.sh  example-cws-configuration.properties
+#
+#    For more information, please refer to this page:
+#
+#    https://wiki.jpl.nasa.gov/display/cws/Installation+and+Configuration#InstallationandConfiguration-configuration_options_section
+# ---------------------------------------------------------------------------
+
+cam_server_url=https://atb-ocio-12.jpl.nasa.gov:8443/cam
+cws_ldap_url_default=ldaps://ldap.jpl.nasa.gov:636
+cam_ldap_identity_plugin_class=jpl.cws.core.identity.cam.CamLdapIdentityProviderPlugin
+cam_ldap_security_filter_class=jpl.cws.core.web.CwsCamSecurityFilter
+ldap_identity_plugin_class=org.camunda.bpm.identity.impl.ldap.plugin.LdapIdentityProviderPlugin
+ldap_security_filter_class=jpl.cws.core.web.CwsLdapSecurityFilter
+camunda_security_filter_class=jpl.cws.core.web.CwsCamundaSecurityFilter
+auto_accept_config=y
+startup_autoregister_process_defs=false
+
+# This is the hostname of the machine you are installing CWS (could be a Worker,
+# a Console, or both) on. The name (or less preferably IP address) you use here
+# should be accessible by all other components inthe CWS installation. For JPL
+# installations, the host name should end in ".jpl.nasa.gov",
+# for example: "franklin.jpl.nasa.gov".
+hostname=__CONSOLE_HOST__
+
+# This is the type of installation you are performing
+# (1 = Console and Worker, 2 = Console Only, 3 = Worker Only)
+install_type=2
+
+database_type=mariadb
+
+# This is the hostname where the database is installed.
+# This hostname must be accessible by all Workers and Console
+database_host=__CWS_DB_HOSTNAME__
+
+database_port=3306
+
+# The name of the database schema.
+database_name=cws
+
+# The name of the user that can access, and has CRUD permission to the database
+database_username=cws
+
+# The password for the database user.
+database_password=myawscw5
+
+# The LDAP username for the user that will be the CWS Administrator.
+# This User will have the initial permissions in CWS, and will have the ability
+# to add users and modify permissions.
+# Example:  ghollins
+admin_user=__CWS_ADMIN_USER__
+ 
+# The first and last name, and email address of the CWS Administrator.
+# These fields are only required if using CAMUNDA security
+admin_firstname=First
+admin_lastname=Last
+admin_email=email@jpl.nasa.gov
+
+cws_web_port=38080
+cws_ssl_port=38443
+cws_ajp_port=38009
+cws_shutdown_port=38005
+
+# The host that the CWS platform containing the console is installed on.
+# This configuration option only needs to be specified if installing CWS on a
+# non-console host.
+cws_console_host=__CONSOLE_HOST__
+
+cws_console_ssl_port=38443
+
+# The host that will contain the CWS message broker. Currently this will always
+# be the same as the Console host. If you are installing a Console, enter the
+# same hostname as the "hostname" option. If you are installing a Worker, then
+# enter the hostname of the console.
+amq_host=__CONSOLE_HOST__
+
+amq_port=31616
+cws_amq_jmx_port=37099
+cws_jmx_port=31099
+identity_plugin_type=CAMUNDA
+cws_ldap_url=ldaps://ldap.jpl.nasa.gov:636
+notify_users_email=y
+email_subject=[CWS] You have been assigned a task (CWS_TASK_NAME)
+email_body=fn:CWS_USER_FIRSTNAME<br/>ln:CWS_USER_LASTNAME,<br/>tn:(CWS_TASK_NAME), em:CWS_USER_EMAIL
+smtp_hostname=smtp.jpl.nasa.gov
+smtp_port=25
+
+brand_header=CWS on AWS
+
+# If specified, a name (webapp root) of a web application that will automatically
+# be created inside of the CWS web server. This webapp will be accessible without
+# going through CWS security. Additionally an initial index.html file will
+# automatically be setup under this webapp root. If a project_webapp_root is
+# provided, then logging into CWS will automatically redirect the user to the
+# project webapp root index.html page.
+# Example:  cassini
+project_webapp_root=proj
+
+cws_enable_cloud_autoscaling=y
+startup_autoregister_process_defs=true
+
+# Specifies (comma separated) email addresses that will be used to receive
+# email alerts of major system errors, which include database connection failures,
+# messaging service (JMS) failures, and authentication server connection failures.
+cws_notification_emails=ghollins@jpl.nasa.gov
+
+# Specifies the number of hours that a CWS security token is valid for. After this
+# amount of time it will expire, and the User will be required to authenticate
+# again to get a new one.
+cws_token_expiration_hours=24
+
+# Specifies the amount of history data that the system stores in the database.  Console and
+# all workers MUST specify the same history_level.
+# Options: none, activity, audit, full
+#
+# Refer to this for more details:
+# https://docs.camunda.org/manual/latest/user-guide/process-engine/history/
+history_level=full
+ 
+# Specifies the number of days to keep history data before it is automatically purged.
+# History data includes: Process Instance history, log files, and Elasticsearch indices
+#
+# Warning: Setting this number too high can result in large disk usage over time.
+history_days_to_live=14
+

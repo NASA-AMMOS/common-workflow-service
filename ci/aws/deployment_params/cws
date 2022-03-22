@@ -1,0 +1,35 @@
+#  ami-0b1e62a50a76ac839 is G6.5
+ami="ami-0c8297b76a34a4083"
+
+# dev | sops | gdsit | sstage | etc...
+# should be "dev", unless in a non-dev venue/account
+deploymentVenue="cws"
+
+#
+# SECURITY GROUPS
+#
+workerSg="sg-6d4bda08"
+consoleSg="sg-4103a824"
+dbSg="sg-270ca742"
+
+#
+# SUBNETS
+#
+subnet="subnet-61248216"
+dbSubnet1="subnet-61248216"
+dbSubnet2="subnet-e7ee6982"
+
+#
+# VARIABLES
+#
+workerAmi="${ami}"
+consoleAmi="${ami}"
+securityPlan="644"
+iamPolicy="cws-s3-access"
+missionPhaseName="TEST" #
+pipelineName="cws" # tt7, ort3, atlo, surface, cruise, etc.
+confBucketName="cws-dev"
+
+venue="T"  # Pipeline converts from INSTRUMENT_HOST_ID value.  surface -> _ , cruise -> C , atlo -> A , anything else -> T
+fswVer="AUTO"  # S_FSW | C_FSW | AUTO
+

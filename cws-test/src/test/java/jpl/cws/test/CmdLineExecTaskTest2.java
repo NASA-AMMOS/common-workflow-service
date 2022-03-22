@@ -11,6 +11,7 @@ import jpl.cws.task.TestDelegateExecution;
 import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.impl.el.FixedValue;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -19,6 +20,7 @@ import org.junit.runners.JUnit4;
  * Tests related to CmdLineExecTask
  * 
  */
+@Ignore
 @RunWith(JUnit4.class)
 public class CmdLineExecTaskTest2 {
 

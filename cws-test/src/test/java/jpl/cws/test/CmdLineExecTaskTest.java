@@ -11,15 +11,13 @@ import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 
 /**
  * Tests related to EmailTask
  * 
  */
+@Ignore
 public class CmdLineExecTaskTest extends CwsTestBase {
 
 	@Rule

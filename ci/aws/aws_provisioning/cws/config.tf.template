@@ -1,0 +1,315 @@
+#
+# This configuration is for launching a cloud fleet in the AWS cloud.
+#
+# This sets up the necessary infrastructure for running the:
+#   -- CWS DB
+#   -- CWS Console node
+#   -- One or more CWS Worker nodes (quantity is defined be numWorkers variable)
+#
+
+variable "project"            { default = "proj" }
+variable "subsystem"          { default = "ids" }
+variable "cap"                { default = "pipeline" }
+variable "securityPlan"       { default = "__SECURITY_PLAN__" }
+variable "iamPolicy"          { default = "__IAM_POLICY__" }
+variable "mission_phase_name" { default = "__MISSION_PHASE_NAME__" }
+variable "pipeline_name"      { default = "__PIPELINE_NAME__" }
+variable "venue"              { default = "__VENUE__" }
+variable "fsw_ver"            { default = "__FSW_VER__" }
+variable "deploymentVenue"    { default = "__DEPLOYMENT_VENUE__" }
+variable "accessKey"          { default = "__AWS_ACCESS_KEY__" }
+variable "secretKey"          { default = "__AWS_SECRET_KEY__" }
+variable "token"              { default = "__TOKEN__" }
+variable "cwsAdminUser"       { default = "cws" }
+variable "cwsS3Bucket"        { default = "__S3_CONF_BUCKET__" }
+variable "tag"                { default = "__TAG__" }
+variable "numWorkers"         { default = "__NUM_CWS_WORKERS__" }
+variable "pemFile"            { default = "~/.ssh/cws-core-gov.pem" }
+variable "consoleAmi"         { default = "__CONSOLE_AMI__" }
+variable "workerAmi"          { default = "__WORKER_AMI__" }
+variable "region"             { default = "us-gov-west-1" }
+variable "subnetId"           { default = "__SUBNET__" }
+variable "dbSg"               { default = "__DB_SG__" }
+variable "consoleSg"          { default = "__CONSOLE_SG__" }
+variable "workerSg"           { default = "__WORKER_SG__" }
+
+locals {
+  name_prefix = "${var.project}-${var.venue}-${var.subsystem}-${var.cap}"
+ 
+  default_tags = {
+    Name           = "${local.name_prefix}"
+    Creator        = "ghollins@jpl.nasa.gov"
+    POC            = "ghollins@jpl.nasa.gov"
+    Venue          = "${var.venue}"
+    Project        = "${var.project}"
+    Subsystem      = "${var.subsystem}"
+    Capability     = "${var.cap}"
+    CapVersion     = "0.1"
+    GDSRelease     = "NA"
+    Component      = "NA"
+    SecurityPlanID = "${var.securityPlan}"
+    ExposedWeb     = "false"
+    Experimental   = "false"
+    UserFacing     = "false"
+    CritInfra      = "true"
+    SourceControl  = "NA"
+  }
+}
+
+variable "db_subnet_ids" {
+  default = ["__DB_SUBNET_1__", "__DB_SUBNET_2__"]
+}
+
+variable "dbClass"        { default = "db.t2.large" }
+variable "consoleClass"   { default = "t2.xlarge" }
+variable "workerClass"    { default = "t2.xlarge" }
+
+#
+# THIS VALUE MUST MATCH THE NAME OF THE PEM FILE YOU ARE USING
+# (PREFIX OF PEM FILE NAME)
+#
+variable "keyName"        { default = "cws-core-gov" }
+
+#
+# Database configuration
+#
+variable "dbName"         { default = "cws" }
+variable "dbUser"         { default = "cws" }
+variable "dbPass"         { default = "myawscw5" }
+
+
+variable "engine"         { default = "mariadb" }
+
+variable "engine_version" {
+  description = "Engine version"
+  default = {
+    #mariadb    = "10.0.32"
+    #mariadb    = "10.1.23"
+    mariadb    = "10.2.15"
+    mysql      = "5.7.19"
+  }
+}
+
+#variable "engine_version" {
+#  description = "Engine version"
+#  default = {
+#    mysql    = "5.6.34"
+#     mysql    = "5.7.19"
+#  }
+#}
+
+variable "info_file" {
+  default = "host_info.txt"
+  description = "File records service information. Such as IP address etc"
+}
+variable "console_hostname_file"    { default = "console_hostname.txt" }
+variable "worker_hostnames_file"    { default = "worker_hostnames.txt" }
+variable "db_hostname_file"         { default = "db_hostname.txt" }
+variable "db_instance_id_file"         { default = "db_instance_id.txt" }
+
+provider "aws" {
+  access_key = var.accessKey
+  secret_key = var.secretKey
+  token      = var.token
+  region     = var.region
+}
+
+resource "random_id" "server" {
+  byte_length = 8
+}
+
+#resource "aws_iam_role" "ec2_s3_access_role" {
+#  name               = "s3-role"
+#  assume_role_policy = <<EOF
+#  {
+#    "Version": "2012-10-17",
+#    "Statement": [
+#      {
+#        "Action": "sts:AssumeRole",
+#        "Principal": {
+#          "Service": "ec2.amazonaws.com"
+#        },
+#        "Effect": "Allow",
+#        "Sid": ""
+#      }
+#    ]
+#  }
+#  EOF
+#}
+
+#resource "aws_iam_policy" "policy" {
+#  name        = "test-policy"
+#  description = "A test policy"
+#  policy      = <<-EOF
+#  {
+#      "Version": "2012-10-17",
+#      "Statement": [
+#          {
+#              "Sid": "",
+#              "Effect": "Allow",
+#              "Action": "s3:*",
+#              "Resource": "*"
+#          }
+#      ]
+#  }
+#  EOF
+#}
+
+#resource "aws_iam_policy_attachment" "test-attach" {
+#  name       = "test-attachment"
+#  roles      = ["${aws_iam_role.ec2_s3_access_role.name}"]
+#  policy_arn = aws_iam_policy.policy.arn
+#}
+
+#resource "aws_iam_instance_profile" "test_profile" {
+#  name  = "test_profile"
+#  role = aws_iam_role.ec2_s3_access_role.name
+#}
+
+# -------------------
+# DB PARAMETER GROUP
+# -------------------
+resource "aws_db_parameter_group" "default" {
+  name   = "rds-pg-${var.tag}"
+  family = "mariadb10.2"
+
+  parameter {
+    name  = "tx_isolation"
+    value = "READ-COMMITTED"
+  }
+
+  parameter {
+    name  = "character_set_server"
+    value = "utf8mb4"
+  }
+
+  parameter {
+    name  = "character_set_client"
+    value = "utf8mb4"
+  }
+
+  parameter {
+    apply_method = "pending-reboot"
+    name  = "skip_name_resolve"
+    value = "1"
+  }
+
+  #parameter {
+  #  name = "time_zone"
+  #  value = "US/Pacific"
+  #}
+
+  tags = merge(
+    local.default_tags,
+    map(
+      "Name", "${local.name_prefix}-dbparamgroup-${var.tag}",
+      "Component", "dbparamgroup"
+    )
+  )
+}
+
+# ----------------
+# DB SUBNET GROUP
+# ----------------
+resource "aws_db_subnet_group" "ids_ci_cws_rds_subnet_group" {
+  name        = "ids_ci_cws_rds_subnet_group-${random_id.server.hex}-${var.tag}"
+  description = "group of subnets for IDS CWS testing"
+  subnet_ids  = var.db_subnet_ids
+  tags = merge(
+    local.default_tags,
+    map(
+      "Name", "${local.name_prefix}-dbsubnetgroup",
+      "Component", "dbsubnetgroup"
+    )
+  )
+}
+
+# -----------------
+# THE CWS DATABASE
+# -----------------
+resource "aws_db_instance" "cws-db" {
+  identifier             = "cws-db-${var.tag}"
+  allocated_storage      = "50"
+  engine                 = var.engine
+  engine_version         = lookup(var.engine_version, var.engine)
+  instance_class         = var.dbClass
+  name                   = var.dbName
+  username               = var.dbUser
+  password               = var.dbPass
+  parameter_group_name   = aws_db_parameter_group.default.id
+  vpc_security_group_ids = [var.dbSg]
+  db_subnet_group_name   = aws_db_subnet_group.ids_ci_cws_rds_subnet_group.id
+  provisioner "local-exec" {
+    command = "echo ${aws_db_instance.cws-db.address} > ${var.db_hostname_file} ; echo cws-db-${var.tag} > ${var.db_instance_id_file}"
+  }
+  skip_final_snapshot = true
+  tags = merge(
+    local.default_tags,
+    map(
+      "Name", "${local.name_prefix}-database",
+      "Component", "database"
+    )
+  )
+}
+
+
+# ----------------
+# THE CWS CONSOLE
+# ----------------
+resource "aws_instance" "cws-console" {
+  ami           = var.consoleAmi
+  key_name      = var.keyName
+  connection {
+    private_key = file(var.pemFile)
+    host = "self.public_ip"
+  }
+  instance_type = var.consoleClass
+  subnet_id     = var.subnetId
+  vpc_security_group_ids = ["${var.consoleSg}"]
+  user_data = "INSTALL_TYPE=console&DB_HOST=${aws_db_instance.cws-db.address}&DB_USER=${var.dbUser}&DB_PASS=${var.dbPass}&S3_BUCKET=${var.cwsS3Bucket}&CWS_ADMIN_USER=${var.cwsAdminUser}"
+  iam_instance_profile = var.iamPolicy
+  provisioner "local-exec" {
+    command = "echo ${self.private_ip} > ${var.console_hostname_file} ; echo '\n\n-= I WILL WAIT HERE UNTIL THE CONSOLE WEB SERVER IS UP =-\n\n'; while ! test `curl ${self.private_ip}:38080 -s | grep console | wc -l` = '1'; do sleep 10; echo 'console not up yet...'; done"
+  }
+  depends_on = [aws_db_instance.cws-db]
+  tags = merge(
+    local.default_tags,
+    map(
+      "Name", "${local.name_prefix}-console-${var.tag}",
+      "Component", "console"
+    )
+  )
+}
+
+# ------------------
+# THE CWS WORKER(s)
+# ------------------
+resource "aws_instance" "cws-worker" {
+  ami           = var.workerAmi
+  key_name      = var.keyName
+  connection {
+     private_key = file(var.pemFile)
+     host = "self.public_ip"
+  }
+  instance_type = var.workerClass
+  subnet_id     = var.subnetId
+  vpc_security_group_ids = ["${var.workerSg}"]
+  user_data = "INSTALL_TYPE=worker&DB_HOST=${aws_db_instance.cws-db.address}&DB_USER=${var.dbUser}&DB_PASS=${var.dbPass}&S3_BUCKET=${var.cwsS3Bucket}&CWS_ADMIN_USER=${var.cwsAdminUser}"
+  #tags {
+  #      Name = "cws-worker-${var.tag}-${count.index}"
+  #}
+  iam_instance_profile = var.iamPolicy
+  provisioner "local-exec" {
+    command = "echo ${self.private_ip} >> ${var.worker_hostnames_file}"
+  }
+  depends_on = [aws_instance.cws-console]
+  count = var.numWorkers
+  tags = merge(
+    local.default_tags,
+    map(
+      "Name", "${local.name_prefix}-worker-${var.tag}-${count.index}",
+      "Component", "worker"
+    )
+  )
+}
+
