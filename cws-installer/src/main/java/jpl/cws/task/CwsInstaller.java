@@ -169,6 +169,7 @@ public class CwsInstaller {
 	private static String cws_security_filter_class;
 	private static String startup_autoregister_process_defs;
 	private static String cws_token_expiration_hours;
+	private static String elasticsearch_protocol;
 	private static String elasticsearch_host;
 	private static String elasticsearch_port;
 	private static String elasticsearch_use_auth;
@@ -1064,6 +1065,34 @@ public class CwsInstaller {
 
 	private static void setupElasticsearch() {
 
+		// PROMPT USER FOR ELASTICSEARCH PROTOCOL
+		elasticsearch_protocol = getPreset("elasticsearch_protocol");
+
+		if (cws_installer_mode.equals("interactive")) {
+			if (elasticsearch_protocol == null) {
+
+				String read_elasticsearch_protocol = "";
+
+				while (!read_elasticsearch_protocol.startsWith("https") &&
+					!read_elasticsearch_protocol.startsWith("http")) {
+					read_elasticsearch_protocol = readRequiredLine("Enter the Elasticsearch protocol (be sure to use http or https):  ",
+						"You must enter a protocol");
+				}
+
+				elasticsearch_protocol = read_elasticsearch_protocol.toLowerCase();
+			} else {
+				elasticsearch_protocol = readLine("Enter the Elasticsearch protocol. " +
+					"Default is " + elasticsearch_protocol);
+			}
+		} else {
+			if (elasticsearch_protocol == null) {
+				bailOutMissingOption("elasticsearch_protocol");
+			}
+		}
+
+		log.debug("elasticsearch_protocol: " + elasticsearch_protocol);
+
+
 		// PROMPT USER FOR ELASTICSEARCH HOST
 		elasticsearch_host = getPreset("elasticsearch_host");
 
@@ -1489,7 +1518,8 @@ public class CwsInstaller {
 		print("SMTP host                     = " + cws_smtp_hostname);
 		print("SMTP port                     = " + cws_smtp_port);
 		print("....................................................................................");
-		print("Elasticsearch URL             = " + elasticsearch_host);
+		print("Elasticsearch Protocol        = " + elasticsearch_protocol);
+		print("Elasticsearch Host            = " + elasticsearch_host);
 		print("Elasticsearch Port            = " + elasticsearch_port);
 		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 			print("Elasticsearch User            = " + elasticsearch_username);
@@ -1854,14 +1884,14 @@ public class CwsInstaller {
 	 *
 	 */
 	private static int validateElasticsearch() {
-		print("checking that user provided Elasticsearch (" + elasticsearch_host + ":" + elasticsearch_port + ") is running...");
+		print("checking that user provided Elasticsearch (" + elasticsearch_protocol + "://" + elasticsearch_host + ":" + elasticsearch_port + ") is running...");
 
 		try {
-			String[] cmdArray = new String[] {"curl", "--fail", elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+			String[] cmdArray = new String[] {"curl", "--fail", elasticsearch_protocol + "://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 
 			if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 				// Add auth to curl
-				cmdArray = new String[] {"curl", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+				cmdArray = new String[] {"curl", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, elasticsearch_protocol + "://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 			}
 
 			Process p = Runtime.getRuntime().exec(cmdArray);
@@ -2277,6 +2307,7 @@ public class CwsInstaller {
 		content = content.replace("__CWS_DB_USERNAME__",                 cws_db_username);
 		content = content.replace("__CWS_DB_PASSWORD__",                 cws_db_password);
 		content = content.replace("__CWS_CONSOLE_SSL_PORT__",            cws_console_ssl_port);
+		content = content.replace("__CWS_ES_PROTOCOL__",                 elasticsearch_protocol);
 		content = content.replace("__CWS_ES_HOST__",                     elasticsearch_host);
 		content = content.replace("__CWS_ES_PORT__",                     elasticsearch_port);
 		content = content.replace("__CWS_ES_USE_AUTH__",                 elasticsearch_use_auth);
@@ -2365,6 +2396,7 @@ public class CwsInstaller {
 		// Update clean_es_history.sh file
 		path = Paths.get(config_work_dir + SEP + "clean_es_history.sh");
 		content = getFileContents(path);
+		content = content.replace("__ES_PROTOCOL__",      			elasticsearch_protocol);
 		content = content.replace("__ES_HOST__",      				elasticsearch_host);
 		content = content.replace("__ES_PORT__",  					elasticsearch_port);
 		content = content.replace("__ES_USE_AUTH__",                 elasticsearch_use_auth);
@@ -2507,6 +2539,7 @@ public class CwsInstaller {
 		catalinaLogPath = catalinaLogPath.replace("\\", "/");
 		logstashContent = logstashContent.replace("__CWS_CATALINA_OUT_PATH__", catalinaLogPath);
 
+		logstashContent = logstashContent.replace("__CWS_ES_PROTOCOL__", elasticsearch_protocol);
 		logstashContent = logstashContent.replace("__CWS_ES_HOST__", elasticsearch_host);
 		logstashContent = logstashContent.replace("__CWS_ES_PORT__", elasticsearch_port);
 		if (elasticsearch_use_auth.equalsIgnoreCase(("Y"))) {
@@ -2575,6 +2608,7 @@ public class CwsInstaller {
 		setPreset("metrics_publishing_interval", metrics_publishing_interval);
 		setPreset("cws_notification_emails", cws_notification_emails);
 		setPreset("cws_token_expiration_hours", cws_token_expiration_hours);
+		setPreset("elasticsearch_protocol", elasticsearch_protocol);
 		setPreset("elasticsearch_host", elasticsearch_host);
 		setPreset("elasticsearch_port", elasticsearch_port);
 		setPreset("elasticsearch_use_auth", elasticsearch_use_auth);

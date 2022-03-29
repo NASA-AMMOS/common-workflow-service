@@ -39,6 +39,7 @@ services:
        - DB_HOST=__DB_HOST__
        - DB_USER=root
        - DB_PW=test
+       - ES_PROTOCOL=__ES_PROTOCOL__
        - ES_HOST=__ES_HOST__
        - ES_PORT=9200
     volumes:
