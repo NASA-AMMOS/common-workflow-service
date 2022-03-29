@@ -36,11 +36,8 @@ cd camunda-modeler-*-linux-x64/resources
 mkdir element-templates
 cd element-templates
 
-if [[ ! -z `find "../../../" -name "elements.json"` ]]; then
-    cp ../../../elements.json .
-else
-    cp ../../../../../cws-modeler/install/modeler-config/elements.json .
-fi
+pwd
+cp ../../../elements.json .
 
 cd ../..
 ./camunda-modeler &
