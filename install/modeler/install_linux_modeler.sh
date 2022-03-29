@@ -35,7 +35,12 @@ rm camunda*.tar.gz
 cd camunda-modeler-*-linux-x64/resources
 mkdir element-templates
 cd element-templates
-cp ../../../cws-modeler/install/modeler-config/elements.json .
+
+if [[ ! -z `find "../../../" -name "elements.json"` ]]; then
+    cp ../../../elements.json .
+else
+    cp ../../../../../cws-modeler/install/modeler-config/elements.json .
+fi
 
 cd ../..
 ./camunda-modeler &

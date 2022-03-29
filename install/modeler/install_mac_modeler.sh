@@ -55,7 +55,12 @@ mv * /Applications/
 #sudo spctl --master-enable
 
 # Add elements file for custom templates
-cp ../../../cws-modeler/install/modeler-config/elements.json .
+if [[ ! -z `find "../" -name "elements.json"` ]]; then
+    cp ../elements.json .
+else
+    cp ../../../cws-modeler/install/modeler-config/elements.json .
+fi
+
 rm -f ~/Library/Application\ Support/camunda-modeler/resources/element-templates/elements.json
 mkdir -p ~/Library/Application\ Support/camunda-modeler/resources/element-templates/
 mv elements.json ~/Library/Application\ Support/camunda-modeler/resources/element-templates/
