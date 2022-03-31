@@ -88,3 +88,15 @@ Using CATALINA_TMPDIR: /Users/haile/Documents/common-workflow-service-repos/comm
 Using JRE_HOME:        /Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home
 Using CLASSPATH:       /Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/worker1/cws/server/apache-tomcat-9.0.33/log4j2/lib/*:/Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/worker1/cws/server/apache-tomcat-9.0.33/log4j2/conf:/Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/worker1/cws/server/apache-tomcat-9.0.33/bin/bootstrap.jar:/Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/worker1/cws/server/apache-tomcat-9.0.33/bin/tomcat-juli.jar
 Tomcat started.
+Using CATALINA_BASE:   /Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/console-only/cws/server/apache-tomcat-9.0.33
+Using CATALINA_HOME:   /Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/console-only/cws/server/apache-tomcat-9.0.33
+Using CATALINA_TMPDIR: /Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/console-only/cws/server/apache-tomcat-9.0.33/temp
+Using JRE_HOME:        /Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home
+Using CLASSPATH:       /Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/console-only/cws/server/apache-tomcat-9.0.33/log4j2/lib/*:/Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/console-only/cws/server/apache-tomcat-9.0.33/log4j2/conf:/Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/console-only/cws/server/apache-tomcat-9.0.33/bin/bootstrap.jar:/Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/console-only/cws/server/apache-tomcat-9.0.33/bin/tomcat-juli.jar
+Tomcat started.
+Using CATALINA_BASE:   /Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/worker1/cws/server/apache-tomcat-9.0.33
+Using CATALINA_HOME:   /Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/worker1/cws/server/apache-tomcat-9.0.33
+Using CATALINA_TMPDIR: /Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/worker1/cws/server/apache-tomcat-9.0.33/temp
+Using JRE_HOME:        /Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home
+Using CLASSPATH:       /Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/worker1/cws/server/apache-tomcat-9.0.33/log4j2/lib/*:/Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/worker1/cws/server/apache-tomcat-9.0.33/log4j2/conf:/Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/worker1/cws/server/apache-tomcat-9.0.33/bin/bootstrap.jar:/Users/haile/Documents/common-workflow-service-repos/common-workflow-service/dist/worker1/cws/server/apache-tomcat-9.0.33/bin/tomcat-juli.jar
+Tomcat started.

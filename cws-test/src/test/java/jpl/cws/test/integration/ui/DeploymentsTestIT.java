@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -25,6 +26,7 @@ import jpl.cws.test.WebTestUtil;
  * @author hasan
  *
  */
+@Ignore
 @RunWith(JUnit4.class)
 public class DeploymentsTestIT extends WebTestUtil {
 	private static final Logger log = LoggerFactory.getLogger(DeploymentsTestIT.class);

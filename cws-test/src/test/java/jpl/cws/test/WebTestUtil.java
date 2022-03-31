@@ -119,7 +119,9 @@ public class WebTestUtil {
 
 	protected void initChromeDriver() {
 
-		  ChromeOptions chromeOptions = new ChromeOptions();
+		System.setProperty("webdriver.chrome.driver", "/Users/haile/Desktop/chromedriver");
+
+		ChromeOptions chromeOptions = new ChromeOptions();
 
 		  // Turn on headless mode for Bamboo
 		  chromeOptions.setHeadless(true);
@@ -171,6 +173,7 @@ public class WebTestUtil {
 
 	protected void gotoLoginPage() {
 		log.info("navigating to the login page...");
+		log.info("--- logininfo --- : " + "http://"+HOSTNAME+":"+PORT);
 
 		driver.get("http://"+HOSTNAME+":"+PORT);
 		driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
