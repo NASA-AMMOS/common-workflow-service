@@ -10,6 +10,15 @@ pipeline {
         stage('Start Stages') {
             steps {
                 echo "--Stages Started--"
+                pwd
+
+                sh """
+                pwd
+                """
+
+                sh """
+                ../.././start.sh
+                """
             }
         }
 
@@ -31,14 +40,14 @@ pipeline {
             }
         }
 
-        stage('Test Script') {
+        stage('Test Script: run_ci.sh') {
             steps {
                 sh """
                 pwd
                 """
 
                 sh """
-                ./start.sh
+                ../.././run_ci.sh
                 """
             }
         }
