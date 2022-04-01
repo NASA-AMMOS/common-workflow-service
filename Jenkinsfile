@@ -40,15 +40,61 @@ pipeline {
             }
         }
 
-        stage('Test Script: run_ci.sh') {
+        stage('Run CI Script: run_ci.sh') {
             steps {
                 sh """
                 pwd
                 """
 
                 sh """
-                ../.././run_ci.sh
+                cp ../../run_ci_test.sh .
                 """
+
+
+                sh """
+                ./run_ci_test.sh
+                """
+            }
+        }
+
+
+        stage('CI Completed') {
+            steps {
+                sh """
+                pwd
+                """
+
+                sh """
+                rm run_ci_test.sh
+                """
+
+
+                sh """
+                ./stop_cws.sh
+                """
+            }
+        }
+
+
+
+
+
+        stage('Integration & Unit Tests') {
+            steps {
+                sh """
+                pwd
+                """
+
+            }
+        }
+
+
+        stage('End of Pipeline') {
+            steps {
+                sh """
+                pwd
+                """
+
             }
         }
 
