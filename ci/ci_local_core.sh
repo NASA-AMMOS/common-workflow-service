@@ -8,8 +8,8 @@ INTERNET_TYPE=0
 LOCAL_HOSTNAME=""
 
 printf "What type of internet connection are you currently using?\n"
-printf "    1) JPL wifi\n"
-printf "    2) JPL wired internet\n"
+printf "    1) Wifi\n"
+printf "    2) Wired internet\n"
 printf "    3) Off-lab VPN\n"
 printf "    4) Manually enter hostname\n"
 
@@ -56,7 +56,7 @@ print "Running ci_local.sh with hostname of: ${LOCAL_HOSTNAME}..."
 
 ${ROOT}/../stop_dev.sh | tee -a ${ROOT}/ci_log.txt
 
-bash -c "${ROOT}/ci.sh NA cws_ci miplci1 3306 cws_ci ghollins mycw5 n camunda ${LOCAL_HOSTNAME} 'cws_ci@jpl.nasa.gov' 'Continuous' 'Integration' 'cws_ci@jpl.nasa.gov'" | tee -a ${ROOT}/ci_log.txt
+bash -c "${ROOT}/ci.sh NA cws_ci localhost 3306 cws_ci user password n camunda ${LOCAL_HOSTNAME} 'email@address' 'Continuous' 'Integration' 'email@address'" | tee -a ${ROOT}/ci_log.txt
 
 cd ${ROOT}/..
 
