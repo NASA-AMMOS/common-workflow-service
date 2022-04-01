@@ -5,8 +5,6 @@ ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Create a file that stores local hostname
 echo "$THIS_HOSTNAME" > ${ROOT}/../cws-test/src/test/resources/hostname.txt
 
-
-
 USER=${2}
 DB_TYPE=${3}
 DB_HOST=${4}
@@ -32,15 +30,10 @@ NUM_WORKERS=${21}
 WORKER_ABANDONED_DAYS=${22}
 
 
-
-
-
 source ${ROOT}/../utils.sh
 
 
-
 cat > ci_console.conf.template <<- EOF
-
 cam_server_url=NA
 cws_ldap_url_default=ldaps://localhost:636
 cam_ldap_identity_plugin_class=jpl.cws.core.identity.cam.CamLdapIdentityProviderPlugin
@@ -98,15 +91,10 @@ default_cws_auth_scheme=CAMUNDA
 default_history_level=full
 default_shutdown_port=38005
 metrics_publishing_interval=10
-
 EOF
 
 
-
-
-
 cat > ci_worker.conf.template <<- EOF
-
 cam_server_url=NA
 cws_ldap_url_default=ldaps://localhost:636
 cam_ldap_identity_plugin_class=jpl.cws.core.identity.cam.CamLdapIdentityProviderPlugin
@@ -159,9 +147,7 @@ aws_cloudwatch_endpoint=monitoring.us-west-1.amazonaws.com
 default_history_level=full
 default_shutdown_port=38005
 metrics_publishing_interval=10
-
 EOF
-
 
 
 # --------------------------------------------
