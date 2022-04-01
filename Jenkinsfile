@@ -1,16 +1,11 @@
 pipeline {
-    agent {
-        node {
-            label 'miplci3.jpl.nasa.gov'
-        }
-    }
+    agent any
 
     stages {
 
         stage('Start Stages') {
             steps {
                 echo "--Stages Started--"
-                pwd
 
                 sh """
                 pwd
@@ -40,7 +35,7 @@ pipeline {
             }
         }
 
-        stage('Run CI Script: run_ci_test.sh') {
+        stage('Run CI Script: run_ci.sh') {
             steps {
                 sh """
                 pwd
@@ -50,6 +45,9 @@ pipeline {
                 cp ../../run_ci_test.sh .
                 """
 
+                sh """
+                chmod u+x run_ci_test.sh
+                """
 
                 sh """
                 ./run_ci_test.sh
@@ -68,15 +66,11 @@ pipeline {
                 rm run_ci_test.sh
                 """
 
-
                 sh """
-                ./stop_cws.sh
+                ./stop_dev.sh
                 """
             }
         }
-
-
-
 
 
         stage('Integration & Unit Tests') {
@@ -100,3 +94,4 @@ pipeline {
 
     }
 }
+
