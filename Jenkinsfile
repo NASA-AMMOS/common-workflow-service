@@ -49,6 +49,9 @@ pipeline {
                 cp ../../run_ci_test.sh .
                 """
 
+                sh """
+                chmod u+x run_ci_test.sh
+                """
 
                 sh """
                 ./run_ci_test.sh
@@ -66,7 +69,6 @@ pipeline {
                 sh """
                 rm run_ci_test.sh
                 """
-
 
                 sh """
                 ./stop_cws.sh
