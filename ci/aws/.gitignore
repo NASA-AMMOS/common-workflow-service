@@ -1,6 +1,0 @@
-all_hostnames.txt
-cookies.txt
-aws_provisioning/cws/aws_state/
-terraform.log
-auto_input.dat
-aws_provisioning/cws/config.tf

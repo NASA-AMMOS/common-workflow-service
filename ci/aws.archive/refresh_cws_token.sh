@@ -1,1 +1,0 @@
-../../install/refresh_cws_token.sh
