@@ -10,7 +10,6 @@ pipeline {
         stage('Start Stages') {
             steps {
                 echo "--Stages Started--"
-                pwd
 
                 sh """
                 pwd
