@@ -1,9 +1,5 @@
 pipeline {
-    agent {
-        node {
-            label 'miplci3.jpl.nasa.gov'
-        }
-    }
+    agent any
 
     stages {
 
