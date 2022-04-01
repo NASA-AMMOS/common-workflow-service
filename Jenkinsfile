@@ -71,7 +71,7 @@ pipeline {
                 """
 
                 sh """
-                ./stop_cws.sh
+                ./stop_dev.sh
                 """
             }
         }
