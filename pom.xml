@@ -56,7 +56,7 @@
 		<joda-time.version>2.1</joda-time.version>
 		<junit.version>4.13.1</junit.version>
 		<jython-standalone.version>2.7.1b3</jython-standalone.version>
-		<mariadb-java-client.version>2.7.2</mariadb-java-client.version>
+		<mariadb-java-client.version>2.7.5</mariadb-java-client.version>
 
 		<maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
 		<maven-dependency-plugin.version>3.0.1</maven-dependency-plugin.version>
@@ -67,7 +67,7 @@
 		<maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
 		<mockito.version>1.9.5</mockito.version>
 		<mybatis.version>3.5.3</mybatis.version>
-		<mysql-connector.version>8.0.16</mysql-connector.version>
+		<mysql-connector.version>8.0.28</mysql-connector.version>
 		<hikaricp.version>4.0.3</hikaricp.version>
 		<phantomjsdriver.version>1.0.4</phantomjsdriver.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -78,7 +78,7 @@
 		<log4j.version>2.17.1</log4j.version>
 		<slf4j-log4j2-bind.version>2.17.1</slf4j-log4j2-bind.version>
 		<skip.integration.tests>false</skip.integration.tests>
-		<spring.framework.version>4.3.23.RELEASE</spring.framework.version>
+		<spring.framework.version>5.3.18</spring.framework.version>
 		<surefire.version>2.22.0</surefire.version>
 		<tomcat-catalina.version>9.0.33</tomcat-catalina.version>
 		<urlrewritefilter.version>4.0.3</urlrewritefilter.version>
