@@ -58,7 +58,6 @@ else
     find "${ROOT}/" -mindepth 1 \
       -not -name "configure.sh" \
       -not -name "configuration.properties" \
-      -not -name "${CONFIG_FILE_BASENAME}" \
       -not -name "*cws-process-initiators*" \
       -not -path "*.backups" \
       -not -path "*.backups/*" \
@@ -67,6 +66,14 @@ else
       -type f \
       -exec rm -r {} \; &> /dev/null
     echo "done."
+
+    # Sync CONFIG_FILE used from inside ROOT/
+    CONFIG_FILE_DIR="$(cd "$(dirname "${CONF_FILE}")"; pwd)/$(basename "${CONF_FILE}")"
+
+    if [[ "${CONFIG_FILE_DIR}" == "${ROOT}/${CONFIG_FILE_BASENAME}" ]]; then
+        echo "Found config file in cws root."
+        rsync -a "${BACKUP_CURR}/${CONFIG_FILE_BASENAME}" "${ROOT}/"
+    fi
 
     # Sync files back in from clean CWS distribution, but don't overwrite anything we left intentionally
     rsync -a --ignore-existing "${BACKUP_CLEAN}/" "${ROOT}/"
