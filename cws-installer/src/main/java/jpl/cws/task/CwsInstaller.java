@@ -1080,9 +1080,16 @@ public class CwsInstaller {
 				}
 
 				elasticsearch_protocol = read_elasticsearch_protocol.toLowerCase();
+
+				if (elasticsearch_protocol.startsWith("https")) {
+					elasticsearch_protocol = "https://";
+				}
+				if (elasticsearch_protocol.startsWith("http")) {
+					elasticsearch_protocol = "http://";
+				}
+
 			} else {
-				elasticsearch_protocol = readLine("Enter the Elasticsearch protocol. " +
-					"Default is " + elasticsearch_protocol);
+				elasticsearch_protocol = readLine("Enter the Elasticsearch protocol. " + "Default is " + elasticsearch_protocol + ": ", elasticsearch_protocol);
 			}
 		} else {
 			if (elasticsearch_protocol == null) {
@@ -1101,16 +1108,20 @@ public class CwsInstaller {
 
 				String read_elasticsearch_host = "";
 
-				while (!read_elasticsearch_host.startsWith("https://") &&
-						!read_elasticsearch_host.startsWith("http://")) {
-					read_elasticsearch_host = readRequiredLine("Enter the Elasticsearch host (be sure to include protocol in URL: http:// or https://):  ",
+				read_elasticsearch_host = readRequiredLine("Enter the Elasticsearch host:  ",
 							"You must enter a hostname");
-				}
 
 				elasticsearch_host = read_elasticsearch_host.toLowerCase();
+
+				if (elasticsearch_host.startsWith("https://")) {
+					elasticsearch_host.replaceAll("http://", "");
+				}
+				if (elasticsearch_host.startsWith("http://")) {
+					elasticsearch_host.replaceAll("http://", "");
+				}
+
 			} else {
-				elasticsearch_host = readLine("Enter the Elasticsearch host. " +
-						"Default is " + elasticsearch_host + ": ", elasticsearch_host);
+				elasticsearch_host = readLine("Enter the Elasticsearch host. " + "Default is " + elasticsearch_host + ": ", elasticsearch_host);
 			}
 		} else {
 			if (elasticsearch_host == null) {
@@ -1884,14 +1895,14 @@ public class CwsInstaller {
 	 *
 	 */
 	private static int validateElasticsearch() {
-		print("checking that user provided Elasticsearch (" + elasticsearch_protocol + "://" + elasticsearch_host + ":" + elasticsearch_port + ") is running...");
+		print("checking that user provided Elasticsearch (" + elasticsearch_protocol + elasticsearch_host + ":" + elasticsearch_port + ") is running...");
 
 		try {
-			String[] cmdArray = new String[] {"curl", "--fail", elasticsearch_protocol + "://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+			String[] cmdArray = new String[] {"curl", "--fail", elasticsearch_protocol + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 
 			if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 				// Add auth to curl
-				cmdArray = new String[] {"curl", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, elasticsearch_protocol + "://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+				cmdArray = new String[] {"curl", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, elasticsearch_protocol + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 			}
 
 			Process p = Runtime.getRuntime().exec(cmdArray);
@@ -1907,9 +1918,9 @@ public class CwsInstaller {
 				return 1;
 			}
 
-			if (!(elasticsearch_host.startsWith("https://") || elasticsearch_host.startsWith("http://")) ) {
+			if (!(elasticsearch_protocol.startsWith("https://") || elasticsearch_protocol.startsWith("http://")) ) {
 				print("   [WARNING]");
-				print("       It was determined that the user provided Elasticsearch endpoint '" + elasticsearch_host + "' did not properly set or include protocol 'http://' OR 'https://'");
+				print("       It was determined that the user provided Elasticsearch endpoint protocol '" + elasticsearch_protocol + "' did not properly set or include protocol 'http://' OR 'https://'");
 				print("");
 				return 1;
 			}
