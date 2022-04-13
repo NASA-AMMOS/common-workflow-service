@@ -73,7 +73,7 @@ else
     # Sync CONFIG_FILE used from inside ROOT/
     if [[ ${CONFIG_FILE_BASENAME} != "" && "${CONFIG_FILE_DIR}" == "${ROOT}/${CONFIG_FILE_BASENAME}" ]]; then
         echo "Found config props file in cws root: '${CONFIG_FILE_BASENAME}' "
-        rsync -a "${BACKUP_CURR}/${CONFIG_FILE_BASENAME}" "${ROOT}/"
+        rsync -a --ignore-existing "${BACKUP_CURR}/${CONFIG_FILE_BASENAME}" "${ROOT}/"
     fi
 
     # Sync files back in from clean CWS distribution, but don't overwrite anything we left intentionally
