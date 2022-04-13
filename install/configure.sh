@@ -53,6 +53,9 @@ else
         CONFIG_FILE_BASENAME=$(basename ${CONF_FILE})
     fi
 
+    CONFIG_FILE_DIR="$(cd "$(dirname "${CONF_FILE}")"; pwd)/$(basename "${CONF_FILE}")"
+    echo "${CONFIG_FILE_DIR}"
+
     # Due to quirks in MacOS file deletion, this is actually the safest way to delete everything
     echo -n "Cleaning out CWS distribution files (this may take a while)..."
     find "${ROOT}/" -mindepth 1 \
@@ -68,10 +71,8 @@ else
     echo "done."
 
     # Sync CONFIG_FILE used from inside ROOT/
-    CONFIG_FILE_DIR="$(cd "$(dirname "${CONF_FILE}")"; pwd)/$(basename "${CONF_FILE}")"
-
-    if [[ "${CONFIG_FILE_DIR}" == "${ROOT}/${CONFIG_FILE_BASENAME}" ]]; then
-        echo "Found config file in cws root."
+    if [[ ${CONFIG_FILE_BASENAME} != "" && "${CONFIG_FILE_DIR}" == "${ROOT}/${CONFIG_FILE_BASENAME}" ]]; then
+        echo "Found config props file in cws root: '${CONFIG_FILE_BASENAME}' "
         rsync -a "${BACKUP_CURR}/${CONFIG_FILE_BASENAME}" "${ROOT}/"
     fi
 
@@ -140,12 +141,12 @@ else
         exit 1
     fi
 
-	print "Using installation presets provided from ${CONF_FILE}..."
+	  print "Using installation presets provided from ${CONF_FILE}..."
 
     if [[ ! "${CONF_FILE}" -ef "${CWS_INSTALLER_PRESET_FILE}" ]]; then
 	    # Merge provided configuration with installer presets (defaults)
 	    cat ${CONF_FILE} ${ROOT}/config/installerPresets.properties | awk -F= '!a[$1]++' > ${CWS_INSTALLER_PRESET_FILE}
-	fi
+	  fi
 fi
 
 # --------------------------------------------
