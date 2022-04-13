@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 	<artifactId>common-workflow-service</artifactId>
@@ -56,7 +56,7 @@
 		<joda-time.version>2.1</joda-time.version>
 		<junit.version>4.13.1</junit.version>
 		<jython-standalone.version>2.7.1b3</jython-standalone.version>
-		<mariadb-java-client.version>2.7.5</mariadb-java-client.version>
+		<mariadb-java-client.version>2.7.2</mariadb-java-client.version>
 
 		<maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
 		<maven-dependency-plugin.version>3.0.1</maven-dependency-plugin.version>
@@ -73,16 +73,17 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<quartz.version>2.3.2</quartz.version>
 		<selenium.version>3.14.0</selenium.version>
-		<servlet-api.version>3.1.0</servlet-api.version>
-<!--		<slf4j.version>1.7.32</slf4j.version>-->
+		<servlet-api.version>4.0.1</servlet-api.version>
+		<!--		<slf4j.version>1.7.32</slf4j.version>-->
 		<log4j.version>2.17.1</log4j.version>
 		<slf4j-log4j2-bind.version>2.17.1</slf4j-log4j2-bind.version>
 		<skip.integration.tests>false</skip.integration.tests>
-		<spring.framework.version>5.3.18</spring.framework.version>
+		<spring.framework.version>5.2.20.RELEASE</spring.framework.version>
+		<spring-webmvc.version>5.2.20.RELEASE</spring-webmvc.version>
 		<surefire.version>2.22.0</surefire.version>
 		<tomcat-catalina.version>9.0.33</tomcat-catalina.version>
 		<urlrewritefilter.version>4.0.3</urlrewritefilter.version>
-		<xbean-spring.version>3.17</xbean-spring.version>
+		<xbean-spring.version>4.20</xbean-spring.version>
 		<xmlunit.version>2.6.2</xmlunit.version>
 	</properties>
 
@@ -165,13 +166,13 @@
 			</dependency>
 
 			<!-- CAMUNDA -->
-            <dependency>
-                <groupId>org.camunda.bpm</groupId>
-                <artifactId>camunda-bom</artifactId>
-                <version>${camunda.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
+			<dependency>
+				<groupId>org.camunda.bpm</groupId>
+				<artifactId>camunda-bom</artifactId>
+				<version>${camunda.version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
 
 			<dependency>
 				<groupId>org.camunda.spin</groupId>
@@ -186,13 +187,13 @@
 				<version>${camunda.version}</version>
 			</dependency>
 
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-framework-bom</artifactId>
-                <version>${spring.framework.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-framework-bom</artifactId>
+				<version>${spring.framework.version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
 
 			<dependency>
 				<groupId>org.camunda.bpm</groupId>
@@ -200,8 +201,8 @@
 				<version>${camunda.version}</version>
 				<exclusions>
 					<!--<exclusion>-->
-						<!--<artifactId>*</artifactId>-->
-						<!--<groupId>org.springframework</groupId>-->
+					<!--<artifactId>*</artifactId>-->
+					<!--<groupId>org.springframework</groupId>-->
 					<!--</exclusion>-->
 					<exclusion>
 						<groupId>org.slf4j</groupId>
@@ -223,10 +224,10 @@
 				<artifactId>camunda-engine-spring</artifactId>
 				<version>${camunda.version}</version>
 				<!--<exclusions>-->
-					<!--<exclusion>-->
-						<!--<artifactId>*</artifactId>-->
-						<!--<groupId>org.springframework</groupId>-->
-					<!--</exclusion>-->
+				<!--<exclusion>-->
+				<!--<artifactId>*</artifactId>-->
+				<!--<groupId>org.springframework</groupId>-->
+				<!--</exclusion>-->
 				<!--</exclusions>-->
 			</dependency>
 
@@ -235,10 +236,10 @@
 				<artifactId>camunda-identity-ldap</artifactId>
 				<version>${camunda.version}</version>
 				<!--<exclusions>-->
-					<!--<exclusion>-->
-						<!--<artifactId>*</artifactId>-->
-						<!--<groupId>org.springframework</groupId>-->
-					<!--</exclusion>-->
+				<!--<exclusion>-->
+				<!--<artifactId>*</artifactId>-->
+				<!--<groupId>org.springframework</groupId>-->
+				<!--</exclusion>-->
 				<!--</exclusions>-->
 				<scope>provided</scope>
 			</dependency>
@@ -395,7 +396,7 @@
 				<version>1.0.1</version>
 			</dependency>
 			<dependency>
-			<groupId>org.apache.geronimo.specs</groupId>
+				<groupId>org.apache.geronimo.specs</groupId>
 				<artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
 				<version>2.0.0</version>
 			</dependency>
@@ -425,6 +426,11 @@
 			<!-- Spring Framework -->
 			<dependency>
 				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>${spring.framework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
 				<artifactId>spring-context</artifactId>
 				<version>${spring.framework.version}</version>
 			</dependency>
@@ -435,8 +441,13 @@
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
-				<artifactId>spring-webmvc</artifactId>
+				<artifactId>spring-beans</artifactId>
 				<version>${spring.framework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-webmvc</artifactId>
+				<version>${spring-webmvc.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -515,10 +526,10 @@
 				<version>1.1</version>
 				<scope>test</scope>
 				<!--<exclusions>-->
-					<!--<exclusion>-->
-						<!--<artifactId>*</artifactId>-->
-						<!--<groupId>org.springframework</groupId>-->
-					<!--</exclusion>-->
+				<!--<exclusion>-->
+				<!--<artifactId>*</artifactId>-->
+				<!--<groupId>org.springframework</groupId>-->
+				<!--</exclusion>-->
 				<!--</exclusions>-->
 			</dependency>
 
