@@ -171,6 +171,7 @@ public class CwsInstaller {
 	private static String cws_token_expiration_hours;
 	private static String elasticsearch_protocol;
 	private static String elasticsearch_host;
+	private static String elasticsearch_host_temp;
 	private static String elasticsearch_port;
 	private static String elasticsearch_use_auth;
 	private static String elasticsearch_username;
@@ -1072,7 +1073,6 @@ public class CwsInstaller {
 			if (elasticsearch_protocol == null) {
 
 				String read_elasticsearch_protocol = "";
-
 				while (!read_elasticsearch_protocol.startsWith("https") &&
 					!read_elasticsearch_protocol.startsWith("http")) {
 					read_elasticsearch_protocol = readRequiredLine("Enter the Elasticsearch protocol (be sure to use http or https):  ",
@@ -1080,20 +1080,28 @@ public class CwsInstaller {
 				}
 
 				elasticsearch_protocol = read_elasticsearch_protocol.toLowerCase();
-
 				if (elasticsearch_protocol.startsWith("https")) {
 					elasticsearch_protocol = "https://";
 				}
 				if (elasticsearch_protocol.startsWith("http")) {
 					elasticsearch_protocol = "http://";
 				}
-
 			} else {
 				elasticsearch_protocol = readLine("Enter the Elasticsearch protocol. " + "Default is " + elasticsearch_protocol + ": ", elasticsearch_protocol);
 			}
 		} else {
 			if (elasticsearch_protocol == null) {
 				bailOutMissingOption("elasticsearch_protocol");
+			}
+
+			elasticsearch_protocol = elasticsearch_protocol.toLowerCase();
+			if (elasticsearch_protocol.startsWith("https")) {
+				elasticsearch_protocol = "https://";
+			} else if (elasticsearch_protocol.startsWith("http")) {
+				elasticsearch_protocol = "http://";
+			} else {
+				bailOutWithMessage("ERROR: elasticsearch_protocol config input is '" +  elasticsearch_protocol
+					+ "' ... Be sure to use 'http' or 'https' for elasticsearch_protocol configuration.");
 			}
 		}
 
@@ -1107,19 +1115,19 @@ public class CwsInstaller {
 			if (elasticsearch_host == null) {
 
 				String read_elasticsearch_host = "";
-
 				read_elasticsearch_host = readRequiredLine("Enter the Elasticsearch host:  ",
 							"You must enter a hostname");
 
 				elasticsearch_host = read_elasticsearch_host.toLowerCase();
-
 				if (elasticsearch_host.startsWith("https://")) {
-					elasticsearch_host.replaceAll("http://", "");
-				}
-				if (elasticsearch_host.startsWith("http://")) {
-					elasticsearch_host.replaceAll("http://", "");
+					elasticsearch_host_temp = elasticsearch_host;
+					elasticsearch_host = elasticsearch_host.replaceAll("https://", "");
 				}
 
+				if (elasticsearch_host.startsWith("http://")) {
+					elasticsearch_host_temp = elasticsearch_host;
+					elasticsearch_host = elasticsearch_host.replaceAll("http://", "");
+				}
 			} else {
 				elasticsearch_host = readLine("Enter the Elasticsearch host. " + "Default is " + elasticsearch_host + ": ", elasticsearch_host);
 			}
@@ -1127,9 +1135,20 @@ public class CwsInstaller {
 			if (elasticsearch_host == null) {
 				bailOutMissingOption("elasticsearch_host");
 			}
+
+			elasticsearch_host = elasticsearch_host.toLowerCase();
+			if (elasticsearch_host.startsWith("https://")) {
+				elasticsearch_host_temp = elasticsearch_host;
+				elasticsearch_host = elasticsearch_host.replaceAll("https://", "");
+			}
+			if (elasticsearch_host.startsWith("http://")) {
+				elasticsearch_host_temp = elasticsearch_host;
+				elasticsearch_host = elasticsearch_host.replaceAll("http://", "");
+			}
 		}
 
 		log.debug("elasticsearch_host: " + elasticsearch_host);
+
 
 		// PROMPT USER FOR ELASTICSEARCH PORT
 		elasticsearch_port = getPreset("elasticsearch_port");
@@ -1911,16 +1930,29 @@ public class CwsInstaller {
 			//
 			p.waitFor();
 
-			if (p.exitValue() != 0) {
+			if (!(elasticsearch_protocol.startsWith("https://") || elasticsearch_protocol.startsWith("http://")) ) {
 				print("   [WARNING]");
-				print("       It was determined that the user provided Elasticsearch is not running or is inaccessible.");
+				print("       It was determined that the user provided Elasticsearch endpoint protocol '" + elasticsearch_protocol + "' did not properly set or protocol to 'http://' OR 'https://'");
 				print("");
 				return 1;
 			}
 
-			if (!(elasticsearch_protocol.startsWith("https://") || elasticsearch_protocol.startsWith("http://")) ) {
+			if (elasticsearch_protocol == "http://" && elasticsearch_host_temp.startsWith("https://") ||
+				elasticsearch_protocol == "https://" && elasticsearch_host_temp.startsWith("http://")) {
 				print("   [WARNING]");
-				print("       It was determined that the user provided Elasticsearch endpoint protocol '" + elasticsearch_protocol + "' did not properly set or include protocol 'http://' OR 'https://'");
+				print("       It was determined that the user provided  ");
+				print("          elasticsearch_protocol='" + elasticsearch_protocol + "'  ");
+				print("            and  ");
+				print("          elasticsearch_host='" + elasticsearch_host_temp + "'  ");
+				print("       have mismatched protocol values. ");
+				print("   [SETUP RESOLUTION] ");
+				print("       CWS Installation will default to using given elasticsearch_protocol value: '" + elasticsearch_protocol + "' ");
+				print("");
+			}
+
+			if (p.exitValue() != 0) {
+				print("   [WARNING]");
+				print("       It was determined that the user provided Elasticsearch is not running or is inaccessible.");
 				print("");
 				return 1;
 			}

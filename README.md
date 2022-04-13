@@ -67,8 +67,10 @@ _In a different terminal window `cd` into root of **common-workflow-service** fo
 
 For development we tend to create our own separate build script `<personal-dev.sh>` (firstinitial-lastname.sh), i.e.:`jsmith.sh`, that calls `dev.sh`. Here's an template for your personal build script that will work for development on a local machine:
 
-* Correctly set the Elasticsearch configuration within your personal script by including the proper protocol `http://` or `https://` in the Elasticsearch endpoint.
-    * Example: `ES_HOST="http://localhost"`
+* Correctly set the Elasticsearch configuration within your personal script by assigning the proper protocol, `http://` or `https://`, to `ES_PROTOCOL` with Elasticsearch hostname assigned to `ES_HOST`.
+    * Example: 
+      * `ES_PROTOCOL="http://"`
+      * `ES_HOST="locahost"`
 
 ```
 #File: jsmith.sh
@@ -103,7 +105,8 @@ ADMIN_LAST="{last}"
 ADMIN_EMAIL="{email}"
 
 # ES config
-ES_HOST="http://localhost"
+ES_PROTOCOL="http://"  # options: 'http://' or 'https://'
+ES_HOST="localhost"
 ES_PORT=9200
 ES_USE_AUTH=n
 ES_USERNAME="na"
@@ -117,7 +120,7 @@ NUM_WORKERS=1
 WORKER_ABANDONED_DAYS=1
 
 # Run the dev script
-./dev.sh `pwd` ${USER} ${DB_TYPE} ${DB_HOST} ${DB_PORT} ${DB_NAME} ${DB_USER} ${DB_PASS} ${ES_HOST} ${ES_PORT} ${ES_USE_AUTH} ${ES_USERNAME} ${ES_PASSWORD} ${CLOUD} ${SECURITY} ${HOSTNAME} ${EMAIL_LIST} ${ADMIN_FIRST} ${ADMIN_LAST} ${ADMIN_EMAIL} ${NUM_WORKERS} ${WORKER_ABANDONED_DAYS}
+./dev.sh `pwd` ${USER} ${DB_TYPE} ${DB_HOST} ${DB_PORT} ${DB_NAME} ${DB_USER} ${DB_PASS} ${ES_PROTOCOL} ${ES_HOST} ${ES_PORT} ${ES_USE_AUTH} ${ES_USERNAME} ${ES_PASSWORD} ${CLOUD} ${SECURITY} ${HOSTNAME} ${EMAIL_LIST} ${ADMIN_FIRST} ${ADMIN_LAST} ${ADMIN_EMAIL} ${NUM_WORKERS} ${WORKER_ABANDONED_DAYS}
 ```
 
 ###### Run Personal Dev Script
