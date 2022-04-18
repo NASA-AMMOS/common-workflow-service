@@ -1937,19 +1937,6 @@ public class CwsInstaller {
 				return 1;
 			}
 
-			if (elasticsearch_protocol == "http://" && elasticsearch_host_temp.startsWith("https://") ||
-				elasticsearch_protocol == "https://" && elasticsearch_host_temp.startsWith("http://")) {
-				print("   [WARNING]");
-				print("       It was determined that the user provided  ");
-				print("          elasticsearch_protocol='" + elasticsearch_protocol + "'  ");
-				print("            and  ");
-				print("          elasticsearch_host='" + elasticsearch_host_temp + "'  ");
-				print("       have mismatched protocol values. ");
-				print("   [SETUP RESOLUTION] ");
-				print("       CWS Installation will default to using given elasticsearch_protocol value: '" + elasticsearch_protocol + "' ");
-				print("");
-			}
-
 			if (p.exitValue() != 0) {
 				print("   [WARNING]");
 				print("       It was determined that the user provided Elasticsearch is not running or is inaccessible.");
@@ -1959,6 +1946,20 @@ public class CwsInstaller {
 
 			print("   [OK]");
 			print("");
+
+			if (elasticsearch_protocol == "http://" && elasticsearch_host_temp.startsWith("https://") ||
+				elasticsearch_protocol == "https://" && elasticsearch_host_temp.startsWith("http://")) {
+				print("   [SETUP RESOLUTION]");
+				print("       It was determined that the user provided  ");
+				print("          elasticsearch_protocol='" + elasticsearch_protocol + "'  ");
+				print("            and  ");
+				print("          elasticsearch_host='" + elasticsearch_host_temp + "'  ");
+				print("       have mismatched protocol values. ");
+				print("");
+				print("       CWS Installation will default to using given elasticsearch_protocol value: '" + elasticsearch_protocol + "' ");
+				print("");
+			}
+
 			return 0; // no warnings
 
 		} catch (Exception e) {
