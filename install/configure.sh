@@ -8,6 +8,12 @@ ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 echo ROOT=${ROOT}
 
+# ================
+# DECLARE ARGUMENT VARIABLES
+# ================
+CONF_FILE=${1}
+PROMPT_VALUE=${2}
+
 # logic for repeat configure runs
 
 # if this is the very first time configure has been run:
@@ -41,6 +47,15 @@ else
     rsync -a --exclude=".backups" "${ROOT}/" "${BACKUP_CURR}/"
     echo "done."
 
+    if [[ "${CONF_FILE}" == "" ]]; then
+        CONFIG_FILE_BASENAME=""
+    else
+        CONFIG_FILE_BASENAME=$(basename ${CONF_FILE})
+    fi
+
+    CONFIG_FILE_DIR="$(cd "$(dirname "${CONF_FILE}")"; pwd)/$(basename "${CONF_FILE}")"
+    echo "${CONFIG_FILE_DIR}"
+
     # Due to quirks in MacOS file deletion, this is actually the safest way to delete everything
     echo -n "Cleaning out CWS distribution files (this may take a while)..."
     find "${ROOT}/" -mindepth 1 \
@@ -55,6 +70,12 @@ else
       -exec rm -r {} \; &> /dev/null
     echo "done."
 
+    # Sync CONFIG_FILE used from inside ROOT/
+    if [[ ${CONFIG_FILE_BASENAME} != "" && "${CONFIG_FILE_DIR}" == "${ROOT}/${CONFIG_FILE_BASENAME}" ]]; then
+        echo "Found config props file in cws root: '${CONFIG_FILE_BASENAME}' "
+        rsync -a --ignore-existing "${BACKUP_CURR}/${CONFIG_FILE_BASENAME}" "${ROOT}/"
+    fi
+
     # Sync files back in from clean CWS distribution, but don't overwrite anything we left intentionally
     rsync -a --ignore-existing "${BACKUP_CLEAN}/" "${ROOT}/"
 fi
@@ -65,9 +86,6 @@ source ${ROOT}/utils.sh
 # ================
 # SETUP VARIABLES
 # ================
-CONF_FILE=${1}
-PROMPT_VALUE=${2}
-
 export CWS_HOME=${ROOT}
 export CWS_TOMCAT_HOME=${ROOT}/server/apache-tomcat-${TOMCAT_VER}
 export CWS_INSTALLER_PRESET_FILE=${ROOT}/configuration.properties
@@ -123,12 +141,12 @@ else
         exit 1
     fi
 
-	print "Using installation presets provided from ${CONF_FILE}..."
+	  print "Using installation presets provided from ${CONF_FILE}..."
 
     if [[ ! "${CONF_FILE}" -ef "${CWS_INSTALLER_PRESET_FILE}" ]]; then
 	    # Merge provided configuration with installer presets (defaults)
 	    cat ${CONF_FILE} ${ROOT}/config/installerPresets.properties | awk -F= '!a[$1]++' > ${CWS_INSTALLER_PRESET_FILE}
-	fi
+	  fi
 fi
 
 # --------------------------------------------
@@ -206,7 +224,7 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
 	print "  DB NAME:   ${DB_NAME}"
 	print "  DB USER:   ${DB_USER}"
 	print "This script will now create the database necessary for CWS to function."
-	
+
 	while [[ ! ${REPLY} =~ $(echo "^(y|Y|n|N)$") ]]; do
 		if [[ "${PROMPT_VALUE}" == "" ]]; then
 			read -p "Continue? (Y/N): " REPLY
