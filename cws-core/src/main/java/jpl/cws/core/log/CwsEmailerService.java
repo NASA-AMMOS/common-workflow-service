@@ -43,7 +43,7 @@ public class CwsEmailerService implements InitializingBean {
 			
 			email.setHostName(prop_cwsSMTPHostname);		// TODO: make this configurable as well?
 			email.setSmtpPort(Integer.parseInt(prop_cwsSMTPPort));
-			email.setFrom("cws_admin@locahost");
+			email.setFrom(prop_cwsNotificationEmails);
 			email.setSubject(emailSubject);
 			
 			for (String recip : recipients) {
