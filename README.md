@@ -67,9 +67,9 @@ _In a different terminal window `cd` into root of **common-workflow-service** fo
 
 For development we tend to create our own separate build script `<personal-dev.sh>` (firstinitial-lastname.sh), i.e.:`jsmith.sh`, that calls `dev.sh`. Here's an template for your personal build script that will work for development on a local machine:
 
-* Correctly set the Elasticsearch configuration within your personal script by assigning the proper protocol, `http://` or `https://`, to `ES_PROTOCOL` with Elasticsearch hostname assigned to `ES_HOST`.
+* Correctly set the Elasticsearch configuration within your personal script by assigning the proper protocol, `HTTP` or `HTTPS`, to `ES_PROTOCOL` with Elasticsearch hostname assigned to `ES_HOST`.
     * Example: 
-      * `ES_PROTOCOL="http://"`
+      * `ES_PROTOCOL="HTTP"`
       * `ES_HOST="locahost"`
 
 ```
@@ -105,7 +105,7 @@ ADMIN_LAST="{last}"
 ADMIN_EMAIL="{email}"
 
 # ES config
-ES_PROTOCOL="http://"  # options: 'http://' or 'https://'
+ES_PROTOCOL="HTTP"  # options: 'HTTP' or 'HTTPS'
 ES_HOST="localhost"
 ES_PORT=9200
 ES_USE_AUTH=n

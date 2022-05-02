@@ -170,6 +170,7 @@ public class CwsInstaller {
 	private static String startup_autoregister_process_defs;
 	private static String cws_token_expiration_hours;
 	private static String elasticsearch_protocol;
+	private static String elasticsearch_protocol_temp;
 	private static String elasticsearch_host;
 	private static String elasticsearch_host_temp;
 	private static String elasticsearch_port;
@@ -1094,6 +1095,7 @@ public class CwsInstaller {
 				bailOutMissingOption("elasticsearch_protocol");
 			}
 
+			elasticsearch_protocol_temp = elasticsearch_protocol;
 			elasticsearch_protocol = elasticsearch_protocol.toLowerCase();
 			if (elasticsearch_protocol.startsWith("https")) {
 				elasticsearch_protocol = "https://";
@@ -1101,7 +1103,7 @@ public class CwsInstaller {
 				elasticsearch_protocol = "http://";
 			} else {
 				bailOutWithMessage("ERROR: elasticsearch_protocol config input is '" +  elasticsearch_protocol
-					+ "' ... Be sure to use 'http' or 'https' for elasticsearch_protocol configuration.");
+					+ "' ... Be sure to use 'HTTP' or 'HTTPS' for elasticsearch_protocol configuration.");
 			}
 		}
 
@@ -1917,6 +1919,27 @@ public class CwsInstaller {
 		print("checking that user provided Elasticsearch (" + elasticsearch_protocol + elasticsearch_host + ":" + elasticsearch_port + ") is running...");
 
 		try {
+
+			if (!(elasticsearch_protocol.startsWith("http") || elasticsearch_protocol.startsWith("https")) ) {
+				print("   [WARNING]");
+				print("       It was determined that the user provided Elasticsearch endpoint protocol '" + elasticsearch_protocol + "' did not properly set or protocol to 'HTTP' OR 'HTTPS'");
+				print("");
+				return 1;
+			}
+
+			if (elasticsearch_protocol == "http://" && elasticsearch_host_temp.toLowerCase().startsWith("https") ||
+				elasticsearch_protocol == "https://" && elasticsearch_host_temp.toLowerCase().startsWith("http")) {
+				print("   [SETUP RESOLUTION]");
+				print("       It was determined that the user provided  ");
+				print("          elasticsearch_protocol='" + elasticsearch_protocol_temp + "'  ");
+				print("            and  ");
+				print("          elasticsearch_host='" + elasticsearch_host_temp + "'  ");
+				print("       have mismatched protocol values. ");
+				print("");
+				print("       CWS Installation will default to using given elasticsearch_protocol value: '" + elasticsearch_protocol + "' ");
+				print("");
+			}
+
 			String[] cmdArray = new String[] {"curl", "--fail", elasticsearch_protocol + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 
 			if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
@@ -1930,13 +1953,6 @@ public class CwsInstaller {
 			//
 			p.waitFor();
 
-			if (!(elasticsearch_protocol.startsWith("https://") || elasticsearch_protocol.startsWith("http://")) ) {
-				print("   [WARNING]");
-				print("       It was determined that the user provided Elasticsearch endpoint protocol '" + elasticsearch_protocol + "' did not properly set or protocol to 'http://' OR 'https://'");
-				print("");
-				return 1;
-			}
-
 			if (p.exitValue() != 0) {
 				print("   [WARNING]");
 				print("       It was determined that the user provided Elasticsearch is not running or is inaccessible.");
@@ -1946,19 +1962,6 @@ public class CwsInstaller {
 
 			print("   [OK]");
 			print("");
-
-			if (elasticsearch_protocol == "http://" && elasticsearch_host_temp.startsWith("https://") ||
-				elasticsearch_protocol == "https://" && elasticsearch_host_temp.startsWith("http://")) {
-				print("   [SETUP RESOLUTION]");
-				print("       It was determined that the user provided  ");
-				print("          elasticsearch_protocol='" + elasticsearch_protocol + "'  ");
-				print("            and  ");
-				print("          elasticsearch_host='" + elasticsearch_host_temp + "'  ");
-				print("       have mismatched protocol values. ");
-				print("");
-				print("       CWS Installation will default to using given elasticsearch_protocol value: '" + elasticsearch_protocol + "' ");
-				print("");
-			}
 
 			return 0; // no warnings
 
