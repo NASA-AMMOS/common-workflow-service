@@ -109,7 +109,7 @@ public class RestService extends MvcCore {
 	@Value("${cws.console.app.root}") private String appRoot;
 	@Value("${cws.install.hostname}") private String hostName;
 
-	@Value("${cws.elasticsearch.protocol}") private String elasticsearchProtocolname;
+	@Value("${cws.elasticsearch.protocol}") private String elasticsearchProtocolName;
 	@Value("${cws.elasticsearch.hostname}") private String elasticsearchHostname;
 	@Value("${cws.elasticsearch.port}") private String elasticsearchPort;
 
@@ -406,7 +406,7 @@ public class RestService extends MvcCore {
 	 * @return fully constructed elasticsearch URL string
 	 */
 	private String constructElasticsearchUrl(String subPath) {
-		String urlString = elasticsearchProtocolname + elasticsearchHostname + ":" + elasticsearchPort + subPath;
+		String urlString = elasticsearchProtocolName + "://" + elasticsearchHostname + ":" + elasticsearchPort + subPath;
 		return urlString;
 	}
 
