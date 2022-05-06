@@ -189,22 +189,23 @@ function auto_conf_data () {
     DB_NAME=${7}
     DB_USER=${8}
     DB_PASS=${9}
-    ES_HOST=${10}
-    ES_PORT=${11}
-    ES_USE_AUTH=${12}
-    ES_USERNAME=${13}
-    ES_PASSWORD=${14}
-    ENABLE_CLOUD_AS=${15}
-    SECURITY_SCHEME=${16}
-    THIS_HOSTNAME=${17}
-    NOTIFICATION_EMAILS=${18}
-    ADMIN_FIRSTNAME=${19}
-    ADMIN_LASTNAME=${20}
-    ADMIN_EMAIL=${21}
-    NUM_WORKERS=${22}
-    WORKER_ABANDONED_DAYS=${23}
+    ES_PROTOCOL=${10}
+    ES_HOST=${11}
+    ES_PORT=${12}
+    ES_USE_AUTH=${13}
+    ES_USERNAME=${14}
+    ES_PASSWORD=${15}
+    ENABLE_CLOUD_AS=${16}
+    SECURITY_SCHEME=${17}
+    THIS_HOSTNAME=${18}
+    NOTIFICATION_EMAILS=${19}
+    ADMIN_FIRSTNAME=${20}
+    ADMIN_LASTNAME=${21}
+    ADMIN_EMAIL=${22}
+    NUM_WORKERS=${23}
+    WORKER_ABANDONED_DAYS=${24}
 
-    OUTPUT_FILE=${24}
+    OUTPUT_FILE=${25}
 
     source ${ROOT}/utils.sh
 
@@ -275,6 +276,7 @@ function auto_conf_data () {
     database_name=${DB_NAME}
     database_username=${DB_USER}
     database_password=${DB_PASS}
+    elasticsearch_protocol=${ES_PROTOCOL}
     elasticsearch_host=${ES_HOST}
     elasticsearch_port=${ES_PORT}
     elasticsearch_use_auth=${ES_USE_AUTH}
