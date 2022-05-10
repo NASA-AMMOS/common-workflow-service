@@ -751,8 +751,10 @@ public class WorkerService implements InitializingBean {
 		log.trace("processEndedActions("+procDefKeyThatEnded+", " + uuidThatEnded + ")");
 		synchronized (procStateLock) { // lock
 			if (procStartReqUuidStartedThisWorker.contains(uuidThatEnded)) {
+				// uncomment log.debug
 				//log.debug("DECREMENTING "+procDefKeyThatEnded);
 				processCounters.put(procDefKeyThatEnded, processCounters.get(procDefKeyThatEnded) - 1);
+				// log.debug()
 				log.trace("PROCESS COUNTERS NOW AT : " + processCounters.get(procDefKeyThatEnded));
 				procStartReqUuidStartedThisWorker.remove(uuidThatEnded);
 				return true;

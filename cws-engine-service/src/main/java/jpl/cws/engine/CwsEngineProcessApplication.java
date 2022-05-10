@@ -312,6 +312,8 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 						try {
 							final CoreExecutionContext<? extends CoreExecution> executionContext = Context.getCoreExecutionContext();
 							String eventSource = executionContext.getExecution().getEventSource().toString();
+
+							// print out event name and source for other events
 							if (execution.getEventName().equals("end") && eventSource.startsWith("Activity")) {
 								log.trace("END EVENT DETECTED!!!!!!!!");
 								String procDefKey = getProcDefKey(execution);
@@ -374,6 +376,7 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 									log.debug("Service task current ActivityId = " + execution.getCurrentActivityId());
 									log.debug("EventSource = " + eventSource);
 									
+
 									// FIXME:  Can expressionManager be constructed once, outside of this method?
 									//         If so, it would be faster, and it wouldn't have to be
 									//         passed to each getFieldValue method below...
