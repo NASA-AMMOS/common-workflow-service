@@ -2189,6 +2189,9 @@ public class CwsInstaller {
 		content = content.replace("__CWS_TOMCAT_WEBAPPS__",                cws_tomcat_webapps);
 		content = content.replace("__CWS_AUTH_SCHEME__",                   cws_auth_scheme);
 		content = content.replace("__STARTUP_AUTOREGISTER_PROCESS_DEFS__", startup_autoregister_process_defs);
+		content = content.replace("__CWS_USER_FIRSTNAME__",         		cws_user_firstname);
+		content = content.replace("__CWS_USER_LASTNAME__",         			cws_user_lastname);
+		content = content.replace("__CWS_USER_EMAIL__",         			cws_user_email);
 		content = content.replace("__CWS_NOTIFICATION_EMAILS__",           cws_notification_emails);
 		content = content.replace("__CWS_TOKEN_EXPIRATION_HOURS__",        cws_token_expiration_hours);
 		content = content.replace("__CWS_SMTP_HOSTNAME__",                 cws_smtp_hostname);
@@ -2290,6 +2293,9 @@ public class CwsInstaller {
 		content = content.replace("__CWS_TOMCAT_HOME__",                    cws_tomcat_root);
 		content = content.replace("__CWS_TOMCAT_WEBAPPS__",                    cws_tomcat_webapps);
 		content = content.replace("__CWS_PROJECT_WEBAPP_ROOT__",         (cws_project_webapp_root == null || cws_project_webapp_root.equals("none")) ? "" : cws_project_webapp_root);
+		content = content.replace("__CWS_USER_FIRSTNAME__",         		cws_user_firstname);
+		content = content.replace("__CWS_USER_LASTNAME__",         			cws_user_lastname);
+		content = content.replace("__CWS_USER_EMAIL__",         			cws_user_email);
 		content = content.replace("__CWS_NOTIFICATION_EMAILS__",         cws_notification_emails);
 		content = content.replace("__CWS_TOKEN_EXPIRATION_HOURS__",      cws_token_expiration_hours);
 		content = content.replace("__CWS_SMTP_HOSTNAME__",               cws_smtp_hostname);

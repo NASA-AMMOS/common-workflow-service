@@ -10,7 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 public class CwsEmailerService implements InitializingBean {
 
 	private static final Logger log = LoggerFactory.getLogger(CwsEmailerService.class);
-	
+
+	@Value("${cws.user.email}") private String prop_cwsUserEmail;
 	@Value("${cws.notification.emails}") private String prop_cwsNotificationEmails;
 	@Value("${cws.smtp.hostname}") private String prop_cwsSMTPHostname;
 	@Value("${cws.smtp.port}") private String prop_cwsSMTPPort;
@@ -43,7 +44,7 @@ public class CwsEmailerService implements InitializingBean {
 			
 			email.setHostName(prop_cwsSMTPHostname);		// TODO: make this configurable as well?
 			email.setSmtpPort(Integer.parseInt(prop_cwsSMTPPort));
-			email.setFrom(prop_cwsNotificationEmails);
+			email.setFrom(prop_cwsUserEmail);
 			email.setSubject(emailSubject);
 			
 			for (String recip : recipients) {
