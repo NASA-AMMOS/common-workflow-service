@@ -26,6 +26,11 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
     - You will need to add your own Tomcat keystore file to this path: `install/.keystore`
     - You will need to add your own truststore file to this path: `install/tomcat_lib/cws_truststore.jks`
     - See: https://tomcat.apache.org/tomcat-9.0-doc/ssl-howto.html
+  - **Java 8 SE JDK**: JDK 9+ deprecated, and JDK 11+ removed, dependencies used by CWS.
+    - For Homebrew users:
+      - Install OpenJDK 8 using: `brew install openjdk@8`.`/usr/local/opt/openjdk@8`
+      - Point Maven to this JDK: `export JAVA_HOME=/usr/local/opt/openjdk@8`
+      - (Optional) Add this to your path: `export PATH="/usr/local/opt/openjdk@8/bin:$PATH"`
 
 
 ### **Development Environment Configuration**
