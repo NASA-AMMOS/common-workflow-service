@@ -566,7 +566,7 @@ public class CwsInstaller {
 
 				break;
 			case "CAMUNDA":
-				print("Using CAMUNDA (Camunda built-in) authentication scheme......");
+				print("Using CAMUNDA (Camunda built-in) authentication scheme...");
 
 				cws_security_filter_class = camunda_security_filter_class;
 
@@ -1408,8 +1408,6 @@ public class CwsInstaller {
 	private static void genUniqueWorkerId() {
 		// GENERATE WORKER ID
 		// (deterministic based on hostname, install directory, and install time)
-		cws_root = getenv("CWS_HOME");
-		print("--cws_root-- : " + cws_root);
 		Path filePath = Paths.get(cws_root + SEP + "config" + SEP + "worker_id");
 		try {
 			cws_worker_id = getFileContents(filePath);

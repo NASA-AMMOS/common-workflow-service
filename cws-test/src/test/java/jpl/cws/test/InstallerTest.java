@@ -68,7 +68,7 @@ public class InstallerTest {
 
 			// read any errors from the attempted command
 			System.out.println("\n-----------------------------------");
-			System.out.println("--- STDERR (if any) OF installerTest.sh:\n");
+			System.out.println("STDERR (if any) OF installerTest.sh:\n");
 			while ((s = stdError.readLine()) != null) {
 				System.out.println(s);
 			}
