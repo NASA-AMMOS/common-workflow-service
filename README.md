@@ -140,10 +140,10 @@ You can stop CWS by running `./stop_dev.sh`. The script will bring down the cons
 Start `test.sh` script by running:
 
 ```
-bash -c './test.sh'
+./test.sh
 ```
 
-This will produce jacoco reports that display code coverage measurements.
+This will produce jacoco reports with code coverage measurements.
 
 # Contributing
 
