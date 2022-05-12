@@ -28,6 +28,6 @@ install/logging/logstash-*.zip
 # CWS backups
 .backups/
 
-# Jacoco Reports
-jacoco-reports/
-target/
+# JaCoCo Reports
+/target
+/jacoco-reports
