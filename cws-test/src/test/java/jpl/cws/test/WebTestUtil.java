@@ -119,7 +119,8 @@ public class WebTestUtil {
 
 	protected void initChromeDriver() {
 
-		  ChromeOptions chromeOptions = new ChromeOptions();
+		//System.setProperty("webdriver.chrome.driver", "/Users/path/to/chromedriver");
+		ChromeOptions chromeOptions = new ChromeOptions();
 
 		  // Turn on headless mode for Bamboo
 		  chromeOptions.setHeadless(true);

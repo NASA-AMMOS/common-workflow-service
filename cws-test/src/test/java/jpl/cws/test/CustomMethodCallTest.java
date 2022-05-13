@@ -8,10 +8,7 @@ import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +17,7 @@ import org.slf4j.LoggerFactory;
  * (in this case a sub-process container).
  * 
  */
+@Ignore
 public class CustomMethodCallTest extends CwsTestBase {
 	private static final Logger log = LoggerFactory.getLogger(CustomMethodCallTest.class);
 	

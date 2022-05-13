@@ -143,6 +143,16 @@ The above script will build CWS, verify your configuration, then will start the 
 
 You can stop CWS by running `./stop_dev.sh`. The script will bring down the console and all local workers.
 
+### Running Unit and Integration Test: cws-test
+
+Start `test.sh` script by running:
+
+```
+./test.sh
+```
+
+This will produce jacoco reports with code coverage measurements.
+
 # Contributing
 
 Please see our [contribution guidelines](https://github.com/NASA-AMMOS/common-workflow-service/blob/main/CONTRIBUTING.md).
