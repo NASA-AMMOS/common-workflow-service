@@ -5,6 +5,8 @@
 	<script src="/${base}/js/jquery.min.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
+	<!-- Custom js adaptation script; overwrite this file from your adaptation project -->
+	<script src="/${base}/js/adaptation-process-actions.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
@@ -148,6 +150,7 @@
     				<li id="action_retry_incident" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_retry_incident_rows();">Retry all selected incident rows (all rows selected must be 'incident')</a></li>
     				<li id="action_retry_failed_to_start" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_retry_failed_to_start();">Retry all selected failed to start rows (all rows selected must be 'failedToStart')</a></li>
     				<li id="action_mark_as_resolved" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_mark_as_resolved();">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>
+  				    <#include "adaptation-process-actions.ftl">
   				</ul>
   			</div>
   			<div id="hide-subprocs-div">
@@ -555,6 +558,9 @@
 		else if (failed) {
 			$("#action_mark_as_resolved").removeClass("disabled");
 		}
+		
+		// Execute adaptation actions if any
+		updateAdaptationActionList();
 	}
 
 
