@@ -5,7 +5,7 @@
 	<script src="/${base}/js/jquery.min.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
-	<!-- Custom js adaptation script; overwrite this file from your adaptation project -->
+	<!-- Custom js adaptation script; override this file from your adaptation project -->
 	<script src="/${base}/js/adaptation-process-actions.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<!-- Custom styles for this template -->
