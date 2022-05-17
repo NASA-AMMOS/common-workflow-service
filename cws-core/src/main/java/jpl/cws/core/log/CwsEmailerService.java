@@ -11,7 +11,7 @@ public class CwsEmailerService implements InitializingBean {
 
 	private static final Logger log = LoggerFactory.getLogger(CwsEmailerService.class);
 
-	@Value("${cws.user.email}") private String prop_cwsUserEmail;
+	@Value("${cws.admin.email}") private String prop_cwsAdminEmail;
 	@Value("${cws.notification.emails}") private String prop_cwsNotificationEmails;
 	@Value("${cws.smtp.hostname}") private String prop_cwsSMTPHostname;
 	@Value("${cws.smtp.port}") private String prop_cwsSMTPPort;
@@ -44,13 +44,14 @@ public class CwsEmailerService implements InitializingBean {
 			
 			email.setHostName(prop_cwsSMTPHostname);		// TODO: make this configurable as well?
 			email.setSmtpPort(Integer.parseInt(prop_cwsSMTPPort));
-			email.setFrom(prop_cwsUserEmail);
+			email.setFrom(prop_cwsAdminEmail);
 			email.setSubject(emailSubject);
 			
 			for (String recip : recipients) {
 				email.addTo(recip.trim());
 				log.debug("About to send email to " + recip + "...");
 			}
+			log.debug("From: " + prop_cwsAdminEmail);
 
 			log.debug(" +-----------------------------------------------");
 			log.debug(" | SUBJECT     : " + emailSubject);
