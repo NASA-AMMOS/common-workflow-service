@@ -63,7 +63,8 @@ mysql -h 127.0.0.1 -u root -p
 ```
 Enter the password above when prompted.
 
-_CWS must have been built prior to directly accessing mariaDB with the MySQL monitor_
+_CWS must have been built, in this case using a build script, in order to directly access mariaDB with the MySQL monitor, as the build
+script contains required information to access the database. See the **Building CWS** section for an example build script._
 
 _Make sure `cws_dev` database in created mariaDB instance before moving forward to build CWS_
 
