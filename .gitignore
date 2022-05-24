@@ -31,4 +31,3 @@ install/logging/logstash-*.zip
 # JaCoCo Reports
 /target
 /jacoco-reports
-/personal_dev.sh
