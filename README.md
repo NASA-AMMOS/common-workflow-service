@@ -14,10 +14,19 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
 
 ## Prerequisites
 
-- [**Docker**](https://docs.docker.com/get-docker/): Used to run external Elasticsearch, and create and configure mariaDB database container
+- [**Maven**](https://docs.docker.com/get-docker/): Used to dynamically download libraries and other required project dependencies.
+  - For Home-brew users:
+    - Install Maven using: `brew install maven`
+    - Verify installation using: `mvn -v`
+- [**Docker**](https://maven.apache.org/download.cgi): Used to run external Elasticsearch, and create and configure mariaDB database container
 - MariaDB or MySQL database set up on either your local machine or a remote host. You will also need to create the following:
-    - A database for CWS to use. `cws_dev` is a good default.
+    - A database for CWS to use. `cws_dev` is a good default name.
     - A database user with full access to the above database.
+    - Recommended minimum system requirements from Docker Resources window:
+      - CPUs: 4
+      - Memory: 5.00 GB
+      - Swap: 1 GB
+      - Disk image size: 59.6 GB
 - [**ITerm2**](https://iterm2.com/): Currently these build scripts include commands to open new terminal windows using ITerm2, so they are best run from that terminal.
 - **Logstash 7.16.2+**: Download Logstash (OSS version) for the Windows platform. Rename the ZIP file from 'logstash-oss-7.16.2-windows-x86_64.zip' to 'logstash-7.16.2.zip' and place in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/past-releases/logstash-oss-7-16-2).
 - **Elasticsearch 7.16.2+**: CWS requires an externally-configured elasticsearch cluster to be set up. You can use an SSL Secure Elasticsearch with or without authentication, or an Insecure HTTP Elasticsearch.
@@ -42,6 +51,9 @@ Generate mariaDB Docker Container and Create Database Instance for CWS:
 docker run -d -p 3306:3306 -e MYSQL_DATABASE=__DB_NAME__ -e MYSQL_ROOT_PASSWORD=__ROOT_PW__ -e TZ=America/Los_Angeles --name mdb103 mariadb:10.3
 ```
 
+Replace `__DB_NAME__` with your desired database name. <br />
+Replace `__ROOT_PW__` with your desired password.
+
 `__DB_NAME__` and `__ROOT_PW__` must match parameters set in script file: `<personal-dev>.sh`
 
 Directly access mariaDB with:
@@ -49,6 +61,10 @@ Directly access mariaDB with:
 ```
 mysql -h 127.0.0.1 -u root -p
 ```
+Enter the password above when prompted.
+
+_CWS must have been built, in this case using a build script, in order to directly access mariaDB with the MySQL monitor, as the build
+script contains required information to access the database. See the **Building CWS** section for an example build script._
 
 _Make sure `cws_dev` database in created mariaDB instance before moving forward to build CWS_
 
