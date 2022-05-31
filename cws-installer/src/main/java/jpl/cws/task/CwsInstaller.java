@@ -2203,7 +2203,7 @@ public class CwsInstaller {
 		} else {
 
 			try {
-				String[] cmdLdapSearch = new String[] {"ldapsearch", "-x", "-Z", "-H", cws_ldap_url, "-b", "'ou=personnel,dc=dir,dc=jpl,dc=nasa,dc=gov'",
+				String[] cmdLdapSearch = new String[] {"ldapsearch", "-x", "-Z", "-H", cws_ldap_url, "-b", "''",
 					"'(uid=" + cws_user + ")'", "mail", "sn", "givenName", "|", "grep", "-e", "'mail'", "-e", "'sn'", "-e", "'givenName'"};
 
 				Process p = Runtime.getRuntime().exec(cmdLdapSearch);
