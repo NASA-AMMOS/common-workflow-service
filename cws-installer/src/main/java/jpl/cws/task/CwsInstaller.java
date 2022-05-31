@@ -24,6 +24,12 @@ import static jpl.cws.task.CwsInstallerUtils.serverListening;
 import static jpl.cws.task.CwsInstallerUtils.writeToFile;
 import static jpl.cws.task.UnzipUtility.unzipFile;
 
+import java.lang.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -2189,9 +2195,51 @@ public class CwsInstaller {
 		content = content.replace("__CWS_TOMCAT_WEBAPPS__",                cws_tomcat_webapps);
 		content = content.replace("__CWS_AUTH_SCHEME__",                   cws_auth_scheme);
 		content = content.replace("__STARTUP_AUTOREGISTER_PROCESS_DEFS__", startup_autoregister_process_defs);
-		content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		cws_user_firstname);
-		content = content.replace("__CWS_ADMIN_LASTNAME__",         			cws_user_lastname);
-		content = content.replace("__CWS_ADMIN_EMAIL__",         			cws_user_email);
+
+		if (cws_auth_scheme.equalsIgnoreCase("CAMUNDA")) {
+			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		cws_user_firstname);
+			content = content.replace("__CWS_ADMIN_LASTNAME__",         			cws_user_lastname);
+			content = content.replace("__CWS_ADMIN_EMAIL__",         			cws_user_email);
+		} else {
+
+			try {
+				String[] cmdLdapSearch = new String[] {"ldapsearch", "-x", "-Z", "-H", cws_ldap_url, "-b", "'ou=personnel,dc=dir,dc=jpl,dc=nasa,dc=gov'",
+					"'(uid=" + cws_user + ")'", "mail", "sn", "givenName", "|", "grep", "-e", "'mail'", "-e", "'sn'", "-e", "'givenName'"};
+
+				Process p = Runtime.getRuntime().exec(cmdLdapSearch);
+				// Wait for the process to complete
+				p.waitFor();
+
+				BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+
+				String s = null;
+				while ((s = stdInput.readLine()) != null) {
+					System.out.println(s);
+				}
+				while ((s = stdError.readLine()) != null) {
+					System.out.println(s);
+				}
+
+				if (p.exitValue() != 0) {
+					print("   [WARNING]");
+					print("");
+					print("");
+				}
+
+				String ldapCmdOutput = s.trim();
+
+				content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		cws_user_firstname);
+				content = content.replace("__CWS_ADMIN_LASTNAME__",         			cws_user_lastname);
+				content = content.replace("__CWS_ADMIN_EMAIL__",         			cws_user_email);
+
+			} catch (Exception e) {
+				log.error("error: ", e);
+				print("   [WARNING]");
+				print("");
+			}
+		}
+
 		content = content.replace("__CWS_NOTIFICATION_EMAILS__",           cws_notification_emails);
 		content = content.replace("__CWS_TOKEN_EXPIRATION_HOURS__",        cws_token_expiration_hours);
 		content = content.replace("__CWS_SMTP_HOSTNAME__",                 cws_smtp_hostname);
@@ -2293,9 +2341,11 @@ public class CwsInstaller {
 		content = content.replace("__CWS_TOMCAT_HOME__",                    cws_tomcat_root);
 		content = content.replace("__CWS_TOMCAT_WEBAPPS__",                    cws_tomcat_webapps);
 		content = content.replace("__CWS_PROJECT_WEBAPP_ROOT__",         (cws_project_webapp_root == null || cws_project_webapp_root.equals("none")) ? "" : cws_project_webapp_root);
+
 		content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		cws_user_firstname);
 		content = content.replace("__CWS_ADMIN_LASTNAME__",         			cws_user_lastname);
 		content = content.replace("__CWS_ADMIN_EMAIL__",         			cws_user_email);
+
 		content = content.replace("__CWS_NOTIFICATION_EMAILS__",         cws_notification_emails);
 		content = content.replace("__CWS_TOKEN_EXPIRATION_HOURS__",      cws_token_expiration_hours);
 		content = content.replace("__CWS_SMTP_HOSTNAME__",               cws_smtp_hostname);
@@ -2553,9 +2603,11 @@ public class CwsInstaller {
 		setPreset("database_username", cws_db_username);
 		setPreset("database_password", cws_db_password);
 		setPreset("admin_user", cws_user);
+
 		setPreset("admin_firstname", cws_user_firstname);
 		setPreset("admin_lastname", cws_user_lastname);
 		setPreset("admin_email", cws_user_email);
+
 		setPreset("cws_web_port", cws_tomcat_connector_port);
 		setPreset("cws_ssl_port", cws_tomcat_ssl_port);
 		setPreset("cws_ajp_port", cws_tomcat_ajp_port);
