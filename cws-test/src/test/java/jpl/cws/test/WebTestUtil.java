@@ -31,6 +31,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.github.bonigarcia.wdm.WebDriverManager;
 
 /**
  *
@@ -119,13 +120,14 @@ public class WebTestUtil {
 
 	protected void initChromeDriver() {
 
-		//System.setProperty("webdriver.chrome.driver", "/Users/path/to/chromedriver");
 		ChromeOptions chromeOptions = new ChromeOptions();
 
 		  // Turn on headless mode for Bamboo
-		  chromeOptions.setHeadless(true);
+		  chromeOptions.setHeadless(false);
+		  chromeOptions.setAcceptInsecureCerts(true);
 
-		  driver = new ChromeDriver(chromeOptions);
+		WebDriverManager.chromedriver().setup();
+		driver = new ChromeDriver(chromeOptions);
 
 		  log.info("Driver initialized: " + driver);
 	}
@@ -206,8 +208,9 @@ public class WebTestUtil {
 
 	protected void logout() {
 		waitForElementID("logoutLink");
-		WebElement submitBtn = driver.findElement(By.id("logoutLink")); //findElById("logoutLink");
-		submitBtn.click();
+		// WebElement submitBtn = driver.findElement(By.id("logoutLink")); //findElById("logoutLink");
+		// submitBtn.click();
+		driver.get("http://"+HOSTNAME+":"+PORT + "/cws-ui/logout");
 
 		// Verify we have moved to the login page
 		findOnPage("Please log in");

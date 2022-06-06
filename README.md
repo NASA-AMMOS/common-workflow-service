@@ -14,19 +14,19 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
 
 ## Prerequisites
 
-- [**Maven**](https://docs.docker.com/get-docker/): Used to dynamically download libraries and other required project dependencies.
+- [**Maven**](https://maven.apache.org/download.cgi): Used to dynamically download libraries and other required project dependencies.
   - For Home-brew users:
     - Install Maven using: `brew install maven`
     - Verify installation using: `mvn -v`
-- [**Docker**](https://maven.apache.org/download.cgi): Used to run external Elasticsearch, and create and configure mariaDB database container
-- MariaDB or MySQL database set up on either your local machine or a remote host. You will also need to create the following:
-    - A database for CWS to use. `cws_dev` is a good default name.
-    - A database user with full access to the above database.
-    - Recommended minimum system requirements from Docker Resources window:
+- [**Docker**](https://docs.docker.com/get-docker/): Used to run external Elasticsearch, and create and configure mariaDB database container
+  - Recommended minimum system requirements from Docker Resources window:
       - CPUs: 4
       - Memory: 5.00 GB
       - Swap: 1 GB
       - Disk image size: 59.6 GB
+- MariaDB or MySQL database set up on either your local machine or a remote host. You will also need to create the following:
+    - A database for CWS to use. `cws_dev` is a good default name.
+    - A database user with full access to the above database.
 - [**ITerm2**](https://iterm2.com/): Currently these build scripts include commands to open new terminal windows using ITerm2, so they are best run from that terminal.
 - **Logstash 7.16.2+**: Download Logstash (OSS version) for the Windows platform. Rename the ZIP file from 'logstash-oss-7.16.2-windows-x86_64.zip' to 'logstash-7.16.2.zip' and place in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/past-releases/logstash-oss-7-16-2).
 - **Elasticsearch 7.16.2+**: CWS requires an externally-configured elasticsearch cluster to be set up. You can use an SSL Secure Elasticsearch with or without authentication, or an Insecure HTTP Elasticsearch.
