@@ -288,6 +288,8 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
 					fi
 				else
 					print "  Leaving DB as is."
+
+
 				fi
 			else
 				# CREATE DATABASE
