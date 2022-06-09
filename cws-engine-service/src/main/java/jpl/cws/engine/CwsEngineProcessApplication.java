@@ -467,7 +467,7 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 		};
 	}
 	
-	
+
 	/**
 	 * Helper method to get procDefKey from execution object, using multiple methods.
 	 */
@@ -521,7 +521,7 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 			
 			email.setHostName(cwsSMTPHostname);
 			email.setSmtpPort(Integer.parseInt(cwsSMTPPort));
-			email.setFrom(cwsAdminEmail); // TODO: make this configurable as well?
+			email.setFrom(cwsAdminEmail);
 			email.setSubject(emailSubject);
 			
 			for (String recip : recipients) {
@@ -529,7 +529,7 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 				log.debug("About to send email to " + recip + "...");
 			}
 
-			log.debug("  FROM: " + cwsAdminEmail);
+			log.debug("  FROM   : " + cwsAdminEmail);
 			log.debug("  SUBJECT: " + emailSubject);
 			log.debug("  BODY   : " + emailBody);
 			
