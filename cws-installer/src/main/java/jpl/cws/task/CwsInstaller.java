@@ -24,8 +24,6 @@ import static jpl.cws.task.CwsInstallerUtils.serverListening;
 import static jpl.cws.task.CwsInstallerUtils.writeToFile;
 import static jpl.cws.task.UnzipUtility.unzipFile;
 
-
-// -------------
 import java.lang.*;
 import java.util.Hashtable;
 import javax.naming.Context;
@@ -44,10 +42,6 @@ import org.xml.sax.InputSource;
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
-
-
-// ---------------
-
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -2137,7 +2131,6 @@ public class CwsInstaller {
 		else {
 			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
 			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
-
 			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
 			content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
 			content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
@@ -2225,7 +2218,6 @@ public class CwsInstaller {
 		} else {
 			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
 			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
-
 			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
 			content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
 			content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
@@ -2340,7 +2332,6 @@ public class CwsInstaller {
 		} else {
 			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
 			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
-
 			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
 			content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
 			content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);

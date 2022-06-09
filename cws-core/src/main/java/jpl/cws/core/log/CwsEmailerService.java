@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 public class CwsEmailerService implements InitializingBean {
 
 	private static final Logger log = LoggerFactory.getLogger(CwsEmailerService.class);
-
 	@Value("${cws.admin.firstname}") private String prop_cwsAdminFirstName;
 	@Value("${cws.admin.lastname}") private String prop_cwsAdminLastName;
 	@Value("${cws.admin.email}") private String prop_cwsAdminEmail;
@@ -54,7 +53,6 @@ public class CwsEmailerService implements InitializingBean {
 				log.debug("About to send email to " + recip + "...");
 			}
 			log.debug("From: " + prop_cwsAdminEmail + " (" + prop_cwsAdminLastName + ", " + prop_cwsAdminFirstName + ")");
-
 			log.debug(" +-----------------------------------------------");
 			log.debug(" | SUBJECT     : " + emailSubject);
 			log.debug(" | BODY        : " + emailBody);

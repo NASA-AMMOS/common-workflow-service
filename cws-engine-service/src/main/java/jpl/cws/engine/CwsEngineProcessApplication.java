@@ -466,7 +466,6 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 			}
 		};
 	}
-	
 
 	/**
 	 * Helper method to get procDefKey from execution object, using multiple methods.
