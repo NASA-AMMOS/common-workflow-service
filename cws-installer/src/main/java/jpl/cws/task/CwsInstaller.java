@@ -2500,14 +2500,14 @@ public class CwsInstaller {
 
 			for(int i = 0; i < bean.getLength(); i++) {
 				Element beanElement = (Element) bean.item(i);
-				if (beanElement.getAttribute("name").equals("baseDn")) {
+				if (beanElement.getAttribute("name").equalsIgnoreCase("baseDn")) {
 					if (beanElement.getAttribute("value").equals("")) {
 						propertyBase = beanElement.getTextContent();
 					} else {
 						propertyBase = beanElement.getAttribute("value");
 					}
 				}
-				if (beanElement.getAttribute("name").equals("userSearchBase")) {
+				if (beanElement.getAttribute("name").equalsIgnoreCase("userSearchBase")) {
 					if (beanElement.getAttribute("value").equals("")) {
 						propertySearchBase = beanElement.getTextContent();
 					} else {
