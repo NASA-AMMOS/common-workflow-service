@@ -24,6 +24,25 @@ import static jpl.cws.task.CwsInstallerUtils.serverListening;
 import static jpl.cws.task.CwsInstallerUtils.writeToFile;
 import static jpl.cws.task.UnzipUtility.unzipFile;
 
+import java.lang.*;
+import java.util.Hashtable;
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import java.nio.file.Files;
+import java.io.StringReader;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+import org.w3c.dom.*;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -2185,9 +2204,11 @@ public class CwsInstaller {
 			content = content.replace("__CWS_ADMIN_EMAIL__",      	   cws_user_email);
 		}
 		else {
-			content = content.replace("__CWS_ADMIN_FIRSTNAME__",       "N/A");
-			content = content.replace("__CWS_ADMIN_LASTNAME__",        "N/A");
-			content = content.replace("__CWS_ADMIN_EMAIL__",      	   "N/A");
+			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
+			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
+			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
+			content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
+			content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
 		}
 		writeToFile(filePath, content);
 		copy(
@@ -2264,6 +2285,19 @@ public class CwsInstaller {
 		content = content.replace("__CWS_TOMCAT_WEBAPPS__",                cws_tomcat_webapps);
 		content = content.replace("__CWS_AUTH_SCHEME__",                   cws_auth_scheme);
 		content = content.replace("__STARTUP_AUTOREGISTER_PROCESS_DEFS__", startup_autoregister_process_defs);
+
+		if (cws_auth_scheme.equalsIgnoreCase("CAMUNDA")) {
+			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		cws_user_firstname);
+			content = content.replace("__CWS_ADMIN_LASTNAME__",         			cws_user_lastname);
+			content = content.replace("__CWS_ADMIN_EMAIL__",         			cws_user_email);
+		} else {
+			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
+			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
+			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
+			content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
+			content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
+		}
+
 		content = content.replace("__CWS_NOTIFICATION_EMAILS__",           cws_notification_emails);
 		content = content.replace("__CWS_TOKEN_EXPIRATION_HOURS__",        cws_token_expiration_hours);
 		content = content.replace("__CWS_SMTP_HOSTNAME__",                 cws_smtp_hostname);
@@ -2366,6 +2400,19 @@ public class CwsInstaller {
 		content = content.replace("__CWS_TOMCAT_HOME__",                    cws_tomcat_root);
 		content = content.replace("__CWS_TOMCAT_WEBAPPS__",                    cws_tomcat_webapps);
 		content = content.replace("__CWS_PROJECT_WEBAPP_ROOT__",         (cws_project_webapp_root == null || cws_project_webapp_root.equals("none")) ? "" : cws_project_webapp_root);
+
+		if (cws_auth_scheme.equalsIgnoreCase("CAMUNDA")) {
+			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		cws_user_firstname);
+			content = content.replace("__CWS_ADMIN_LASTNAME__",         			cws_user_lastname);
+			content = content.replace("__CWS_ADMIN_EMAIL__",         			cws_user_email);
+		} else {
+			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
+			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
+			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
+			content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
+			content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
+		}
+
 		content = content.replace("__CWS_NOTIFICATION_EMAILS__",         cws_notification_emails);
 		content = content.replace("__CWS_TOKEN_EXPIRATION_HOURS__",      cws_token_expiration_hours);
 		content = content.replace("__CWS_SMTP_HOSTNAME__",               cws_smtp_hostname);
@@ -2448,6 +2495,9 @@ public class CwsInstaller {
 		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 			content = content.replace("__ES_USERNAME__",             elasticsearch_username);
 			content = content.replace("__ES_PASSWORD__",             elasticsearch_password);
+		} else {
+			content = content.replace("__ES_USERNAME__",             "na");
+			content = content.replace("__ES_PASSWORD__",             "na");
 		}
 		content = content.replace("__CWS_HISTORY_DAYS_TO_LIVE__", 	history_days_to_live);
 		writeToFile(path, content);
@@ -2498,6 +2548,92 @@ public class CwsInstaller {
 				"Put your custom content here by editing the '" + indexHtml + "' file...<br/><br/><hr/>" +
 				"Automatically redirecting to <a href=\"/cws-ui\">CWS Home</a> in 10 seconds...</body></html>");
 		}
+	}
+
+
+	private static String[] getIdentityPluginAttribute(Path beanFilePath, String user, String ldapURL) throws IOException {
+		//
+		// Get identity plugin properties and attributes
+		//
+		String propertyBase = "";
+		String propertySearchBase = "";
+		String[] identityAttributes = new String[3];
+		String[] attributeFilter = {"givenName", "sn", "mail"};
+
+		try {
+			String fileContent = new String(Files.readAllBytes(beanFilePath));
+			String repl = "";
+			String replContent = fileContent.substring(0, fileContent.indexOf("<bean id=\"ldapIdentityProviderPlugin\""));
+			fileContent = fileContent.replace(replContent, repl);
+
+			// Turn file content from string to document
+			String xmlContent = fileContent;
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder;
+			builder = factory.newDocumentBuilder();
+			Document docx = builder.parse(new InputSource(new StringReader(xmlContent)));
+
+			NodeList bean = docx.getElementsByTagName("property");
+
+			for(int i = 0; i < bean.getLength(); i++) {
+				Element beanElement = (Element) bean.item(i);
+				if (beanElement.getAttribute("name").equalsIgnoreCase("baseDn")) {
+					if (beanElement.getAttribute("value").equals("")) {
+						propertyBase = beanElement.getTextContent();
+					} else {
+						propertyBase = beanElement.getAttribute("value");
+					}
+				}
+				if (beanElement.getAttribute("name").equalsIgnoreCase("userSearchBase")) {
+					if (beanElement.getAttribute("value").equals("")) {
+						propertySearchBase = beanElement.getTextContent();
+					} else {
+						propertySearchBase = beanElement.getAttribute("value");
+					}
+				}
+			}
+
+			Hashtable env = new Hashtable();
+			String cxtFactory = "com.sun.jndi.ldap.LdapCtxFactory";
+			env.put(Context.INITIAL_CONTEXT_FACTORY, cxtFactory);
+			env.put(Context.PROVIDER_URL, ldapURL);
+			DirContext dirCxt = new InitialDirContext(env);
+
+			String base = propertySearchBase + "," + propertyBase;
+
+			SearchControls ctrl = new SearchControls();
+			ctrl.setReturningAttributes(attributeFilter);
+			ctrl.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+			String filter = "(&(uid=" + user + "))";
+			NamingEnumeration results = dirCxt.search(base, filter, ctrl);
+			while (results.hasMore()) {
+				SearchResult result = (SearchResult) results.next();
+				Attributes attrs = result.getAttributes();
+				// First name attribute - givenName
+				Attribute attr = attrs.get("givenName");
+				identityAttributes[0] = attr.get().toString();
+				// Last name attribute - sn
+				attr = attrs.get("sn");
+				identityAttributes[1] = attr.get().toString();
+				// Email attribute - mail
+				attr = attrs.get("mail");
+				identityAttributes[2] = attr.get().toString();
+			}
+			dirCxt.close();
+		} catch (Exception e) {
+			print("+----------------------------------------------------------------------------------+");
+			print("CWS Installer ERROR: LDAP API failed to retrieve CWS user's " + Arrays.toString(attributeFilter));
+			print("     to set in CWS properties files and utilize for CWS services. Make sure 'ldap_plugin_bean.xml' is ");
+			print("     properly configured. Refer to the template /tomcat_conf/ldap_plugin_bean.xml");
+			print("ERROR: " + e);
+			print("+----------------------------------------------------------------------------------+");
+			// JNDI LDAP retrieval failed.
+			identityAttributes[0] = "__CWS_ADMIN_FIRSTNAME__";
+			identityAttributes[1] = "__CWS_ADMIN_LASTNAME__";
+			identityAttributes[2] = "__CWS_ADMIN_EMAIL__";
+		}
+		return identityAttributes;
 	}
 
 
@@ -2612,7 +2748,7 @@ public class CwsInstaller {
 			Paths.get(logstash_root   + SEP + "cws-logstash.conf"));
 	}
 
-	private static void writeOutConfigurationFile() {
+	private static void writeOutConfigurationFile() throws IOException {
 		InstallerPresets presets = CwsInstallerUtils.getInstallerPresets();
 
 		setPreset("hostname", this_hostname);
@@ -2625,9 +2761,19 @@ public class CwsInstaller {
 		setPreset("database_username", cws_db_username);
 		setPreset("database_password", cws_db_password);
 		setPreset("admin_user", cws_user);
-		setPreset("admin_firstname", cws_user_firstname);
-		setPreset("admin_lastname", cws_user_lastname);
-		setPreset("admin_email", cws_user_email);
+
+		if (cws_auth_scheme.equalsIgnoreCase("CAMUNDA")) {
+			setPreset("admin_firstname", cws_user_firstname);
+			setPreset("admin_lastname", cws_user_lastname);
+			setPreset("admin_email", cws_user_email);
+		} else {
+			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
+			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
+			setPreset("admin_firstname", identityAttr[0]);
+			setPreset("admin_lastname", identityAttr[1]);
+			setPreset("admin_email", identityAttr[2]);
+		}
+
 		setPreset("cws_web_port", cws_tomcat_connector_port);
 		setPreset("cws_ssl_port", cws_tomcat_ssl_port);
 		setPreset("cws_ajp_port", cws_tomcat_ajp_port);

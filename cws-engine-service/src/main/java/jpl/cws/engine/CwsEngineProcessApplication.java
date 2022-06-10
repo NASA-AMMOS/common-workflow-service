@@ -68,6 +68,7 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 	//@Autowired private ExternalTaskService externalTaskService;
 	
 	@Value("${camunda.executor.service.max.pool.size}") private Integer EXEC_SERVICE_MAX_POOL_SIZE;
+	@Value("${cws.admin.email}") private String cwsAdminEmail;
 	@Value("${cws.smtp.hostname}") private String cwsSMTPHostname;
 	@Value("${cws.smtp.port}") private String cwsSMTPPort;
 	@Value("${send.user.task.assignment.emails}") private String sendUserTaskAssignmentEmails;
@@ -465,8 +466,7 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 			}
 		};
 	}
-	
-	
+
 	/**
 	 * Helper method to get procDefKey from execution object, using multiple methods.
 	 */
@@ -520,14 +520,15 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 			
 			email.setHostName(cwsSMTPHostname);
 			email.setSmtpPort(Integer.parseInt(cwsSMTPPort));
-			email.setFrom("cws_admin@localhost"); // TODO: make this configurable as well?
+			email.setFrom(cwsAdminEmail);
 			email.setSubject(emailSubject);
 			
 			for (String recip : recipients) {
 				email.addTo(recip.trim());
 				log.debug("About to send email to " + recip + "...");
 			}
-			
+
+			log.debug("  FROM   : " + cwsAdminEmail);
 			log.debug("  SUBJECT: " + emailSubject);
 			log.debug("  BODY   : " + emailBody);
 			
