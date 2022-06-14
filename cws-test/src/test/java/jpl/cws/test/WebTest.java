@@ -38,7 +38,8 @@ public class WebTest extends WebTestUtil {
 		log.info("------ START runProcessTest ------");
 		gotoLoginPage();
 		login();
-		startProcessFromConsole("test_simplest");
+		startProcDef("test_simplest", "Test Simplest");
+		deleteProc("test_simplest");
 		logout();
 		log.info("------ END runProcessTest ------");
 	}
@@ -52,14 +53,6 @@ public class WebTest extends WebTestUtil {
 		findOnPage("Deployed process definition");
 		findOnPage("test_simplest");
 	}
-	
-	private void startProcessFromConsole(String procDefKey) {
-		findOnPage(procDefKey);
-		WebElement startIcon = findElById("pv-external_pwd");
-		log.info("Clicking on " + startIcon);
-		startIcon.click();
-		findOnPage("numPending_external_pwd");
-	}
-	
-	
+
+
 }

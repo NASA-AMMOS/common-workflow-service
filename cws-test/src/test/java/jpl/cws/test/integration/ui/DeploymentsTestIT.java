@@ -26,7 +26,6 @@ import jpl.cws.test.WebTestUtil;
  * @author hasan
  *
  */
-@Ignore
 @RunWith(JUnit4.class)
 public class DeploymentsTestIT extends WebTestUtil {
 	private static final Logger log = LoggerFactory.getLogger(DeploymentsTestIT.class);
@@ -387,9 +386,9 @@ public class DeploymentsTestIT extends WebTestUtil {
 			enable.click();
 
 			log.info("Enabling one worker.");
-			waitForElementXPath("//label[contains(text(),'worker0001')]");
-			WebElement worker0001 = driver.findElement(By.xpath("//label[contains(text(),'worker0001')]"));
-			worker0001.click();
+			waitForElementXPath("//label[contains(text(),'worker0000')]");
+			WebElement worker0000 = driver.findElement(By.xpath("//label[contains(text(),'worker0000')]"));
+			worker0000.click();
 
 			WebElement oneWorkerDone = findElById("done-workers-btn");
 			waitForElement(oneWorkerDone);
@@ -415,7 +414,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			    }
 			}
 
-			driver.findElement(By.xpath("//label[contains(text(),'worker0001')]")).click();
+			driver.findElement(By.xpath("//label[contains(text(),'worker0000')]")).click();
 			sleep(1000);
 		    oneWorkerDone.click();
 		    wait.until(ExpectedConditions.invisibilityOf(oneWorkerDone));

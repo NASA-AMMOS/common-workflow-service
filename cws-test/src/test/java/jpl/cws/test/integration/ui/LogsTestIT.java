@@ -21,7 +21,6 @@ import jpl.cws.test.WebTestUtil;
  * @author hasan
  *
  */
-@Ignore
 public class LogsTestIT extends WebTestUtil {
 	private static final Logger log = LoggerFactory.getLogger(LogsTestIT.class);
 	private static int testCasesCompleted = 0;
@@ -56,7 +55,7 @@ public class LogsTestIT extends WebTestUtil {
 			scriptPass = false;	
 		}
 		deleteProc("test_logs_page");
-		deleteProc("output_refresh_test");
+		// deleteProc("output_refresh_test");
 		logout();
 		assertTrue("Logs Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
@@ -69,10 +68,10 @@ public class LogsTestIT extends WebTestUtil {
 			
 			goToPage("logs");
 			
-			log.info("Looking for text, 'Graphite', 'Command ls exit value:0', and 'Deployed process definitions: test_logs_page.bpmn'.");
+			log.info("Looking for text, 'Graphite', 'Command ls exit exit code:0', and 'Deployed process definitions: test_logs_page.bpmn'.");
 			
 			if (findOnPage("Graphite")
-					&& findOnPage("Command 'ls' exit value:0.") 
+					&& findOnPage("Command 'ls' exit code:0.")
 					&& findOnPage("Deployed process definition: 'test_logs_page.bpmn'")) {
 				scriptPass = true;
 				testCasesCompleted++;
@@ -100,26 +99,32 @@ public class LogsTestIT extends WebTestUtil {
 			waitForElementID("cwshost-chkbox");
 			log.info("Checking CWS Host.");
 			findElById("cwshost-chkbox").click();
+			sleep(1000);
 			
 			waitForElementID("cwswid-chkbox");
 			log.info("Checking CWS ID.");
 			findElById("cwswid-chkbox").click();
+			sleep(1000);
 			
 			waitForElementID("loglvl-chkbox");
 			log.info("Checking Log Level.");
 			findElById("loglvl-chkbox").click();
+			sleep(1000);
 			
 			waitForElementID("thn-chkbox");
 			log.info("Checking Thread Name.");
 			findElById("thn-chkbox").click();
+			sleep(1000);
 			
 			waitForElementID("pdk-chkbox");
 			log.info("Checking Process Definition Key.");
 			findElById("pdk-chkbox").click();
+			sleep(1000);
 			
 			waitForElementID("pid-chkbox");
 			log.info("Checking Process ID.");
 			findElById("pid-chkbox").click();
+			sleep(1000);
 			
 			wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.tagName("table")));
 			WebElement myTable = driver.findElement(By.tagName("table"));

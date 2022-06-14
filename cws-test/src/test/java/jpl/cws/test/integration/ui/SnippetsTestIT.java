@@ -20,7 +20,6 @@ import jpl.cws.test.WebTestUtil;
  * @author hasan
  *
  */
-@Ignore
 public class SnippetsTestIT extends WebTestUtil {
 	private static final Logger log = LoggerFactory.getLogger(SnippetsTestIT.class);
 	private static int testCasesCompleted = 0;
@@ -273,6 +272,7 @@ public class SnippetsTestIT extends WebTestUtil {
 		try {
 			log.info("------ START SnippetsTestIT:ReloadEditorTest ------");
 			driver.navigate().refresh();
+			sleep(2000);
 
 			WebElement aceEditor = driver.findElement(By.cssSelector("textarea.ace_text-input"));
 			log.info("Updating snippets through Ace Editor.");

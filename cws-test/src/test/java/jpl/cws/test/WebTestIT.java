@@ -74,14 +74,21 @@ public class WebTestIT extends WebTestUtil {
 		WebElement enable = findElById("pv-test_set_vars");
 		enable.click();
 		sleep(1000);
-		
+
 		WebElement allWorkers = findElById("all-workers");
-		allWorkers.click();
-		sleep(1000);
-		
 		WebElement allWorkersDone = findElById("done-workers-btn");
-		allWorkersDone.click();
-		sleep(10000);
+
+		if(allWorkers.isSelected()) {
+			allWorkersDone.click();
+			sleep(1000);
+		} else {
+			allWorkers.click();
+			sleep(1000);
+			allWorkersDone.click();
+			sleep(1000);
+		}
+
+		sleep(2000);
 		
 		
 		// Start Instance
@@ -112,13 +119,12 @@ public class WebTestIT extends WebTestUtil {
 		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui']"));
 		cws.click();
 		findOnPage("<title>CWS - Deployments</title>");
-		
 
-		// gotoDeployments();
 		
 		// Wait for Finish
-		sleep(25000);
-		
+		sleep(90000);
+
+		deleteProc("test_set_vars");
 		logout();
 		log.info("------ END deployTest ------");
 	}
@@ -137,14 +143,21 @@ public class WebTestIT extends WebTestUtil {
 		enable.click();
 		sleep(1000);
 
-		
+
 		WebElement allWorkers = findElById("all-workers");
-		allWorkers.click();
-		sleep(1000);
-		
 		WebElement allWorkersDone = findElById("done-workers-btn");
-		allWorkersDone.click();
-		sleep(10000);
+
+		if(allWorkers.isSelected()) {
+			allWorkersDone.click();
+			sleep(1000);
+		} else {
+			allWorkers.click();
+			sleep(1000);
+			allWorkersDone.click();
+			sleep(1000);
+		}
+
+		sleep(2000);
 		
 		
 		// Start Instance (1) through Camunda
@@ -175,13 +188,12 @@ public class WebTestIT extends WebTestUtil {
 		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui']"));
 		cws.click();
 		findOnPage("<title>CWS - Deployments</title>");
-		
-		//gotoDeployments();
-	
+
 		// Wait for Finish
-		sleep(90000);
+		sleep(180000);
 		procCounter++;
-		
+
+		deleteProc("test_error_handling");
 		logout();
 		log.info("------ END deployTest ------");
 	}
@@ -201,16 +213,18 @@ public class WebTestIT extends WebTestUtil {
 		
 		WebElement allWorkers = findElById("all-workers");
 		WebElement allWorkersDone = findElById("done-workers-btn");
-		
-		if(allWorkers.isEnabled()) {
+
+		if(allWorkers.isSelected()) {
 			allWorkersDone.click();
-			sleep(10000);
+			sleep(1000);
 		} else {
 			allWorkers.click();
 			sleep(1000);
 			allWorkersDone.click();
-			sleep(10000);
+			sleep(1000);
 		}
+
+		sleep(2000);
 		
 		WebElement tasks = driver.findElement(By.xpath("//a[@href='/camunda/app/tasklist']"));
 		tasks.click();		
@@ -239,6 +253,9 @@ public class WebTestIT extends WebTestUtil {
 		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui']"));
 		cws.click();
 		findOnPage("<title>CWS - Deployments</title>");
+
+		// Wait for Finish
+		sleep(90000);
 		
 		
 		/*
@@ -271,9 +288,7 @@ public class WebTestIT extends WebTestUtil {
 		
 		sleep(1000);
 		*/
-		
-		// goToPage("deployments");
-		
+
 		
 		if(findOnPage("completed")) {
 			goToProcesses();
@@ -292,9 +307,10 @@ public class WebTestIT extends WebTestUtil {
 			filterSubmit.click();
 			sleep(1000);
 
+			waitForElementXPath("//button[contains(text(),'History')]");
 			WebElement historyButton = driver.findElement(By.xpath("//button[contains(text(),'History')]"));
 			historyButton.click();
-			sleep(5000);
+			sleep(1000);
 			
 			findOnPage("ls");
 			findOnPage("Hello World");
@@ -307,7 +323,8 @@ public class WebTestIT extends WebTestUtil {
 		} else {
 			log.info("Process did not complete either in time or at all");
 		}
-		
+
+		deleteProc("test_hello_world");
 		logout();
 		log.info("------ END deployTest ------");
 	}
@@ -316,7 +333,8 @@ public class WebTestIT extends WebTestUtil {
 		log.info("------ START runProcessTest ------");
 		gotoLoginPage();
 		login();
-		startProcessFromConsole("test_set_vars");
+		startProcDef("test_simplest", "Test Simplest");
+		deleteProc("test_simplest");
 		logout();
 		log.info("------ END runProcessTest ------");
 	}
@@ -351,15 +369,7 @@ public class WebTestIT extends WebTestUtil {
 		deployFile("test_error_handling");
 		
 	}
-		
-	private void startProcessFromConsole(String procDefKey) {
-		findOnPage(procDefKey);
-		WebElement startIcon = findElById("pv-test_set_vars");
-		log.info("Clicking on " + startIcon);
-		startIcon.click();
-		findOnPage("numPending_test_set_vars");
-	}
-	
+
 	//Demo for Sarjil
 	private void goToProcesses() {
 		if(findOnPage("completed")) {

@@ -20,7 +20,6 @@ import jpl.cws.test.WebTestUtil;
  * @author hasan
  *
  */
-@Ignore
 public class HistoryTestIT extends WebTestUtil {
 	private static final Logger log = LoggerFactory.getLogger(HistoryTestIT.class);
 	private static int testCasesCompleted = 0;
@@ -85,10 +84,10 @@ public class HistoryTestIT extends WebTestUtil {
 			findOnPage("<title>CWS - History</title>");
 
 			if (findOnPage("History Page")
-					&& findOnPage("Command 'mkdir Test' exit value:0.")
-					&& findOnPage("Command 'ls' exit value:0.")
+					&& findOnPage("Command 'mkdir Test' exit code:0.")
+					&& findOnPage("Command 'ls' exit code:0.")
 					&& findOnPage("LINE: Test")
-					&& findOnPage("Command 'rmdir Test' exit value:0.")) {
+					&& findOnPage("Command 'rmdir Test' exit code:0.")) {
 				scriptPass = true;
 				testCasesCompleted++;
 			}
