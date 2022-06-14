@@ -21,5 +21,8 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+    - name: Directory
+      run: pwd
     - name: CWS Unit and Integration Test Run
-      run: git update-index --chmod u+x ./test.sh
+      run: git update-index --chmod +x ./test.sh
+
