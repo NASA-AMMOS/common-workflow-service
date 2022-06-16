@@ -300,9 +300,10 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 				// If this is an event in a subprocess, then this doesn't count.
 				// We only want to count events of the parent process.
 				//
+				log.debug("FROM CWSENGINEPROC **** prodDefKey=" + getProcDefKey(execution) +  "  EVENT NAME 111111 -------: " + elementName);
 				String parentActivityInstanceId = execution.getParentActivityInstanceId();
 				if (!parentActivityInstanceId.startsWith("SubProcess")) {
-					
+					log.debug("SUB PROCESS ID: " + parentActivityInstanceId);
 					// -------------------------
 					// END EVENT DETECTED
 					// -------------------------
@@ -314,6 +315,7 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 							String eventSource = executionContext.getExecution().getEventSource().toString();
 
 							// print out event name and source for other events
+							log.debug("EVENT SOURCEEE 222222 -=--------- : " + eventSource);
 							if (execution.getEventName().equals("end") && eventSource.startsWith("Activity")) {
 								log.trace("END EVENT DETECTED!!!!!!!!");
 								String procDefKey = getProcDefKey(execution);

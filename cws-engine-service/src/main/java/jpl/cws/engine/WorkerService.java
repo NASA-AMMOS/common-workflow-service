@@ -683,8 +683,9 @@ public class WorkerService implements InitializingBean {
 				
 				//log.trace("getting currentCount for procDefKey " + procDefKey);
 				int currentCount = processCounters.get(procDefKey);
-				//log.trace("currentCount for " + procDefKey + " is " + currentCount);
+				log.debug("----currentCount for " + procDefKey + " is " + currentCount);
 				int remainder = procMaxNumber - currentCount;
+				log.debug(procDefKey + "**REMAINDER for " + "THIS PROCKEY " + " is ***** : " + remainder + " --- CURRENTCOUNT : " + currentCount + " -----procMAXNUMBER:  " + procMaxNumber);
 				//log.trace("remainder for " + procDefKey + " is " + remainder);
 				int queryLimit = Math.min(EXEC_SERVICE_MAX_POOL_SIZE, remainder);
 				//log.trace("queryLimit for " + procDefKey + " is " + queryLimit);
@@ -752,11 +753,16 @@ public class WorkerService implements InitializingBean {
 		synchronized (procStateLock) { // lock
 			if (procStartReqUuidStartedThisWorker.contains(uuidThatEnded)) {
 				// uncomment log.debug
-				//log.debug("DECREMENTING "+procDefKeyThatEnded);
+				log.debug("DECREMENTING ***** -----: " + procDefKeyThatEnded);
+				log.debug("PROCESS COUNTERS NOW AT : " + processCounters.get(procDefKeyThatEnded));
+
 				processCounters.put(procDefKeyThatEnded, processCounters.get(procDefKeyThatEnded) - 1);
 				// log.debug()
 				log.trace("PROCESS COUNTERS NOW AT : " + processCounters.get(procDefKeyThatEnded));
 				procStartReqUuidStartedThisWorker.remove(uuidThatEnded);
+
+				log.debug("PROCESS COUNTERS AFTER REMOVED : " + processCounters.get(procDefKeyThatEnded));
+
 				return true;
 			}
 			else {
