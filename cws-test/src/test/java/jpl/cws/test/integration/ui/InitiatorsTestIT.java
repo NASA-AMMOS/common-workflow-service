@@ -156,12 +156,12 @@ public class InitiatorsTestIT extends WebTestUtil {
 
 
 			if(!enableAction.isSelected()) {
-				js.executeScript("arguments[0].click();", enableAction);
+				js.executeScript("arguments[0].click();", findElById("toggle_repeat_1"));
 				sleep(1000);
 			} else {	// toggle off and on to start
-				js.executeScript("arguments[0].click();", enableAction);
+				js.executeScript("arguments[0].click();", findElById("toggle_repeat_1"));
 				sleep(1000);
-				js.executeScript("arguments[0].click();", enableAction);
+				js.executeScript("arguments[0].click();", findElById("toggle_repeat_1"));
 				sleep(1000);
 			}
 
