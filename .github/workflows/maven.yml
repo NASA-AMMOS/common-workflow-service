@@ -23,6 +23,9 @@ jobs:
       run: mvn -B package --file pom.xml
     - name: Directory
       run: pwd
-      #name: CWS Unit and Integration Test Run
+    - name: change test.sh permission
+      run: chmod +x test.sh
+    - name: CWS Unit and Integration Test Run
+      run: ./test.sh
       #run: git update-index --chmod +x ./test.sh
 
