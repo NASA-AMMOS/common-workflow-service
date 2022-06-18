@@ -28,8 +28,9 @@ jobs:
         file-name: logstash-7.16.2.zip
         location: install/logging/
     - name: Check for Logstash
-      run: cd install/logging/
-    - run: ls -l
+      run:  |
+        cd install/logging/
+        ls -l
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: Directory
