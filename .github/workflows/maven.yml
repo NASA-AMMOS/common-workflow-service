@@ -60,7 +60,8 @@ jobs:
     needs: build-cws
 
     steps:
-    - name: Set up Elasticsearch
-      run: |
-        cd install/docker/es-only
-        docker-compose up
+      - uses: actions/checkout@v3
+      - name: Set up Elasticsearch
+        run: |
+          cd install/docker/es-only
+          docker-compose up
