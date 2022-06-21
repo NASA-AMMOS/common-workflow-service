@@ -6,6 +6,30 @@ name: Java CI with Maven
 # Triggers the workflow on push or pull request
 on: [push, pull_request]
 
+env:
+  INTERNET_TYPE: 0
+  HOSTNAME: "localhost"
+  SECURITY: "camunda"
+  DB_TYPE: mariadb
+  DB_HOST: 127.0.0.1
+  DB_NAME: cws_dev
+  DB_USER: root
+  DB_PASS: rootpw
+  DB_PORT: 3306
+  ES_PROTOCOL: "http"
+  ES_HOST: "localhost"
+  ES_PORT: 9200
+  ES_USE_AUTH: n
+  ES_USERNAME: "na"
+  ES_PASSWORD: "na"
+  NUM_WORKERS: 1
+  WORKER_ABANDONED_DAYS: 1
+  USER: cwsci
+  EMAIL_LIST: "/"
+  ADMIN_FIRST: "/"
+  ADMIN_LAST: "/"
+  ADMIN_EMAIL: "/"
+
 jobs:
 
   build-database:
@@ -19,6 +43,8 @@ jobs:
   build-cws:
 
     runs-on: ubuntu-latest
+
+    needs: build-database
 
     steps:
     - uses: actions/checkout@v3
@@ -44,10 +70,14 @@ jobs:
       #run:  |
         #cd install/docker/es-only
         #docker-compose up
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
+    #- name: Build with Maven
+      #run: mvn -B package --file pom.xml
     - name: Directory
       run: pwd
+    - run: chmod +x stop_dev.sh
+    - run: ./stop_dev.sh
+    - run: chmod +x dev.sh
+    - run: ./dev.sh
     #- name: change test.sh permission
       #run: chmod +x test.sh
     #- name: CWS Unit and Integration Test Run
@@ -57,7 +87,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    needs: build-cws
+    needs: build-database
 
     steps:
       - uses: actions/checkout@v3
