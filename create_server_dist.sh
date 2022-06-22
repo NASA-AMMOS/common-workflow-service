@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # --------
 # create_server_dist.sh
 # --------
