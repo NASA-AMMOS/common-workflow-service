@@ -28,7 +28,7 @@ env:
   USER: cwsci
   CLOUD: n
   EMAIL_LIST: "/"
-  ADMIN_FIRST: "/"
+  ADMIN_FIRST: "///"
   ADMIN_LAST: "/"
   ADMIN_EMAIL: "/"
 
