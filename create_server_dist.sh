@@ -8,6 +8,7 @@
 pwd
 echo " directory for create_server_dist.sh"
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+print $ROOT
 
 source ${ROOT}/utils.sh
 
