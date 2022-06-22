@@ -4,7 +4,8 @@
 name: Java CI with Maven
 
 # Triggers the workflow on push or pull request
-on: [push, pull_request]
+#on: [push, pull_request]
+on: [push]
 
 env:
   INTERNET_TYPE: 0
@@ -26,7 +27,7 @@ env:
   WORKER_ABANDONED_DAYS: 1
   USER: cwsci
   CLOUD: n
-  EMAIL_LIST: "//"
+  EMAIL_LIST: "/"
   ADMIN_FIRST: "/"
   ADMIN_LAST: "/"
   ADMIN_EMAIL: "/"
