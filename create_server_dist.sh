@@ -8,6 +8,7 @@
 #ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT=${1}
 
+echo "$ROOT"
 source ${ROOT}/utils.sh
 
 SERVER_DIST='cws_server.tar.gz'
@@ -15,6 +16,9 @@ SERVER_DIST='cws_server.tar.gz'
 DIST=${ROOT}/dist
 CWS=${DIST}/cws
 INSTALL_DIR=${ROOT}/install
+echo "$DIST"
+echo "$CWS"
+echo "$INSTALL_DIR"
 
 print 'Removing previous distribution directory...'
 rm -rf ${DIST}
