@@ -34,6 +34,17 @@ env:
 
 jobs:
 
+  build-elasticsearch:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Elasticsearch
+        run: |
+          cd install/docker/es-only
+          docker-compose up
+
   build-database:
 
     runs-on: ubuntu-latest
@@ -56,8 +67,6 @@ jobs:
         java-version: '8'
         distribution: 'temurin'
         cache: maven
-    #- name: Set up CWS database using Docker
-      #run: docker run -d -p 3306:3306 -e MYSQL_DATABASE=cws_dev -e MYSQL_ROOT_PASSWORD=rootpw -e TZ=America/Los_Angeles --name mdb103 mariadb:10.3
     - name: Download Logstash
       uses: carlosperate/download-file-action@v1
       with:
@@ -68,34 +77,25 @@ jobs:
       run:  |
         cd install/logging/
         ls -l
-    #- name: Set up Elasticsearch
-      #run:  |
-        #cd install/docker/es-only
-        #docker-compose up
     #- name: Build with Maven
       #run: mvn -B package --file pom.xml
-    - name: Directory
-      run: pwd
     - run: chmod +x stop_dev.sh
     - run: ./stop_dev.sh
     - name: run dev.sh
       run:  |
         chmod +x dev.sh
         ./dev.sh `pwd` ${USER} ${DB_TYPE} ${DB_HOST} ${DB_PORT} ${DB_NAME} ${DB_USER} ${DB_PASS} ${ES_PROTOCOL} ${ES_HOST} ${ES_PORT} ${ES_USE_AUTH} ${ES_USERNAME} ${ES_PASSWORD} ${CLOUD} ${SECURITY} ${HOSTNAME} ${EMAIL_LIST} ${ADMIN_FIRST} ${ADMIN_LAST} ${ADMIN_EMAIL} ${NUM_WORKERS} ${WORKER_ABANDONED_DAYS}
-    #- name: change test.sh permission
-      #run: chmod +x test.sh
-    #- name: CWS Unit and Integration Test Run
-      #run: ./test.sh
+      shell: bash
 
-  build-elasticsearch:
+  run-tests:
 
     runs-on: ubuntu-latest
 
-    needs: build-database
+    needs: build-cws
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Elasticsearch
-        run: |
-          cd install/docker/es-only
-          docker-compose up
+      - name: change test.sh permission
+        run: chmod +x test.sh
+      - name: CWS Unit and Integration Test Run
+        run: ./test.sh
