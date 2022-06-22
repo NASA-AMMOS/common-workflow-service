@@ -31,7 +31,7 @@ mvn -DskipTests -Dskip.integration.tests clean install -P ${BUILD_PROFILE}
 if [[ $? -eq 0 ]]; then
     # Build distribution
     print "Creating server distribution..."
-    print $ROOT
+    echo "${ROOT}"
     pwd
     echo " directory for build.sh"
     ${ROOT}/create_server_dist.sh
