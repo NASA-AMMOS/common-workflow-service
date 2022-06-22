@@ -9,7 +9,7 @@
 ROOT=${1}
 
 echo "$ROOT"
-source ${ROOT}/utils.sh
+#source ${ROOT}/utils.sh
 
 SERVER_DIST='cws_server.tar.gz'
 
