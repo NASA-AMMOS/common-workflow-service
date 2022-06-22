@@ -5,10 +5,8 @@
 # Assembles a CWS server archive, comprised of the CWS core libraries and associated executables
 # (Tomcat, Logstash, etc...)
 
-pwd
-echo " directory for create_server_dist.sh"
-ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-echo "${ROOT}"
+#ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT=${1}
 
 source ${ROOT}/utils.sh
 
