@@ -31,7 +31,8 @@ mvn -DskipTests -Dskip.integration.tests clean install -P ${BUILD_PROFILE}
 if [[ $? -eq 0 ]]; then
     # Build distribution
     print "Creating server distribution..."
-    echo pwd + " directory for build.sh"
+    pwd
+    echo " directory for build.sh"
     ${ROOT}/create_server_dist.sh
 else
     print "ERROR: There were one or more build errors, aborting."
