@@ -6,6 +6,7 @@
 # (Tomcat, Logstash, etc...)
 
 #ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+echo $SHELL
 ROOT=${1}
 
 source ${ROOT}/utils.sh
