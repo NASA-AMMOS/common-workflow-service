@@ -91,9 +91,9 @@ for ((WORKER_NUM=1; WORKER_NUM <= $NUM_WORKERS; WORKER_NUM++)); do
 	auto_conf_data ${WORKER_TAG} "$@" ${ROOT}/auto_conf.dat
 	${DIST}/${WORKER_TAG}/cws/configure.sh ${ROOT}/auto_conf.dat
 
-	if [[ $? -gt 0 ]]; then
-		prompt_to_continue "Error during configuration (see above)  Continue? (y/n): "
-	fi
+	#if [[ $? -gt 0 ]]; then
+		#prompt_to_continue "Error during configuration (see above)  Continue? (y/n): "
+	#fi
 done
 
 # -------------
