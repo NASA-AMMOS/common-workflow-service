@@ -373,7 +373,32 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			return null;
 		}
 	}
-	
+
+
+	/**
+	 * @param prod_def_key
+     * @return list - cws_proc_inst_status row
+     */
+	public List<Map<String, Object>> getProcInstStatusBusinessKey(String prod_def_key) {
+		List<Map<String,Object>> list = jdbcTemplate.queryForList(
+			"SELECT business_key FROM cws_proc_inst_status " +
+				"WHERE proc_def_key=?",
+			new Object[] {prod_def_key});
+		if (list.size() != 1) {
+			log.debug("unexpected list size: " + list.size() );
+		}
+		/*
+		if (list != null && !list.isEmpty()) {
+			return (List<Map<String, Object>>) list.iterator().next();
+		}
+		else {
+			return null;
+		}
+
+		 */
+
+		return list;
+	}
 	
 	/**
 	 * 
