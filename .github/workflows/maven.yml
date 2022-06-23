@@ -66,10 +66,10 @@ jobs:
         ports:
           - 9200:9200
           - 9300:9300
-        options: >-
-          --health-interval 5s
-          --health-timeout 2s
-          --health-retries 5
+        #options: >-
+          #--health-interval 5s
+          #--health-timeout 2s
+          #--health-retries 5
 
     steps:
     - uses: actions/checkout@v3
