@@ -187,7 +187,7 @@ else
 	fi
 fi
 
-print "Staring CWS Installer..."
+print "Starting CWS Installer..."
 if [[ "$RECONFIGURE" = true ]]; then
 	${JAVA_HOME}/bin/java -classpath "${ROOT}/installer/*" jpl.cws.task.CwsInstaller --reconfigure
 else
