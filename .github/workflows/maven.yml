@@ -57,7 +57,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    needs: build-database
+    #needs: build-database
 
     steps:
     - uses: actions/checkout@v3
