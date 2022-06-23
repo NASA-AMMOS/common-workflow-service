@@ -81,7 +81,7 @@ jobs:
           cache: maven
       - name: Set up CWS database using Docker
         run: docker run -d -p 3306:3306 -e MYSQL_DATABASE=cws_dev -e MYSQL_ROOT_PASSWORD=rootpw -e TZ=America/Los_Angeles --name mdb103 mariadb:10.3
-      - run: docker-compose up -d cws-es
+      - run: docker-compose up -d elasticsearch
       - name: Download Logstash
         uses: carlosperate/download-file-action@v1
         with:
