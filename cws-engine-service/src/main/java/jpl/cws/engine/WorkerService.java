@@ -690,48 +690,32 @@ public class WorkerService implements InitializingBean {
 				}
 
 
-
 				//log.trace("getting currentCount for procDefKey " + procDefKey);
 				int currentCount = processCounters.get(procDefKey);
 
 
+				List<Map<String, Object>> claimStatus = schedulerDbService.getProcInstStatusBusinessKey(procDefKey);
+				log.debug("BusKey getProcInstStatusRow info: " + claimStatus + " -- ");
 
-
-				List<Map<String, Object>> claimData88 = schedulerDbService.getProcInstStatusBusinessKey(procDefKey);
-				log.debug("else6 getProcInstStatusRow info100: " + claimData88 + " -- ");
-
-
-				for (Map<String, Object> map1 : claimData88) {
+				for (Map<String, Object> map1 : claimStatus) {
 					for (Map.Entry<String, Object> entry : map1.entrySet()) {
 						System.out.println(entry.getKey() + "/" + entry.getValue());
 						if (entry.getKey().equals("business_key")) {
-							log.debug("BUSINESSKEY77777777 : " + entry.getValue());
+							log.debug("BUSINESSKEY*** : " + entry.getValue());
 							String status = entry.getValue().toString();
 							String statusData = schedulerDbService.getProcInstRowStatus(status);
-							log.debug("STATUSSSSSSSSSSS000000 : " + statusData);
+							log.debug("STATUS*** : " + statusData);
 
 							if (statusData.equalsIgnoreCase("claimedByWorker")) {
 								processCounters.put(procDefKey, 0);
 								currentCount = processCounters.get(procDefKey);
 							}
-
-
 						}
 					}
-
 				}
 
 
-
-
-
-
-
-
-
-
-
-				log.debug("----currentCount for " + procDefKey + " is " + currentCount);
+				log.debug("-currentCount for " + procDefKey + " is " + currentCount);
 				int remainder = procMaxNumber - currentCount;
 				log.debug(procDefKey + "**REMAINDER for " + "THIS PROCKEY " + " is ***** : " + remainder + " --- CURRENTCOUNT : " + currentCount + " -----procMAXNUMBER:  " + procMaxNumber);
 				//log.trace("remainder for " + procDefKey + " is " + remainder);
@@ -773,122 +757,7 @@ public class WorkerService implements InitializingBean {
 							", currentCount = " + currentCount + ")");
 
 
-					log.debug("else1 process info: " + workerId + " -- " + procDefKey + " -- " + queryLimit);
-
-					/*
-					Map<String,List<String>> claimRowData =
-						schedulerDbService.claimHighestPriorityStartReq(
-							workerId, procDefKey, 1);
-
-
-					List<String> claimed = claimRowData.get("claimedRowUuids");
-					claimUuids.addAll(claimed);
-
-
-					 */
-
-					//log.debug("else2 CLAIMED uuids: " + claimed + " -- ");
-
-					//List<Map<String, Object>> claimData88 = new ArrayList<Map<String, Object>>() {{add(0, "");}};
-
-					//[{id=2, proc_inst_id=be70c751-f2bf-11ec-91fe-167dda6ad765, super_proc_inst_id=null, proc_def_key=Failed_ErrorEnd2, business_key=1fcd0516-8a2c-43cb-a148-9c14fe1e20a4, status=incident, start_time=2022, end_time=null}];
-
-
-
-
-					List<Map<String, Object>> claimData855 = schedulerDbService.getProcInstStatusBusinessKey(procDefKey);
-					log.debug("else5 getProcInstStatusRow info100: " + claimData855 + " -- ");
-
-
-					for (Map<String, Object> map : claimData855) {
-						for (Map.Entry<String, Object> entry : map.entrySet()) {
-							System.out.println(entry.getKey() + "/" + entry.getValue());
-							if (entry.getKey().equals("business_key")) {
-								log.debug("BUSINESSKEY111111111 : " + entry.getValue());
-								String status = entry.getValue().toString();
-								String claimData99 = schedulerDbService.getProcInstRowStatus(status);
-								log.debug("STATUSSSSSSSSSSS : " + claimData99);
-
-
-							}
-						}
-
-					}
-
-					processCounters.put(procDefKey, 0);
-
-
-
-
-
-
-
-
 				}
-
-				//List<Map<String, Object>> claimRowData1 = schedulerDbService.getWorkerProcDefRows();
-				//List<Map<String, Object>> claimRowData5 = schedulerDbService.proc
-
-
-
-				//List<Map<String, Object>> claimRowData2 = schedulerDbService.getStatsForScheduledProcs(); // Set<String> cwsSchedUuids
-				//List<Map<String, Object>> claimRowData3 = schedulerDbService.getClaimedProcInstRows(); // List<String> claimUuid
-
-
-				//log.debug("else3 workerProcDefRows info100: " + claimRowData1 + " -- ");
-
-
-
-				// -------
-				//List<Map<String, Object>> claimRowData4 = schedulerDbService.getIncompleteProcessInstancesForWorker(workerId);
-				//log.debug("else4 getIncompleteProcessInstancesForWorker info100: " + claimRowData4 + " -- ");
-				// ---------
-
-
-
-
-
-				/*
-				Map<String,List<String>> claimRowData = schedulerDbService.claimHighestPriorityStartReq(workerId, procDefKey, queryLimit);
-
-				//Map<String, List<String>> cityMap = mapLoop.getMap();
-				int i = 0;
-				// iterating over a map
-				log.debug("111*** CHECK FOR CLAIMED processes: --- ");
-				for(Map.Entry<String, List<String>> listEntry : claimRowData.entrySet()){
-					//System.out.println("Iterating list number - " + ++i);
-					log.debug("Iterating list number - " + ++i);
-					// iterating over a list
-					for(String name : listEntry.getValue()){
-						//System.out.println("City - " + cityName);
-						log.debug("CLAIM Name - " + name);
-					}
-				}
-				log.debug("222*** CHECK FOR CLAIMED processes: --- ");
-
-
-
-				List<String> claimedRows = claimRowData.get("claimUuids");
-				log.debug("333*** CHECK FOR CLAIMED uuid: --- ");
-				log.debug(" [ ");
-				for(String r : claimedRows) {
-					//System.out.println(r);
-					log.debug(r);
-				}
-				log.debug(" ] ");
-				log.debug("444*** CHECK FOR CLAIMED uuid: --- ");
-
-
-				//List<Map<String,Object>> rows = schedulerDbService.getWorkerProcDefRows(workerId, null);
-				//List<Map<String,Object>> procStatusRows = schedulerDbService.getProcessInstanceStats();
-
-				//List<Map<String,Object>> rows1 = schedulerDbService.getWorkerProcDefRows(workerId, null);
-				//List<Map<String,Object>> rows = schedulerDbService.getproc
-
-
-
-				 */
-
 
 
 			} // end for loop
