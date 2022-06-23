@@ -38,12 +38,28 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Elasticsearch
-        run: |
-          cd install/docker/es-only
-          docker-compose up
+
+    services:
+      cws-es:
+        image: elasticsearch:7.16.2
+        ports:
+          - 9200:9200
+          - 9300:9300
+        options: >-
+          --health-interval 5s
+          --health-timeout 2s
+          --health-retires 5
+
+  #build-elasticsearch:
+
+    #runs-on: ubuntu-latest
+
+    #steps:
+      #- uses: actions/checkout@v3
+      #- name: Set up Elasticsearch
+        #run: |
+          #cd install/docker/es-only
+          #docker-compose up
 
   #build-database:
 
