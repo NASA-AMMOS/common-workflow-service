@@ -93,6 +93,7 @@ jobs:
         ls -l
     #- name: Build with Maven
       #run: mvn -B package --file pom.xml
+    - run: docker ps -a
     - run: chmod +x stop_dev.sh
     - run: ./stop_dev.sh
     - name: run dev.sh
