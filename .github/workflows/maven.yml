@@ -34,38 +34,38 @@ env:
 
 jobs:
 
-  #build-elasticsearch:
+  build-elasticsearch:
 
-    #runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-    #steps:
-      #- uses: actions/checkout@v3
-      #- name: Set up Elasticsearch
-        #run: |
-          #cd install/docker/es-only
-          #docker-compose up
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Elasticsearch
+        run: |
+          cd install/docker/es-only
+          docker-compose up
 
-  #build-database:
+  build-database:
 
-    #runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-    #steps:
-    #- name: Set up CWS database using Docker
-      #run: docker run -d -p 3306:3306 -e MYSQL_DATABASE=cws_dev -e MYSQL_ROOT_PASSWORD=rootpw -e TZ=America/Los_Angeles --name mdb103 mariadb:10.3
+    steps:
+    - name: Set up CWS database using Docker
+      run: docker run -d -p 3306:3306 -e MYSQL_DATABASE=cws_dev -e MYSQL_ROOT_PASSWORD=rootpw -e TZ=America/Los_Angeles --name mdb103 mariadb:10.3
 
   build-cws:
 
     runs-on: ubuntu-latest
 
-    #needs: build-database
+    needs: build-database
 
 
-    services:
-      cws-es:
-        image: elasticsearch:7.16.2
-        ports:
-          - 9200:9200
-          - 9300:9300
+    #services:
+      #cws-es:
+        #image: elasticsearch:7.16.2
+        #ports:
+          #- 9200:9200
+          #- 9300:9300
         #options: >-
           #--health-interval 5s
           #--health-timeout 2s
