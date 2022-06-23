@@ -52,9 +52,9 @@ auto_conf_data console-only "$@" ${ROOT}/auto_conf_console.dat
 print "Configuring console installation..."
 ${DIST}/console-only/cws/configure.sh ${ROOT}/auto_conf_console.dat Y
 
-if [[ $? -gt 0 ]]; then
-	prompt_to_continue "Error during configuration (see above)  Continue? (y/n): "
-fi
+#if [[ $? -gt 0 ]]; then
+	#prompt_to_continue "Error during configuration (see above)  Continue? (y/n): "
+#fi
 
 # -----------------------------------------
 # COPY IN DEVELOPMENT BPMN FILES
