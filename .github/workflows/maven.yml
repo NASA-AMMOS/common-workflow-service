@@ -90,10 +90,12 @@ jobs:
       - name: Show CWS Log
         run:  |
           cd dist/console-only/cws/server/apache-tomcat-9.0.33/logs
+          ls -al
           more cws.log
       - name: Show Catalina
         run:  |
           cd dist/console-only/cws/server/apache-tomcat-9.0.33/logs
+          ls -al
           more catalina.out
 
   run-tests:
