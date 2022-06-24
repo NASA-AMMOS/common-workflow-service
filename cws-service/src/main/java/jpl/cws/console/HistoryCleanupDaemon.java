@@ -1,5 +1,6 @@
 package jpl.cws.console;
 
+import org.camunda.bpm.engine.HistoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ public class HistoryCleanupDaemon extends Thread {
 	private static final int THIS_THREAD_REPEAT_DELAY = 8 * 60 * 60000;		// 8 hours
 
 	@Autowired private CwsConsoleService cwsConsoleService;
-
+	@Autowired private HistoryService historyService;
 	@Autowired private CwsEmailerService cwsEmailerService;
 	
 	public void run() {
@@ -28,7 +29,10 @@ public class HistoryCleanupDaemon extends Thread {
 					sleep(THIS_THREAD_REPEAT_DELAY);
 					
 					log.debug("Performing History Cleanup...");
-	
+
+					// Database history cleanup
+					historyService.cleanUpHistoryAsync(true);
+
 					cwsConsoleService.cleanupElasticsearch();
 					cwsConsoleService.sendWorkerLogCleanupTopicMessage();
 					
