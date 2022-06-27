@@ -6,11 +6,11 @@
 		<version>2.2.0</version><!-- update this each CWS release -->
 	</parent>
 	<artifactId>cws-engine-service</artifactId>
-	
+
 	<properties>
 		<lib.directory>./cws-core-libs</lib.directory>
 	</properties>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
@@ -28,12 +28,12 @@
 			<artifactId>log4j-slf4j-impl</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 		</dependency>
-		
+
 		<!-- CAMUNDA -->
 		<dependency>
 			<groupId>org.camunda.bpm.identity</groupId>
@@ -75,7 +75,7 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.camunda.bpm.extension</groupId>
 			<artifactId>camunda-bpm-assert</artifactId>
@@ -94,22 +94,22 @@
 			<groupId>org.python</groupId>
 			<artifactId>jython-standalone</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>de.ruedigermoeller</groupId>
 			<artifactId>fst</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>javax.jms</groupId>
 			<artifactId>jms</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -126,9 +126,9 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-email</artifactId>
 		</dependency>
-		
+
 		<!--  ACTIVEMQ DEPENDENCIES: http://activemq.apache.org/initial-configuration.html#InitialConfiguration-RequiredJARs -->
-		<!-- 
+		<!--
 		<dependency>
 			<groupId>org.apache.activemq</groupId>
 			<artifactId>activemq-broker</artifactId>
@@ -150,12 +150,12 @@
 			<groupId>org.tuckey</groupId>
 			<artifactId>urlrewritefilter</artifactId>
 		</dependency>
-		
+
 		<dependency> <!--  needed by commons-email -->
 			<groupId>javax.mail</groupId>
 			<artifactId>mail</artifactId>
 		</dependency>
-		
+
 		<!-- Testing libraries -->
 		<dependency>
 			<groupId>org.mockito</groupId>
@@ -174,7 +174,7 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 		</dependency>
-		
+
 		<!-- Database drivers (MariaDB and MySQL supported) -->
 		<dependency>
 			<groupId>org.mariadb.jdbc</groupId>
@@ -190,15 +190,15 @@
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
 		</dependency>
-		
+
 		<!-- Spring MVC framework -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 		</dependency>
-		
+
 	</dependencies>
-	
+
 	<build>
 		<finalName>${project.artifactId}</finalName>
 		<plugins>
@@ -245,7 +245,7 @@
 				</executions>
 			</plugin>
 		</plugins>
-	
+
 	</build>
 
 </project>

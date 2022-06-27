@@ -694,6 +694,7 @@ public class WorkerService implements InitializingBean {
 				int currentCount = processCounters.get(procDefKey);
 
 
+
 				List<Map<String, Object>> claimStatus = schedulerDbService.getProcInstStatusBusinessKey(procDefKey);
 				log.debug("BusKey getProcInstStatusRow info: " + claimStatus + " -- ");
 
@@ -713,6 +714,8 @@ public class WorkerService implements InitializingBean {
 						}
 					}
 				}
+
+
 
 
 				log.debug("-currentCount for " + procDefKey + " is " + currentCount);

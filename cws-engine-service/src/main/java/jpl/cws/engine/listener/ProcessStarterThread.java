@@ -142,7 +142,9 @@ public class ProcessStarterThread implements Runnable {
 
 					// Start process on this engine, and get process instance ID back
 					//
+					// random number for when process starts. to have a procInstId .. failed and add break to leave while loop
 					procInstId = runtimeService.startProcessInstanceByKey(procDefKey, procBusinessKey, procVars).getId();
+
 				} catch (Throwable t) {
 				}
 
