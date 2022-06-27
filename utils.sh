@@ -24,6 +24,7 @@ function print () {
 #     tab [PATH] [CMD] ...  You can prob'ly guess
 #
 function tab () {
+    --tab
     local cmd=""
     local cdto="$PWD"
     local args="$@"
