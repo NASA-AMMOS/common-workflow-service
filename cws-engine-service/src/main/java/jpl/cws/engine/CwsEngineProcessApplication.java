@@ -320,11 +320,11 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 									log.error("procDefKey unable to be determined!");
 								}
 								log.trace("sendProcEventTopicMessageWithRetries");
-								
-								//String startedOnWorkerId = execution.getVariable("startedOnWorkerId").toString();
-								//if (startedOnWorkerId != null && !startedOnWorkerId.equals(workerId)) {
-								//	log.trace("Started on worker != ended on worker");
-								//}
+
+								String startedOnWorkerId = execution.getVariable("startedOnWorkerId").toString();
+								if (startedOnWorkerId != null && !startedOnWorkerId.equals(workerId)) {
+									log.debug("PROCESS '" + procDefKey + "' - Started on worker[" + startedOnWorkerId + "] != ended[" + workerId + "] on worker");
+								}
 								// FIXME: UUID might not be right
 								if (execution.getVariable("uuid") != null) {
 									processService.sendProcEventTopicMessageWithRetries(
@@ -333,6 +333,8 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 										procDefKey,
 										repositoryService.getProcessDefinition(execution.getProcessDefinitionId()).getDeploymentId(),
 										"processEndEventDetected");
+								} else {
+									log.warn("WARNING: UUID of an instance of procDef '" + procDefKey + "' cannot be found. ");
 								}
 							}
 						}

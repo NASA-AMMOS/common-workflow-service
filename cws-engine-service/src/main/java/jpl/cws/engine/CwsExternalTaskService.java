@@ -89,7 +89,7 @@ public class CwsExternalTaskService implements InitializingBean {
 
             return locked < numCores;
         } catch (Exception e) {
-            // We don't really care if this fails
+            log.error("Exception canAcceptMoreWork: ", e);
             return false;
         }
     }
