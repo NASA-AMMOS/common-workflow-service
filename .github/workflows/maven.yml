@@ -4,47 +4,11 @@ name: CWS CI
 #on: [push, pull_request]
 on: [push]
 
-env:
-  INTERNET_TYPE: 0
-  HOSTNAME: "localhost"
-  SECURITY: "camunda"
-  DB_TYPE: mariadb
-  DB_HOST: 127.0.0.1
-  DB_NAME: cws_dev
-  DB_USER: root
-  DB_PASS: rootpw
-  DB_PORT: 3306
-  ES_PROTOCOL: "http"
-  ES_HOST: "localhost"
-  ES_PORT: 9200
-  ES_USE_AUTH: n
-  ES_USERNAME: "na"
-  ES_PASSWORD: "na"
-  NUM_WORKERS: 1
-  WORKER_ABANDONED_DAYS: 1
-  USER: cwsci
-  CLOUD: n
-  EMAIL_LIST: "/"
-  ADMIN_FIRST: "/"
-  ADMIN_LAST: "/"
-  ADMIN_EMAIL: "/"
-
 jobs:
 
   build-cws:
 
     runs-on: ubuntu-latest
-
-    #services:
-      #cws-es:
-        #image: elasticsearch:7.16.2
-        #ports:
-          #- 9200:9200
-          #- 9300:9300
-          #options: >-
-          #--health-interval 5s
-          #--health-timeout 2s
-          #--health-retries 5
 
     steps:
       - uses: actions/checkout@v3
