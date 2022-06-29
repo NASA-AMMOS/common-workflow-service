@@ -44,7 +44,6 @@ function tab () {
         tab_title="---WORKER---"
     fi
 
-<< COMMENT
 osascript <<-EOF
   tell application "iTerm2"
     tell current window
@@ -59,7 +58,6 @@ osascript <<-EOF
     end tell
   end tell
 EOF
-COMMENT
 
 }
 

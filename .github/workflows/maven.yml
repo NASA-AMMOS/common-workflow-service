@@ -84,19 +84,11 @@ jobs:
           ./stop_dev.sh
       - name: Run CWS
         run:  |
-          chmod +x dev.sh
-          ./dev.sh `pwd` ${USER} ${DB_TYPE} ${DB_HOST} ${DB_PORT} ${DB_NAME} ${DB_USER} ${DB_PASS} ${ES_PROTOCOL} ${ES_HOST} ${ES_PORT} ${ES_USE_AUTH} ${ES_USERNAME} ${ES_PASSWORD} ${CLOUD} ${SECURITY} ${HOSTNAME} ${EMAIL_LIST} ${ADMIN_FIRST} ${ADMIN_LAST} ${ADMIN_EMAIL} ${NUM_WORKERS} ${WORKER_ABANDONED_DAYS}
+          cd ci
+          chmod +x ci.sh
+          ./ci.sh `pwd` ${USER} ${DB_TYPE} ${DB_HOST} ${DB_PORT} ${DB_NAME} ${DB_USER} ${DB_PASS} ${ES_PROTOCOL} ${ES_HOST} ${ES_PORT} ${ES_USE_AUTH} ${ES_USERNAME} ${ES_PASSWORD} ${CLOUD} ${SECURITY} ${HOSTNAME} ${EMAIL_LIST} ${ADMIN_FIRST} ${ADMIN_LAST} ${ADMIN_EMAIL} ${NUM_WORKERS} ${WORKER_ABANDONED_DAYS}
         shell: bash
-      - name: Show CWS Log
-        run:  |
-          cd dist/console-only/cws/server/apache-tomcat-9.0.33/logs
-          ls -al
-          more cws.log
-      - name: Show Catalina
-        run:  |
-          cd dist/console-only/cws/server/apache-tomcat-9.0.33/logs
-          ls -al
-          more catalina.out
+
 
   run-tests:
 
