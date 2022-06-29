@@ -23,7 +23,6 @@ import jpl.cws.test.WebTestUtil;
  * @author hasan
  *
  */
-@Ignore
 public class SystemLevelTestIT extends WebTestUtil {
 	private static final Logger log = LoggerFactory.getLogger(SystemLevelTestIT.class);
 	private static int testCasesCompleted = 0;
@@ -69,8 +68,8 @@ public class SystemLevelTestIT extends WebTestUtil {
 				WebElement myTable = driver.findElement(By.id("workers-table"));
 				List<WebElement> myRows = myTable.findElements(By.tagName("td"));
 				log.info("Getting info from Worker table...");
-				log.info("Checking if the worker table has 'worker0001'");
-				if (myRows.get(0).getText().contains("worker0001")) {
+				log.info("Checking if the worker table has 'worker-#############'");
+				if (myRows.get(0).getText().contains("worker-")) {
 					log.info("SUCCESS: Found at least one worker up.");
 					scriptPass = true;
 					testCasesCompleted++;

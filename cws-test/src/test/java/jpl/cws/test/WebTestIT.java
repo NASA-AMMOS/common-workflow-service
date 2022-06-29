@@ -25,7 +25,6 @@ public class WebTestIT extends WebTestUtil {
 	
 	
 	@Test
-	@Ignore (value="Not portable (specific to Hollins/local-setup)")
 	public void testGoogleSearch() throws InterruptedException, IOException {
 	  
 	  driver.get("http://www.google.com");
@@ -44,7 +43,6 @@ public class WebTestIT extends WebTestUtil {
 	}
 	
 	@Test
-	@Ignore (value="Not portable (specific to Hollins/local-setup)")
 	public void loginTest() {
 		log.info("------ START loginTest ------");
 		gotoLoginPage();
@@ -54,7 +52,6 @@ public class WebTestIT extends WebTestUtil {
 	}
 	
 	@Test
-	@Ignore (value="Not portable (specific to Hollins/local-setup)")
 	public void deployTest() {
 		log.info("------ START deployTest ------");
 		gotoLoginPage();
@@ -66,7 +63,6 @@ public class WebTestIT extends WebTestUtil {
 	}
 	
 	@Test
-	@Ignore (value="Not portable (specific to Wood/local-setup)")
 	public void runDeployTest() {
 		log.info("------ START deployTest ------");
 		gotoLoginPage();
@@ -78,14 +74,21 @@ public class WebTestIT extends WebTestUtil {
 		WebElement enable = findElById("pv-test_set_vars");
 		enable.click();
 		sleep(1000);
-		
+
 		WebElement allWorkers = findElById("all-workers");
-		allWorkers.click();
-		sleep(1000);
-		
 		WebElement allWorkersDone = findElById("done-workers-btn");
-		allWorkersDone.click();
-		sleep(10000);
+
+		if(allWorkers.isSelected()) {
+			allWorkersDone.click();
+			sleep(1000);
+		} else {
+			allWorkers.click();
+			sleep(1000);
+			allWorkersDone.click();
+			sleep(1000);
+		}
+
+		sleep(2000);
 		
 		
 		// Start Instance
@@ -98,7 +101,11 @@ public class WebTestIT extends WebTestUtil {
 		WebElement start = driver.findElement(By.xpath("//*[contains(@class,'start-process-action')]"));
 		start.click();
 		sleep(5000);
-		
+
+		WebElement searchProcessField = driver.findElement(By.xpath("//input[contains(@class,'form-control')]"));
+		searchProcessField.sendKeys("Test Set Variables");
+		sleep(5000);
+
 		WebElement li = driver.findElement(By.xpath("//*[contains(text(),'Test Set Variables')]"));
 		li.click();
 		sleep(5000);
@@ -111,20 +118,18 @@ public class WebTestIT extends WebTestUtil {
 		// Go back to CWS
 		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui']"));
 		cws.click();
-		findOnPage("<title>CWS - Dashboard</title>");
-		
-		
-		gotoDeployments();
+		findOnPage("<title>CWS - Deployments</title>");
+
 		
 		// Wait for Finish
-		sleep(25000);
-		
+		sleep(90000);
+
+		deleteProc("test_set_vars");
 		logout();
 		log.info("------ END deployTest ------");
 	}
 
 	@Test
-	@Ignore (value="Not portable (specific to Hollins/local-setup)")
 	public void runErrorHandlingTest() {
 		log.info("------ START deployTest ------");
 		gotoLoginPage();
@@ -138,14 +143,21 @@ public class WebTestIT extends WebTestUtil {
 		enable.click();
 		sleep(1000);
 
-		
+
 		WebElement allWorkers = findElById("all-workers");
-		allWorkers.click();
-		sleep(1000);
-		
 		WebElement allWorkersDone = findElById("done-workers-btn");
-		allWorkersDone.click();
-		sleep(10000);
+
+		if(allWorkers.isSelected()) {
+			allWorkersDone.click();
+			sleep(1000);
+		} else {
+			allWorkers.click();
+			sleep(1000);
+			allWorkersDone.click();
+			sleep(1000);
+		}
+
+		sleep(2000);
 		
 		
 		// Start Instance (1) through Camunda
@@ -158,7 +170,11 @@ public class WebTestIT extends WebTestUtil {
 		WebElement start = driver.findElement(By.xpath("//*[contains(@class,'start-process-action')]"));
 		start.click();
 		sleep(5000);
-		
+
+		WebElement searchProcessField = driver.findElement(By.xpath("//input[contains(@class,'form-control')]"));
+		searchProcessField.sendKeys("Test Error Handling");
+		sleep(5000);
+
 		WebElement li = driver.findElement(By.xpath("//*[contains(text(),'Test Error Handling')]"));
 		li.click();
 		sleep(5000);
@@ -171,20 +187,18 @@ public class WebTestIT extends WebTestUtil {
 		// Go back to CWS
 		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui']"));
 		cws.click();
-		findOnPage("<title>CWS - Dashboard</title>");
-		
-		gotoDeployments();
-	
+		findOnPage("<title>CWS - Deployments</title>");
+
 		// Wait for Finish
-		sleep(90000);
+		sleep(180000);
 		procCounter++;
-		
+
+		deleteProc("test_error_handling");
 		logout();
 		log.info("------ END deployTest ------");
 	}
 	
 	@Test
-	@Ignore (value="Not portable (specific to Hasan/local-setup)")
 	public void runHelloWorldTest() {
 		log.info("------ START deployTest ------");
 		gotoLoginPage();
@@ -199,16 +213,18 @@ public class WebTestIT extends WebTestUtil {
 		
 		WebElement allWorkers = findElById("all-workers");
 		WebElement allWorkersDone = findElById("done-workers-btn");
-		
-		if(allWorkers.isEnabled()) {
+
+		if(allWorkers.isSelected()) {
 			allWorkersDone.click();
-			sleep(10000);
+			sleep(1000);
 		} else {
 			allWorkers.click();
 			sleep(1000);
 			allWorkersDone.click();
-			sleep(10000);
+			sleep(1000);
 		}
+
+		sleep(2000);
 		
 		WebElement tasks = driver.findElement(By.xpath("//a[@href='/camunda/app/tasklist']"));
 		tasks.click();		
@@ -219,7 +235,11 @@ public class WebTestIT extends WebTestUtil {
 		WebElement start = driver.findElement(By.xpath("//*[contains(@class,'start-process-action')]"));
 		start.click();
 		sleep(5000);
-		
+
+		WebElement searchProcessField = driver.findElement(By.xpath("//input[contains(@class,'form-control')]"));
+		searchProcessField.sendKeys("Test Hello World");
+		sleep(5000);
+
 		WebElement li = driver.findElement(By.xpath("//*[contains(text(),'Test Hello World')]"));
 		li.click();
 		sleep(5000);
@@ -232,7 +252,10 @@ public class WebTestIT extends WebTestUtil {
 		// Go back to CWS
 		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui']"));
 		cws.click();
-		findOnPage("<title>CWS - Dashboard</title>");
+		findOnPage("<title>CWS - Deployments</title>");
+
+		// Wait for Finish
+		sleep(90000);
 		
 		
 		/*
@@ -265,9 +288,7 @@ public class WebTestIT extends WebTestUtil {
 		
 		sleep(1000);
 		*/
-		
-		goToPage("deployments");
-		
+
 		
 		if(findOnPage("completed")) {
 			goToProcesses();
@@ -285,9 +306,10 @@ public class WebTestIT extends WebTestUtil {
 			WebElement filterSubmit = findElById("filter-submit-btn");
 			filterSubmit.click();
 			sleep(1000);
-			
-			WebElement logCheck = findElById("processes-table");
-			logCheck.click();
+
+			waitForElementXPath("//button[contains(text(),'History')]");
+			WebElement historyButton = driver.findElement(By.xpath("//button[contains(text(),'History')]"));
+			historyButton.click();
 			sleep(1000);
 			
 			findOnPage("ls");
@@ -301,17 +323,18 @@ public class WebTestIT extends WebTestUtil {
 		} else {
 			log.info("Process did not complete either in time or at all");
 		}
-		
+
+		deleteProc("test_hello_world");
 		logout();
 		log.info("------ END deployTest ------");
 	}
 	@Test
-	@Ignore (value="Not portable (specific to Hollins/local-setup)")
 	public void runProcessTest() {
 		log.info("------ START runProcessTest ------");
 		gotoLoginPage();
 		login();
-		startProcessFromConsole("test_simplest");
+		startProcDef("test_simplest", "Test Simplest");
+		deleteProc("test_simplest");
 		logout();
 		log.info("------ END runProcessTest ------");
 	}
@@ -346,15 +369,7 @@ public class WebTestIT extends WebTestUtil {
 		deployFile("test_error_handling");
 		
 	}
-		
-	private void startProcessFromConsole(String procDefKey) {
-		findOnPage(procDefKey);
-		WebElement startIcon = findElById("start_"+procDefKey+"_icon");
-		log.info("Clicking on " + startIcon);
-		startIcon.click();
-		findOnPage("Scheduled the '"+procDefKey+"' process.");
-	}
-	
+
 	//Demo for Sarjil
 	private void goToProcesses() {
 		if(findOnPage("completed")) {

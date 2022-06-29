@@ -23,7 +23,6 @@ import jpl.cws.test.WebTestUtil;
  * @author hasan
  *
  */
-@Ignore
 public class InitiatorsTestIT extends WebTestUtil {
 	private static final Logger log = LoggerFactory.getLogger(InitiatorsTestIT.class);
 	private static int testCasesCompleted = 0;
@@ -46,12 +45,19 @@ public class InitiatorsTestIT extends WebTestUtil {
 			enable.click();
 			sleep(1000);
 
-			waitForElementID("all-workers");
-			driver.findElement(By.id("all-workers")).click();
+			WebElement allWorkers = findElById("all-workers");
+			WebElement allWorkersDone = findElById("done-workers-btn");
 
+			if(allWorkers.isSelected()) {
+				allWorkersDone.click();
+				sleep(1000);
+			} else {
+				allWorkers.click();
+				sleep(1000);
+				allWorkersDone.click();
+				sleep(1000);
+			}
 
-			waitForElementID("done-workers-btn");
-			driver.findElement(By.id("done-workers-btn")).click();
 			sleep(2000);
 
 
@@ -149,7 +155,15 @@ public class InitiatorsTestIT extends WebTestUtil {
 			assert(!enableAll.isSelected()); //verify the enableAll action button is not selected.
 
 
-			js.executeScript("arguments[0].click();", enableAction);
+			if(!enableAction.isSelected()) {
+				js.executeScript("arguments[0].click();", findElById("toggle_repeat_1"));
+				sleep(1000);
+			} else {	// toggle off and on to start
+				js.executeScript("arguments[0].click();", findElById("toggle_repeat_1"));
+				sleep(1000);
+				js.executeScript("arguments[0].click();", findElById("toggle_repeat_1"));
+				sleep(1000);
+			}
 
 			procCounter = 10 + procCounter; //for the 10 procs started.
 
@@ -157,7 +171,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 
 			log.info("Changing status refresh to 1 second.");
 			Select select = new Select(findElById("refresh-rate"));
-			select.selectByVisibleText("1 second refresh rate");
+			select.selectByValue("1");
 
 			sleep(20000);
 

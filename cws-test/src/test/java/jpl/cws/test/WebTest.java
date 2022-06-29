@@ -15,7 +15,6 @@ public class WebTest extends WebTestUtil {
 	private static final Logger log = LoggerFactory.getLogger(WebTest.class);
 
 	@Test
-	@Ignore (value="Not portable (specific to Hollins/local-setup)")
 	public void loginTest() {
 		log.info("------ START loginTest ------");
 		gotoLoginPage();
@@ -25,7 +24,6 @@ public class WebTest extends WebTestUtil {
 	}
 	
 	@Test
-	@Ignore (value="Not portable (specific to Hollins/local-setup)")
 	public void deployTest() {
 		log.info("------ START deployTest ------");
 		gotoLoginPage();
@@ -36,33 +34,25 @@ public class WebTest extends WebTestUtil {
 	}
 	
 	@Test
-	@Ignore (value="Not portable (specific to Hollins/local-setup)")
 	public void runProcessTest() {
 		log.info("------ START runProcessTest ------");
 		gotoLoginPage();
 		login();
-		startProcessFromConsole("test_simplest");
+		startProcDef("test_simplest", "Test Simplest");
+		deleteProc("test_simplest");
 		logout();
 		log.info("------ END runProcessTest ------");
 	}
 	
 	private void uploadProcessDefinitionFile() {
-		WebElement fileUploadInput = findElById("file");
+		WebElement fileUploadInput = findElById("file-input");
 		fileUploadInput.sendKeys(TEST_BPMN_DIR+"/test_simplest.bpmn");
 		
-		WebElement deployProcDefBtn = findElById("deployProcDefBtn");
+		WebElement deployProcDefBtn = findElById("bpmn-form");
 		deployProcDefBtn.click();
 		findOnPage("Deployed process definition");
 		findOnPage("test_simplest");
 	}
-	
-	private void startProcessFromConsole(String procDefKey) {
-		findOnPage(procDefKey);
-		WebElement startIcon = findElById("start_"+procDefKey+"_icon");
-		log.info("Clicking on " + startIcon);
-		startIcon.click();
-		findOnPage("Scheduled the '"+procDefKey+"' process.");
-	}
-	
-	
+
+
 }

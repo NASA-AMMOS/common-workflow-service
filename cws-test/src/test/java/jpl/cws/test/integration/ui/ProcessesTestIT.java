@@ -21,7 +21,6 @@ import jpl.cws.test.WebTestUtil;
  * @author hasan
  *
  */
-@Ignore
 public class ProcessesTestIT extends WebTestUtil {
 	private static final Logger log = LoggerFactory.getLogger(ProcessesTestIT.class);
 	private static int testCasesCompleted = 0;
