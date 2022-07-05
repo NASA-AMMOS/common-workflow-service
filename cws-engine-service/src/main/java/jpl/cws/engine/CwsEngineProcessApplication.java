@@ -297,7 +297,7 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 							"VARIABLE [" + varKey + " = " + variables.get(varKey) + "]");
 					}
 				}
-				
+
 				// If this is an event in a subprocess, then this doesn't count.
 				// We only want to count events of the parent process.
 				//
@@ -321,9 +321,9 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 								}
 								log.trace("sendProcEventTopicMessageWithRetries");
 
-								String startedOnWorkerId = execution.getVariable("startedOnWorkerId").toString();
-								if (startedOnWorkerId != null && !startedOnWorkerId.equals(workerId)) {
-									log.debug("PROCESS '" + procDefKey + "' - Started on worker[" + startedOnWorkerId + "] != ended[" + workerId + "] on worker");
+								if (execution.getVariable("uuid") != null && execution.getVariable("startedOnWorkerId") != null && !execution.getVariable("startedOnWorkerId").toString().equals(workerId)) {
+									log.debug("PROCESS '" + procDefKey + "' (uuid=" + execution.getVariable("uuid").toString() + ") - Started on worker[" +
+										execution.getVariable("startedOnWorkerId").toString() + "] != ended[" + workerId + "] on worker");
 								}
 								// FIXME: UUID might not be right
 								if (execution.getVariable("uuid") != null) {
