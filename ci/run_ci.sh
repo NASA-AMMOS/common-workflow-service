@@ -5,7 +5,7 @@ HOSTNAME="localhost"
 printf "\nHostname set to '%s'\n\n" $HOSTNAME
 
 # Used in cws-test
-echo "$HOSTNAME" > cws-test/src/test/resources/hostname.txt
+echo "$HOSTNAME" > ../cws-test/src/test/resources/hostname.txt
 
 SECURITY="CAMUNDA"
 
@@ -17,7 +17,7 @@ DB_TYPE=mariadb
 DB_HOST=127.0.0.1
 DB_NAME=cws_dev # needs to match the db you set up beforehand
 DB_USER=root # needs to match the user you set up beforehand
-DB_PASS=rootpw # could also be specified with environment vars
+DB_PASS=adminpw # could also be specified with environment vars
 DB_PORT=3306 # mariadb default
 
 USER=cwsci
