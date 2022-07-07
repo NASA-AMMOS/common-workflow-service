@@ -66,31 +66,10 @@ jobs:
           chmod +x test.sh
           ./test.sh
         shell: bash
-      - name: Move Jacoco Report
-        run: |
-          cd jacoco-reports/aggregate
-          cp index.html ../../
-      - name: Send Jacoco Report
-        uses: dawidd6/action-send-mail@v3
+      - uses: actions/upload-artifact@v3
         with:
-          # Required mail server address:
-          server_address: ${{secrets.MAIL_SERVER}}
-          # Required mail server port:
-          server_port: 465
-          # Required mail subject:
-          subject: Jacoco Report
-          # Required recipients' addresses:
-          to: ${{secrets.MAIL_ADDRESS}}
-          # Required sender full name (address can be skipped):
-          from: CI GitHub Actions
-          # Optional whether this connection use TLS (default is true if server_port is 465)
-          # secure: true
-          # Optional HTML body read from file:
-          html_body: file://index.html
-          # Optional carbon copy recipients:
-          cc: ronnyfray@gmail.com
-          # Optional unsigned/invalid certificates allowance:
-          ignore_cert: true
+          name: jacoco-report
+          path: jacoco-reports/aggregate/index.html
 
 
   #run-tests:
