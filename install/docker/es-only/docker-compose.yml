@@ -5,7 +5,8 @@ services:
     labels:
       com.example.service: "es"
       com.example.description: "For searching and indexing data"
-    image: arm64v8/elasticsearch:7.16.2
+    image: elasticsearch:7.16.2
+    #image: arm64v8/elasticsearch:7.16.2    # Use this image for Mac M1/M2 arm64
     container_name: cws-es-only
     networks:
       - es-net
