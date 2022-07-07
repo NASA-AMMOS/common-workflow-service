@@ -5,7 +5,7 @@ HOSTNAME="localhost"
 printf "\nHostname set to '%s'\n\n" $HOSTNAME
 
 # Used in cws-test
-echo "$HOSTNAME" > cws-test/src/test/resources/hostname.txt
+echo "$HOSTNAME" > ../cws-test/src/test/resources/hostname.txt
 
 SECURITY="CAMUNDA"
 
