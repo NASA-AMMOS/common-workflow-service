@@ -18,7 +18,7 @@ jobs:
           java-version: '8'
           distribution: 'temurin'
           cache: maven
-      - name: create open-source certs
+      - name: Create open-source certs
         run: |
           cd cws-certs
           chmod +x generate-certs.sh
@@ -33,16 +33,12 @@ jobs:
         run: |
           cd install/logging/
           ls -l
-      - name: Elasticsearch Setup
+      - name: Set up Elasticsearch
         run: |
           cd install/docker/es-only
           docker-compose up -d
       - name: Set up CWS database using Docker
         run: docker run -d -p 3306:3306 -e MYSQL_DATABASE=cws_dev -e MYSQL_ROOT_PASSWORD=rootpw --name mdb103 mariadb:10.3
-      - name: Set up Elasticsearch
-        run: |
-          cd install/docker/es-only
-          docker-compose up -d
       - name: Show Docker containers
         run: |
           sleep 5s
@@ -66,7 +62,8 @@ jobs:
           chmod +x test.sh
           ./test.sh
         shell: bash
-      - uses: actions/upload-artifact@v3
+      - name: Upload Jacoco report
+        uses: actions/upload-artifact@v3
         with:
           name: jacoco-report
           path: jacoco-reports/aggregate/index.html
