@@ -84,7 +84,7 @@ jobs:
           # Required sender full name (address can be skipped):
           from: CI GitHub Actions
           # Optional whether this connection use TLS (default is true if server_port is 465)
-          secure: true
+          # secure: true
           # Optional HTML body read from file:
           html_body: file://index.html
           # Optional carbon copy recipients:
