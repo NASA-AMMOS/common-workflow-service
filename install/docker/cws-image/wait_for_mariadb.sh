@@ -5,6 +5,7 @@ maxcounter=300
 echo DB_HOST = $DB_HOST
 echo DB_USER = $DB_USER
 echo DB_PW = $DB_PW
+echo ES_PROTOCOL = $ES_PROTOCOL
 echo ES_HOST = $ES_HOST
 echo ES_PORT = $ES_PORT
 
@@ -19,7 +20,7 @@ while ! mysql --host="${DB_HOST}" --user="${DB_USER}" --password="${DB_PW}" -e "
     fi;
 done
 
-while ! curl -s $ES_HOST:$ES_PORT; do
+while ! curl -s "${ES_PROTOCOL}://${ES_HOST}:${ES_PORT}"; do
 	sleep 1
 	echo "Retry wait for ES"
 done
