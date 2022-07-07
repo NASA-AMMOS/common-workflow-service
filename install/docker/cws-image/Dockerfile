@@ -1,4 +1,4 @@
-FROM arm64v8/oraclelinux:8
+FROM oraclelinux:8
 
 RUN yum update -y && \
     yum install -y mysql java-1.8.0-openjdk java-1.8.0-openjdk-devel rsync which && \

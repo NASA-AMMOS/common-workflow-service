@@ -28,7 +28,8 @@ services:
     labels:
       com.example.service: "cws-worker2"
       com.example.description: "Common Workflow Service"
-    image: arm64v8/nasa-ammos/common-workflow-service:2.3.0-alpha.6    # update this each CWS release
+    image: nasa-ammos/common-workflow-service:2.3.0-alpha.6    # update this each CWS release
+    #image: arm64v8/nasa-ammos/common-workflow-service:2.3.0-alpha.6    # Use this image for Mac M1/M2 arm64
     #depends_on:
     #  - logstash
     hostname: cws-worker2
