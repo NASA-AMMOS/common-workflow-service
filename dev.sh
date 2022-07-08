@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # --------
 # dev.sh
 # --------
@@ -73,7 +73,13 @@ BASE_PORT=8000
 tab ${DIST}/console-only/cws "./start_cws.sh -d $BASE_PORT; tail -f $LOG_FILE"
 
 print "Waiting for console startup..."
-sleep 180
+cws_console_host=$(grep cws_console_host ${ROOT}/auto_conf_console.dat | cut -d '=' -f2)
+cws_console_ssl_port=$(grep cws_console_ssl_port ${ROOT}/auto_conf_console.dat | cut -d '=' -f2)
+while ! curl -k -s https://${cws_console_host}:${cws_console_ssl_port}/cws-ui/login > /dev/null 2>&1; do
+	sleep 5
+	print "Retry wait for console"
+done
+print "Console is now running!"
 
 # -----------------
 # CONFIGURE WORKERS

@@ -10,8 +10,14 @@ rm -rf /home/cws_user/cws/server/apache-tomcat-9.0.33/logs/*
 
 install_type=$(grep install_type config.properties | cut -d '=' -f2)
 if [[ "$install_type" == 3 ]]; then
-  echo "Installing 'Worker Only'.  Waiting for server to startup..."
-  sleep 60
+  echo "Waiting for console to startup..."
+  cws_console_host=$(grep cws_console_host config.properties | cut -d '=' -f2)
+  cws_console_ssl_port=$(grep cws_console_ssl_port config.properties | cut -d '=' -f2)
+  while ! curl -k -s "https://${cws_console_host}:${cws_console_ssl_port}/cws-ui/login" > /dev/null 2>&1; do
+    sleep 5
+    echo "Retry wait for console"
+  done
+  echo "Console is now running!"
 fi
 
 cd cws
