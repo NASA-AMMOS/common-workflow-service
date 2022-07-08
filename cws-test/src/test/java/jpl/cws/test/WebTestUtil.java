@@ -125,6 +125,8 @@ public class WebTestUtil {
 		  // Turn on headless mode for Bamboo
 		  chromeOptions.setHeadless(true);
 		  chromeOptions.setAcceptInsecureCerts(true);
+		  chromeOptions.addArguments("--no-sandbox");
+		  chromeOptions.addArguments("--disable-dev-shm-usage");
 
 		WebDriverManager.chromedriver().setup();
 		driver = new ChromeDriver(chromeOptions);

@@ -16,9 +16,9 @@ mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source cl
 
 dump_java_apps
 
-print "Running integration tests..."
-mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source integration-test verify -DskipTests
+#print "Running integration tests..."
+#mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source integration-test verify -DskipTests
 
-dump_java_apps
+#dump_java_apps
 
 print "Finished"
