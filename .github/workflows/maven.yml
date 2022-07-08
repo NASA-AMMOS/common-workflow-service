@@ -57,9 +57,8 @@ jobs:
         run: |
          cd dist/console-only/cws/server/apache-tomcat-9.0.33/logs
          ls -al
-      - name: Run Google Chrome
-        uses: browser-actions/setup-chrome@latest
-        run: chrome --version
+      - uses: browser-actions/setup-chrome@latest
+      - run: chrome --version
       - name: Run Unit and Integration Tests
         run: |
           chmod +x test.sh
