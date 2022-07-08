@@ -69,6 +69,11 @@ jobs:
         with:
           name: jacoco-report
           path: jacoco-reports/aggregate/index.html
+      - name: Upload test screenshots
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-screenshots
+          path: test-screenshots/
 
 
   #run-tests:
