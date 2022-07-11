@@ -99,7 +99,7 @@ public class ProcessesTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("ProcessesTestIT::runStatusCompleteTest");
+		screenShot("ProcessesTestIT-runStatusCompleteTest");
 		assertTrue("Processes Status Complete test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 

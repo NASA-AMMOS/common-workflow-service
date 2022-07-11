@@ -197,7 +197,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("InitiatorTestIT::runStartInitiatorTest");
+		screenShot("InitiatorTestIT-runStartInitiatorTest");
 		assertTrue("Start Initiators test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -238,7 +238,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("InitiatorTestIT::runVariableProcTest");
+		screenShot("InitiatorTestIT-runVariableProcTest");
 		assertTrue("Start Initiators test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -344,7 +344,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("InitiatorTestIT::runCronInitiatorTest");
+		screenShot("InitiatorTestIT-runCronInitiatorTest");
 		assertTrue("Cron Initiator test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	// Add more deployment page tests here

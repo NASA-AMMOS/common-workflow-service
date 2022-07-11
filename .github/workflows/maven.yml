@@ -74,6 +74,7 @@ jobs:
         with:
           name: test-screenshots
           path: test-screenshots/
+          continueOnError: true
 
 
   #run-tests:

@@ -84,7 +84,7 @@ public class LogsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;	
 		}
-		screenShot("LogsTestIT::runOutputTest");
+		screenShot("LogsTestIT-runOutputTest");
 		assertTrue("Logs Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	
@@ -143,7 +143,7 @@ public class LogsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;	
 		}
-		screenShot("LogsTestIT::runTableColumnTest");
+		screenShot("LogsTestIT-runTableColumnTest");
 		assertTrue("Table Column Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	
@@ -245,7 +245,7 @@ public class LogsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;	
 		}
-		screenShot("LogsTestIT::runOutputRefreshTest");
+		screenShot("LogsTestIT-runOutputRefreshTest");
 		assertTrue("Output Refresh Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	// Add more deployment page tests here

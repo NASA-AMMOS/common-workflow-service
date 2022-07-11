@@ -83,7 +83,7 @@ public class SystemLevelTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("SystemLevelTestIT::runWorkerTest");
+		screenShot("SystemLevelTestIT-runWorkerTest");
 		assertTrue("System Level Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -157,7 +157,7 @@ public class SystemLevelTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("SystemLevelTestIT::runShutdownWorkerTest");
+		screenShot("SystemLevelTestIT-runShutdownWorkerTest");
 		assertTrue("Shutdown Worker Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	// Add more deployment page tests here
