@@ -136,6 +136,7 @@ services:
       - db
       - es
       - cws
+
     hostname: cws-worker1
   #  networks:
   #    - frontend
