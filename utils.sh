@@ -296,7 +296,7 @@ function auto_conf_data () {
     amq_port=${AMQ_PORT}
     cws_amq_jmx_port=${CWS_AMQ_JMX_PORT}
     cws_jmx_port=${CWS_JMX_PORT}
-    history_days_to_live=2
+    history_days_to_live=1
     worker_abandoned_days=${WORKER_ABANDONED_DAYS}
     notify_users_email=y
     email_subject=[CWS] You have been assigned a task (CWS_TASK_NAME)
@@ -314,6 +314,7 @@ function auto_conf_data () {
     startup_autoregister_process_defs=false
     cws_notification_emails=${NOTIFICATION_EMAILS}
     cws_token_expiration_hours=240
+    user_provided_logstash=n
 EOF
 
 }

@@ -24,24 +24,22 @@ services:
 #      - frontend
 #      - backend
   cws:
-    container_name: cws-worker
+    container_name: cws-worker2
     labels:
-      com.example.service: "cws-server"
+      com.example.service: "cws-worker2"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.2.0    # update this each CWS release
-    depends_on:
-      - logstash
-    hostname: cws-worker
-    networks:
-      - frontend
-      - backend
+    image: nasa-ammos/common-workflow-service:2.3.0-alpha.6    # update this each CWS release
+    #image: arm64v8/nasa-ammos/common-workflow-service:2.3.0-alpha.6    # Use this image for Mac M1/M2 arm64
+    #depends_on:
+    #  - logstash
+    hostname: cws-worker2
     environment:
-       - DB_HOST=__DB_HOST__
-       - DB_USER=root
-       - DB_PW=test
-       - ES_PROTOCOL=__ES_PROTOCOL__
-       - ES_HOST=__ES_HOST__
-       - ES_PORT=9200
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PW=test
+      - ES_PROTOCOL=http
+      - ES_HOST=es
+      - ES_PORT=9200
     volumes:
       - ./config.properties:/home/cws_user/config.properties:ro
       - logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.33/logs
@@ -50,7 +48,6 @@ volumes:
   logs-volume:
 
 networks:
-  frontend:
-    driver: bridge         
-  backend:
-    driver: bridge
+  default:
+    external:
+      name: cws-network
