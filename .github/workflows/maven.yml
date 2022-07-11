@@ -59,6 +59,8 @@ jobs:
          ls -al
       - uses: browser-actions/setup-chrome@latest
       - run: chrome --version
+      - name: Run Task 19 from test_hello_world
+        run: ls
       - name: Run Unit and Integration Tests
         run: |
           chmod +x test.sh
@@ -74,7 +76,6 @@ jobs:
         with:
           name: test-screenshots
           path: test-screenshots/
-          continueOnError: true
 
 
   #run-tests:

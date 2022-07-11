@@ -97,7 +97,7 @@ public class WebTestIT extends WebTestUtil {
 		findOnPage("<title>Camunda Tasklist</title>");
 		
 		sleep(10000);
-		
+
 		WebElement start = driver.findElement(By.xpath("//*[contains(@class,'start-process-action')]"));
 		start.click();
 		sleep(5000);
@@ -311,11 +311,11 @@ public class WebTestIT extends WebTestUtil {
 			WebElement historyButton = driver.findElement(By.xpath("//button[contains(text(),'History')]"));
 			historyButton.click();
 			sleep(1000);
-			
+
 			findOnPage("ls");
 			findOnPage("Hello World");
-			findOnPage("Desktop");
-			findOnPage("Applications");
+			findOnPage("Command 'ls' exit code:0");
+			findOnPage("Command 'ls' event: success");
 			
 			sleep(9000);
 			
