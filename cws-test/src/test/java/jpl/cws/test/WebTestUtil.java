@@ -123,7 +123,7 @@ public class WebTestUtil {
 		ChromeOptions chromeOptions = new ChromeOptions();
 
 		  // Turn on headless mode for Bamboo
-		  chromeOptions.setHeadless(false);
+		  chromeOptions.setHeadless(true);
 		  chromeOptions.setAcceptInsecureCerts(true);
 		  chromeOptions.addArguments("--window-size=1920,1080");
 		  //chromeOptions.addArguments("--no-sandbox");
