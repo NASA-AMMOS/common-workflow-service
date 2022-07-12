@@ -123,7 +123,7 @@ public class WebTestUtil {
 		ChromeOptions chromeOptions = new ChromeOptions();
 
 		  // Turn on headless mode for Bamboo
-		  chromeOptions.setHeadless(true);
+		  chromeOptions.setHeadless(false);
 		  chromeOptions.setAcceptInsecureCerts(true);
 		  chromeOptions.addArguments("--window-size=1920,1080");
 		  //chromeOptions.addArguments("--no-sandbox");
@@ -136,7 +136,7 @@ public class WebTestUtil {
 		  log.info("Driver initialized: " + driver);
 
 
-		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 	}
 
 	protected WebElement findElById(String id) {

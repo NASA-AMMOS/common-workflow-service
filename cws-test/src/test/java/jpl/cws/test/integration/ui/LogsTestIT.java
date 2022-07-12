@@ -69,7 +69,8 @@ public class LogsTestIT extends WebTestUtil {
 			goToPage("logs");
 			
 			log.info("Looking for text, 'Graphite', 'Command ls exit exit code:0', and 'Deployed process definitions: test_logs_page.bpmn'.");
-			
+
+			sleep(10000);
 			if (findOnPage("Graphite")
 					&& findOnPage("Command 'ls' exit code:0.")
 					&& findOnPage("Deployed process definition: 'test_logs_page.bpmn'")) {
