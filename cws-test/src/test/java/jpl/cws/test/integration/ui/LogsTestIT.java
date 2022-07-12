@@ -85,7 +85,7 @@ public class LogsTestIT extends WebTestUtil {
 			
 			log.info("Looking for text, 'Graphite', 'Command ls exit exit code:0', and 'Deployed process definitions: test_logs_page.bpmn'.");
 
-			WebElement element = driver.findElement(By.xpath("//p[contains(text(),'worker0000')]"));
+			WebElement element = driver.findElement(By.xpath("//p[contains(text(),'Graphite')]"));
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 			js.executeScript("arguments[0].scrollIntoView();", element);
 			screenShot("Logs Error 2");

@@ -123,12 +123,12 @@ public class WebTestUtil {
 		ChromeOptions chromeOptions = new ChromeOptions();
 
 		  // Turn on headless mode for Bamboo
-		  chromeOptions.setHeadless(true);
+		  chromeOptions.setHeadless(false);
 		  chromeOptions.setAcceptInsecureCerts(true);
 		  chromeOptions.addArguments("--start-maximized");
-		  chromeOptions.addArguments("--start-fullscreen");
+		  //chromeOptions.addArguments("--start-fullscreen");
 
-		  //chromeOptions.addArguments("--window-size=1920,1080");
+		  chromeOptions.addArguments("--window-size=1920,1080");
 		  //chromeOptions.addArguments("--no-sandbox");
 		  //chromeOptions.addArguments("--disable-dev-shm-usage");
 		  //chromeOptions.addArguments("--disable-gpu");
