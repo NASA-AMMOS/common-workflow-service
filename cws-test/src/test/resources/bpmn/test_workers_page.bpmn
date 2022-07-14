@@ -20,7 +20,6 @@
       <bpmn:incoming>SequenceFlow_1narsmd</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1uwtwip</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_1uwtwip" sourceRef="Task_0v4t5rk" targetRef="Task_0xel5sm" />
     <bpmn:serviceTask id="Task_0xel5sm" camunda:modelerTemplate="jpl.cws.task.CmdLineExecTask" camunda:class="jpl.cws.task.SleepTask" camunda:type="external" camunda:topic="__CWS_CMD_TOPIC__">
       <bpmn:extensionElements>
         <camunda:field name="cmdLine">
@@ -57,15 +56,52 @@
       <bpmn:outgoing>SequenceFlow_1n3skp5</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:endEvent id="EndEvent_1cxkvmz">
-      <bpmn:incoming>SequenceFlow_1n3skp5</bpmn:incoming>
+      <bpmn:incoming>Flow_0w3boed</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="SequenceFlow_1n3skp5" sourceRef="Task_0xel5sm" targetRef="EndEvent_1cxkvmz" />
+    <bpmn:sequenceFlow id="SequenceFlow_1n3skp5" sourceRef="Task_0xel5sm" targetRef="Activity_1l0ogp6" />
+    <bpmn:serviceTask id="Activity_1l0ogp6" camunda:modelerTemplate="jpl.cws.task.CmdLineExecTask" camunda:class="jpl.cws.task.SleepTask" camunda:type="external" camunda:topic="__CWS_CMD_TOPIC__">
+      <bpmn:extensionElements>
+        <camunda:field name="cmdLine">
+          <camunda:expression>sleep 30</camunda:expression>
+        </camunda:field>
+        <camunda:field name="workingDir" />
+        <camunda:field name="successExitValues">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnFailures">
+          <camunda:expression>true</camunda:expression>
+        </camunda:field>
+        <camunda:field name="exitCodeEvents">
+          <camunda:expression>0=success, 1=fail</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnTruncatedVariable">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition" />
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+        <camunda:field name="timeout">
+          <camunda:expression>86400</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retries">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retryDelay">
+          <camunda:expression>1000</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1n3skp5</bpmn:incoming>
+      <bpmn:outgoing>Flow_0w3boed</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1uwtwip" sourceRef="Task_0v4t5rk" targetRef="Task_0xel5sm" />
+    <bpmn:sequenceFlow id="Flow_0w3boed" sourceRef="Activity_1l0ogp6" targetRef="EndEvent_1cxkvmz" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="test_workers_page">
       <bpmndi:BPMNEdge id="SequenceFlow_1n3skp5_di" bpmnElement="SequenceFlow_1n3skp5">
         <di:waypoint x="509" y="120" />
-        <di:waypoint x="559" y="120" />
+        <di:waypoint x="560" y="120" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="534" y="98" width="0" height="13" />
         </bpmndi:BPMNLabel>
@@ -84,6 +120,10 @@
           <dc:Bounds x="234" y="98.5" width="0" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0w3boed_di" bpmnElement="Flow_0w3boed">
+        <di:waypoint x="660" y="120" />
+        <di:waypoint x="702" y="120" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="173" y="102" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -93,8 +133,11 @@
       <bpmndi:BPMNShape id="ServiceTask_1e035vf_di" bpmnElement="Task_0xel5sm">
         <dc:Bounds x="409" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1l0ogp6_di" bpmnElement="Activity_1l0ogp6">
+        <dc:Bounds x="560" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_1cxkvmz_di" bpmnElement="EndEvent_1cxkvmz">
-        <dc:Bounds x="559" y="102" width="36" height="36" />
+        <dc:Bounds x="702" y="102" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="577" y="141" width="0" height="13" />
         </bpmndi:BPMNLabel>
