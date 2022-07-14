@@ -7,7 +7,6 @@ import java.io.IOException;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -27,7 +26,7 @@ public class LogsTestIT extends WebTestUtil {
 	private static int testCasesCompleted = 0;
 	
 	@Test
-	public void runLogsPageTest() throws IOException {
+	public void runLogsPageTest() {
 		Boolean scriptPass = false;
 		
 		try {
@@ -37,7 +36,7 @@ public class LogsTestIT extends WebTestUtil {
 			
 			goToPage("deployments");
 			
-			startProcDef("test_logs_page", "Test Logs Page");
+			startProcDef("test_logs_page", "Test Logs Page", 90000);
 			
 			runOutputTest();
 			runTableColumnTest();
@@ -55,18 +54,6 @@ public class LogsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;	
 		}
-		goToPage("processes");
-		WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
-		waitForElement(historyButton);
-		scrollTo(historyButton);
-		historyButton.click();
-
-		WebElement element = driver.findElement(By.xpath("//p[contains(text(),'Graphite')]"));
-		JavascriptExecutor js = (JavascriptExecutor) driver;
-		js.executeScript("arguments[0].scrollIntoView();", element);
-		screenShot("Logs Error 3");
-
-
 		deleteProc("test_logs_page");
 		// deleteProc("output_refresh_test");
 		logout();
@@ -79,16 +66,9 @@ public class LogsTestIT extends WebTestUtil {
 		try {
 			log.info("------ START LogsTestIT:runOutputTest ------");
 
-			sleep(10000);
-			screenShot("Logs Error 1");
 			goToPage("logs");
 			
 			log.info("Looking for text, 'Graphite', 'Command ls exit exit code:0', and 'Deployed process definitions: test_logs_page.bpmn'.");
-
-			WebElement element = driver.findElement(By.xpath("//p[contains(text(),'Graphite')]"));
-			JavascriptExecutor js = (JavascriptExecutor) driver;
-			js.executeScript("arguments[0].scrollIntoView();", element);
-			screenShot("Logs Error 2");
 
 			if (findOnPage("Graphite")
 					&& findOnPage("Command 'ls' exit code:0.")

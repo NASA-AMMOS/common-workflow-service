@@ -122,22 +122,15 @@ public class WebTestUtil {
 
 		ChromeOptions chromeOptions = new ChromeOptions();
 
-		  // Turn on headless mode for Bamboo
-		  chromeOptions.setHeadless(true);
-		  chromeOptions.setAcceptInsecureCerts(true);
-		  //chromeOptions.addArguments("--start-maximized");
-		  //chromeOptions.addArguments("--start-fullscreen");
-
-		  chromeOptions.addArguments("--window-size=1920,1080");
-		  //chromeOptions.addArguments("--no-sandbox");
-		  //chromeOptions.addArguments("--disable-dev-shm-usage");
-		  //chromeOptions.addArguments("--disable-gpu");
+		// Turn on headless mode for Bamboo
+		chromeOptions.setHeadless(true);
+		chromeOptions.setAcceptInsecureCerts(true);
+		chromeOptions.addArguments("--window-size=1920,1080");
 
 		WebDriverManager.chromedriver().setup();
 		driver = new ChromeDriver(chromeOptions);
 
-		  log.info("Driver initialized: " + driver);
-
+		log.info("Driver initialized: " + driver);
 
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 	}
@@ -248,7 +241,7 @@ public class WebTestUtil {
 		waitForElementID("pv-"+fileName);
 	}
 
-	public void startProcDef(String procDef, String procName) {
+	public void startProcDef(String procDef, String procName, long procTime) {
 		deployFile(procDef);
 		WebDriverWait wait = new WebDriverWait(driver,30);
 
@@ -306,7 +299,7 @@ public class WebTestUtil {
 
 		goToPage("deployments");
 		//Wait explicitly for process to finish running.
-		sleep(90000);
+		sleep(procTime);
 
 		procCounter = procCounter + 1;
 		log.info("-----------TOTAL PROCS: "+procCounter);

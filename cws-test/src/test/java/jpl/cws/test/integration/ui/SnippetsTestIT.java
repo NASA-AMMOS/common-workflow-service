@@ -103,7 +103,7 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			goToPage("deployments");
 
-			startProcDef("test_snippets_page", "Test Snippets Page");
+			startProcDef("test_snippets_page", "Test Snippets Page", 90000);
 
 			goToPage("processes");
 

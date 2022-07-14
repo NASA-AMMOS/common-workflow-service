@@ -76,7 +76,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			// Fill in more here
 
 			goToPage("deployments");
-			startProcDef("test_deployments_page", "Test Deploy Page");
+			startProcDef("test_deployments_page", "Test Deploy Page", 90000);
 			completedCount++;
 
 			WebElement statsText = driver.findElement(By.id("stat-txt-test_deployments_page"));
@@ -329,7 +329,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 		try {
 			log.info("------ START DeploymentsTestIT:runTotalStatusTest ------");
 
-			startProcDef("test_hello_world", "Test Hello World"); //no need to increment completedCount for HelloWorld.
+			startProcDef("test_hello_world", "Test Hello World", 90000); //no need to increment completedCount for HelloWorld.
 			completedCount++;
 			WebElement statsText = driver.findElement(By.id("stat-txt-cws-reserved-total"));
 			String child = statsText.getText();
