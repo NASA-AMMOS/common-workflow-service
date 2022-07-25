@@ -1,5 +1,4 @@
 FROM oraclelinux:8
-#FROM arm64v8/oraclelinux:8    # Use this image for Mac M1/M2 arm64
 
 RUN yum update -y && \
     yum install -y mysql java-1.8.0-openjdk java-1.8.0-openjdk-devel rsync which && \

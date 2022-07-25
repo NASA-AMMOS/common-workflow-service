@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-ver='2.3.0-alpha.6'    # update this each CWS release
+ver='2.3.0-pre.1'    # update this each CWS release
 
 # Rebuild cws tar-ball
 ROOT=$(pwd)
@@ -23,7 +23,6 @@ cp ../../../cws-core/cws-core-libs/joda-time-2.1.jar .
 echo "Building CWS docker image.  Version = $ver"
 
 docker build -t nasa-ammos/common-workflow-service:$ver .
-#docker build -t arm64v8/nasa-ammos/common-workflow-service:$ver .    # Use this image for Mac M1/M2 arm64
 
 rm cws_server.tar.gz
 rm joda-time-2.1.jar

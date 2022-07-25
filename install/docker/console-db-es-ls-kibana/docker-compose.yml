@@ -4,7 +4,6 @@ services:
   db:
     restart: always
     image: mariadb:10.3
-    #image: arm64v8/mariadb:10.3    # Use this image for Mac M1/M2 arm64
     container_name: cws-db
     ports:
       - "3306:3306"
@@ -25,7 +24,6 @@ services:
       com.example.service: "es"
       com.example.description: "For searching and indexing data"
     image: elasticsearch:7.16.2
-    #image: arm64v8/elasticsearch:7.16.2    # Use this image for Mac M1/M2 arm64
     container_name: cws-es
   #  networks:
   #    - frontend
@@ -70,7 +68,7 @@ services:
 #    labels:
 #      com.example.service: "logstash"
 #      com.example.description: "For logging data"
-#    image: arm64v8/logstash:7.16.2
+#    image: logstash:7.16.2
 #    container_name: cws-logstash
 #    volumes:
 #      - ./cws-logstash.conf:/home/cws_user/cws-logstash.conf:ro
@@ -95,8 +93,7 @@ services:
     labels:
       com.example.service: "cws-server"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.3.0-alpha.6    # update this each CWS release
-    #image: arm64v8/nasa-ammos/common-workflow-service:2.3.0-alpha.6    # Use this image for Mac M1/M2 arm64
+    image: nasa-ammos/common-workflow-service:2.3.0-pre.1    # update this each CWS release
     depends_on:
       - db
       - es
@@ -130,8 +127,7 @@ services:
     labels:
       com.example.service: "cws-worker1"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.3.0-alpha.6    # update this each CWS release
-    #image: arm64v8/nasa-ammos/common-workflow-service:2.3.0-alpha.6    # Use this image for Mac M1/M2 arm64
+    image: nasa-ammos/common-workflow-service:2.3.0-pre.1    # update this each CWS release
     depends_on:
       - db
       - es
