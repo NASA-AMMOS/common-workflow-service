@@ -1,6 +1,7 @@
 package jpl.cws.test;
 
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.assertThat;
+//import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.assertThat;
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.*;
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.runtimeService;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -15,7 +16,6 @@ import org.junit.*;
  * Tests related to EmailTask
  * 
  */
-@Ignore
 public class SleepTaskTest {
 	
 	
@@ -47,7 +47,7 @@ public class SleepTaskTest {
 			long t1 = System.currentTimeMillis();
 			System.out.println("************************** "+(t1-t0));
 			assertTrue((t1-t0)>1000); // best case
-			assertTrue((t1-t0)<3000); // worst case
+			assertTrue((t1-t0)<6000); // worst case
 			assertThat(processInstance).isEnded();
 		} catch(Exception e) {
 			e.printStackTrace();

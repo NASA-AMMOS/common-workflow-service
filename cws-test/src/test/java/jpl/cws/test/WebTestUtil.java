@@ -306,6 +306,31 @@ public class WebTestUtil {
 		postLogging(procDef, "Successfully started ");
 	}
 
+	public void enableWorkers(String procDef) {
+		WebDriverWait wait = new WebDriverWait(driver,30);
+
+		wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
+		WebElement enable = findElById("pv-"+procDef);
+		enable.click();
+		sleep(1000);
+
+		WebElement allWorkers = findElById("all-workers");
+		WebElement allWorkersDone = findElById("done-workers-btn");
+		log.info("Enabling workers.");
+
+		if(allWorkers.isSelected()) {
+			allWorkersDone.click();
+			sleep(1000);
+		} else {
+			allWorkers.click();
+			sleep(1000);
+			allWorkersDone.click();
+			sleep(1000);
+		}
+
+		sleep(2000);
+	}
+
 	public void modifyFile(String filePath, String oldString, String newString)
     {
         File fileToBeModified = new File(filePath);

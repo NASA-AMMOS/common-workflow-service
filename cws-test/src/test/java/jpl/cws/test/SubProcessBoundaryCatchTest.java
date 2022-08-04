@@ -1,6 +1,7 @@
 package jpl.cws.test;
 
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.assertThat;
+//import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.assertThat;
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.*;
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.runtimeService;
 import static org.junit.Assert.fail;
 
@@ -19,7 +20,6 @@ import org.slf4j.LoggerFactory;
  * (in this case a sub-process container).
  * 
  */
-@Ignore
 public class SubProcessBoundaryCatchTest extends CwsTestBase {
 	private static final Logger log = LoggerFactory.getLogger(SubProcessBoundaryCatchTest.class);
 	

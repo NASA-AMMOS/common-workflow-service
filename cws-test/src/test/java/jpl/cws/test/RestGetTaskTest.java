@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
  * Tests related to RestGetTask
  * 
  */
-@Ignore
 public class RestGetTaskTest extends CwsTestBase {
 	private static final Logger log = LoggerFactory.getLogger(RestGetTaskTest.class);
 

@@ -1,21 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="_lfQZUKWGEeOGIrY8QlXzlA" targetNamespace="http://camunda.org/schema/1.0/bpmn" exporter="Camunda Modeler" exporterVersion="1.12.0" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
-  <bpmn2:process id="test_rest_get_task" isExecutable="true">
-    <bpmn2:startEvent id="StartEvent_1">
-      <bpmn2:outgoing>SequenceFlow_1</bpmn2:outgoing>
-    </bpmn2:startEvent>
-    <bpmn2:sequenceFlow id="SequenceFlow_1" name="" sourceRef="StartEvent_1" targetRef="Task_1522pvh" />
-    <bpmn2:userTask id="UserTask_1">
-      <bpmn2:incoming>SequenceFlow_3</bpmn2:incoming>
-      <bpmn2:outgoing>SequenceFlow_4</bpmn2:outgoing>
-    </bpmn2:userTask>
-    <bpmn2:sequenceFlow id="SequenceFlow_3" name="" sourceRef="Task_1522pvh" targetRef="UserTask_1" />
-    <bpmn2:sequenceFlow id="SequenceFlow_4" name="" sourceRef="UserTask_1" targetRef="EndEvent_1" />
-    <bpmn2:endEvent id="EndEvent_1">
-      <bpmn2:incoming>SequenceFlow_4</bpmn2:incoming>
-    </bpmn2:endEvent>
-    <bpmn2:serviceTask id="Task_1522pvh" name="REST GET" camunda:modelerTemplate="jpl.cws.task.RestGetTask" camunda:class="jpl.cws.task.RestGetTask">
-      <bpmn2:extensionElements>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1rq9lea" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.1.1">
+  <bpmn:process id="test_rest_get_task" name="Test Rest Get Task" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Task_1522pvh" name="REST GET" camunda:modelerTemplate="jpl.cws.task.RestGetTask" camunda:class="jpl.cws.task.RestGetTask">
+      <bpmn:extensionElements>
         <camunda:field name="url">
           <camunda:expression>${url}</camunda:expression>
         </camunda:field>
@@ -37,52 +27,47 @@
         <camunda:field name="onPreConditionFail">
           <camunda:expression>ABORT_PROCESS</camunda:expression>
         </camunda:field>
-      </bpmn2:extensionElements>
-      <bpmn2:incoming>SequenceFlow_1</bpmn2:incoming>
-      <bpmn2:outgoing>SequenceFlow_3</bpmn2:outgoing>
-    </bpmn2:serviceTask>
-  </bpmn2:process>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="UserTask_1">
+      <bpmn:incoming>SequenceFlow_3</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="EndEvent_1">
+      <bpmn:incoming>SequenceFlow_4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1" sourceRef="StartEvent_1" targetRef="Task_1522pvh" />
+    <bpmn:sequenceFlow id="SequenceFlow_3" sourceRef="Task_1522pvh" targetRef="UserTask_1" />
+    <bpmn:sequenceFlow id="SequenceFlow_4" sourceRef="UserTask_1" targetRef="EndEvent_1" />
+  </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="test_rest_get_task">
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_3" bpmnElement="StartEvent_1">
-        <dc:Bounds x="564" y="327" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="582" y="368" width="0" height="0" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="_BPMNShape_EndEvent_3" bpmnElement="EndEvent_1">
-        <dc:Bounds x="991" y="327" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1009" y="368" width="0" height="0" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1" bpmnElement="SequenceFlow_1" sourceElement="_BPMNShape_StartEvent_3" targetElement="ServiceTask_064nvqn_di">
-        <di:waypoint x="600" y="345" />
-        <di:waypoint x="687" y="345" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="598.5" y="320" width="90" height="20" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNEdge id="Flow_05onlgb_di" bpmnElement="SequenceFlow_1">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="280" y="117" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="_BPMNShape_UserTask_2" bpmnElement="UserTask_1">
-        <dc:Bounds x="840" y="305" width="100" height="80" />
+      <bpmndi:BPMNEdge id="Flow_1tdwwgn_di" bpmnElement="SequenceFlow_3">
+        <di:waypoint x="380" y="117" />
+        <di:waypoint x="430" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0q3tfsq_di" bpmnElement="SequenceFlow_4">
+        <di:waypoint x="530" y="117" />
+        <di:waypoint x="592" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_3" bpmnElement="SequenceFlow_3" sourceElement="ServiceTask_064nvqn_di" targetElement="_BPMNShape_UserTask_2">
-        <di:waypoint x="787" y="345" />
-        <di:waypoint x="840" y="345" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="768.5" y="320" width="90" height="20" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_4" bpmnElement="SequenceFlow_4" sourceElement="_BPMNShape_UserTask_2" targetElement="_BPMNShape_EndEvent_3">
-        <di:waypoint x="940" y="345" />
-        <di:waypoint x="991" y="345" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="972" y="345" width="6" height="6" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ServiceTask_064nvqn_di" bpmnElement="Task_1522pvh">
-        <dc:Bounds x="687" y="305" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_0s7t1ws_di" bpmnElement="Task_1522pvh">
+        <dc:Bounds x="280" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_18ah5it_di" bpmnElement="UserTask_1">
+        <dc:Bounds x="430" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_11rjbkf_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="592" y="99" width="36" height="36" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
-</bpmn2:definitions>
+</bpmn:definitions>

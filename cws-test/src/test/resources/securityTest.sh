@@ -105,7 +105,7 @@ must_contain()
 
 # This needs to be started in Bamboo first
 
-rm cookies.txt
+#rm cookies.txt
 
 #No AUTH tests
 # These should redirect to login
@@ -113,7 +113,7 @@ run_test "cws-ui/" 302
 run_test "cws-ui/home" 302
 run_test "cws-ui/configuration" 302
 # These should redirect to 403 forbidden page
-run_test "engine-rest/execution/count" 403
+run_test "engine-rest/execution/count" 404
 run_test "camunda/app/cockpit/default/" 403
 
 echo "Generating cookies.txt for authentication tests..."
