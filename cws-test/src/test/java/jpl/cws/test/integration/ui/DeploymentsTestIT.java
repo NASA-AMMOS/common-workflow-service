@@ -76,7 +76,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			// Fill in more here
 
 			goToPage("deployments");
-			startProcDef("test_deployments_page", "Test Deploy Page");
+			startProcDef("test_deployments_page", "Test Deploy Page", 90000);
 			completedCount++;
 
 			WebElement statsText = driver.findElement(By.id("stat-txt-test_deployments_page"));
@@ -101,7 +101,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT::runProcessCompletedTest");
+		screenShot("DeploymentsTestIT-runProcessCompletedTest");
 		assertTrue("Deployments Process Completed test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -146,7 +146,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT:runEnableDisableButtonTest");
+		screenShot("DeploymentsTestIT-runEnableDisableButtonTest");
 		assertTrue("Deployments Enable/Disable Button test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -170,7 +170,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT:runDeployFileTest");
+		screenShot("DeploymentsTestIT-runDeployFileTest");
 		assertTrue("Deployments Deploy file test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -196,7 +196,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT:runBrowseFileTest");
+		screenShot("DeploymentsTestIT-runBrowseFileTest");
 		assertTrue("Deployments Browse file test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -261,7 +261,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT:runFileVersionTest");
+		screenShot("DeploymentsTestIT-runFileVersionTest");
 		assertTrue("Deployment File Version test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -320,7 +320,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT:runDeleteProcTest");
+		screenShot("DeploymentsTestIT-runDeleteProcTest");
 		assertTrue("Deployment Delete Proc test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -329,7 +329,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 		try {
 			log.info("------ START DeploymentsTestIT:runTotalStatusTest ------");
 
-			startProcDef("test_hello_world", "Test Hello World"); //no need to increment completedCount for HelloWorld.
+			startProcDef("test_hello_world", "Test Hello World", 90000); //no need to increment completedCount for HelloWorld.
 			completedCount++;
 			WebElement statsText = driver.findElement(By.id("stat-txt-cws-reserved-total"));
 			String child = statsText.getText();
@@ -347,7 +347,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT:runTotalStatusTest");
+		screenShot("DeploymentsTestIT-runTotalStatusTest");
 		assertTrue("Deployment Total Status test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -372,7 +372,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT:runStatusRefreshTest");
+		screenShot("DeploymentsTestIT-runStatusRefreshTest");
 		assertTrue("Deployment Status Refresh test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -424,7 +424,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT:runOneWorkerTest");
+		screenShot("DeploymentsTestIT-runOneWorkerTest");
 		assertTrue("Deployment One Worker test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	// Add more deployment page tests here

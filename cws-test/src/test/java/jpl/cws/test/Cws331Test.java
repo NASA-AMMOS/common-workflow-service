@@ -1,6 +1,7 @@
 package jpl.cws.test;
 
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.assertThat;
+//import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.assertThat;
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.*;
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.execute;
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.job;
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.runtimeService;
@@ -20,7 +21,6 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  */
-@Ignore
 public class Cws331Test extends CwsTestBase {
 	private static final Logger log = LoggerFactory.getLogger(Cws331Test.class);
 

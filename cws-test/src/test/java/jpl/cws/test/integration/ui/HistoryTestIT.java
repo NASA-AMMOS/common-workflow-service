@@ -34,7 +34,7 @@ public class HistoryTestIT extends WebTestUtil {
 
 			goToPage("deployments");
 
-			startProcDef("test_history_page", "Test History Page");
+			startProcDef("test_history_page", "Test History Page", 90000);
 
 			runResultsTest();
 
@@ -97,7 +97,7 @@ public class HistoryTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("HistoryTestIT::runResultsTest");
+		screenShot("HistoryTestIT-runResultsTest");
 		assertTrue("Deployments Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	// Add more deployment page tests here

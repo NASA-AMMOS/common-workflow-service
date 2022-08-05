@@ -83,7 +83,7 @@ public class SystemLevelTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("SystemLevelTestIT::runWorkerTest");
+		screenShot("SystemLevelTestIT-runWorkerTest");
 		assertTrue("System Level Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -125,7 +125,7 @@ public class SystemLevelTestIT extends WebTestUtil {
 	            	
 	            	//start the worker back so it doesn't affect the rest of the test cases.
 					String startWorkerScript = new File(System.getProperty("user.dir")).getParent() + "/dist/worker1/cws/start_cws.sh";
-					String commandStart = "sh " + startWorkerScript;
+					String commandStart = "bash " + startWorkerScript;
 					log.info("Starting script: 'start_cws.sh' to start the worker again.");
 					
 					Process procStart = Runtime.getRuntime().exec(commandStart);
@@ -157,7 +157,7 @@ public class SystemLevelTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("SystemLevelTestIT::runShutdownWorkerTest");
+		screenShot("SystemLevelTestIT-runShutdownWorkerTest");
 		assertTrue("Shutdown Worker Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	// Add more deployment page tests here

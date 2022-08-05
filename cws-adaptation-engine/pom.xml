@@ -26,7 +26,7 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>org.camunda.bpm.extension</groupId>
+			<groupId>org.camunda.bpm.assert</groupId>
 			<artifactId>camunda-bpm-assert</artifactId>
 			<exclusions>
 				<exclusion>
@@ -34,6 +34,10 @@
 					<groupId>org.springframework</groupId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
 		</dependency>
 		
 		<dependency>

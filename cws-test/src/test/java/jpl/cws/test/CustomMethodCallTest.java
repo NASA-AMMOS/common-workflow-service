@@ -1,6 +1,7 @@
 package jpl.cws.test;
 
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.assertThat;
+//import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.assertThat;
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.*;
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.runtimeService;
 import static org.junit.Assert.fail;
 

@@ -122,14 +122,17 @@ public class WebTestUtil {
 
 		ChromeOptions chromeOptions = new ChromeOptions();
 
-		  // Turn on headless mode for Bamboo
-		  chromeOptions.setHeadless(true);
-		  chromeOptions.setAcceptInsecureCerts(true);
+		// Turn on headless mode for Bamboo
+		chromeOptions.setHeadless(true);
+		chromeOptions.setAcceptInsecureCerts(true);
+		chromeOptions.addArguments("--window-size=1920,1080");
 
 		WebDriverManager.chromedriver().setup();
 		driver = new ChromeDriver(chromeOptions);
 
-		  log.info("Driver initialized: " + driver);
+		log.info("Driver initialized: " + driver);
+
+		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 	}
 
 	protected WebElement findElById(String id) {
@@ -238,7 +241,7 @@ public class WebTestUtil {
 		waitForElementID("pv-"+fileName);
 	}
 
-	public void startProcDef(String procDef, String procName) {
+	public void startProcDef(String procDef, String procName, long procTime) {
 		deployFile(procDef);
 		WebDriverWait wait = new WebDriverWait(driver,30);
 
@@ -296,11 +299,36 @@ public class WebTestUtil {
 
 		goToPage("deployments");
 		//Wait explicitly for process to finish running.
-		sleep(90000);
+		sleep(procTime);
 
 		procCounter = procCounter + 1;
 		log.info("-----------TOTAL PROCS: "+procCounter);
 		postLogging(procDef, "Successfully started ");
+	}
+
+	public void enableWorkers(String procDef) {
+		WebDriverWait wait = new WebDriverWait(driver,30);
+
+		wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
+		WebElement enable = findElById("pv-"+procDef);
+		enable.click();
+		sleep(1000);
+
+		WebElement allWorkers = findElById("all-workers");
+		WebElement allWorkersDone = findElById("done-workers-btn");
+		log.info("Enabling workers.");
+
+		if(allWorkers.isSelected()) {
+			allWorkersDone.click();
+			sleep(1000);
+		} else {
+			allWorkers.click();
+			sleep(1000);
+			allWorkersDone.click();
+			sleep(1000);
+		}
+
+		sleep(2000);
 	}
 
 	public void modifyFile(String filePath, String oldString, String newString)

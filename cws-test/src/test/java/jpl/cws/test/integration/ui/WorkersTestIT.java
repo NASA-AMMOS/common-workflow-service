@@ -22,7 +22,6 @@ import jpl.cws.test.WebTestUtil;
  * @author hasan
  *
  */
-@Ignore
 public class WorkersTestIT extends WebTestUtil {
 	private static final Logger log = LoggerFactory.getLogger(WorkersTestIT.class);
 	private static int testCasesCompleted = 0;
@@ -38,7 +37,7 @@ public class WorkersTestIT extends WebTestUtil {
 			
 			goToPage("deployments");
 			
-			startProcDef("test_workers_page", "Test Workers Page");
+			startProcDef("test_workers_page", "Test Workers Page", 30000);
 			
 			runNumberActiveTest();
 			runThreadLimitTest();
@@ -58,6 +57,7 @@ public class WorkersTestIT extends WebTestUtil {
 			scriptPass = false;
 		}
 		deleteProc("test_workers_page");
+		deleteProc("test_deployments_page");
 		deleteProc("test_thread_limit");
 		logout();
 		assertTrue("Workers Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
@@ -140,7 +140,7 @@ public class WorkersTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("WorkersTestIT::runWorkersCheckBoxTest");
+		screenShot("WorkersTestIT-runWorkersCheckBoxTest");
 		assertTrue("Workers Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	
@@ -162,7 +162,7 @@ public class WorkersTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;		
 		}
-		screenShot("WorkersTestIT::runWorkerStatusTest");
+		screenShot("WorkersTestIT-runWorkerStatusTest");
 		assertTrue("Workers Status test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -185,7 +185,7 @@ public class WorkersTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}	
-		screenShot("WorkersTestIT::runNumberActiveTest");
+		screenShot("WorkersTestIT-runNumberActiveTest");
 		assertTrue("Workers Number Active test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	
@@ -248,6 +248,7 @@ public class WorkersTestIT extends WebTestUtil {
 			driver.findElement(By.id("workers-table")).click();
 			
 			goToPage("initiators");
+			sleep(1000);
 			
 			log.info("Going into Ace Editor and adding repeat initiator for test_thread_limit.");
 			//go into the div element in CWS and paste it there.
@@ -300,7 +301,7 @@ public class WorkersTestIT extends WebTestUtil {
 			
 			Select select = new Select(findElById("refresh-rate"));
 			log.info("Adjusting refresh rate to 1 second...");
-			select.selectByVisibleText("1 seconds");
+			select.selectByValue("1");
 			
 			log.info("Getting data from status bar of Test Thread Limit periodically now...");
 			WebElement statsText = driver.findElement(By.id("stat-txt-test_thread_limit"));
@@ -345,7 +346,7 @@ public class WorkersTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}	
-		screenShot("WorkersTestIT::runThreadLimitTest");
+		screenShot("WorkersTestIT-runThreadLimitTest");
 		assertTrue("Workers Thread Limit test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	// Add more deployment page tests here

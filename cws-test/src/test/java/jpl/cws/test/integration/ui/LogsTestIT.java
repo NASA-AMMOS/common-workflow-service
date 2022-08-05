@@ -36,7 +36,7 @@ public class LogsTestIT extends WebTestUtil {
 			
 			goToPage("deployments");
 			
-			startProcDef("test_logs_page", "Test Logs Page");
+			startProcDef("test_logs_page", "Test Logs Page", 90000);
 			
 			runOutputTest();
 			runTableColumnTest();
@@ -65,11 +65,11 @@ public class LogsTestIT extends WebTestUtil {
 		
 		try {
 			log.info("------ START LogsTestIT:runOutputTest ------");
-			
+
 			goToPage("logs");
 			
 			log.info("Looking for text, 'Graphite', 'Command ls exit exit code:0', and 'Deployed process definitions: test_logs_page.bpmn'.");
-			
+
 			if (findOnPage("Graphite")
 					&& findOnPage("Command 'ls' exit code:0.")
 					&& findOnPage("Deployed process definition: 'test_logs_page.bpmn'")) {
@@ -84,7 +84,7 @@ public class LogsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;	
 		}
-		screenShot("LogsTestIT::runOutputTest");
+		screenShot("LogsTestIT-runOutputTest");
 		assertTrue("Logs Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	
@@ -143,7 +143,7 @@ public class LogsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;	
 		}
-		screenShot("LogsTestIT::runTableColumnTest");
+		screenShot("LogsTestIT-runTableColumnTest");
 		assertTrue("Table Column Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	
@@ -245,7 +245,7 @@ public class LogsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;	
 		}
-		screenShot("LogsTestIT::runOutputRefreshTest");
+		screenShot("LogsTestIT-runOutputRefreshTest");
 		assertTrue("Output Refresh Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	// Add more deployment page tests here

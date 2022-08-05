@@ -103,7 +103,7 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			goToPage("deployments");
 
-			startProcDef("test_snippets_page", "Test Snippets Page");
+			startProcDef("test_snippets_page", "Test Snippets Page", 90000);
 
 			goToPage("processes");
 
@@ -140,7 +140,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("SnippetsTestIT::runSnippetsModelTest");
+		screenShot("SnippetsTestIT-runSnippetsModelTest");
 		assertTrue("Snippets Model test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -227,7 +227,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("SnippetsTestIT::runUpdateSnippetsTest");
+		screenShot("SnippetsTestIT-runUpdateSnippetsTest");
 		assertTrue("Snippets Model test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -263,7 +263,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("SnippetsTestIT::runUpdateErrorTest");
+		screenShot("SnippetsTestIT-runUpdateErrorTest");
 		assertTrue("Snippets Model test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -314,7 +314,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("SnippetsTestIT::runReloadEditorTest");
+		screenShot("SnippetsTestIT-runReloadEditorTest");
 		assertTrue("Snippets Model test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	// Add more deployment page tests here
