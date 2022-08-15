@@ -1,0 +1,13 @@
+# Entry 1: cn=CWS Admin,ou=people,dc=openldap,dc=com
+dn: cn=CWS Admin,ou=people,dc=openldap,dc=com
+cn: CWS Admin
+gidnumber: 500
+givenname: CWS
+homedirectory: /home/users/cwsadmin
+objectclass: inetOrgPerson
+objectclass: posixAccount
+objectclass: top
+sn: Admin
+uid: cwsadmin
+uidnumber: 1001
+userpassword: {MD5}ICy5YqxZB1uWSwcVLSNLcA==
