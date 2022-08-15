@@ -11,6 +11,10 @@ source ${ROOT}/utils.sh
 CONF_FILE=$1
 PROMPT_VALUE=$2
 
+# ================
+# SETUP VARIABLES
+# ================
+export CWS_HOME=${ROOT}
 export CWS_INSTALLER_PRESET_FILE=${ROOT}/configuration.properties
 
 cd $ROOT
