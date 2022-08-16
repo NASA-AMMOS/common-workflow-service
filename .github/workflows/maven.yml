@@ -84,24 +84,24 @@ jobs:
         with:
           name: test-screenshots
           path: test-screenshots/
-      #- name: Send custom JSON data to Slack workflow
-        #if: ${{ always() }}
-        #id: slack
-        #uses: slackapi/slack-github-action@v1.19.0
-        #with:
-          # This data can be any valid JSON from a previous step in the GitHub Action
-          #payload: |
-            #{
-              #"status": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
-              #"blocks": [
-                #{
-                  #"type": "section",
-                  #"text": {
+      - name: Send custom JSON data to Slack workflow
+        if: ${{ always() }}
+        id: slack
+        uses: slackapi/slack-github-action@v1.19.0
+        with:
+           This data can be any valid JSON from a previous step in the GitHub Action
+          payload: |
+            {
+              "status": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"\n${{ github.event_name }},
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
                     #"type": "mrkdwn",
                     #"text": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
-                  #}
-                #}
-              #]
-            #}
-        #env:
-          #SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

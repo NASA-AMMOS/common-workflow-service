@@ -38,7 +38,7 @@ public class WebTest extends WebTestUtil {
 		log.info("------ START runProcessTest ------");
 		gotoLoginPage();
 		login();
-		startProcDef("test_simplest", "Test Simplest", 90000);
+		startProcDef("tes", "Test Simplest", 90000); // simulate unit test failure
 		deleteProc("test_simplest");
 		logout();
 		log.info("------ END runProcessTest ------");
