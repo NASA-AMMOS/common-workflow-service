@@ -1,0 +1,8 @@
+version: "3.2"
+services:
+  openldap:
+    build: .
+    image: openldap
+    container_name: openldap_container
+    ports:
+      - "389:389"

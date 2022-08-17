@@ -1,0 +1,18 @@
+dn: dc=example,dc=com
+dc: example
+objectClass: dcObject
+objectClass: organizationalUnit
+ou: example
+
+dn: ou=Users,dc=example,dc=com
+objectClass: organizationalUnit
+ou: Users
+
+dn: cn=cwsuser,ou=Users,dc=example,dc=com
+objectclass: inetOrgPerson
+cn: cwsuser
+givenName: cws
+sn: user
+uid: cwsuser
+userpassword: ldapcwspassword
+mail: cws.user@example.com
