@@ -15,11 +15,15 @@
 docker-compose up -d
 ```
 
-#### *Test LDAP Server* 
-- Once `openldap_container` is up, run a ldapsearch command to verify user configuration:
- 
+#### *Test LDAP Server*
+Once `openldap_container` is up, run a ldapsearch command to verify user configuration.
+- Enter Docker container:
 ```
-  ldapsearch -x -LLL -H ldap://localhost:389 -b dc=example,dc=com -D "cn=<cn>,ou=Users,dc=example,dc=com" -w <userpassword> uid=<uid>
+docker exec -it openldap_container bash
+```
+- Run ldapsearch command: 
+```
+ldapsearch -x -LLL -H ldap://localhost:389 -b dc=example,dc=com -D "cn=<cn>,ou=Users,dc=example,dc=com" -w <userpassword> uid=<uid>
 ```
 
 #### CWS LDAP Authorization Plugin
