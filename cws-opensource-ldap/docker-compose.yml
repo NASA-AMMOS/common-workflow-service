@@ -1,28 +1,8 @@
-version: '3.7'
+version: "3.2"
 services:
   openldap:
-    image: osixia/openldap:latest
-    container_name: openldap
-    hostname: openldap
+    build: .
+    image: openldap
+    container_name: openldap_container
     ports:
       - "389:389"
-      - "636:636"
-    volumes:
-      - ./data/certificates:/container/service/slapd/assets/certs
-      - ./data/slapd/database:/var/lib/ldap
-      - ./data/slapd/config:/etc/ldap/slapd.d
-    environment:
-      - LDAP_ORGANISATION=openldap
-      - LDAP_DOMAIN=openldap.com
-      - LDAP_ADMIN_USERNAME=cws
-      - LDAP_ADMIN_PASSWORD=changeme
-      - LDAP_CONFIG_PASSWORD=changeme
-      - "LDAP_BASE_DN=dc=openldap,dc=com"
-      - LDAP_TLS_CRT_FILENAME=server.crt
-      - LDAP_TLS_KEY_FILENAME=server.key
-      - LDAP_TLS_CA_CRT_FILENAME=openldap.com.ca.crt
-      - LDAP_READONLY_USER=true
-      - LDAP_READONLY_USER_USERNAME=cws-read
-      - LDAP_READONLY_USER_PASSWORD=changeme
-    networks:
-      - openldap

@@ -76,8 +76,12 @@ Open new Shell terminal designated for running ElasticSearch.
 docker-compose up
 ```
 
+#### _Updating Presets and Default Settings_
 
-
+Preset configuration variables like `default_smtp_hostname` and `default_cws_ldap_url` can be found in files:
+- `/install/installerPresets.properties`
+- `/install/example-cws-configuration.properties`
+- `utils.sh`
 -----
 ## Building CWS
 

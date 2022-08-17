@@ -1,13 +1,18 @@
-# Entry 1: cn=CWS Admin,ou=people,dc=openldap,dc=com
-dn: cn=CWS Admin,ou=people,dc=openldap,dc=com
-cn: CWS Admin
-gidnumber: 500
-givenname: CWS
-homedirectory: /home/users/cwsadmin
+dn: dc=example,dc=com
+dc: example
+objectClass: dcObject
+objectClass: organizationalUnit
+ou: example
+
+dn: ou=Users,dc=example,dc=com
+objectClass: organizationalUnit
+ou: Users
+
+dn: cn=cwsuser,ou=Users,dc=example,dc=com
 objectclass: inetOrgPerson
-objectclass: posixAccount
-objectclass: top
-sn: Admin
-uid: cwsadmin
-uidnumber: 1001
-userpassword: {MD5}ICy5YqxZB1uWSwcVLSNLcA==
+cn: cwsuser
+givenName: cws
+sn: user
+uid: cwsuser
+userpassword: ldapcwspassword
+mail: cws.user@example.com
