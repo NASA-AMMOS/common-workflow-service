@@ -1,6 +1,6 @@
 # Deploy OpenLDAP Server
 
-###LDAP Server Configuration
+### LDAP Server Configuration
 
 - The open source LDAP server, with default user configuration, can be activated using Docker.
     - LDIF files _user.ldif_ and _access.ldif_ contain the default DN(distinguished name), UserId, and ldap user details.
