@@ -84,6 +84,11 @@ jobs:
         with:
           name: test-screenshots
           path: test-screenshots/
+      - name: Show Webhook Payload
+        if: ${{ always() }}
+        run: |
+          cd ${{ github.event_path }}
+          ls -al
       - name: Send custom JSON data to Slack workflow
         if: ${{ always() }}
         id: slack
@@ -92,13 +97,13 @@ jobs:
           # This data can be any valid JSON from a previous step in the GitHub Action
           payload: |
             {
-              "status": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\n${{ github.event_name }}",
+              "status": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\n${{ github.event.workflow_job.html_url }}",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\n${{ github.event_name }}"
+                    "text": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\n${{ github.event.workflow_job.html_url }}"
                   }
                 }
               ]
