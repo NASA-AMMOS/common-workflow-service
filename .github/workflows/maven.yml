@@ -68,27 +68,25 @@ jobs:
           #chmod +x test.sh
           #./test.sh
         #shell: bash
-      - name: Run Unit Tests
-        run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source clean test jacoco:report-aggregate
-        shell: bash
-      - name: Run Integration Tests
-        run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source integration-test verify -DskipTests
-        shell: bash
-      - name: Upload Jacoco report
-        uses: actions/upload-artifact@v3
-        with:
-          name: jacoco-report
-          path: jacoco-reports/aggregate/index.html
-      - name: Upload test screenshots
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-screenshots
-          path: test-screenshots/
+      #- name: Run Unit Tests
+        #run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source clean test jacoco:report-aggregate
+        #shell: bash
+      #- name: Run Integration Tests
+        #run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source integration-test verify -DskipTests
+        #shell: bash
+      #- name: Upload Jacoco report
+        #uses: actions/upload-artifact@v3
+        #with:
+          #name: jacoco-report
+          #path: jacoco-reports/aggregate/index.html
+      #- name: Upload test screenshots
+        #uses: actions/upload-artifact@v3
+        #with:
+          #name: test-screenshots
+          #path: test-screenshots/
       - name: Show Webhook Payload
         if: ${{ always() }}
-        run: |
-          cd ${{ github.event_path }}
-          ls -al
+        run: cat ${{ github.event_path }}
       - name: Send custom JSON data to Slack workflow
         if: ${{ always() }}
         id: slack
@@ -97,13 +95,13 @@ jobs:
           # This data can be any valid JSON from a previous step in the GitHub Action
           payload: |
             {
-              "status": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\n${{ github.event.workflow_job.html_url }}",
+              "status": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\n${{ github.action.workflow_job.html_url }}",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\n${{ github.event.workflow_job.html_url }}"
+                    "text": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\n${{ github.action.workflow_job.html_url }}"
                   }
                 }
               ]
