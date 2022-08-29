@@ -55,7 +55,7 @@ jobs:
         run:  |
           cd ci
           chmod +x run_ci.sh
-          ./run_ci.sh
+          ./run_ci.sh 'CAMUNDA'
         shell: bash
       - name: Show CWS Log
         run: |

@@ -12,8 +12,6 @@ jobs:
   build-cws:
 
     runs-on: ubuntu-latest
-    env:
-      SECURITY: "CAMUNDA"
 
     steps:
       - uses: actions/checkout@v3
@@ -50,13 +48,13 @@ jobs:
           docker-compose up -d
       - name: Show Docker containers
         run: |
-          sleep 540s
+          sleep 5s
           docker ps -a
       - name: Run CWS
         run:  |
           cd ci
           chmod +x run_ci.sh
-          ./run_ci.sh $SECURITY
+          ./run_ci.sh 'LDAP'
         shell: bash
       - name: Show CWS Log
         run: |
