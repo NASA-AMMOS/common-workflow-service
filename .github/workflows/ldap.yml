@@ -12,6 +12,8 @@ jobs:
   build-cws:
 
     runs-on: ubuntu-latest
+    env:
+      SECURITY: "LDAP"
 
     steps:
       - uses: actions/checkout@v3
@@ -54,7 +56,7 @@ jobs:
         run:  |
           cd ci
           chmod +x run_ci.sh
-          ./run_ci.sh 'LDAP'
+          ./run_ci.sh $SECURITY
         shell: bash
       - name: Show CWS Log
         run: |
@@ -90,13 +92,13 @@ jobs:
           # This data can be any valid JSON from a previous step in the GitHub Action
           #payload: |
             #{
-              #"status": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+              #"status": "CWS CI LDAP build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
               #"blocks": [
                 #{
                   #"type": "section",
                   #"text": {
                     #"type": "mrkdwn",
-                    #"text": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                    #"text": "CWS CI LDAP build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
                   #}
                 #}
               #]
