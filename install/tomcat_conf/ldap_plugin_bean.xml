@@ -9,18 +9,18 @@ The __VALUES__ placeholders will be filled in from config at runtime.
 See: https://docs.camunda.org/manual/latest/user-guide/process-engine/identity-service/#activate-the-ldap-plugin -->
 <bean id="ldapIdentityProviderPlugin" class="__CWS_IDENTITY_PLUGIN_CLASS__">
     <property name="serverUrl"                   value="__CWS_LDAP_URL__" />
-    <property name="acceptUntrustedCertificates" value="false" />
+    <property name="acceptUntrustedCertificates" value="true" />
     <property name="baseDn"                      value="dc=example,dc=com" />
-    <property name="userSearchBase"              value="ou=Users,dc=example,dc=com" />
-    <property name="userSearchFilter"            value="(|(objectClass=person)(objectClass=user))" />
-    <property name="userIdAttribute"             value="<attribute>" />
-    <property name="userFirstnameAttribute"      value="<firstname>" />
-    <property name="userLastnameAttribute"       value="<lastname>" />
-    <property name="userEmailAttribute"          value="<mail>" />
-    <property name="userPasswordAttribute"       value="<password>" />
-    <property name="groupSearchBase"             value="ou=Users,dc=example,dc=com" />
+    <property name="userSearchBase"              value="ou=Users" />
+    <property name="userSearchFilter"            value="(objectclass=inetOrgPerson)" />
+    <property name="userIdAttribute"             value="uid" />
+    <property name="userFirstnameAttribute"      value="givenName" />
+    <property name="userLastnameAttribute"       value="sn" />
+    <property name="userEmailAttribute"          value="mail" />
+    <property name="userPasswordAttribute"       value="userpassword" />
+    <property name="groupSearchBase"             value="ou=Users" />
     <property name="groupSearchFilter"           value="(|(cn=your.first.group)(cn=your.other.group))" />
-    <property name="groupIdAttribute"            value="<groupIdAttribute>" />
-    <property name="groupNameAttribute"          value="<groupNameAttribute>" />
-    <property name="groupMemberAttribute"        value="<groupMemberAttribute>" />
+    <property name="groupIdAttribute"            value="cn" />
+    <property name="groupNameAttribute"          value="cn" />
+    <property name="groupMemberAttribute"        value="uniqueMember" />
 </bean>

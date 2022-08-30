@@ -209,7 +209,7 @@ function auto_conf_data () {
 
     source ${ROOT}/utils.sh
 
-    LDAP_SERVER_URL="ldaps://localhost:636"
+    LDAP_SERVER_URL="ldap://localhost:389"
 
     CWS_CONSOLE_SSL_PORT=38443
     AMQ_PORT=31616

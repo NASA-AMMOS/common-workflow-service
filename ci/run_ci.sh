@@ -7,8 +7,6 @@ printf "\nHostname set to '%s'\n\n" $HOSTNAME
 # Used in cws-test
 echo "$HOSTNAME" > ../cws-test/src/test/resources/hostname.txt
 
-#SECURITY="CAMUNDA"
-#SECURITY="LDAP"
 SECURITY=${1}
 
 # Stop CWS is it is currently running
@@ -25,11 +23,11 @@ DB_PORT=3306 # mariadb default
 USER=cwsci
 CLOUD=n # Enable cloudwatch monitoring
 
-EMAIL_LIST="a"
+EMAIL_LIST="/"
 
-ADMIN_FIRST="a"
-ADMIN_LAST="a"
-ADMIN_EMAIL="a"
+ADMIN_FIRST="/"
+ADMIN_LAST="/"
+ADMIN_EMAIL="/"
 
 ES_PROTOCOL="HTTP"
 ES_HOST="http://localhost"
