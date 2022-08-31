@@ -1,7 +1,6 @@
 name: CWS CI
 
-# Triggers the workflow on push or pull request
-#on: [push, pull_request]
+# Triggers the workflow on push
 on:
   push:
   schedule:
@@ -42,15 +41,11 @@ jobs:
           cd install/docker/es-only
           docker-compose up -d
       - name: Set up CWS database using Docker
-        run: docker run -d -p 3306:3306 -e MYSQL_DATABASE=cws_dev -e MYSQL_ROOT_PASSWORD=rootpw --name mdb103 mariadb:10.3
+        run: docker run -d -p 3306:3306 -e MYSQL_DATABASE=cws_dev -e MYSQL_ROOT_PASSWORD=adminpw --name mdb103 mariadb:10.3
       - name: Show Docker containers
         run: |
           sleep 5s
           docker ps -a
-      - name: Stop CWS
-        run: |
-          chmod +x stop_dev.sh
-          ./stop_dev.sh
       - name: Run CWS
         run:  |
           cd ci
@@ -63,10 +58,11 @@ jobs:
          ls -al
       - uses: browser-actions/setup-chrome@latest
       - run: chrome --version
-      - name: Run Unit and Integration Tests
-        run: |
-          chmod +x test.sh
-          ./test.sh
+      - name: Run Unit Tests
+        run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source clean test jacoco:report-aggregate
+        shell: bash
+      - name: Run Integration Tests
+        run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source integration-test verify -DskipTests
         shell: bash
       - name: Upload Jacoco report
         uses: actions/upload-artifact@v3
@@ -79,6 +75,7 @@ jobs:
           name: test-screenshots
           path: test-screenshots/
       - name: Send custom JSON data to Slack workflow
+        if: ${{ always() }}
         id: slack
         uses: slackapi/slack-github-action@v1.19.0
         with:
