@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  */
-@Ignore
 public class Issue16Test extends CwsTestBase {
 	private static final Logger log = LoggerFactory.getLogger(Issue16Test.class);
 
