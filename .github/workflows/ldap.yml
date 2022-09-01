@@ -43,7 +43,7 @@ jobs:
           cd install/docker/es-only
           docker-compose up -d
       - name: Set up CWS database using Docker
-        run: docker run -d -p 3306:3306 -e MYSQL_DATABASE=cws_dev -e MYSQL_ROOT_PASSWORD=rootpw --name mdb103 mariadb:10.3
+        run: docker run -d -p 3306:3306 -e MYSQL_DATABASE=cws_dev -e MYSQL_ROOT_PASSWORD=adminpw --name mdb103 mariadb:10.3
       - name: Set up CWS LDAP Server
         run: |
           cd cws-opensource-ldap
