@@ -132,7 +132,7 @@ public class WebTestUtil {
 
 		log.info("Driver initialized: " + driver);
 
-		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+		// driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 	}
 
 	protected WebElement findElById(String id) {
@@ -147,7 +147,7 @@ public class WebTestUtil {
 		boolean found = driver.getPageSource().contains(text);
 		int tries = 0;
 		long sleepTime = 4;
-		while (!found && tries++ < 10) {
+		while (!found && tries++ < 13) {
 			sleepTime *= 2;
 			log.warn("'" + text + "' not found ("+tries+", "+sleepTime+")");
 			sleep(sleepTime);
