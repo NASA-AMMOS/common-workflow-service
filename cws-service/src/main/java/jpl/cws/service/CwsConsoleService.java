@@ -481,8 +481,8 @@ public class CwsConsoleService {
 
 				if (variable.getSerializerName().equals("json")) {
 
-					// TODO: Update this to display the actual JSON data in history (Collapsible table hopefully?)
-					message = "Setting (json) " + variable.getVariableName() + " = " + " <jsonData>";
+					// TODO: Update this to be a collapsible table
+					message = "Setting (json) " + variable.getVariableName() + " = " + variable.getValue();
 				}
 				else {
 					message = "Setting (" + variable.getTypeName() + ") " + variable.getVariableName() + " = " + variable.getValue();

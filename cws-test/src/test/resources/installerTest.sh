@@ -22,7 +22,8 @@ cd $ROOT/../../../newCWSDir/console-only
 tar zxf cws_server.tar.gz
 cd cws
 
-cp $ROOT/configuration.properties ./
+#cp $ROOT/configuration.properties ./
+cp $ROOT/../../../../dist/console-only/cws/configuration.properties ./
 cp $ROOT/configure_with_jacoco.sh ./
 
 echo "CONFIGURING CWS..."
