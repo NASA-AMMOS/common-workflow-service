@@ -125,7 +125,7 @@ public class CmdLineExecTask extends CwsTask {
 				log.trace("Added token: " + token);
 				cmdLine.addArgument(token, false);
 			}
-			log.debug("parsed command: '" + cmdLineString + "' into: " + cmdLine);
+			log.debug("Parsed command: '" + cmdLineString + "' into: " + cmdLine);
 			
 			DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
 			
@@ -168,7 +168,6 @@ public class CmdLineExecTask extends CwsTask {
 			
 			// Execute and wait for the process to complete
 			//
-			log.info("About to execute '" + cmdLine + "'");
 			long t0 = System.currentTimeMillis();
 			executor.execute(cmdLine, env, resultHandler);
 			resultHandler.waitFor();
@@ -177,7 +176,7 @@ public class CmdLineExecTask extends CwsTask {
 			// Get the exit value, log it, and put it in return map
 			//
 			int exitValue = resultHandler.getExitValue();
-			log.info("Command '" + cmdLineString + "' exit value:" + exitValue + ". Ran in: " + (t1 - t0) + " ms.");
+			log.info("Command '" + cmdLineString + "' exit value: " + exitValue + "\nRan in: " + (t1 - t0) + " ms.");
 
 			CmdLineOutputFields cmdOutputFields = new CmdLineOutputFields();
 
@@ -242,13 +241,6 @@ public class CmdLineExecTask extends CwsTask {
 			String stderrStr = StringUtils.join(Collections2.transform(stdErrLines, new StripOrderId<String, String>()), '\n');
 			setOutputVariable("stderr", stderrStr);
 			cmdOutputFields.stderr = stderrStr;
-
-			// Log outputs
-			if (cmdOutputFields.event != null) {
-				log.info("Command '" + cmdLine + "' event: " + cmdOutputFields.event);
-			}
-			log.info("Command '" + cmdLine + "' stdout: " + cmdOutputFields.stdout);
-			log.info("Command '" + cmdLine + "' stderr: " + cmdOutputFields.stderr);
 
 			setStdOutVariables(stdOutLines);
 			//log.debug("-------- TASK TIME = " +(System.currentTimeMillis()-t0) + " --------------");

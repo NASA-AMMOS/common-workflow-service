@@ -84,10 +84,10 @@ public class HistoryTestIT extends WebTestUtil {
 			findOnPage("<title>CWS - History</title>");
 
 			if (findOnPage("History Page")
-					&& findOnPage("Command 'mkdir Test' exit code:0.")
-					&& findOnPage("Command 'ls' exit code:0.")
+					&& findOnPage("Command 'mkdir Test' exit code: 0")
+					&& findOnPage("Command 'ls' exit code: 0")
 					&& findOnPage("LINE: Test")
-					&& findOnPage("Command 'rmdir Test' exit code:0.")) {
+					&& findOnPage("Command 'rmdir Test' exit code: 0")) {
 				scriptPass = true;
 				testCasesCompleted++;
 			}
