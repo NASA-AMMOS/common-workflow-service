@@ -115,7 +115,7 @@ public class CwsExternalTaskThread extends Thread  {
 
 			String msg = "Unknown or uncaught error occured!  Details: " + t.getMessage();
 
-			log.error("runTask: Error: " + msg, t);
+			log.error("Error: " + msg, t);
 			
 			// Create an incident
 			handleCamundaApiCall(Resolution.HANDLE_FAILURE, task.getId(), msg, t.toString(), 0, 0L);
@@ -131,9 +131,6 @@ public class CwsExternalTaskThread extends Thread  {
 		log.setProcInstanceId(task.getProcessInstanceId());
 		log.setProcDefKey(task.getProcessDefinitionKey());
 		log.setActivityInstanceId(task.getActivityInstanceId());
-
-		log.debug("runTask: Running external task for procInstId = " + task.getProcessInstanceId() + ", taskId = " + task.getId() + ", activityId = " + task.getActivityId() +
-				", executionId = " + task.getExecutionId() + ", with topic = " + task.getTopicName() + ", task priority = " + task.getPriority() + "...");
 
 		CmdLineInputFields cmdInputFields = new CmdLineInputFields();
 		CmdLineOutputFields cmdOutputFields = new CmdLineOutputFields();
@@ -176,10 +173,6 @@ public class CwsExternalTaskThread extends Thread  {
 
 					exitCodeEventsMap.put(keyVal[0], keyVal[1]);
 				}
-
-				String msg = "Gathering inputs for ProcInstId \"" + task.getProcessInstanceId() + "\": " + jsonNode.toString();
-				
-				log.debug("runTask: " + msg);
 			}
 		}
 		catch (Throwable t) {
@@ -196,7 +189,7 @@ public class CwsExternalTaskThread extends Thread  {
 				variableLookupRetries = Integer.parseInt((String)task.getVariables().get(fieldName));
 			}
 
-			log.warn("runTask: Error: Failed to retrieve input variables from execution listener. " + variableLookupRetries + " retries remaining.");
+			log.warn("Error: Failed to retrieve input variables from execution listener. " + variableLookupRetries + " retries remaining.");
 
 			if (variableLookupRetries > 0) {
 				
@@ -220,7 +213,7 @@ public class CwsExternalTaskThread extends Thread  {
 				// variables to never get set. An incident can now be reasonably thrown.
 
 				String msg = "Failed to retrieve and/or parse input variables.  Details: " + t.getMessage();
-				log.error("runTask: Error: " + msg, t);
+				log.error("Error: " + msg, t);
 
 				// Create an incident
 				handleCamundaApiCall(Resolution.HANDLE_FAILURE, task.getId(), msg, t.toString(), 0, 0L);
@@ -237,10 +230,10 @@ public class CwsExternalTaskThread extends Thread  {
 			boolean success = executeTask(cmdInputFields, cmdOutputFields);
 
 			if (success) {
-				log.debug("runTask: External task completed successfully!");
+				log.debug("CmdLine Task completed successfully!");
 			}
 			else {
-				log.debug("runTask: External task completed unsuccessfully.");
+				log.debug("CmdLine Task completed unsuccessfully.");
 			}
 
 			handleCamundaApiCall(Resolution.COMPLETE, task.getId(), "", "", 0, 0L);
@@ -253,7 +246,7 @@ public class CwsExternalTaskThread extends Thread  {
 
 			if (taskRetries > 0) {
 
-				log.warn("runTask: handleFailure: (BpmnError: " + e.getMessage() + ") (retries remaining: " + taskRetries + ") (retrying in: " + cmdInputFields.retryDelay + "ms)", e);
+				log.warn("handleFailure: (BpmnError: " + e.getMessage() + ") (retries remaining: " + taskRetries + ") (retrying in: " + cmdInputFields.retryDelay + "ms)", e);
 
 				// Do retry
 				handleCamundaApiCall(Resolution.HANDLE_FAILURE, task.getId(), "Retrying...", e.toString(), taskRetries, cmdInputFields.retryDelay);
@@ -267,7 +260,7 @@ public class CwsExternalTaskThread extends Thread  {
 
 			int taskRetries = getAndIncrementRetriesForTask(task, cmdInputFields.retries);
 
-			log.error("runTask: Error: Optimistic locking exception occurred! Retrying this job.", e);
+			log.error("Error: Optimistic locking exception occurred! Retrying this job.", e);
 
 			// Since OptimisticLockingException is recoverable, wait a short while then retry this external task.
 			handleCamundaApiCall(Resolution.HANDLE_FAILURE, task.getId(), "Retrying due to OptimisticLockingException...", e.toString(), taskRetries, PROCESS_ENGINE_ERROR_RETRY_DELAY);
@@ -277,7 +270,7 @@ public class CwsExternalTaskThread extends Thread  {
 
 			int taskRetries = getAndIncrementRetriesForTask(task, cmdInputFields.retries);
 
-			log.error("runTask: Error: Foreign key exception occurred! Retrying this job.", e);
+			log.error("Error: Foreign key exception occurred! Retrying this job.", e);
 
 			// Since Foreign Key Exception is recoverable, wait a short while then retry this external task.
 			handleCamundaApiCall(Resolution.HANDLE_FAILURE, task.getId(), "Retrying due to Foreign Key Exception...", e.toString(), taskRetries, PROCESS_ENGINE_ERROR_RETRY_DELAY);
@@ -287,7 +280,7 @@ public class CwsExternalTaskThread extends Thread  {
 
 			int taskRetries = getAndIncrementRetriesForTask(task, cmdInputFields.retries);
 
-			log.error("runTask: Error: Process engine exception occurred! Retrying this job. Caused by: " + e.getClass().getCanonicalName(), e);
+			log.error("Error: Process engine exception occurred! Retrying this job. Caused by: " + e.getClass().getCanonicalName(), e);
 
 			String msg = "Retrying job due to process engine exception of type " + e.getClass().getCanonicalName();
 
@@ -298,7 +291,7 @@ public class CwsExternalTaskThread extends Thread  {
 
 			String msg = "Failed to complete task.  Details: " + t.getMessage();
 
-			log.error("runTask: Error: " + msg, t);
+			log.error("Error: " + msg, t);
 
 			// Create an incident
 			handleCamundaApiCall(Resolution.HANDLE_FAILURE, task.getId(), msg, t.toString(), 0, 0L);
@@ -380,7 +373,7 @@ public class CwsExternalTaskThread extends Thread  {
 				// Keep going, as this is likely a recoverable error
 				tries--;
 
-				log.warn("runTask: Error: Failed Camunda API call " + resolution.toString() + " with exception: " + e.getClass().getCanonicalName());
+				log.warn("Error: Failed Camunda API call " + resolution.toString() + " with exception: " + e.getClass().getCanonicalName());
 			}
 		}
 
@@ -388,7 +381,7 @@ public class CwsExternalTaskThread extends Thread  {
 		if (tries <= 0) {
 			String errMsg = "Tried " + resolution.toString() + " but failed after 50 attempts. " + msg;
 
-			log.error("runTask: Error: " + errMsg, e);
+			log.error("Error: " + errMsg, e);
 
 			// Create an incident
 			externalTaskService.handleFailure(taskId, workerId, errMsg, e.toString(), 0, 0L);
@@ -562,7 +555,6 @@ public class CwsExternalTaskThread extends Thread  {
 			
 			// Execute and wait for the process to complete
 			//
-			log.info("About to execute '" + cmdLine + "'");
 			long t0 = System.currentTimeMillis();
 			executor.execute(cmdLine, env, resultHandler);
 			resultHandler.waitFor();
@@ -571,8 +563,8 @@ public class CwsExternalTaskThread extends Thread  {
 			// Get the exit value, log it, and put it in return map
 			//
 			int exitValue = resultHandler.getExitValue();
-			log.info("Command '" + cmdInputFields.command + "' exit code:" + exitValue + ".  Ran in: " + (t1 - t0) + " ms.");
-			
+			log.info("Command '" + cmdInputFields.command + "' exit code: " + exitValue + "\nRan in " + (t1 - t0) + " ms.");
+
 			// putting redundant names here on purpose to reduce operator error
 			setOutputVariable("exitValue", exitValue + "");
 			setOutputVariable("exitCode", exitValue + "");
@@ -635,13 +627,6 @@ public class CwsExternalTaskThread extends Thread  {
 			String stderrStr = StringUtils.join(Collections2.transform(stdErrLines, new StripOrderId<String, String>()), '\n');
 			setOutputVariable("stderr", stderrStr);
 			cmdOutputFields.stderr = stderrStr;
-
-			// Log outputs
-			if (cmdOutputFields.event != null) {
-				log.info("Command '" + cmdInputFields.command + "' event: " + cmdOutputFields.event);
-			}
-			log.info("Command '" + cmdInputFields.command + "' stdout: " + cmdOutputFields.stdout);
-			log.info("Command '" + cmdInputFields.command + "' stderr: " + cmdOutputFields.stderr);
 
 			setStdOutVariables(stdOutLines);
 			//log.debug("-------- TASK TIME = " +(System.currentTimeMillis()-t0) + " --------------");
