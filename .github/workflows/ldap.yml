@@ -64,39 +64,27 @@ jobs:
           ls -al
       - uses: browser-actions/setup-chrome@latest
       - run: chrome --version
-      - name: Run Unit Tests
-        run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source clean test jacoco:report-aggregate
+      - name: Run LDAP Integration Tests
+        run: mvn -Dtest=WebTestLdap test
         shell: bash
-      - name: Run Integration Tests
-        run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source integration-test verify -DskipTests
-        shell: bash
-      - name: Upload Jacoco report
-        uses: actions/upload-artifact@v3
-        with:
-          name: jacoco-report
-          path: jacoco-reports/aggregate/index.html
-      - name: Upload test screenshots
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-screenshots
-          path: test-screenshots/
-      - name: Send custom JSON data to Slack workflow
-        id: slack
-        uses: slackapi/slack-github-action@v1.19.0
-        with:
+      #- name: Send custom JSON data to Slack workflow
+        #if: ${{ always() }}
+        #id: slack
+        #uses: slackapi/slack-github-action@v1.19.0
+       #with:
           # This data can be any valid JSON from a previous step in the GitHub Action
-          payload: |
-            {
-              "status": "CWS CI LDAP build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "CWS CI LDAP build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
-                  }
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          #payload: |
+            #{
+              #"status": "CWS CI LDAP build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+              #"blocks": [
+                #{
+                  #"type": "section",
+                  #"text": {
+                    #"type": "mrkdwn",
+                    #"text": "CWS CI LDAP build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                  #}
+                #}
+              #]
+            #}
+        #env:
+          #SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
