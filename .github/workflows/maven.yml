@@ -100,7 +100,7 @@ jobs:
 
   publish-cws-image:
     name: Push Docker image to Docker Hub
-    if: github.event.head_commit.message == "Publish CWS Docker image"
+    if: github.event.head_commit.message == 'Publish CWS Docker image'
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
