@@ -99,12 +99,22 @@ jobs:
           #SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   publish-cws-image:
+
     name: Push Docker image to Docker Hub
-    if: github.event.head_commit.message == 'Publish CWS Docker image'
+    if: github.event.head_commit.message == 'Test version v.**'
+    needs: build-and-test-cws
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          cache: maven
 
       - name: Log in to Docker Hub
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
@@ -117,7 +127,15 @@ jobs:
           cd install/docker/cws-image
           ./build.sh
 
+      # Extract metadata (tags, labels) for Docker
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: nasa-ammos/common-workflow-service
+
+      - name: Re-Tag CWS Docker Image for Open Source
+        run: docker tag nasa-ammos/common-workflow-service:${{ steps.meta.outputs.labels }} ${{ secrets.DOCKER_USERNAME }}/common-workflow-service:${{ steps.meta.outputs.labels }}
+
       - name: Push CWS Docker image
-        run: |
-          cd install/docker/cws-image
-          docker push ${{ secrets.DOCKER_USERNAME }}/cws
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/common-workflow-service:${{ steps.meta.outputs.labels }}

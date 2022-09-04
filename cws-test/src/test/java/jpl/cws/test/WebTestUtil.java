@@ -132,7 +132,7 @@ public class WebTestUtil {
 
 		log.info("Driver initialized: " + driver);
 
-		// driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
 	}
 
 	protected WebElement findElById(String id) {
