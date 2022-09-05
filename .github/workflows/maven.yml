@@ -58,7 +58,9 @@ jobs:
         run: |
          cd dist/console-only/cws/server/apache-tomcat-9.0.33/logs
          ls -al
-      #- uses: browser-actions/setup-chrome@latest
+      - uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: stable
       - run: chrome --version
       - name: Run Unit Tests
         run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source clean test jacoco:report-aggregate
