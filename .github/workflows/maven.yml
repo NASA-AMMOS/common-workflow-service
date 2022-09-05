@@ -62,6 +62,10 @@ jobs:
         with:
           chrome-version: stable
       - run: chrome --version
+      - uses: nanasess/setup-chromedriver@v1
+      - run: |
+          export DISPLAY=:99
+          chromedriver --url-base=/wd/hub &
       - name: Run Unit Tests
         run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source clean test jacoco:report-aggregate
         shell: bash
@@ -136,7 +140,7 @@ jobs:
           images: nasa-ammos/common-workflow-service
 
       - name: Re-Tag CWS Docker Image for Open Source
-        run: docker tag nasa-ammos/common-workflow-service:${{ steps.meta.outputs.labels }} ${{ secrets.DOCKER_USERNAME }}/common-workflow-service:${{ steps.meta.outputs.labels }}
+        run: docker tag nasa-ammos/common-workflow-service:${{ steps.meta.outputs.tags }} ${{ secrets.DOCKER_USERNAME }}/common-workflow-service:${{ steps.meta.outputs.tags }}
 
       - name: Push CWS Docker image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/common-workflow-service:${{ steps.meta.outputs.labels }}
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/common-workflow-service:${{ steps.meta.outputs.tags }}
