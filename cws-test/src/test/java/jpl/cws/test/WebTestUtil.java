@@ -203,7 +203,7 @@ public class WebTestUtil {
 		WebElement submitBtn = findElById("submit");
 		submitBtn.click();
 
-		waitForElementClass("sub-header");
+		// waitForElementClass("sub-header");
 
 		// Verify we have moved past the login page to the Dashboard
 		findOnPage("<title>CWS - Deployments</title>");

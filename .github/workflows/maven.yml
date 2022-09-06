@@ -58,14 +58,13 @@ jobs:
         run: |
          cd dist/console-only/cws/server/apache-tomcat-9.0.33/logs
          ls -al
-      - uses: browser-actions/setup-chrome@latest
-        with:
-          chrome-version: stable
-      - run: chrome --version
-      - uses: nanasess/setup-chromedriver@v1
-      - run: |
-          export DISPLAY=:99
-          chromedriver --url-base=/wd/hub &
+      #- uses: browser-actions/setup-chrome@latest
+      - name: Set up Google Chrome
+        run:  |
+          sudo apt-get update
+          sudo apt-get --only-upgrade install google-chrome-stable
+          google-chrome --version
+      #- run: chrome --version
       - name: Run Unit Tests
         run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source clean test jacoco:report-aggregate
         shell: bash
@@ -107,6 +106,8 @@ jobs:
   publish-cws-image:
 
     if: contains(github.event.head_commit.message, 'version')
+    env:
+      CWS_VERSION: "2.3.0-pre.1"  # update this each CWS release
     needs: build-and-test-cws
     runs-on: ubuntu-latest
 
@@ -137,10 +138,10 @@ jobs:
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: nasa-ammos/common-workflow-service
+          images: nasa-ammos/common-workflow-service/${{ env.CWS_VERSION }}
 
       - name: Re-Tag CWS Docker Image for Open Source
-        run: docker tag nasa-ammos/common-workflow-service:${{ steps.meta.outputs.tags }} ${{ secrets.DOCKER_USERNAME }}/common-workflow-service:${{ steps.meta.outputs.tags }}
+        run: docker tag nasa-ammos/common-workflow-service:${{ env.CWS_VERSION }} ${{ secrets.DOCKER_USERNAME }}/common-workflow-service:${{ env.CWS_VERSION }}
 
       - name: Push CWS Docker image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/common-workflow-service:${{ steps.meta.outputs.tags }}
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/common-workflow-service:${{ env.CWS_VERSION }}
