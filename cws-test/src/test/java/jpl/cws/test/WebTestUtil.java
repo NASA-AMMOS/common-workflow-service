@@ -181,7 +181,7 @@ public class WebTestUtil {
 		log.info("navigating to the login page...");
 
 		driver.get("http://"+HOSTNAME+":"+PORT);
-		driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
+		driver.manage().timeouts().pageLoadTimeout(60, TimeUnit.SECONDS);
 		// Verify we have made it to the Login page
 		findOnPage("<title>Login</title>");
 	}
