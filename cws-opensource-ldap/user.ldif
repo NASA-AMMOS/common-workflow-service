@@ -8,11 +8,11 @@ dn: ou=Users,dc=example,dc=com
 objectClass: organizationalUnit
 ou: Users
 
-dn: cn=cwsuser,ou=Users,dc=example,dc=com
+dn: cn=cwsci,ou=Users,dc=example,dc=com
 objectclass: inetOrgPerson
-cn: cwsuser
-givenName: cws
-sn: user
-uid: cwsuser
-userpassword: ldapcwspassword
+cn: cwsci
+givenName: Ronny
+sn: Fray
+uid: cwsci
+userpassword: changeme
 mail: cws.user@example.com
