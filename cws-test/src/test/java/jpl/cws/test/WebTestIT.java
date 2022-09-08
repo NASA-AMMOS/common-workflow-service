@@ -94,7 +94,7 @@ public class WebTestIT extends WebTestUtil {
 		// Start Instance
 		WebElement tasks = driver.findElement(By.xpath("//a[@href='/camunda/app/tasklist']"));
 		tasks.click();		
-		findOnPage("<title>Camunda Tasklist</title>");
+		findOnPage("Camunda Tasklist");
 		
 		sleep(10000);
 
@@ -118,7 +118,7 @@ public class WebTestIT extends WebTestUtil {
 		// Go back to CWS
 		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui']"));
 		cws.click();
-		findOnPage("<title>CWS - Deployments</title>");
+		findOnPage("CWS - Deployments");
 
 		
 		// Wait for Finish
@@ -163,7 +163,7 @@ public class WebTestIT extends WebTestUtil {
 		// Start Instance (1) through Camunda
 		WebElement tasks = driver.findElement(By.xpath("//a[@href='/camunda/app/tasklist']"));
 		tasks.click();		
-		findOnPage("<title>Camunda Tasklist</title>");
+		findOnPage("Camunda Tasklist");
 		
 		sleep(10000);
 		
@@ -187,7 +187,7 @@ public class WebTestIT extends WebTestUtil {
 		// Go back to CWS
 		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui']"));
 		cws.click();
-		findOnPage("<title>CWS - Deployments</title>");
+		findOnPage("CWS - Deployments");
 
 		// Wait for Finish
 		sleep(180000);
@@ -228,7 +228,7 @@ public class WebTestIT extends WebTestUtil {
 		
 		WebElement tasks = driver.findElement(By.xpath("//a[@href='/camunda/app/tasklist']"));
 		tasks.click();		
-		findOnPage("<title>Camunda Tasklist</title>");
+		findOnPage("Camunda Tasklist");
 		
 		sleep(10000);
 		
@@ -252,7 +252,7 @@ public class WebTestIT extends WebTestUtil {
 		// Go back to CWS
 		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui']"));
 		cws.click();
-		findOnPage("<title>CWS - Deployments</title>");
+		findOnPage("CWS - Deployments");
 
 		// Wait for Finish
 		sleep(90000);

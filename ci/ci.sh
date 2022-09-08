@@ -36,7 +36,7 @@ source ${ROOT}/../utils.sh
 
 cat > ci_console.conf.template <<- EOF
 cam_server_url=NA
-cws_ldap_url_default=ldaps://localhost:636
+cws_ldap_url_default=ldap://localhost:389
 cam_ldap_identity_plugin_class=jpl.cws.core.identity.cam.CamLdapIdentityProviderPlugin
 cam_ldap_security_filter_class=jpl.cws.core.web.CwsCamSecurityFilter
 ldap_identity_plugin_class=org.camunda.bpm.identity.impl.ldap.plugin.LdapIdentityProviderPlugin
@@ -81,8 +81,8 @@ elasticsearch_username=${ES_USERNAME}
 elasticsearch_password=${ES_PASSWORD}
 smtp_hostname=smtp.localhost
 default_smtp_hostname=smtp.localhost
-default_cws_ldap_url=ldaps://localhost:636
-cws_ldap_url=ldaps://localhost:636
+default_cws_ldap_url=ldap://localhost:389
+cws_ldap_url=ldap://localhost:389
 default_elasticsearch_use_auth=n
 aws_cloudwatch_endpoint=monitoring.us-west-1.amazonaws.com
 default_elasticsearch_port=9200
@@ -98,7 +98,7 @@ EOF
 
 cat > ci_worker.conf.template <<- EOF
 cam_server_url=NA
-cws_ldap_url_default=ldaps://localhost:636
+cws_ldap_url_default=ldap://localhost:389
 cam_ldap_identity_plugin_class=jpl.cws.core.identity.cam.CamLdapIdentityProviderPlugin
 cam_ldap_security_filter_class=jpl.cws.core.web.CwsCamSecurityFilter
 ldap_identity_plugin_class=org.camunda.bpm.identity.impl.ldap.plugin.LdapIdentityProviderPlugin
@@ -142,8 +142,8 @@ elasticsearch_username=${ES_USERNAME}
 elasticsearch_password=${ES_PASSWORD}
 smtp_hostname=smtp.localhost
 default_smtp_hostname=smtp.localhost
-default_cws_ldap_url=ldaps://localhost:636
-cws_ldap_url=ldaps://localhost:636
+default_cws_ldap_url=ldap://localhost:389
+cws_ldap_url=ldap://localhost:389
 project_webapp_root=
 default_elasticsearch_use_auth=n
 aws_cloudwatch_endpoint=monitoring.us-west-1.amazonaws.com
