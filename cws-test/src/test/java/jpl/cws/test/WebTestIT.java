@@ -314,8 +314,7 @@ public class WebTestIT extends WebTestUtil {
 
 			findOnPage("ls");
 			findOnPage("Hello World");
-			findOnPage("Command 'ls' exit code:0");
-			findOnPage("Command 'ls' event: success");
+			findOnPage("Command 'ls' exit code: 0");
 			
 			sleep(9000);
 			
