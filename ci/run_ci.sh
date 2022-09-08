@@ -7,7 +7,7 @@ printf "\nHostname set to '%s'\n\n" $HOSTNAME
 # Used in cws-test
 echo "$HOSTNAME" > ../cws-test/src/test/resources/hostname.txt
 
-SECURITY=${1}
+SECURITY=${1} # parameter is passed as an env through workflow file
 
 # Stop CWS is it is currently running
 #./stop_dev.sh

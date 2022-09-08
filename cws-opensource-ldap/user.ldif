@@ -11,8 +11,8 @@ ou: Users
 dn: cn=cwsci,ou=Users,dc=example,dc=com
 objectclass: inetOrgPerson
 cn: cwsci
-givenName: cws
-sn: user
+givenName: Ronny
+sn: Fray
 uid: cwsci
 userpassword: changeme
 mail: cws.user@example.com

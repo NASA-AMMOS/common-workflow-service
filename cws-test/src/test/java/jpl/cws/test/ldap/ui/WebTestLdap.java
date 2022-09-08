@@ -40,7 +40,7 @@ public class WebTestLdap extends WebTestUtil {
         sleep(2000);
 
         // Find first and last name from LDAP server
-        findOnPage("cws user");
+        findOnPage("Ronny Fray");
         sleep(2000);
 
         // Go back to CWS
