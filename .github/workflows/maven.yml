@@ -125,8 +125,6 @@ jobs:
   publish-cws-image:
 
     if: contains(github.event.head_commit.message, 'version')
-    env:
-      CWS_VERSION: "2.3.0-pre.1"  # update this each CWS release
     needs: build-and-test-cws
     runs-on: ubuntu-latest
 
@@ -153,7 +151,7 @@ jobs:
           ./build.sh
 
       - name: Re-Tag CWS Docker image for open source
-        run: docker tag nasa-ammos/common-workflow-service:${{ env.CWS_VERSION }} ${{ secrets.DOCKER_USERNAME }}/common-workflow-service:${{ env.CWS_VERSION }}
+        run: docker tag nasa-ammos/common-workflow-service:${{ github.ref_name }} ${{ secrets.DOCKER_USERNAME }}/common-workflow-service:${{ github.ref_name }}
 
       - name: Push CWS Docker image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/common-workflow-service:${{ env.CWS_VERSION }}
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/common-workflow-service:${{ github.ref_name }}
