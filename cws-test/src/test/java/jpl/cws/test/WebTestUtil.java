@@ -179,7 +179,8 @@ public class WebTestUtil {
 	protected void gotoLoginPage() {
 		log.info("navigating to the login page...");
 
-		driver.get("http://"+HOSTNAME+":"+PORT);
+		driver.get("http://"+HOSTNAME+":"+PORT + "/cws-ui/login");
+		driver.manage().window().setSize(new Dimension(1024, 768));
 		driver.manage().timeouts().pageLoadTimeout(60, TimeUnit.SECONDS);
 		// Verify we have made it to the Login page
 		findOnPage("Login");
