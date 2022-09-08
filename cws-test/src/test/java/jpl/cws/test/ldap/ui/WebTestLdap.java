@@ -36,7 +36,7 @@ public class WebTestLdap extends WebTestUtil {
         waitForElementXPath("//a[@href='/camunda/app/cockpit']");
         WebElement cockpit = driver.findElement(By.xpath("//a[@href='/camunda/app/cockpit']"));
         cockpit.click();
-        findOnPage("<title>Camunda Cockpit | Dashboard</title>");
+        findOnPage("Camunda Cockpit | Dashboard");
         sleep(2000);
 
         // Find first and last name from LDAP server
@@ -46,7 +46,7 @@ public class WebTestLdap extends WebTestUtil {
         // Go back to CWS
         WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui']"));
         cws.click();
-        findOnPage("<title>CWS - Deployments</title>");
+        findOnPage("CWS - Deployments");
         logout();
         log.info("------ END userInfoTest ------");
     }

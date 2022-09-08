@@ -81,7 +81,7 @@ public class HistoryTestIT extends WebTestUtil {
 			scrollTo(historyButton);
 			historyButton.click();
 
-			findOnPage("<title>CWS - History</title>");
+			findOnPage("CWS - History");
 
 			if (findOnPage("History Page")
 					&& findOnPage("Command 'mkdir Test' exit code:0.")

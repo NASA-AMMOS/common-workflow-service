@@ -224,7 +224,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 			waitForElement(historyButton);
 			historyButton.sendKeys(Keys.RETURN);
 
-			findOnPage("<title>CWS - History</title>");
+			findOnPage("CWS - History");
 
 			log.info("Looking for 'variable1 = foo' and 'variable2 = bar'");
 			if (findOnPage("Setting (string) variable1 = foo")

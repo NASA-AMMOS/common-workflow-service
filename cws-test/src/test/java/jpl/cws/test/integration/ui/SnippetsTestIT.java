@@ -125,7 +125,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			scrollTo(historyButton);
 			historyButton.click();
 
-			findOnPage("<title>CWS - History</title>");
+			findOnPage("CWS - History");
 
 			log.info("Looking for 'This is our world: Hello World.");
 			if(findOnPage("This is our world: Hello World")) {

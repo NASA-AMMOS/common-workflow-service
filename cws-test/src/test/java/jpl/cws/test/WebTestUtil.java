@@ -207,7 +207,7 @@ public class WebTestUtil {
 		// waitForElementClass("sub-header");
 
 		// Verify we have moved past the login page to the Dashboard
-		findOnPage("<title>CWS - Deployments</title>");
+		findOnPage("CWS - Deployments");
 	}
 
 	protected void logout() {
@@ -271,7 +271,7 @@ public class WebTestUtil {
 		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@href='/camunda/app/tasklist']")));
 		WebElement tasks = driver.findElement(By.xpath("//a[@href='/camunda/app/tasklist']"));
 		tasks.click();
-		findOnPage("<title>Camunda Tasklist</title>");
+		findOnPage("Camunda Tasklist");
 
 		waitForElementXPath("//*[contains(@class,'start-process-action')]");
 
