@@ -22,7 +22,6 @@ import jpl.cws.test.WebTestUtil;
  * @author rfray
  *
  */
-@Ignore
 public class LoadTestIT extends WebTestUtil {
     private static final Logger log = LoggerFactory.getLogger(LoadTestIT.class);
     private static int testCasesCompleted = 0;
@@ -37,7 +36,7 @@ public class LoadTestIT extends WebTestUtil {
 
             goToPage("deployments");
 
-            // prepare 5 process definitions to run at one time
+            // prepare 5 process definitions to run at the same time
             deployFile("external_pwd");
             enableWorkers("external_pwd");
 
@@ -69,11 +68,11 @@ public class LoadTestIT extends WebTestUtil {
             System.out.println(e.toString());
             scriptPass = false;
         }
-        //deleteProc("external_pwd");
-        //deleteProc("test_simplest");
-        //deleteProc("test_initiators_page");
-        //deleteProc("test_hello_world");
-        //deleteProc("test_logs_page");
+        deleteProc("external_pwd");
+        deleteProc("test_simplest");
+        deleteProc("test_initiators_page");
+        deleteProc("test_hello_world");
+        deleteProc("test_logs_page");
         logout();
         assertTrue("Load Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
     }
@@ -180,18 +179,18 @@ public class LoadTestIT extends WebTestUtil {
 
             wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("saveConfirmBtn")));
 
-            //wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.id("toggle_repeat_1")));
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.id("toggle_repeat_1")));
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.id("toggle_repeat_2")));
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.id("toggle_repeat_3")));
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.id("toggle_repeat_4")));
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.id("toggle_repeat_5")));
 
             log.info("Enabling all initiators.");
-            //WebElement enableAction = findElById("toggle_repeat_1");
-
             wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.id("activate-all-inits")));
             WebElement enableAll = findElById("activate-all-inits");
 
-            //assert(!enableAll.isSelected()); //verify the enableAll action button is not selected.
 
-
-            sleep(7000);
+            sleep(10000);
             if(!enableAll.isSelected()) {
                 js.executeScript("arguments[0].click();", findElById("activate-all-inits"));
                 sleep(1000);
@@ -211,7 +210,7 @@ public class LoadTestIT extends WebTestUtil {
             select.selectByValue("1");
 
             int counter = 0;
-            while(counter < 5) {
+            while(counter < 6) {
                 sleep(90000);
 
                 WebElement statsText = driver.findElement(By.id("stat-txt-cws-reserved-total"));
@@ -225,8 +224,8 @@ public class LoadTestIT extends WebTestUtil {
                     scriptPass = true;
                     testCasesCompleted++;
 
-                    int totalWaitTime = counter * 90000;
-                    log.info("Total duration of load is " + totalWaitTime);
+                    int totalWaitTime = (counter * 90000) / 1000;
+                    log.info("Total duration of load is " + totalWaitTime + " seconds");
                     break;
                 }
                 counter++;
