@@ -54,7 +54,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			if (Integer.toString(testCasesCompleted).equals("8")) {
 				scriptPass = true;
 			} else {
-				log.info("Not all test cases passed. Only " + testCasesCompleted + "/9 passed.");
+				log.info("Not all test cases passed. Only " + testCasesCompleted + "/8 passed.");
 			}
 
 			log.info("------ END DeploymentsTestIT:runDeploymentsPageTest ------");
@@ -381,6 +381,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 		WebDriverWait wait = new WebDriverWait(driver,30);
 		try {
 			log.info("------ START DeploymentsTestIT:runOneWorkerTest ------");
+			disableWorkers("test_deployments_page");
 			WebElement enable = findElById("pv-test_deployments_page");
 			waitForElement(enable);
 			enable.click();

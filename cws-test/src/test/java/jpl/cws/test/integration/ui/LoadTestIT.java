@@ -190,7 +190,7 @@ public class LoadTestIT extends WebTestUtil {
             WebElement enableAll = findElById("activate-all-inits");
 
 
-            sleep(10000);
+            sleep(7000);
             if(!enableAll.isSelected()) {
                 js.executeScript("arguments[0].click();", findElById("activate-all-inits"));
                 sleep(1000);

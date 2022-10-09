@@ -6,11 +6,11 @@ Utilizing GitHub Actions, the workflows build, test, and deliver CWS by configur
 
 ## CWS CI Camunda Workflow
 
-The CWS CI Camunda workflow is triggered upon any push to the repository, including commits, pull requests, and merges. The workflow is also scheduled to run every day at 5 AM PST / 12 PM UTC. It is composed of two jobs: `build-and-test-cws` and `publish-cws-image`. Both jobs run on separate GitHub runners with the latest version of Ubuntu.
+The CWS CI Camunda workflow is triggered upon any push to the repository, including commits, pull requests, and merges. The workflow is also scheduled to run every Sunday at 5 AM PST / 12 PM UTC. It is composed of two jobs: `build-and-test-cws` and `publish-cws-image`. Both jobs run on separate GitHub runners with the latest version of Ubuntu.
 
 The `build-and-test-cws` job performs all the necessary preliminary steps required to configure and build CWS with Camunda security. Once these steps are completed, a fully-functioning instance of CWS is built. Following the build, unit and integration tests are run, with resulting artifacts being saved to the workflow run. Afterwards, data from the workflow is sent to the development team.
 
-The `publish-cws-image` job is the CD component of the workflow, triggered upon a commit message containing the word "version," and dependant upon successful completion of the `build-and-test-cws job`.
+The `publish-cws-image` job is the CD component of the workflow, triggered upon a commit with a tag and dependant upon successful completion of the `build-and-test-cws job`.
 
 ### build-and-test-cws Job
 
@@ -43,6 +43,7 @@ The `publish-cws-image` job is the CD component of the workflow, triggered upon 
 - **Build CWS**:
   - Builds and runs CWS
   - Begins by running the first bash script in the build process: run_ci.sh
+    - Current configuration is set to run 1 console and 3 workers
   - The bash script is passed the `SECURITY` environmental variable to run CWS in a specific security mode
   - The CWS security mode for this workflow is `CAMUNDA`
 - **Show CWS Log**:
@@ -81,7 +82,7 @@ The `publish-cws-image` job is the CD component of the workflow, triggered upon 
 
 ## CWS CI LDAP Workflow
 
-The CWS CI LDAP workflow is triggered upon any push to the repository, including commits, pull requests, and merges. The workflow is also scheduled to run every day at 5 AM PST / 12 PM UTC. It is composed of one job, `build-and-test-cws`, and runs on a GitHub runner with the latest version of Ubuntu.
+The CWS CI LDAP workflow is triggered upon any push to the repository, including commits, pull requests, and merges. The workflow is also scheduled to run every Sunday at 5 AM PST / 12 PM UTC. It is composed of one job, `build-and-test-cws`, and runs on a GitHub runner with the latest version of Ubuntu.
 
 The `build-and-test-cws` job performs all the necessary preliminary steps required to configure and build CWS with LDAP security. Once these steps are completed, a fully-functioning instance of CWS is built. Following the build, LDAP-specific integration tests are run. Afterwards, data from the workflow is sent to the development team.
 
@@ -94,6 +95,7 @@ The following are key differences in the steps of the `build-and-test-cws` job b
 - **Build CWS**:
   - Builds and runs CWS
   - Begins by running the first bash script in the build process: run_ci.sh
+    - Current configuration is set to run 1 console and 3 workers
   - The bash script is passed the `SECURITY` environmental variable to run CWS in a specific security mode
   - The CWS security mode for this workflow is `LDAP`
 - **Run LDAP Integration Tests**:
