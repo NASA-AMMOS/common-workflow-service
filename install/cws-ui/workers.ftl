@@ -4,6 +4,7 @@
 	<title>CWS - Workers</title>
 	<script src="/${base}/js/jquery.min.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
+	<script src="/${base}/js/adaptation-workers.js"></script>
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<script>
@@ -184,6 +185,9 @@
 				$("#${w.id}_minus_procDefs").hide();
 				$("#${w.id}_minus_config").hide();
 			</#list>
+			
+			<!--Call any potential adaptation specific updates -->
+			adaptationWorkersReady();
 			
 			refreshStats();
 			pageRefId  = setInterval(pageRefresh, refreshRate);
