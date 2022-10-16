@@ -126,7 +126,7 @@ public class InstallerTest {
 			}
 			System.out.println("### " + output);
 
-			//Thread.sleep(75000); //wait for shutdown of console.
+			Thread.sleep(150000); // wait for shutdown of console.
 		}
 		catch (Throwable e) {
 			System.out.println(e.toString());
@@ -148,8 +148,7 @@ public class InstallerTest {
 			}
 			System.out.println("### " + outputStart);
 
-			//wait for start up of console.
-			// Thread.sleep(75000);
+			Thread.sleep(150000);	// wait for start up of console.
 		}
 		catch (Throwable e) {
 			System.out.println(e.toString());

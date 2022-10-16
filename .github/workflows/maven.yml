@@ -82,22 +82,22 @@ jobs:
         run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source clean test jacoco:report-aggregate
         shell: bash
 
-      - name: Run Integration Tests
-        id: integration
-        run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source integration-test verify -DskipTests
-        shell: bash
+      #- name: Run Integration Tests
+        #id: integration
+        #run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source integration-test verify -DskipTests
+        #shell: bash
 
-      - name: Upload Jacoco report
-        uses: actions/upload-artifact@v3
-        with:
-          name: jacoco-report
-          path: jacoco-reports/aggregate/index.html
+      #- name: Upload Jacoco report
+        #uses: actions/upload-artifact@v3
+        #with:
+          #name: jacoco-report
+          #path: jacoco-reports/aggregate/index.html
 
-      - name: Upload test screenshots
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-screenshots
-          path: test-screenshots/
+      #- name: Upload test screenshots
+        #uses: actions/upload-artifact@v3
+        #with:
+          #name: test-screenshots
+          #path: test-screenshots/
 
       #- name: Send custom JSON data to Slack workflow
         #if: ${{ always() }}
