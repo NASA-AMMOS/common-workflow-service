@@ -15,6 +15,17 @@ jobs:
     env:
       SECURITY: "CAMUNDA"
 
+    services:
+      mdb103:
+        image: mariadb:10.3
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_DATABASE: cws_dev
+          MYSQL_ROOT_PASSWORD: adminpw
+        options: >-
+          --name mdb103
+
     steps:
       - uses: actions/checkout@v3
 
@@ -48,8 +59,8 @@ jobs:
           cd install/docker/es-only
           docker-compose up -d
 
-      - name: Set up CWS database using Docker
-        run: docker run -d -p 3306:3306 -e MYSQL_DATABASE=cws_dev -e MYSQL_ROOT_PASSWORD=adminpw --name mdb103 mariadb:10.3
+      #- name: Set up CWS database using Docker
+        #run: docker run -d -p 3306:3306 -e MYSQL_DATABASE=cws_dev -e MYSQL_ROOT_PASSWORD=adminpw --name mdb103 mariadb:10.3
 
       - name: Show Docker containers
         run: |
