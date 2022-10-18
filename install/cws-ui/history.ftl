@@ -169,7 +169,7 @@
 			if (i2 != -1) {
 				var cmd = msg.substring(0, i2 + 1)
 				var jsonObj = JSON.parse(msg.substring(i2 + 2))
-				var output = cmd + '<br/><br/><table id=\"logData\" class=\"table table-striped table-bordered\">'
+				var output = '<table><tr>' + cmd + '<br/><br/><table id=\"logData\" class=\"table table-striped table-bordered\">'
 
 				Object.keys(jsonObj).forEach(function(key) {
 					var value = jsonObj[key];
