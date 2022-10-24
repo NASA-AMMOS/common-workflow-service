@@ -203,9 +203,10 @@ function auto_conf_data () {
     ADMIN_LASTNAME=${21}
     ADMIN_EMAIL=${22}
     NUM_WORKERS=${23}
-    WORKER_ABANDONED_DAYS=${24}
+    MAX_PROCESSES_PER_WORKER=${24}
+    WORKER_ABANDONED_DAYS=${25}
 
-    OUTPUT_FILE=${25}
+    OUTPUT_FILE=${26}
 
     source ${ROOT}/utils.sh
 
@@ -297,6 +298,7 @@ function auto_conf_data () {
     cws_amq_jmx_port=${CWS_AMQ_JMX_PORT}
     cws_jmx_port=${CWS_JMX_PORT}
     history_days_to_live=1
+    max_processes_per_worker=${MAX_PROCESSES_PER_WORKER}
     worker_abandoned_days=${WORKER_ABANDONED_DAYS}
     notify_users_email=y
     email_subject=[CWS] You have been assigned a task (CWS_TASK_NAME)
