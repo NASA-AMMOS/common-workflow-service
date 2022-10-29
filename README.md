@@ -1,5 +1,8 @@
 # NASA-AMMOS Common Workflow Service (CWS)
 
+![CWS CI Camunda](https://github.com/NASA-AMMOS/common-workflow-service/actions/workflows/maven.yml/badge.svg)
+![CWS CI LDAP](https://github.com/NASA-AMMOS/common-workflow-service/actions/workflows/ldap.yml/badge.svg)
+
 This repository is the open-source release of the [NASA-AMMOS](https://ammos.nasa.gov/) Common Workflow Service (CWS). It is the culmination of many years of development internally at JPL, and we are now bringing it to the public in hopes that the open-source community might benefit from its release.
 
 CWS is built on top of the [BPMN Workflow Engine](https://camunda.com/products/camunda-bpm/bpmn-engine/). CWS extends Camunda's functionality by layering an intuitive user interface, auditable logging, extensibility with code snippits and adaptation layers, and plenty of other useful tools such a powerful external task engine, custom process initiators, and much more.

@@ -126,13 +126,14 @@ public class WebTestUtil {
 		chromeOptions.setHeadless(true);
 		chromeOptions.setAcceptInsecureCerts(true);
 		chromeOptions.addArguments("--window-size=1920,1080");
+		chromeOptions.addArguments("--no-sandbox");
 
 		WebDriverManager.chromedriver().setup();
 		driver = new ChromeDriver(chromeOptions);
 
 		log.info("Driver initialized: " + driver);
 
-		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
 	}
 
 	protected WebElement findElById(String id) {
@@ -147,7 +148,7 @@ public class WebTestUtil {
 		boolean found = driver.getPageSource().contains(text);
 		int tries = 0;
 		long sleepTime = 4;
-		while (!found && tries++ < 10) {
+		while (!found && tries++ < 13) {
 			sleepTime *= 2;
 			log.warn("'" + text + "' not found ("+tries+", "+sleepTime+")");
 			sleep(sleepTime);
@@ -178,10 +179,11 @@ public class WebTestUtil {
 	protected void gotoLoginPage() {
 		log.info("navigating to the login page...");
 
-		driver.get("http://"+HOSTNAME+":"+PORT);
-		driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
+		driver.get("http://"+HOSTNAME+":"+PORT + "/cws-ui/login");
+		driver.manage().window().setSize(new Dimension(1024, 768));
+		driver.manage().timeouts().pageLoadTimeout(60, TimeUnit.SECONDS);
 		// Verify we have made it to the Login page
-		findOnPage("<title>Login</title>");
+		findOnPage("Login");
 	}
 
 
@@ -203,10 +205,10 @@ public class WebTestUtil {
 		WebElement submitBtn = findElById("submit");
 		submitBtn.click();
 
-		waitForElementClass("sub-header");
+		// waitForElementClass("sub-header");
 
 		// Verify we have moved past the login page to the Dashboard
-		findOnPage("<title>CWS - Deployments</title>");
+		findOnPage("CWS - Deployments");
 	}
 
 	protected void logout() {
@@ -270,7 +272,7 @@ public class WebTestUtil {
 		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@href='/camunda/app/tasklist']")));
 		WebElement tasks = driver.findElement(By.xpath("//a[@href='/camunda/app/tasklist']"));
 		tasks.click();
-		findOnPage("<title>Camunda Tasklist</title>");
+		findOnPage("Camunda Tasklist");
 
 		waitForElementXPath("//*[contains(@class,'start-process-action')]");
 

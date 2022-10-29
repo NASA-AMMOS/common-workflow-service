@@ -182,7 +182,7 @@ public class LogsTestIT extends WebTestUtil {
 			wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@href='/camunda/app/tasklist']")));
 			WebElement tasks = driver.findElement(By.xpath("//a[@href='/camunda/app/tasklist']"));
 			tasks.click();		
-			findOnPage("<title>Camunda Tasklist</title>");
+			findOnPage("Camunda Tasklist");
 			
 			waitForElementXPath("//*[contains(@class,'start-process-action')]");
 			
