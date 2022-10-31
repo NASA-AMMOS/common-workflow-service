@@ -6,6 +6,8 @@
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/${base}/css/bootstrap-toggle.min.css" rel="stylesheet">
 	<script src="/${base}/js/bootstrap-toggle.min.js"></script>
+	<!-- Custom adaptation code for this template -->
+	<script src="/${base}/js/adaptation-deployments.js"></script>
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<script>
@@ -883,8 +885,17 @@
 			$("#workers-div").html('');
 			//Returned JSON is an array of objects
 			var listWorkers = JSON.parse(data);
+			//-------Add potential extra adaptation info to each worker-----
+			listWorkers = addAdaptationWorkersInfo(dataProcKey, listWorkers);
+			alert("List workers after" + JSON.stringify(listWorkers));
+			//-------------
 			//$.each(JSON.parse(data), function(i) {
 			for(i in listWorkers){
+			    var adaptation_msg = '';
+			    if (listWorkers[i].adaptation) {
+			      adaptation_msg = "<span style='color:blue' id='" + listWorkers[i].id + "-adaptation'>";
+			      adaptation_msg +=  listWorkers[i].adaptation + "</span>";
+			    }
 				var div = "<div>" +
 				"<input type='checkbox' id='"+listWorkers[i].id+"-box' " + " class='worker-checkbox' " +
 				( (listWorkers[i].status == 'down') ? " disabled='disabled'" : '') +
@@ -892,6 +903,7 @@
 				"<label for='"+listWorkers[i].id+"-box'"+( (listWorkers[i].status == 'down') ? " class='w-down'" : '')+">"+listWorkers[i].name+ 
 				(listWorkers[i].cws_install_type == 'console_only'? '*' : '') +"</label>"+
 				"<span id='"+listWorkers[i].id+"-msg'>"+
+				adaptation_msg +
 				"</div>";
 				$("#workers-div").append(div);
 			}
