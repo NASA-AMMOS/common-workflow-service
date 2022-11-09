@@ -59,9 +59,6 @@ jobs:
           cd install/docker/es-only
           docker-compose up -d
 
-      #- name: Set up CWS database using Docker
-        #run: docker run -d -p 3306:3306 -e MYSQL_DATABASE=cws_dev -e MYSQL_ROOT_PASSWORD=adminpw --name mdb103 mariadb:10.3
-
       - name: Show Docker containers
         run: |
           sleep 5s
@@ -93,44 +90,44 @@ jobs:
         run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source clean test jacoco:report-aggregate
         shell: bash
 
-      #- name: Run Integration Tests
-        #id: integration
-        #run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source integration-test verify -DskipTests
-        #shell: bash
+      - name: Run Integration Tests
+        id: integration
+        run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source integration-test verify -DskipTests
+        shell: bash
 
-      #- name: Upload Jacoco report
-        #uses: actions/upload-artifact@v3
-        #with:
-          #name: jacoco-report
-          #path: jacoco-reports/aggregate/index.html
+      - name: Upload Jacoco report
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-report
+          path: jacoco-reports/aggregate/index.html
 
-      #- name: Upload test screenshots
-        #uses: actions/upload-artifact@v3
-        #with:
-          #name: test-screenshots
-          #path: test-screenshots/
+      - name: Upload test screenshots
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-screenshots
+          path: test-screenshots/
 
-      #- name: Send custom JSON data to Slack workflow
-        #if: ${{ always() }}
-        #id: slack
-        #uses: slackapi/slack-github-action@v1.19.0
-        #with:
+      - name: Send custom JSON data to Slack workflow
+        if: ${{ always() }}
+        id: slack
+        uses: slackapi/slack-github-action@v1.19.0
+        with:
           # This data can be any valid JSON from a previous step in the GitHub Action
-          #payload: |
-            #{
-              #"status": "CWS CI Camunda build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nCWS build result: ${{ steps.build.outcome }}\nUnit test result: ${{ steps.unit.outcome }}\nIntegration test result: ${{ steps.integration.outcome }}",
-              #"blocks": [
-                #{
-                  #"type": "section",
-                  #"text": {
-                    #"type": "mrkdwn",
-                    #"text": "CWS CI Camunda build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nCWS build result: ${{ steps.build.outcome }}\nUnit test result: ${{ steps.unit.outcome }}\nIntegration test result: ${{ steps.integration.outcome }}"
-                  #}
-                #}
-              #]
-            #}
-        #env:
-          #SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "status": "CWS CI Camunda build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nCWS build result: ${{ steps.build.outcome }}\nUnit test result: ${{ steps.unit.outcome }}\nIntegration test result: ${{ steps.integration.outcome }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "CWS CI Camunda build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nCWS build result: ${{ steps.build.outcome }}\nUnit test result: ${{ steps.unit.outcome }}\nIntegration test result: ${{ steps.integration.outcome }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 
   publish-cws-image:

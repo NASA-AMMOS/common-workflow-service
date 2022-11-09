@@ -61,10 +61,10 @@ public class SystemLevelTestIT extends WebTestUtil {
 			
 			goToPage("workers");
 			
-			log.info("Checking if 3 workers are up, 0 are down, and none are running...");
-			if (findOnPage("3 Workers (3 up, 0 down)")
+			log.info("Checking if 2 workers are up, 0 are down, and none are running...");
+			if (findOnPage("2 Workers (2 up, 0 down)")
 					&& findOnPage("0 running")) {
-				log.info("SUCCESS: 3 workers are up, 0 are down, and none are running.");
+				log.info("SUCCESS: 2 workers are up, 0 are down, and none are running.");
 				WebElement myTable = driver.findElement(By.id("workers-table"));
 				List<WebElement> myRows = myTable.findElements(By.tagName("td"));
 				log.info("Getting info from Worker table...");
@@ -93,9 +93,9 @@ public class SystemLevelTestIT extends WebTestUtil {
 			log.info("------ START SystemLevelTestIT:runShutdownWorkerTest ------");
 			goToPage("workers");
 			
-			log.info("Checking if 3 workers are up and 0 are down.");
-			if (findOnPage("3 up, 0 down")) {
-				log.info("SUCCESS: Found 3 workers up, 0 down.");
+			log.info("Checking if 2 workers are up and 0 are down.");
+			if (findOnPage("2 up, 0 down")) {
+				log.info("SUCCESS: Found 2 workers up, 0 down.");
 				
 				String cwsDir = new File(System.getProperty("user.dir")).getParent();
 				String stopWorkerScript = cwsDir + "/dist/worker1/cws/stop_cws.sh";
@@ -118,9 +118,9 @@ public class SystemLevelTestIT extends WebTestUtil {
 	            
 	            driver.navigate().refresh();
 	            
-	            log.info("Now checking if 2 workers are up and 1 is down.");
-	            if (findOnPage("2 up, 1 down")) {
-	            	log.info("SUCCESS: Found 2 workers up and 1 down.");
+	            log.info("Now checking if 1 worker is up and 1 is down.");
+	            if (findOnPage("1 up, 1 down")) {
+	            	log.info("SUCCESS: Found 1 worker up and 1 down.");
 	            	log.info("Verified the worker was shut down.");
 	            	
 	            	//start the worker back so it doesn't affect the rest of the test cases.
@@ -143,9 +143,9 @@ public class SystemLevelTestIT extends WebTestUtil {
 		            		 
 		            driver.navigate().refresh();
 		            
-		            log.info("Checking if 3 workers are up now and 0 are down.");
-		            if (findOnPage("3 up, 0 down")) {
-		            	log.info("SUCCESS: 3 workers are back up and 0 are down.");
+		            log.info("Checking if 2 workers are up now and 0 are down.");
+		            if (findOnPage("2 up, 0 down")) {
+		            	log.info("SUCCESS: 2 workers are back up and 0 are down.");
 		            	scriptPass = true;
 		            	testCasesCompleted++;
 		            }

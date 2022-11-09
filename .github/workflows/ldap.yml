@@ -59,9 +59,6 @@ jobs:
           cd install/docker/es-only
           docker-compose up -d
 
-      #- name: Set up CWS database using Docker
-        #run: docker run -d -p 3306:3306 -e MYSQL_DATABASE=cws_dev -e MYSQL_ROOT_PASSWORD=adminpw --name mdb103 mariadb:10.3
-
       - name: Set up CWS LDAP Server
         run: |
           cd cws-opensource-ldap
@@ -98,24 +95,24 @@ jobs:
         run: mvn -DfailIfNoTests=false -Dtest=WebTestLdap clean test
         shell: bash
 
-      #- name: Send custom JSON data to Slack workflow
-        #if: ${{ always() }}
-        #id: slack
-        #uses: slackapi/slack-github-action@v1.19.0
-        #with:
+      - name: Send custom JSON data to Slack workflow
+        if: ${{ always() }}
+        id: slack
+        uses: slackapi/slack-github-action@v1.19.0
+        with:
           # This data can be any valid JSON from a previous step in the GitHub Action
-          #payload: |
-            #{
-              #"status": "CWS CI LDAP build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nCWS build result: ${{ steps.build.outcome }}\nLDAP integration test result: ${{ steps.ldap.outcome }}",
-              #"blocks": [
-                #{
-                  #"type": "section",
-                  #"text": {
-                    #"type": "mrkdwn",
-                    #"text": "CWS CI LDAP build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nCWS build result: ${{ steps.build.outcome }}\nLDAP integration test result: ${{ steps.ldap.outcome }}"
-                  #}
-                #}
-              #]
-            #}
-        #env:
-          #SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "status": "CWS CI LDAP build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nCWS build result: ${{ steps.build.outcome }}\nLDAP integration test result: ${{ steps.ldap.outcome }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "CWS CI LDAP build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nCWS build result: ${{ steps.build.outcome }}\nLDAP integration test result: ${{ steps.ldap.outcome }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

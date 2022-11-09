@@ -21,7 +21,6 @@ import org.junit.Test;
  * Tests related to Security
  * 
  */
-@Ignore
 public class InstallerTest {
 	private static Charset charset = StandardCharsets.UTF_8;
 	private static final String NL  = System.getProperty("line.separator");
