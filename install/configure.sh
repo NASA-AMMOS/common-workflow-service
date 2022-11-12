@@ -246,16 +246,63 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
             # Record the fact that tables have been created
             touch ${ROOT}/.databaseTablesCreated
 
+
             # Create any adaptation tables, if provided
             if [[ -f ${ROOT}/sql/cws/adaptation.sql ]]; then
-                print "Creating adaptation tables..."
-                mysql --defaults-file=${ROOT}/config/my.cnf ${DB_NAME} < ${ROOT}/sql/cws/adaptation.sql
-                if [[ $? -gt 0 ]]; then
-                    print "ERROR: Problem creating adaptation tables."
-                    print "  Please check your database configuration and/or adaptation script '${ROOT}/sql/cws/adaptation.sql', and try again."
-                    rm -rf ${ROOT}/config/my.cnf
-                    exit 1
-                fi
+
+                ADAPT_USE_SHARED_DB=`grep adaptation_use_shared_db ${CWS_INSTALLER_PRESET_FILE} | grep -v "^#" | cut -d"=" -f 2`
+
+                if [[ "${ADAPT_USE_SHARED_DB}" == "y" ]]; then
+                  	ADAPT_DB_HOST=`grep adaptation_db_host ${CWS_INSTALLER_PRESET_FILE} | grep -v "^#" | cut -d"=" -f 2`
+                  	ADAPT_DB_NAME=`grep adaptation_db_name ${CWS_INSTALLER_PRESET_FILE} | grep -v "^#" | cut -d"=" -f 2`
+                  	ADAPT_DB_USER=`grep adaptation_db_username ${CWS_INSTALLER_PRESET_FILE} | grep -v "^#" | cut -d"=" -f 2`
+                  	ADAPT_DB_PASS=`grep adaptation_db_password ${CWS_INSTALLER_PRESET_FILE} | grep -v "^#" | cut -d"=" -f 2`
+
+                  	echo "[mysql]" > ${ROOT}/config/myadapt.cnf
+                  	echo "host=${ADAPT_DB_HOST}" >> ${ROOT}/config/myadapt.cnf
+                  	echo "user=\"${ADAPT_DB_USER}\"" >> ${ROOT}/config/myadapt.cnf
+                  	echo "password=\"${ADAPT_DB_PASS}\"" >> ${ROOT}/config/myadapt.cnf
+                  	chmod 644 ${ROOT}/config/myadapt.cnf
+
+                  	cat ${ROOT}/config/myadapt.cnf
+
+                  	# ----------------------------------------
+                  	print "Your adaptation database configuration is:"
+                  	print "  DB HOST:   ${ADAPT_DB_HOST}"
+                  	print "  DB NAME:   ${ADAPT_DB_NAME}"
+                  	print "  DB USER:   ${ADAPT_DB_USER}"
+                  	print "This script will now create the database necessary for CWS to function."
+
+
+              			print "Checking whether database ${ADAPT_DB_NAME} already exists..."
+              			RES=`mysql --defaults-file=${ROOT}/config/myadapt.cnf -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${ADAPT_DB_NAME}'"`
+
+              			if [[ $? -gt 0 ]]; then
+              				print "ERROR: Problem checking for database. "
+              				print "  Please check your database configuration, and try again."
+              				rm -f ${ROOT}/config/myadapt.cnf
+              				exit 1
+              			fi
+              			print "  Database ${ADAPT_DB_NAME} exists."
+
+                    print "Creating adaptation tables..."
+                    mysql --defaults-file=${ROOT}/config/myadapt.cnf ${ADAPT_DB_NAME} < ${ROOT}/sql/cws/adaptation.sql
+                    if [[ $? -gt 0 ]]; then
+                        print "ERROR: Problem creating adaptation tables."
+                        print "  Please check your database configuration and/or adaptation script '${ROOT}/sql/cws/adaptation.sql', and try again."
+                        rm -rf ${ROOT}/config/myadapt.cnf
+                        exit 1
+                    fi
+				        else
+                    print "Creating adaptation tables..."
+                    mysql --defaults-file=${ROOT}/config/my.cnf ${DB_NAME} < ${ROOT}/sql/cws/adaptation.sql
+                    if [[ $? -gt 0 ]]; then
+                        print "ERROR: Problem creating adaptation tables."
+                        print "  Please check your database configuration and/or adaptation script '${ROOT}/sql/cws/adaptation.sql', and try again."
+                        rm -rf ${ROOT}/config/my.cnf
+                        exit 1
+                    fi
+				        fi
 
                 # Record the fact that we applied a database adaptation
                 touch ${ROOT}/.adaptationTablesCreated

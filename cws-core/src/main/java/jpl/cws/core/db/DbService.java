@@ -24,7 +24,9 @@ public class DbService {
 
 	@Autowired protected JdbcTemplate jdbcTemplate;
 	@Autowired protected NamedParameterJdbcTemplate namedJdbcTemplate;
-	
+
+	@Autowired protected JdbcTemplate jdbcAdaptationTemplate;
+
 	protected static final long SLOW_WARN_THRESHOLD = 100;
 	protected static final int IN_CLAUSE_MAX_ELEMENTS = 100;
 	

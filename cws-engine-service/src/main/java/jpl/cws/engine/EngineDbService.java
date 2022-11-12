@@ -160,6 +160,7 @@ public class EngineDbService extends DbService implements InitializingBean {
 				workerName = "worker-" + System.currentTimeMillis();
 				
 				try {
+					log.info("**** show output for template: ---  " + jdbcTemplate);
 					log.info("Inserting row (attempt #" + numTries +", workerName='"+workerName+"') into cws_worker table...");
 
 					numUpdated = jdbcTemplate.update(

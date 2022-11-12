@@ -130,6 +130,16 @@ public class CwsInstaller {
 	private static String cws_db_username;
 	private static String cws_db_password;
 
+	private static String cws_adaptation_use_shared_db;
+	private static String cws_adaptation_db_type;
+	private static String cws_adaptation_db_host;
+	private static String cws_adaptation_db_port;
+	private static String cws_adaptation_db_name;
+	private static String cws_adaptation_db_url;
+	private static String cws_adaptation_db_driver;
+	private static String cws_adaptation_db_username;
+	private static String cws_adaptation_db_password;
+
 	private static String cws_auth_scheme;
 	private static String cws_user;
 	private static String cws_user_firstname;
@@ -1412,6 +1422,31 @@ public class CwsInstaller {
 		print("Database User                 = " + cws_db_username);
 		print("Database Password             = ****** (hidden) ");
 		print("....................................................................................");
+		cws_adaptation_use_shared_db = getPreset("adaptation_use_shared_db");
+		cws_adaptation_db_type = getPreset("adaptation_db_type");
+		cws_adaptation_db_host = getPreset("adaptation_db_host");
+		cws_adaptation_db_port = getPreset("adaptation_db_port");
+		cws_adaptation_db_name = getPreset("adaptation_db_name");
+		cws_adaptation_db_username = getPreset("adaptation_db_username");
+		cws_adaptation_db_password = getPreset("adaptation_db_password");
+		cws_adaptation_db_url = "jdbc:" + cws_adaptation_db_type + "://" + cws_adaptation_db_host + ":" + cws_adaptation_db_port + "/" + cws_adaptation_db_name + "?autoReconnect=true";
+
+		if (cws_adaptation_db_type.equals("mariadb")) {
+			cws_adaptation_db_driver = "org.mariadb.jdbc.Driver";
+		} else {
+			cws_adaptation_db_driver = "com.mysql.jdbc.Driver";
+		}
+		if (cws_adaptation_use_shared_db != null) {
+			if (cws_adaptation_use_shared_db.equalsIgnoreCase("y")) {
+				print("  CWS Adaptation Database ");
+				print("    Database Type                 = " + cws_adaptation_db_type);
+				print("    Database URL                  = " + cws_adaptation_db_url);
+				print("    Database Driver               = " + cws_adaptation_db_driver);
+				print("    Database User                 = " + cws_adaptation_db_username);
+				print("    Database Password             = ****** (hidden) ");
+			}
+		}
+		print("....................................................................................");
 		if (cws_auth_scheme.equals("LDAP")) {
 			print("LDAP User                     = " + cws_user);
 		}
@@ -2020,6 +2055,10 @@ public class CwsInstaller {
 		content = content.replace("__CWS_DB_DRIVER__",             cws_db_driver);
 		content = content.replace("__CWS_DB_USERNAME__",           cws_db_username);
 		content = content.replace("__CWS_DB_PASSWORD__",           cws_db_password);
+		content = content.replace("__CWS_ADAPT_DB_URL__",          cws_adaptation_db_url);
+		content = content.replace("__CWS_ADAPT_DB_DRIVER__",       cws_adaptation_db_driver);
+		content = content.replace("__CWS_ADAPT_DB_USERNAME__",     cws_adaptation_db_username);
+		content = content.replace("__CWS_ADAPT_DB_PASSWORD__",     cws_adaptation_db_password);
 		content = content.replace("__CWS_TOMCAT_CONNECTOR_PORT__", cws_tomcat_connector_port);
 		content = content.replace("__CWS_TOMCAT_SSL_PORT__",       cws_tomcat_ssl_port);
 		content = content.replace("__CWS_TOMCAT_AJP_PORT__",       cws_tomcat_ajp_port);
