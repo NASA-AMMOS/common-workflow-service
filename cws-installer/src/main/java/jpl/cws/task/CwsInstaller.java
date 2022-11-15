@@ -1422,7 +1422,7 @@ public class CwsInstaller {
 		print("Database User                 = " + cws_db_username);
 		print("Database Password             = ****** (hidden) ");
 		print("....................................................................................");
-		/*
+
 		cws_adaptation_use_shared_db = getPreset("adaptation_use_shared_db");
 		cws_adaptation_db_type = getPreset("adaptation_db_type");
 		cws_adaptation_db_host = getPreset("adaptation_db_host");
@@ -1432,7 +1432,6 @@ public class CwsInstaller {
 		cws_adaptation_db_password = getPreset("adaptation_db_password");
 		cws_adaptation_db_url = "jdbc:" + cws_adaptation_db_type + "://" + cws_adaptation_db_host + ":" + cws_adaptation_db_port + "/" + cws_adaptation_db_name + "?autoReconnect=true";
 
-
 		if (cws_adaptation_use_shared_db != null) {
 			if (cws_adaptation_use_shared_db.equalsIgnoreCase("y")) {
 
@@ -1441,7 +1440,6 @@ public class CwsInstaller {
 				} else {
 					cws_adaptation_db_driver = "com.mysql.jdbc.Driver";
 				}
-
 				print("  CWS Adaptation Database ");
 				print("    Database Type                 = " + cws_adaptation_db_type);
 				print("    Database URL                  = " + cws_adaptation_db_url);
@@ -1452,7 +1450,6 @@ public class CwsInstaller {
 		}
 		print("....................................................................................");
 
-		 */
 		if (cws_auth_scheme.equals("LDAP")) {
 			print("LDAP User                     = " + cws_user);
 		}
@@ -2061,7 +2058,6 @@ public class CwsInstaller {
 		content = content.replace("__CWS_DB_DRIVER__",             cws_db_driver);
 		content = content.replace("__CWS_DB_USERNAME__",           cws_db_username);
 		content = content.replace("__CWS_DB_PASSWORD__",           cws_db_password);
-		/*
 		if (cws_adaptation_db_url != null && cws_adaptation_db_driver != null &&
 			cws_adaptation_db_username != null && cws_adaptation_db_password != null) {
 			content = content.replace("__CWS_ADAPT_DB_URL__",          cws_adaptation_db_url);
@@ -2069,8 +2065,6 @@ public class CwsInstaller {
 			content = content.replace("__CWS_ADAPT_DB_USERNAME__",     cws_adaptation_db_username);
 			content = content.replace("__CWS_ADAPT_DB_PASSWORD__",     cws_adaptation_db_password);
 		}
-
-		 */
 
 		content = content.replace("__CWS_TOMCAT_CONNECTOR_PORT__", cws_tomcat_connector_port);
 		content = content.replace("__CWS_TOMCAT_SSL_PORT__",       cws_tomcat_ssl_port);
