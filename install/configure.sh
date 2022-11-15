@@ -152,7 +152,7 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
 	print "  DB NAME:   ${DB_NAME}"
 	print "  DB USER:   ${DB_USER}"
 	print "This script will now create the database necessary for CWS to function."
-	
+
 	while [[ ! ${REPLY} =~ $(echo "^(y|Y|n|N)$") ]]; do
 		if [[ "${PROMPT_VALUE}" == "" ]]; then
 			read -p "Continue? (Y/N): " REPLY
@@ -249,7 +249,7 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
 
             # Create any adaptation tables, if provided
             if [[ -f ${ROOT}/sql/cws/adaptation.sql ]]; then
-
+			          print "STARTING ADAPTATION SQL..."
                 ADAPT_USE_SHARED_DB=`grep adaptation_use_shared_db ${CWS_INSTALLER_PRESET_FILE} | grep -v "^#" | cut -d"=" -f 2`
 
                 if [[ "${ADAPT_USE_SHARED_DB}" == "y" ]]; then
