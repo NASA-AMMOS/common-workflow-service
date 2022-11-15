@@ -178,6 +178,7 @@ function check_java_requirements () {
 
 # Creates a complete installation configuration file for a CWS console/worker to streamline development installs.
 function auto_conf_data () {
+    set -x
     INSTALL_TYPE=${1}
 
     # VALUES SET FROM dev.sh
@@ -298,7 +299,7 @@ function auto_conf_data () {
     cws_amq_jmx_port=${CWS_AMQ_JMX_PORT}
     cws_jmx_port=${CWS_JMX_PORT}
     history_days_to_live=1
-    max_processes_per_worker=${MAX_PROCESSES_PER_WORKER}
+    max_num_procs_per_worker=${MAX_NUM_PROCS_PER_WORKER}
     worker_abandoned_days=${WORKER_ABANDONED_DAYS}
     notify_users_email=y
     email_subject=[CWS] You have been assigned a task (CWS_TASK_NAME)
@@ -318,5 +319,5 @@ function auto_conf_data () {
     cws_token_expiration_hours=240
     user_provided_logstash=n
 EOF
-
+set +x
 }

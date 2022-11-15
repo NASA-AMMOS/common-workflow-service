@@ -26,6 +26,7 @@ public class EngineDbService extends DbService implements InitializingBean {
 	@Value("${cws.install.type}") private String cwsInstallType;
 	@Value("${cws.worker.type}") private String cwsWorkerType;
 	@Value("${camunda.executor.service.max.pool.size}") private int maxExecutorServicePoolSize;
+	@Value("${max.num.procs.per.worker}") private Integer maxNumProcsPerWorker;
 	
 	private Logger log;
 	
@@ -180,7 +181,7 @@ public class EngineDbService extends DbService implements InitializingBean {
 						numUpdated = jdbcTemplate.update(
 							"INSERT INTO cws_worker" +
 								"   (id, lock_owner, name, install_directory, cws_install_type, cws_worker_type, " +
-								"    status, job_executor_max_pool_size, created_time, last_heartbeat_time) " +
+								"    status, job_executor_max_pool_size, max_procs_for_worker, created_time, last_heartbeat_time) " +
 								"VALUES (?,?,?,?,?,?,?,?,?,?)",
 							new Object[]{
 								workerId,
@@ -191,6 +192,7 @@ public class EngineDbService extends DbService implements InitializingBean {
 								cwsWorkerType,
 								null, // status will be changed to null once the worker is fully initialized
 								maxExecutorServicePoolSize, // changeable later via the UI..
+								maxNumProcsPerWorker,
 								tsNow, // created_time
 								tsNow  // last_heartbeat_time
 							});
