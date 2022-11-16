@@ -1990,6 +1990,8 @@ public class CwsInstaller {
 				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP +  "bpm-platform.xml"));
 		copy(Paths.get( config_templates_dir + SEP + "tomcat_conf" + SEP + "server.xml"),
 				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP +  "server.xml"));
+		copy(Paths.get( config_templates_dir + SEP + "tomcat_conf" + SEP + "server_adaptation.xml"),
+			Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP +  "server_adaptation.xml"));
 		copy(Paths.get( config_templates_dir + SEP + "tomcat_conf" + SEP + "web.xml"),
 				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP +  "web.xml"));
 		copy(Paths.get( config_templates_dir + SEP + "engine-rest_mods" + SEP + "web.xml"),
@@ -2058,8 +2060,19 @@ public class CwsInstaller {
 		content = content.replace("__CWS_DB_DRIVER__",             cws_db_driver);
 		content = content.replace("__CWS_DB_USERNAME__",           cws_db_username);
 		content = content.replace("__CWS_DB_PASSWORD__",           cws_db_password);
+
+		writeToFile(filePath, content);
+		copy(
+			Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "server_adaptation.xml"),
+			Paths.get(cws_tomcat_root + SEP + "conf"        + SEP + "server_adaptation.xml"));
 		if (cws_adaptation_db_url != null && cws_adaptation_db_driver != null &&
 			cws_adaptation_db_username != null && cws_adaptation_db_password != null) {
+
+			// Fill in the __ADAPTATION_SERVER_RESOURCE__
+			String serverAdaptationContent = getFileContents(
+				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "server_adaptation.xml"));
+			content = content.replace("__ADAPTATION_SERVER_RESOURCE__", serverAdaptationContent);
+
 			content = content.replace("__CWS_ADAPT_DB_URL__",          cws_adaptation_db_url);
 			content = content.replace("__CWS_ADAPT_DB_DRIVER__",       cws_adaptation_db_driver);
 			content = content.replace("__CWS_ADAPT_DB_USERNAME__",     cws_adaptation_db_username);

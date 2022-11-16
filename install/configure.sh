@@ -248,8 +248,8 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
 
 
             # Create any adaptation tables, if provided
-            if [[ -f ${ROOT}/sql/cws/adaptation.sql ]]; then
-			          print "STARTING ADAPTATION SQL..."
+            if [[ -f ${ROOT}/sql/cws/adaptation.sql && -f ${ROOT}/sql/cws/adaptation_core.sql && -f ${ROOT}/sql/cws/adaptation_external.sql ]]; then
+			          print "Checking for Adaptation DB Settings..."
                 ADAPT_USE_SHARED_DB=`grep adaptation_use_shared_db ${CWS_INSTALLER_PRESET_FILE} | grep -v "^#" | cut -d"=" -f 2`
 
                 if [[ "${ADAPT_USE_SHARED_DB}" == "y" ]]; then
@@ -285,22 +285,25 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
               			fi
               			print "  Database ${ADAPT_DB_NAME} exists."
 
-                    print "Creating adaptation tables..."
-                    mysql --defaults-file=${ROOT}/config/myadapt.cnf ${ADAPT_DB_NAME} < ${ROOT}/sql/cws/adaptation.sql
+                    print "Creating adaptation tables in External DB..."
+                    mysql --defaults-file=${ROOT}/config/my.cnf ${DB_NAME} < ${ROOT}/sql/cws/adaptation_core.sql
+                    mysql --defaults-file=${ROOT}/config/myadapt.cnf ${ADAPT_DB_NAME} < ${ROOT}/sql/cws/adaptation_external.sql
                     if [[ $? -gt 0 ]]; then
                         print "ERROR: Problem creating adaptation tables."
-                        print "  Please check your database configuration and/or adaptation script '${ROOT}/sql/cws/adaptation.sql', and try again."
+                        print "  Please check your database configuration and/or adaptation script '${ROOT}/sql/cws/adaptation_external.sql', and try again."
                         rm -rf ${ROOT}/config/myadapt.cnf
                         exit 1
                     fi
 				        else
-                    print "Creating adaptation tables..."
-                    mysql --defaults-file=${ROOT}/config/my.cnf ${DB_NAME} < ${ROOT}/sql/cws/adaptation.sql
-                    if [[ $? -gt 0 ]]; then
-                        print "ERROR: Problem creating adaptation tables."
-                        print "  Please check your database configuration and/or adaptation script '${ROOT}/sql/cws/adaptation.sql', and try again."
-                        rm -rf ${ROOT}/config/my.cnf
-                        exit 1
+                    print "Creating adaptation tables in Default Core DB..."
+                    if [[ -f ${ROOT}/sql/cws/adaptation.sql ]]; then
+                        mysql --defaults-file=${ROOT}/config/my.cnf ${DB_NAME} < ${ROOT}/sql/cws/adaptation.sql
+                        if [[ $? -gt 0 ]]; then
+                            print "ERROR: Problem creating adaptation tables."
+                            print "  Please check your database configuration and/or adaptation script '${ROOT}/sql/cws/adaptation.sql', and try again."
+                            rm -rf ${ROOT}/config/my.cnf
+                            exit 1
+                        fi
                     fi
 				        fi
 
@@ -321,5 +324,6 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
 fi
 
 rm -f ${ROOT}/config/my.cnf
+rm -f ${ROOT}/config/myadapt.cnf
 
 print "Finished"

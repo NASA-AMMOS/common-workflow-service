@@ -68,6 +68,7 @@ cp ${INSTALL_DIR}/tomcat_lib/css-jaas.cfg                     ${CONFIG_TEMPLATES
 cp ${INSTALL_DIR}/tomcat_bin/setenv.sh                        ${CONFIG_TEMPLATES_DIR}/tomcat_bin
 cp ${INSTALL_DIR}/tomcat_conf/bpm-platform.xml                ${CONFIG_TEMPLATES_DIR}/tomcat_conf
 cp ${INSTALL_DIR}/tomcat_conf/server.xml                      ${CONFIG_TEMPLATES_DIR}/tomcat_conf
+cp ${INSTALL_DIR}/tomcat_conf/server_adaptation.xml           ${CONFIG_TEMPLATES_DIR}/tomcat_conf
 cp ${INSTALL_DIR}/tomcat_conf/web.xml                         ${CONFIG_TEMPLATES_DIR}/tomcat_conf
 cp ${INSTALL_DIR}/tomcat_conf/ldap_plugin_bean.xml            ${CONFIG_TEMPLATES_DIR}/tomcat_conf
 cp ${INSTALL_DIR}/tomcat_conf/ldap_plugin_ref.xml             ${CONFIG_TEMPLATES_DIR}/tomcat_conf
