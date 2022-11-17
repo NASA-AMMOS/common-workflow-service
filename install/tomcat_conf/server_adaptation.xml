@@ -2,7 +2,7 @@
           auth="Container"
           type="javax.sql.DataSource"
           factory="com.zaxxer.hikari.HikariJNDIFactory"
-          poolName="cws-pool"
+          poolName="cws-adapt-pool"
 
           maximumPoolSize="5"
           connectionTimeout="300000"
