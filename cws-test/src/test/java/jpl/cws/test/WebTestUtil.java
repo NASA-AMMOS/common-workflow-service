@@ -127,6 +127,7 @@ public class WebTestUtil {
 		chromeOptions.setAcceptInsecureCerts(true);
 		chromeOptions.addArguments("--window-size=1920,1080");
 		chromeOptions.addArguments("--no-sandbox");
+		chromeOptions.addArguments("--disable-gpu");
 
 		WebDriverManager.chromedriver().setup();
 		driver = new ChromeDriver(chromeOptions);
