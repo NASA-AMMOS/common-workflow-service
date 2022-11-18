@@ -22,7 +22,7 @@
 
 	<jee:jndi-lookup id="cwsDataSource" jndi-name="java:comp/env/jdbc/cws" expected-type="javax.sql.DataSource" />
 
-	<jee:jndi-lookup id="cwsAdaptDataSource" jndi-name="java:comp/env/jdbc/cws_adaptation" expected-type="javax.sql.DataSource" />
+	__CWS_ADAPTATION_JNDI__
 
 	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
 		<constructor-arg ref="cwsDataSource"/>
@@ -32,9 +32,7 @@
 		<constructor-arg ref="cwsDataSource"/>
 	</bean>
 
-	<bean id="jdbcAdaptationTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-		<constructor-arg ref="cwsAdaptDataSource"/>
-	</bean>
+	__CWS_ADAPTATION_BEAN__
 
 	<bean id="cwsConfig"            class="jpl.cws.core.CwsConfig" />
 

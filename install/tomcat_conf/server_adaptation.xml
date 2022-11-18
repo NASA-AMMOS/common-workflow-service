@@ -13,3 +13,5 @@
           password="__CWS_ADAPT_DB_PASSWORD__"
 
           transactionIsolation="TRANSACTION_READ_COMMITTED" />
+
+<Resource name="jdbc/cws"
