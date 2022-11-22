@@ -2348,6 +2348,7 @@ public class CwsInstaller {
 		content = content.replace("__CWS_DB_PASSWORD__",                   cws_db_password);
 		content = content.replace("__CAMUNDA_EXEC_SVC_MAX_POOL_SIZE__",    CORES+"");
 		content = content.replace("__AWS_DEFAULT_REGION__", 				  aws_default_region);
+		content = content.replace("__CWS_MAX_NUM_PROCS_PER_WORKER__",		max_num_procs_per_worker);
 
 		// S3 Initiator might not be in use
 		if(aws_sqs_dispatcher_sqsUrl != null) {

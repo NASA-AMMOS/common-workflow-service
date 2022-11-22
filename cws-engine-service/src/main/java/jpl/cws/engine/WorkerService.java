@@ -75,7 +75,9 @@ public class WorkerService implements InitializingBean {
 	@Value("${cws.engine.jobexecutor.enabled}") private boolean jobExecutorEnabled;
 
 	@Value("${cws.tomcat.lib}") private String cwsTomcatLib;
-	
+
+	@Value("${max.num.procs.per.worker}") private int maxNumProcsPerWorker;
+
 	private Logger log;
 	
 	public static AtomicInteger processorExecuteCount = new AtomicInteger(0);
@@ -707,7 +709,7 @@ public class WorkerService implements InitializingBean {
 						procStartReqUuidStartedThisWorker.addAll(claimRowData.get("claimedRowUuids"));
 						//log.debug("procStartReqUuidStartedThisWorker = " + procStartReqUuidStartedThisWorker);
 						
-						log.debug("(CLAIMED " + claimed.size() + " / " + queryLimit + ", maxProcs=" + procMaxNumber + ")  for procDef '" + procDefKey + "' (limitToProcDefKey="+limitToProcDefKey+")");
+						log.info("(CLAIMED " + claimed.size() + " / " + queryLimit + ", maxProcs=" + procMaxNumber + ", configMaxNumOfProcsForWorker=" + maxNumProcsPerWorker + ")  for procDef '" + procDefKey + "' (limitToProcDefKey="+limitToProcDefKey+")");
 						
 						claimUuids.addAll(claimed);
 					}
@@ -903,7 +905,8 @@ public class WorkerService implements InitializingBean {
 				jmxc.close();
 				
 				log.info("Set Job Executor max pool size to " + executorServiceMaxPoolSize + " (JMX URL: " + JMX_SERVICE_URL + ")");
-				
+				log.info("(WorkerService) configMaxNumOfProcsForWorker=" + maxNumProcsPerWorker);
+
 				if (doDbUpdate) {
 					// Now update the DB, since setting was successful.
 					//

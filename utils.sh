@@ -204,7 +204,7 @@ function auto_conf_data () {
     ADMIN_LASTNAME=${21}
     ADMIN_EMAIL=${22}
     NUM_WORKERS=${23}
-    MAX_PROCESSES_PER_WORKER=${24}
+    MAX_NUM_PROCS_PER_WORKER=${24}
     WORKER_ABANDONED_DAYS=${25}
 
     OUTPUT_FILE=${26}
