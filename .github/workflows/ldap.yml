@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SECURITY: "LDAP"
+      WORKERS: 1
 
     services:
       mdb103:
@@ -74,7 +75,7 @@ jobs:
         run:  |
           cd ci
           chmod +x run_ci.sh
-          ./run_ci.sh $SECURITY
+          ./run_ci.sh $SECURITY $WORKERS
         shell: bash
 
       - name: Show CWS Log

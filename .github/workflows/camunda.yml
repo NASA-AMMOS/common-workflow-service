@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SECURITY: "CAMUNDA"
+      WORKERS: 1
 
     services:
       mdb103:
@@ -69,7 +70,7 @@ jobs:
         run:  |
           cd ci
           chmod +x run_ci.sh
-          ./run_ci.sh $SECURITY
+          ./run_ci.sh $SECURITY $WORKERS
         shell: bash
 
       - name: Show CWS Log
@@ -128,6 +129,95 @@ jobs:
             #}
         #env:
           #SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+
+  advanced-test:
+
+    runs-on: ubuntu-latest
+    env:
+      SECURITY: "CAMUNDA"
+      WORKERS: 2
+
+    services:
+      mdb103:
+        image: mariadb:10.3
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_DATABASE: cws_dev
+          MYSQL_ROOT_PASSWORD: adminpw
+        options: >-
+          --name mdb103
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Create open-source certs
+        run: |
+          cd cws-certs
+          chmod +x generate-certs.sh
+          ./generate-certs.sh
+
+      - name: Download Logstash
+        uses: carlosperate/download-file-action@v1
+        with:
+          file-url: https://artifacts.elastic.co/downloads/logstash/logstash-oss-7.16.2-windows-x86_64.zip
+          file-name: logstash-7.16.2.zip
+          location: install/logging/
+
+      - name: Check for Logstash
+        run: |
+          cd install/logging/
+          ls -l
+
+      - name: Set up Elasticsearch
+        run: |
+          cd install/docker/es-only
+          docker-compose up -d
+
+      - name: Show Docker containers
+        run: |
+          sleep 5s
+          docker ps -a
+
+      - name: Build CWS
+        id: build
+        run:  |
+          cd ci
+          chmod +x run_ci.sh
+          ./run_ci.sh $SECURITY $WORKERS
+        shell: bash
+
+      - name: Show CWS Log
+        run: |
+          cd dist/console-only/cws/server/apache-tomcat-9.0.33/logs
+          ls -al
+
+      - name: Set up Google Chrome
+        run:  |
+          sudo apt-get update
+          sudo apt-get --only-upgrade install google-chrome-stable
+
+      - name: Display Google Chrome version
+        run: google-chrome --version
+
+      - name: Run Load Integration Test
+        id: load
+        run: mvn -DfailIfNoTests=false -Dtest=LoadTestIT clean test
+        shell: bash
+
+      - name: Upload test screenshots
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-screenshots-advanced
+          path: test-screenshots/
 
 
   publish-cws-image:
