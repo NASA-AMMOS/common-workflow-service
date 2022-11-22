@@ -223,7 +223,7 @@ jobs:
   publish-cws-image:
 
     if: ${{ github.ref_type == 'tag' }}
-    needs: build-and-test-cws
+    needs: [build-and-test-cws, advanced-test]
     runs-on: ubuntu-latest
 
     steps:
