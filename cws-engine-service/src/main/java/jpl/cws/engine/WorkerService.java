@@ -9,15 +9,9 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.lang.Math;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -76,7 +70,7 @@ public class WorkerService implements InitializingBean {
 
 	@Value("${cws.tomcat.lib}") private String cwsTomcatLib;
 
-	@Value("${max.num.procs.per.worker}") private int maxNumProcsPerWorker;
+	@Value("${worker.max.num.running.procs}") private int workerMaxNumRunningProcs;
 
 	private Logger log;
 	
@@ -90,6 +84,8 @@ public class WorkerService implements InitializingBean {
 	private static Map<String,Integer> workerMaxProcInstances = new HashMap<String,Integer>();
 	private static Set<String> procStartReqUuidStartedThisWorker = new HashSet<String>();
 	private static Set<String> acceptingProcDefKeys = new HashSet<String>();
+	private static Map<String,Integer> maxProcsPerWorkerClaimable = new HashMap<String,Integer>();
+
 	//private static Set<String> runningToCompleteTransitionUuids = new HashSet<String>();
 	
 	// FIXME: make this number configurable or determine dynamically
@@ -187,7 +183,7 @@ public class WorkerService implements InitializingBean {
 			
 		}
 		
-		log.debug("AFTER INIT: limits: " + workerMaxProcInstances + ",  counts: " + processCounters);
+		log.info("AFTER INIT: limits: " + workerMaxProcInstances + ",  counts: " + processCounters);
 	}
 	
 
@@ -314,7 +310,7 @@ public class WorkerService implements InitializingBean {
 		//
 		String postConfig = "limits: " + workerMaxProcInstances + ",  counts: " + processCounters;
 		if (lastProcCounterStatusMsg == null || !lastProcCounterStatusMsg.equals(postConfig)) {
-			log.debug("NEW: " + postConfig + ",  OLD: " + lastProcCounterStatusMsg);
+			log.info("NEW: " + postConfig + ",  OLD: " + lastProcCounterStatusMsg);
 			lastProcCounterStatusMsg = postConfig;
 			return true; // config changed
 		}
@@ -494,6 +490,11 @@ public class WorkerService implements InitializingBean {
 			refreshJmxConnector();
 			Integer activeCount = (Integer)mbsc.getAttribute(serviceName, "ActiveCount");
 			mbsc = null;
+
+			//log.info("*** LOG ACTIVECOUNT: " + activeCount);
+			//log.info("*** LOG activeCount.intValue() : " + activeCount.intValue());
+
+
 			if (activeCount == null) {
 				log.error("activeCount returned via JMX was null!");
 				engineDbService.workerHeartbeat(0);
@@ -669,7 +670,16 @@ public class WorkerService implements InitializingBean {
 		//log.debug("workerMaxProcInstances: " + workerMaxProcInstances);
 		
 		long t1 = 0;
-		
+
+		for (Entry<String,Integer> procMax : workerMaxProcInstances.entrySet()) {
+			String procDefKey = procMax.getKey();
+			//System.out.println(" **** OUTPUT LOGS ****" + procDefKey);
+			//System.out.println(" ---- ");
+			//log.info(" **** OUTPUT LOGS ****" + procDefKey);
+			log.info(" -------- ");
+			//log.info(" 1***REMAINDER: -- " + remainder);
+		}
+
 		synchronized (procStateLock) { // procCountsLock
 			t1 = System.currentTimeMillis();
 			for (Entry<String,Integer> procMax : workerMaxProcInstances.entrySet()) {
@@ -688,17 +698,60 @@ public class WorkerService implements InitializingBean {
 				//log.trace("currentCount for " + procDefKey + " is " + currentCount);
 				int remainder = procMaxNumber - currentCount;
 				//log.trace("remainder for " + procDefKey + " is " + remainder);
+
+				log.info(" *** LOG currentCount : " + currentCount + " FOR PROC --  " + procDefKey);
+				log.info(" *** LOG remainder : " + remainder + " FOR PROC --  " + procDefKey);
+
+				// total proc running
+				int totalWorkerProcsCount = 0;
+				for (Entry<String,Integer> entry : processCounters.entrySet()) {
+					totalWorkerProcsCount += entry.getValue().intValue();
+				}
+
+				log.info(" *** LOG totalWorkerProcsCount : " + totalWorkerProcsCount);
+				log.info(" *** LOG1 processCounters.entrySet() : " + processCounters.entrySet());
+				log.info(" ***WORKERID " + workerId + " DB MAX NUM " + schedulerDbService.getMaxProcsValueForWorker(workerId));
+
+				/*
+				for (Map.Entry<String,Integer> entry : processCounters.entrySet()) {
+					processCounters.put(entry.getKey(), 0);
+				}
+
+				for(int i = 1; i <= workerMaxNumRunningProcs; i++){
+					Random random = new Random();
+					List<String> keys = new ArrayList<String>(processCounters.keySet());
+					String randomKey = keys.get( random.nextInt(keys.size()) );
+					processCounters.put(randomKey, processCounters.get(procDefKey) + 1);
+				}
+				 */
+
+				/*
+				log.info(" **** PROCDEFKEY: -- " + procDefKey + "WORKER ID: " + workerId + "--- " + "workerMaxNumRunningProcs:  " + schedulerDbService.getMaxProcsValueForWorker(workerId));
+				Map<String,Integer> numProcsPerWorkerRemaining = new HashMap<String,Integer>();
+
+				numProcsPerWorkerRemaining.put(workerId, workerMaxNumRunningProcs);
+				log.info(" ****numProcsPerWorkerRemaining: " + numProcsPerWorkerRemaining);
+
+				if (numProcsPerWorkerRemaining.get(workerId) == 0) {
+					remainder = 0;
+
+				}
+				 */
+
 				int queryLimit = Math.min(EXEC_SERVICE_MAX_POOL_SIZE, remainder);
 				//log.trace("queryLimit for " + procDefKey + " is " + queryLimit);
-				
-				if (remainder > 0) {
+
+				//maxProcsPerWorkerClaimable.put("key1", 1);
+				// 	if (remainder > 0 && totalWorkerProcsCount <= workerMaxNumRunningProcs) {
+				// 	if (remainder > 0 && workerMaxNumRunningProcs < schedulerDbService.getMaxProcsValueForWorker(workerId)) {
+				if (remainder > 0 && totalWorkerProcsCount < schedulerDbService.getMaxProcsValueForWorker(workerId)) {
 					// claim for remainder (marks DB rows as "claimedByWorker")
 					Map<String,List<String>> claimRowData = 
 						schedulerDbService.claimHighestPriorityStartReq(
 							workerId, procDefKey, queryLimit);
 					
 					List<String> claimed = claimRowData.get("claimUuids");
-					
+
 					if (!claimed.isEmpty()) {
 						// increment counter by amount that was actually claimed
 						// in anticipation that the start will actually work.
@@ -709,9 +762,27 @@ public class WorkerService implements InitializingBean {
 						procStartReqUuidStartedThisWorker.addAll(claimRowData.get("claimedRowUuids"));
 						//log.debug("procStartReqUuidStartedThisWorker = " + procStartReqUuidStartedThisWorker);
 						
-						log.info("(CLAIMED " + claimed.size() + " / " + queryLimit + ", maxProcs=" + procMaxNumber + ", configMaxNumOfProcsForWorker=" + maxNumProcsPerWorker + ")  for procDef '" + procDefKey + "' (limitToProcDefKey="+limitToProcDefKey+")");
+						log.info("(CLAIMED " + claimed.size() + " / " + queryLimit + ", maxProcs=" + procMaxNumber + ", configMaxNumOfProcsForWorker=" + workerMaxNumRunningProcs + ")  for procDef '" + procDefKey + "' (limitToProcDefKey="+limitToProcDefKey+")");
 						
 						claimUuids.addAll(claimed);
+
+						/*
+						if (numProcsPerWorkerRemaining.get(workerId) != 0) {
+							workerMaxNumRunningProcs = workerMaxNumRunningProcs - 1;
+						}
+						 */
+
+						/*
+						for (Entry<String,Integer> entry : processCounters.entrySet()) {
+							if (entry.getValue().intValue() > 0) {
+								entry.setValue(0);
+							} else {
+								entry.setValue(1);
+							}
+						}
+						log.info(" *** LOG2 processCounters.entrySet() : " + processCounters.entrySet());
+						 */
+
 					}
 					//else {
 					//	log.debug("NONE CLAIMED  (queryLimit=" + queryLimit + ", max=" + procMaxNumber + ")  for procDef '" + procDefKey + "' (limitToProcDefKey="+limitToProcDefKey+")");
@@ -905,7 +976,7 @@ public class WorkerService implements InitializingBean {
 				jmxc.close();
 				
 				log.info("Set Job Executor max pool size to " + executorServiceMaxPoolSize + " (JMX URL: " + JMX_SERVICE_URL + ")");
-				log.info("(WorkerService) configMaxNumOfProcsForWorker=" + maxNumProcsPerWorker);
+				log.info("(WorkerService) configMaxNumOfProcsForWorker=" + workerMaxNumRunningProcs);
 
 				if (doDbUpdate) {
 					// Now update the DB, since setting was successful.

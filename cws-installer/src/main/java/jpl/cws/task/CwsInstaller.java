@@ -199,7 +199,7 @@ public class CwsInstaller {
 	private static String user_provided_logstash;
 	private static String history_level;
 	private static String history_days_to_live;
-	private static String max_num_procs_per_worker;
+	private static String worker_max_num_running_procs;
 	private static String worker_abandoned_days;
 
 	private static String aws_default_region;
@@ -888,32 +888,32 @@ public class CwsInstaller {
 
 
 	private static void setupMaxLimitForNumberOfProcessesPerWorker() {
-		max_num_procs_per_worker = getPreset("max_num_procs_per_worker");
+		worker_max_num_running_procs = getPreset("worker_max_num_running_procs");
 
-		if (max_num_procs_per_worker == null) {
-			max_num_procs_per_worker = getPreset("default_max_num_procs_per_worker");
+		if (worker_max_num_running_procs == null) {
+			worker_max_num_running_procs = getPreset("default_worker_max_num_running_procs");
 		}
 
 		// make sure preset is valid positive integer
 		try {
-			if (Integer.parseInt(max_num_procs_per_worker) <= 0) {
-				log.warn("Processes per worker value must be a positive integer. Got: " + max_num_procs_per_worker + ". Defaulting to 25.");
-				max_num_procs_per_worker = "25";
+			if (Integer.parseInt(worker_max_num_running_procs) <= 0) {
+				log.warn("Processes per worker value must be a positive integer. Got: " + worker_max_num_running_procs + ". Defaulting to 25.");
+				worker_max_num_running_procs = "25";
 			}
 		} catch (NumberFormatException e) {
-			log.warn("Processes per worker value failed to parse as an integer. Got: " + max_num_procs_per_worker + ". Defaulting to 25.");
-			max_num_procs_per_worker = "25";
+			log.warn("Processes per worker value failed to parse as an integer. Got: " + worker_max_num_running_procs + ". Defaulting to 25.");
+			worker_max_num_running_procs = "25";
 		}
 
 		if (cws_installer_mode.equals("interactive")) {
 			boolean done = false;
 			while (!done) {
-				max_num_procs_per_worker = readLine("Enter the maximum number of processes that run on worker(s). " +
-					"Default is " + max_num_procs_per_worker + ": ", max_num_procs_per_worker);
+				worker_max_num_running_procs = readLine("Enter the maximum number of processes that run on worker(s). " +
+					"Default is " + worker_max_num_running_procs + ": ", worker_max_num_running_procs);
 
 				// make sure input was valid
 				try {
-					done = Integer.parseInt(max_num_procs_per_worker) >= 1;
+					done = Integer.parseInt(worker_max_num_running_procs) >= 1;
 				} catch (NumberFormatException e) {
 					// bad input, try again
 				}
@@ -1619,7 +1619,7 @@ public class CwsInstaller {
 		print("CWS Notification Emails       = " + cws_notification_emails);
 		print("CWS Token Expiration In Hours = " + cws_token_expiration_hours);
 		print("History Level                 = " + history_level);
-		print("Processes per Worker          = " + max_num_procs_per_worker);
+		print("Processes per Worker          = " + worker_max_num_running_procs);
 		print("Days Remove Abandoned Workers = " + worker_abandoned_days);
 		if (installConsole) {
 			print("History Days to Live          = " + history_days_to_live);
@@ -2348,7 +2348,7 @@ public class CwsInstaller {
 		content = content.replace("__CWS_DB_PASSWORD__",                   cws_db_password);
 		content = content.replace("__CAMUNDA_EXEC_SVC_MAX_POOL_SIZE__",    CORES+"");
 		content = content.replace("__AWS_DEFAULT_REGION__", 				  aws_default_region);
-		content = content.replace("__CWS_MAX_NUM_PROCS_PER_WORKER__",		max_num_procs_per_worker);
+		content = content.replace("__CWS_WORKER_MAX_NUM_RUNNING_PROCS__",		worker_max_num_running_procs);
 
 		// S3 Initiator might not be in use
 		if(aws_sqs_dispatcher_sqsUrl != null) {
@@ -2460,7 +2460,7 @@ public class CwsInstaller {
 		content = content.replace("__CWS_AUTH_SCHEME__",                 cws_auth_scheme);
 		content = content.replace("__CWS_HISTORY_DAYS_TO_LIVE__",        history_days_to_live);
 		content = content.replace("__CWS_HISTORY_LEVEL__",     		     history_level);
-		content = content.replace("__CWS_MAX_NUM_PROCS_PER_WORKER__",	max_num_procs_per_worker);
+		content = content.replace("__CWS_WORKER_MAX_NUM_RUNNING_PROCS__", worker_max_num_running_procs);
 		content = content.replace("__CWS_WORKER_ABANDONED_DAYS__",		worker_abandoned_days);
 		content = content.replace("__AWS_DEFAULT_REGION__", 				  aws_default_region);
 
@@ -2493,7 +2493,7 @@ public class CwsInstaller {
 		content = content.replace("__CWS_DB_PASSWORD__", cws_db_password);
 		content = content.replace("__JOB_EXECUTOR_ACTIVATE__", "false");
 		content = content.replace("__HISTORY_LEVEL__", history_level);
-		content = content.replace("__CWS_MAX_NUM_PROCS_PER_WORKER__", max_num_procs_per_worker);
+		content = content.replace("__CWS_WORKER_MAX_NUM_RUNNING_PROCS__", worker_max_num_running_procs);
 		content = content.replace("__CWS_WORKER_ABANDONED_DAYS__", worker_abandoned_days);
 
 		content = content.replace("__CWS_AMQ_HOST__",     cws_amq_host);
@@ -2850,7 +2850,7 @@ public class CwsInstaller {
 		setPreset("user_provided_logstash", user_provided_logstash);
 		setPreset("history_level", history_level);
 		setPreset("history_days_to_live", history_days_to_live);
-		setPreset("max_num_procs_per_worker", max_num_procs_per_worker);
+		setPreset("worker_max_num_running_procs", worker_max_num_running_procs);
 		setPreset("worker_abandoned_days", worker_abandoned_days);
 		setPreset("aws_default_region", aws_default_region);
 		setPreset("aws_sqs_dispatcher_sqsUrl", aws_sqs_dispatcher_sqsUrl);

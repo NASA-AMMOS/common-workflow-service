@@ -243,7 +243,9 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		return numUpdated;
 	}
 	
-	
+
+
+
 	/**
 	 * Attempt to claim a process start request in the database.
 	 * 
@@ -356,8 +358,14 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			return null;
 		}
 	}
-	
-	
+
+	public int getMaxProcsValueForWorker(String workerId) {
+
+		return jdbcTemplate.queryForObject(
+			"SELECT worker_max_num_running_procs FROM cws_worker WHERE id=?",
+			new Object[] {workerId}, Integer.class);
+	}
+
 	public Map<String,Object> getProcInstRow(String uuid) {
 		List<Map<String,Object>> list = jdbcTemplate.queryForList(
 			"SELECT * FROM cws_sched_worker_proc_inst " +
