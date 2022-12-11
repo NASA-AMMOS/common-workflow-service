@@ -210,7 +210,7 @@ public class LoadTestIT extends WebTestUtil {
             select.selectByValue("1");
 
             int counter = 0;
-            while(counter < 7) {
+            while(counter < 8) {
                 sleep(90000);
 
                 WebElement statsText = driver.findElement(By.id("stat-txt-cws-reserved-total"));
