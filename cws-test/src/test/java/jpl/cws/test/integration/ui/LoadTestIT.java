@@ -22,7 +22,6 @@ import jpl.cws.test.WebTestUtil;
  * @author rfray
  *
  */
-@Ignore
 public class LoadTestIT extends WebTestUtil {
     private static final Logger log = LoggerFactory.getLogger(LoadTestIT.class);
     private static int testCasesCompleted = 0;

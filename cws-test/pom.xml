@@ -273,6 +273,7 @@
                 <argLine>${testArgLine}</argLine>
                 <excludes>
                     <exclude>**/*UT*.java</exclude>
+					<exclude>**/LoadTestIT.java</exclude>	<!-- run separately as an advanced test -->
                 </excludes>
                 <includes>
                 	<include>**/*IT.java</include>
