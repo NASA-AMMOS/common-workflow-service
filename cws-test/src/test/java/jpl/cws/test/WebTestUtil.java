@@ -17,14 +17,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -527,10 +520,14 @@ public class WebTestUtil {
 	}
 
 	public void checkIdle() {
-		if(findOnPage("Your browser has been idle for more than 10 minutes.")) {
-			log.info("Processes have been paused due to browser being idle more than 10 minutes. Resuming...");
-			WebElement resume = findElById("resume-refresh");
+		try {
+			WebDriverWait wait = new WebDriverWait(driver,0);
+			wait.until(ExpectedConditions.elementToBeClickable(By.id("resume-refresh")));
+			WebElement resume = driver.findElement(By.id("resume-refresh"));
 			resume.click();
+			log.info("Processes had been paused due to browser being idle more than 10 minutes. Resuming...");
+		} catch (TimeoutException e) {
+			log.info("Browser remains not idle.");
 		}
 	}
 }

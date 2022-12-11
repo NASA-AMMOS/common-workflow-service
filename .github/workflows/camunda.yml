@@ -103,6 +103,7 @@ jobs:
           path: jacoco-reports/aggregate/index.html
 
       - name: Upload test screenshots
+        if: ${{ always() && steps.build.outcome == 'success' }}
         uses: actions/upload-artifact@v3
         with:
           name: test-screenshots
@@ -210,7 +211,7 @@ jobs:
 
       - name: Run Load Integration Test
         id: load
-        run: mvn -DfailIfNoTests=false -Dtest=LoadTestIT clean test
+        run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars, -Dit.test=LoadTestIT verify -DskipTests
         shell: bash
 
       - name: Upload test screenshots
