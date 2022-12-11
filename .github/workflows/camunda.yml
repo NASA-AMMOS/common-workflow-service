@@ -136,7 +136,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SECURITY: "CAMUNDA"
-      WORKERS: 3
+      WORKERS: 2
 
     services:
       mdb103:
