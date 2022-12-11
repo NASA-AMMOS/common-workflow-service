@@ -525,4 +525,12 @@ public class WebTestUtil {
 			log.error("InterruptedException during sleep", e);
 		}
 	}
+
+	public void checkIdle() {
+		if(findOnPage("Your browser has been idle for more than 10 minutes.")) {
+			log.info("Processes have been paused due to browser being idle more than 10 minutes. Resuming...");
+			WebElement resume = findElById("resume-refresh");
+			resume.click();
+		}
+	}
 }
