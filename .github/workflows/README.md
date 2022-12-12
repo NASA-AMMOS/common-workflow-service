@@ -6,14 +6,16 @@ Utilizing GitHub Actions, the workflows build, test, and deliver CWS by configur
 
 ## CWS CI Camunda Workflow
 
-The CWS CI Camunda workflow is triggered upon any push to the repository, including commits, pull requests, and merges. The workflow is also scheduled to run every Monday at 5 AM PST / 12 PM UTC. It is composed of two jobs: `build-and-test-cws` and `publish-cws-image`. Both jobs run on separate GitHub runners with the latest version of Ubuntu.
+The CWS CI Camunda workflow is triggered upon any push to the repository, including commits, pull requests, and merges. The workflow is also scheduled to run every Monday at 5 AM PST / 12 PM UTC. It is composed of three jobs: `build-and-test-cws`, `advanced-test`, and `publish-cws-image`. All jobs run on separate GitHub runners with the latest version of Ubuntu.
 
 The `build-and-test-cws` job performs all the necessary preliminary steps required to configure and build CWS with Camunda security. Once these steps are completed, a fully-functioning instance of CWS is built. Following the build, unit and integration tests are run, with resulting artifacts being saved to the workflow run. Afterwards, data from the workflow is sent to the development team.
 
-The `publish-cws-image` job is the CD component of the workflow, triggered upon a commit with a tag and dependant upon successful completion of the `build-and-test-cws job`.
+The `advanced-test` job is fundamentally the same for the build of CWS, except 2 workers being started instead of 1. Following the build, an advanced integration test requiring additional workers is run.
+
+The `publish-cws-image` job is the CD component of the workflow, triggered upon a commit with a tag and dependant upon successful completion of the `build-and-test-cws` and `advanced-test` jobs.
 
 > **Note**
-> The current GitHub runner configuration used for the build and test of CWS supports up to 1 console and 2 workers.
+> The current GitHub runner configuration used for the build and test of CWS, as well as the advanced test, supports up to 1 console and 2 workers.
 > More than 2 workers may result in test failures due to the stress on the runner.
 
 ### build-and-test-cws Job
@@ -47,9 +49,10 @@ The `publish-cws-image` job is the CD component of the workflow, triggered upon 
 - **Build CWS**:
   - Builds and runs CWS
   - Begins by running the first bash script in the build process: run_ci.sh
-    - Current configuration is set to run 1 console and 2 workers
-  - The bash script is passed the `SECURITY` environmental variable to run CWS in a specific security mode
-  - The CWS security mode for this workflow is `CAMUNDA`
+    - The bash script is passed the `SECURITY` environmental variable to run CWS in a specific security mode
+      - The CWS security mode for this workflow is `CAMUNDA`
+    - The bash script is passed the `WORKERS` environmental variable to start the specified number of workers
+      - Current configuration is set to run 1 console and 1 worker
 - **Show CWS Log**:
   - List files in the directory where `cws.log` is expected
   - The presence of the file verifies successful deployment of the Apache Tomcat server
@@ -67,6 +70,18 @@ The `publish-cws-image` job is the CD component of the workflow, triggered upon 
     - Utilizes Technique 1 - Slack Workflow Builder
     - Sends GitHub Actions workflow data to a Slack channel via a webhook URL
     - Requires a Slack workflow using webhooks to be created
+
+### advanced-test Job
+- **Build CWS**:
+  - Builds and runs CWS
+  - Begins by running the first bash script in the build process: run_ci.sh
+    - The bash script is passed the `SECURITY` environmental variable to run CWS in a specific security mode
+      - The CWS security mode for this workflow is `CAMUNDA`
+    - The bash script is passed the `WORKERS` environmental variable to start the specified number of workers
+      - Current configuration is set to run 1 console and 2 workers
+- **Run Load Integration Test**:
+  - Runs the Selenium-based LoadTestIT
+  - Requires a minimum of 2 workers to be started in order to run properly
 
 ### publish-cws-image Job
 - **Check out the repo**:
@@ -103,9 +118,10 @@ The following are key differences in the steps of the `build-and-test-cws` job b
 - **Build CWS**:
   - Builds and runs CWS
   - Begins by running the first bash script in the build process: run_ci.sh
-    - Current configuration is set to run 1 console and 2 workers
-  - The bash script is passed the `SECURITY` environmental variable to run CWS in a specific security mode
-  - The CWS security mode for this workflow is `LDAP`
+    - The bash script is passed the `SECURITY` environmental variable to run CWS in a specific security mode
+      - The CWS security mode for this workflow is `LDAP`
+    - The bash script is passed the `WORKERS` environmental variable to start the specified number of workers
+      - Current configuration is set to run 1 console and 1 worker
 - **Run LDAP Integration Tests**:
   - Runs LDAP-specific, Selenium-based integration tests
   - Uses a different naming scheme to prevent the tests from running with the standard unit and integration tests

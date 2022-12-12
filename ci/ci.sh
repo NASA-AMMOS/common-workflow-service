@@ -2,9 +2,6 @@
 
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Create a file that stores local hostname
-# echo "$THIS_HOSTNAME" > ${ROOT}/../cws-test/src/test/resources/hostname.txt
-
 USER=${2}
 DB_TYPE=${3}
 DB_HOST=${4}

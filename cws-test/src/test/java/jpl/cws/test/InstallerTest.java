@@ -14,7 +14,6 @@ import java.nio.file.StandardCopyOption;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -125,8 +124,6 @@ public class InstallerTest {
 				output.append(line + "\n");
 			}
 			System.out.println("### " + output);
-
-			// Thread.sleep(150000); // wait for shutdown of console.
 		}
 		catch (Throwable e) {
 			System.out.println(e.toString());
@@ -147,8 +144,6 @@ public class InstallerTest {
 				outputStart.append(lineStart + "\n");
 			}
 			System.out.println("### " + outputStart);
-
-			// Thread.sleep(150000);	// wait for start up of console.
 		}
 		catch (Throwable e) {
 			System.out.println(e.toString());
