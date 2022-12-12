@@ -208,8 +208,8 @@ public class LoadTestIT extends WebTestUtil {
             Select select = new Select(findElById("refresh-rate"));
             select.selectByValue("1");
 
-            int counter = 0;
-            while(counter < 8) {
+            int counter = 1;
+            while(counter < 9) {
                 sleep(90000);
                 checkIdle();    // check if the browser has become idle
 

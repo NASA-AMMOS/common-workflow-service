@@ -39,26 +39,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 
 			deployFile("test_initiators_page");
 
-			waitForElementID("pv-test_initiators_page");
-
-			WebElement enable = findElById("pv-test_initiators_page");
-			enable.click();
-			sleep(1000);
-
-			WebElement allWorkers = findElById("all-workers");
-			WebElement allWorkersDone = findElById("done-workers-btn");
-
-			if(allWorkers.isSelected()) {
-				allWorkersDone.click();
-				sleep(1000);
-			} else {
-				allWorkers.click();
-				sleep(1000);
-				allWorkersDone.click();
-				sleep(1000);
-			}
-
-			sleep(2000);
+			enableWorkers("test_initiators_page");
 
 
 			runStartInitiatorTest();

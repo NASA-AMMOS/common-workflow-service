@@ -319,7 +319,7 @@ public class WebTestUtil {
 
 		WebElement allWorkers = findElById("all-workers");
 		WebElement allWorkersDone = findElById("done-workers-btn");
-		log.info("Enabling workers.");
+		log.info("Disabling workers.");
 
 		if(allWorkers.isSelected()) {
 			allWorkers.click();

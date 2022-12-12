@@ -109,27 +109,27 @@ jobs:
           name: test-screenshots
           path: test-screenshots/
 
-      #- name: Send custom JSON data to Slack workflow
-        #if: ${{ always() }}
-        #id: slack
-        #uses: slackapi/slack-github-action@v1.19.0
-        #with:
+      - name: Send custom JSON data to Slack workflow
+        if: ${{ always() }}
+        id: slack
+        uses: slackapi/slack-github-action@v1.19.0
+        with:
           # This data can be any valid JSON from a previous step in the GitHub Action
-          #payload: |
-            #{
-              #"status": "CWS CI Camunda build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nCWS build result: ${{ steps.build.outcome }}\nUnit test result: ${{ steps.unit.outcome }}\nIntegration test result: ${{ steps.integration.outcome }}",
-              #"blocks": [
-                #{
-                  #"type": "section",
-                  #"text": {
-                    #"type": "mrkdwn",
-                    #"text": "CWS CI Camunda build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nCWS build result: ${{ steps.build.outcome }}\nUnit test result: ${{ steps.unit.outcome }}\nIntegration test result: ${{ steps.integration.outcome }}"
-                  #}
-                #}
-              #]
-            #}
-        #env:
-          #SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "status": "CWS CI Camunda build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nCWS build result: ${{ steps.build.outcome }}\nUnit test result: ${{ steps.unit.outcome }}\nIntegration test result: ${{ steps.integration.outcome }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "CWS CI Camunda build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nCWS build result: ${{ steps.build.outcome }}\nUnit test result: ${{ steps.unit.outcome }}\nIntegration test result: ${{ steps.integration.outcome }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 
   advanced-test:

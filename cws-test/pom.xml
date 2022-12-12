@@ -274,6 +274,7 @@
                 <excludes>
                     <exclude>**/*UT*.java</exclude>
 					<exclude>**/LoadTestIT.java</exclude>	<!-- run separately as an advanced test -->
+					<exclude>**/LdapTestIT.java</exclude>	<!-- run separately using LDAP security -->
                 </excludes>
                 <includes>
                 	<include>**/*IT.java</include>

@@ -272,24 +272,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 
 			goToPage("deployments");
 
-			log.info("Disabling workers.");
-			wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-test_deployments_page")));
-			WebElement enable = findElById("pv-test_deployments_page");
-			enable.click();
-			sleep(1000);
-
-			WebElement allWorkers = findElById("all-workers");
-			WebElement allWorkersDone = findElById("done-workers-btn");
-
-			if(allWorkers.isSelected()) {
-				allWorkers.click();
-				sleep(1000);
-				allWorkersDone.click();
-				sleep(1000);
-			} else {
-				allWorkersDone.click();
-				sleep(1000);
-			}
+			disableWorkers("test_deployments_page");
 
 			log.info("Deleting process definition");
 			wait.until(ExpectedConditions.elementToBeClickable(By.id("delete-test_deployments_page")));
