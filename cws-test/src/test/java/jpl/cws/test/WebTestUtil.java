@@ -242,26 +242,7 @@ public class WebTestUtil {
 		deployFile(procDef);
 		WebDriverWait wait = new WebDriverWait(driver,30);
 
-		wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
-		WebElement enable = findElById("pv-"+procDef);
-		enable.click();
-		sleep(1000);
-
-		WebElement allWorkers = findElById("all-workers");
-		WebElement allWorkersDone = findElById("done-workers-btn");
-		log.info("Enabling workers.");
-
-		if(allWorkers.isSelected()) {
-			allWorkersDone.click();
-			sleep(1000);
-		} else {
-			allWorkers.click();
-			sleep(1000);
-			allWorkersDone.click();
-			sleep(1000);
-		}
-
-		sleep(2000);
+		enableWorkers(procDef);
 
 		log.info("Clicking Tasklist button.");
 		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@href='/camunda/app/tasklist']")));
@@ -466,23 +447,7 @@ public class WebTestUtil {
 		goToPage("deployments");
 
 		if(driver.getPageSource().contains(procName)) {
-			wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procName)));
-			WebElement enable = findElById("pv-"+procName);
-			enable.click();
-			sleep(1000);
-
-			WebElement allWorkers = findElById("all-workers");
-			WebElement allWorkersDone = findElById("done-workers-btn");
-
-			if(allWorkers.isSelected()) {
-				allWorkers.click();
-				sleep(1000);
-				allWorkersDone.click();
-				sleep(1000);
-			} else {
-				allWorkersDone.click();
-				sleep(1000);
-			}
+			disableWorkers(procName);
 
 			wait.until(ExpectedConditions.elementToBeClickable(By.id("delete-"+procName)));
 			WebElement delButton = driver.findElement(By.id("delete-"+procName));

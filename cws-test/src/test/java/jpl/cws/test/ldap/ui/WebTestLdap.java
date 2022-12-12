@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class WebTestLdap extends WebTestUtil {
-    private static final Logger log = LoggerFactory.getLogger(jpl.cws.test.WebTestIT.class);
+    private static final Logger log = LoggerFactory.getLogger(WebTestLdap.class);
 
     @Test
     public void loginTest() {
