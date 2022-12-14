@@ -75,7 +75,9 @@ public class WorkerService implements InitializingBean {
 	@Value("${cws.engine.jobexecutor.enabled}") private boolean jobExecutorEnabled;
 
 	@Value("${cws.tomcat.lib}") private String cwsTomcatLib;
-	
+
+	@Value("${worker.max.num.running.procs}") private int workerMaxNumRunningProcs;
+
 	private Logger log;
 	
 	public static AtomicInteger processorExecuteCount = new AtomicInteger(0);
@@ -688,9 +690,22 @@ public class WorkerService implements InitializingBean {
 				//log.trace("remainder for " + procDefKey + " is " + remainder);
 				int queryLimit = Math.min(EXEC_SERVICE_MAX_POOL_SIZE, remainder);
 				//log.trace("queryLimit for " + procDefKey + " is " + queryLimit);
-				
-				if (remainder > 0) {
+
+				// total proc running
+				int totalWorkerProcsCount = 0;
+				for (Entry<String,Integer> entry : processCounters.entrySet()) {
+					totalWorkerProcsCount += entry.getValue().intValue();
+				}
+
+				int MaxNumForProcsOnWorker = schedulerDbService.getMaxProcsValueForWorker(workerId);
+				int cappedQueryLimit = MaxNumForProcsOnWorker - totalWorkerProcsCount;
+
+				if (remainder > 0 && totalWorkerProcsCount <= MaxNumForProcsOnWorker) {
 					// claim for remainder (marks DB rows as "claimedByWorker")
+					if (queryLimit > cappedQueryLimit) {
+						queryLimit = cappedQueryLimit;
+					}
+
 					Map<String,List<String>> claimRowData = 
 						schedulerDbService.claimHighestPriorityStartReq(
 							workerId, procDefKey, queryLimit);
@@ -707,7 +722,7 @@ public class WorkerService implements InitializingBean {
 						procStartReqUuidStartedThisWorker.addAll(claimRowData.get("claimedRowUuids"));
 						//log.debug("procStartReqUuidStartedThisWorker = " + procStartReqUuidStartedThisWorker);
 						
-						log.debug("(CLAIMED " + claimed.size() + " / " + queryLimit + ", maxProcs=" + procMaxNumber + ")  for procDef '" + procDefKey + "' (limitToProcDefKey="+limitToProcDefKey+")");
+						log.debug("(CLAIMED " + claimed.size() + " / " + queryLimit + ", maxProcs=" + procMaxNumber + ")  for procDef '" + procDefKey + "' (limitToProcDefKey="+limitToProcDefKey+")" + ", workerMaxNumRunningProcs=" + MaxNumForProcsOnWorker);
 						
 						claimUuids.addAll(claimed);
 					}
