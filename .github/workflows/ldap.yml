@@ -104,13 +104,13 @@ jobs:
           # This data can be any valid JSON from a previous step in the GitHub Action
           payload: |
             {
-              "status": "CWS CI LDAP build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nCWS build result: ${{ steps.build.outcome }}\nLDAP integration test result: ${{ steps.ldap.outcome }}",
+              "status": "CWS CI LDAP build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nBuild result: ${{ steps.build.outcome }}\nLDAP integration test result: ${{ steps.ldap.outcome }}",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "CWS CI LDAP build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nCWS build result: ${{ steps.build.outcome }}\nLDAP integration test result: ${{ steps.ldap.outcome }}"
+                    "text": "CWS CI LDAP build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nBuild result: ${{ steps.build.outcome }}\nLDAP integration test result: ${{ steps.ldap.outcome }}"
                   }
                 }
               ]

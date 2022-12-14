@@ -109,6 +109,28 @@ jobs:
           name: test-screenshots
           path: test-screenshots/
 
+      - name: Send custom JSON data to Slack workflow
+        if: ${{ always() }}
+        id: slack
+        uses: slackapi/slack-github-action@v1.19.0
+        with:
+          # This data can be any valid JSON from a previous step in the GitHub Action
+          payload: |
+            {
+              "status": "CWS CI Camunda build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nBuild result: ${{ steps.build.outcome }}\nUnit test result: ${{ steps.unit.outcome }}\nIntegration test result: ${{ steps.integration.outcome }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "CWS CI Camunda build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nBuild result: ${{ steps.build.outcome }}\nUnit test result: ${{ steps.unit.outcome }}\nIntegration test result: ${{ steps.integration.outcome }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
 
   advanced-test:
 
@@ -199,6 +221,28 @@ jobs:
           name: test-screenshots-advanced
           path: test-screenshots/
 
+      - name: Send custom JSON data to Slack workflow
+        if: ${{ always() }}
+        id: slack
+        uses: slackapi/slack-github-action@v1.19.0
+        with:
+          # This data can be any valid JSON from a previous step in the GitHub Action
+          payload: |
+            {
+              "status": "CWS CI Camunda advanced test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nBuild result: ${{ steps.build.outcome }}\nLoad integration test result: ${{ steps.load.outcome }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "CWS CI Camunda advanced test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nBuild result: ${{ steps.build.outcome }}\nLoad integration test result: ${{ steps.load.outcome }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
 
   publish-cws-image:
 
@@ -233,32 +277,3 @@ jobs:
 
       - name: Push CWS Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/common-workflow-service:${{ github.ref_name }}
-
-
-  notify-dev-team:
-
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    needs: [build-and-test-cws, advanced-test]
-
-    steps:
-      - name: Send custom JSON data to Slack workflow
-        id: slack
-        uses: slackapi/slack-github-action@v1.19.0
-        with:
-          # This data can be any valid JSON from a previous step in the GitHub Action
-          payload: |
-            {
-              "status": "CWS CI Camunda\nbuild-and-test-cws job result: ${{ needs.build-and-test-cws.result }}\nadvanced-test job result: ${{ needs.advanced-test.result }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "CWS CI Camunda\nbuild-and-test-cws job result: ${{ needs.build-and-test-cws.result }}\nadvanced-test job result: ${{ needs.advanced-test.result }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
-                  }
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
