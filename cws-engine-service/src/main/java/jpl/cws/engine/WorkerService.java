@@ -46,7 +46,7 @@ import jpl.cws.engine.listener.ProcessStartReqProcessor;
 
 /**
  * Service class for worker.
- * 
+ *
  * @author ghollins
  *
  */
@@ -57,15 +57,15 @@ public class WorkerService implements InitializingBean {
 	@Autowired private RuntimeService runtimeService;
 	@Autowired private RepositoryService repositoryService;
 	@Autowired private ManagementService managementService;
-	
+
 	private ProcessApplicationReference procAppRef; // need this like this, because of chicken-before-egg situation with CwsEngineProcessApplication class
-	
+
 	@Value("${cws.jmx.service.url}") private String JMX_SERVICE_URL;
 	@Value("${cws.worker.id}") private String workerId;
-	
+
 	// Camunda Job Executor max pool size (and core pool size -- they should be the same)
 	@Value("${camunda.executor.service.max.pool.size}") private Integer EXEC_SERVICE_MAX_POOL_SIZE;
-	
+
 	@Value("${cws.engine.jobexecutor.enabled}") private boolean jobExecutorEnabled;
 
 	@Value("${cws.tomcat.lib}") private String cwsTomcatLib;
@@ -73,65 +73,65 @@ public class WorkerService implements InitializingBean {
 	@Value("${worker.max.num.running.procs}") private int workerMaxNumRunningProcs;
 
 	private Logger log;
-	
+
 	public static AtomicInteger processorExecuteCount = new AtomicInteger(0);
-	
+
 	static Object procStateLock = new Object();
-	
+
 	// Map of procDefKey and count of active process instances
 	public static Map<String,Integer> processCounters = new HashMap<String,Integer>();
-	
+
 	private static Map<String,Integer> workerMaxProcInstances = new HashMap<String,Integer>();
 	private static Set<String> procStartReqUuidStartedThisWorker = new HashSet<String>();
 	private static Set<String> acceptingProcDefKeys = new HashSet<String>();
 	private static Map<String,Integer> maxProcsPerWorkerClaimable = new HashMap<String,Integer>();
 
 	//private static Set<String> runningToCompleteTransitionUuids = new HashSet<String>();
-	
+
 	// FIXME: make this number configurable or determine dynamically
 	public static final int PROCESSOR_THREAD_POOL_SIZE = 2;
-	
+
 	// FIXME: make this number configurable or determine dynamically
 	public static final int STARTER_THREAD_POOL_SIZE   = 2;
-	
+
 	public static String lastProcCounterStatusMsg;
-	
+
 	final ThreadFactory processorThreadFactory = new ThreadFactoryBuilder()
 		.setNameFormat("procReq-Processor-%d")
 		.setDaemon(true)
 		.build();
 	private ExecutorService processorPool;
-	
+
 	final ThreadFactory starterThreadFactory = new ThreadFactoryBuilder()
 		.setNameFormat("procReq-Starter-%d")
 		.setDaemon(true)
 		.build();
 	private ExecutorService starterPool;
-	
+
 	private static long skippedMessages = 0;
-	
+
 	private JMXServiceURL url;
 	JMXConnector jmxc;
 	MBeanServerConnection mbsc;
 	ObjectName serviceName;
-	
+
 	public WorkerService() {
 		System.out.println("WorkerService constructor...");
 	}
-	
+
 	public void setProcAppRef(ProcessApplicationReference procAppRef) {
 		this.procAppRef = procAppRef;
 	}
-	
-	
+
+
 	public boolean enabledForProcDefKey(String procDefKey) {
-		
-		if (acceptingProcDefKeys.contains(procDefKey) && 
-			workerMaxProcInstances.containsKey(procDefKey) && 
+
+		if (acceptingProcDefKeys.contains(procDefKey) &&
+			workerMaxProcInstances.containsKey(procDefKey) &&
 			workerMaxProcInstances.get(procDefKey) > 0) {
 			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -150,17 +150,17 @@ public class WorkerService implements InitializingBean {
 
 		return ret;
 	}
-	
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		log = cwsWorkerLoggerFactory.getLogger(this.getClass());
 		log.trace("WorkerService afterPropertiesSet...");
 		processorPool = Executors.newFixedThreadPool(PROCESSOR_THREAD_POOL_SIZE, processorThreadFactory);
 		starterPool   = Executors.newFixedThreadPool(STARTER_THREAD_POOL_SIZE,   starterThreadFactory);
-		
+
 		refreshJmxConnector();
 	}
-	
+
 	/**
 	 * Upon startup of a Worker, we want to update the counters.
 	 */
@@ -168,7 +168,7 @@ public class WorkerService implements InitializingBean {
 		// Create initial data structures from DB
 		//  (with proc counts set to zero)
 		updateProcessCountersAndLimits();
-		
+
 		// Fill in the counts from the DB state
 		//
 		List<Map<String,Object>> rows = schedulerDbService.getIncompleteProcessInstancesForWorker(workerId);
@@ -176,87 +176,87 @@ public class WorkerService implements InitializingBean {
 			//String key = row.get("proc_def_key").toString();
 			String procDefKey = row.get("proc_def_key").toString();
 			int count = Integer.parseInt(row.get("cnt").toString());
-			
+
 			synchronized (procStateLock) { //procCountsLock
 				processCounters.put(procDefKey, count);
 			}
-			
+
 		}
-		
-		log.info("AFTER INIT: limits: " + workerMaxProcInstances + ",  counts: " + processCounters);
+
+		log.debug("AFTER INIT: limits: " + workerMaxProcInstances + ",  counts: " + processCounters);
 	}
-	
+
 
 	public void updateStats() {
-		
+
 		File[] logs = getLogFiles();
 
 		try {
 			long freeSpaceBytes = getDiskFreeSpace();
-			
+
 			engineDbService.updateStats(logs, freeSpaceBytes);
-			
+
 		} catch (Exception e) {
-			
+
 			log.error("Error updateStats: " + e.getMessage());
 		}
 	}
-	
+
 	private File[] getLogFiles() {
-		
+
 		File dir = new File(cwsTomcatLib + "/../logs");
-		
+
 		File[] files = dir.listFiles(new FilenameFilter() {
-			
+
 			//apply a filter
 			@Override
 			public boolean accept(File dir, String name) {
-				
+
 				if (name.startsWith("catalina") || name.startsWith("localhost")) {
 					return true;
 				}
-				
+
 				return false;
 			}
 		});
-		
+
 		return files;
 	}
-	
-	
+
+
 	private long getDiskFreeSpace() throws Exception {
-		
+
 		FileStore store = Files.getFileStore(Paths.get(cwsTomcatLib));
-		
+
 		return store.getUsableSpace();
 	}
-	
-	
+
+
 	public void cleanupLogs(Date keepDate) {
-		
+
 		File[] logs = getLogFiles();
-		
+
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		DateFormat format = DateFormat.getDateInstance(DateFormat.MEDIUM);
 
 		for (File logFile : logs) {
-			
+
 			// e.g. cws.2018-10-29.log, localhost_access_log.2018-11-01.txt
 			String filename = logFile.getName();
-			
+
 			try {
 				String[] filenameSplit = filename.split("\\.");
-				
+
 				if (filenameSplit.length == 3) {
-					
+
 					Date date = formatter.parse(filenameSplit[1]);
-					
+
 					log.debug("Found log file '" + filename + "' with date: " + format.format(date));
-					
+
 					if (date.before(keepDate)) {
-						
+
 						logFile.delete();
-						
+
 						log.debug("Deleted expired log file: " + filename);
 					}
 				}
@@ -265,25 +265,26 @@ public class WorkerService implements InitializingBean {
 				}
 			}
 			catch (ParseException e) {
-				
+
 				log.error("Could not parse date in log: " + filename, e);
 			}
 			catch (Exception e) {
-				
+
 				log.error("Error while processing log: " + filename, e);
 			}
 		}
 	}
-	
+
 	/**
 	 * Updates knowledge from DB
-	 * 
+	 *
 	 */
 	public boolean updateProcessCountersAndLimits() {
 		log.trace("updateProcessCountersAndLimits for workerId = " + workerId);
-		
+
 		List<Map<String,Object>> rows = schedulerDbService.getWorkerProcDefRows(workerId, null);
-		
+
+
 		// Update max limits,
 		// and set initial values for process counters, if a new process definition was deployed
 		//
@@ -291,21 +292,29 @@ public class WorkerService implements InitializingBean {
 			workerMaxProcInstances.clear();
 			for (Map<String,Object> row : rows) {
 				String procDefKey = row.get("proc_def_key").toString();
-				
+
 				workerMaxProcInstances.put(
 						procDefKey,
-						Integer.parseInt(row.get("max_instances").toString()));
-				
+						Integer.parseInt(row.get("max_instances").toString())
+						//Integer.parseInt(shuffledWorkerMaxNumProcs.get(procDefKey).toString())
+						//schedulerDbService.getMaxProcsValueForWorker(workerId) / rows.size());
+						);
+				log.info(" -------***** EACH workerMaxProcInstances: " + workerMaxProcInstances);
+
 				// only set counter value, if it's a new process definition
 				if (processCounters.get(procDefKey) == null) {
 					processCounters.put(procDefKey, 0);
 				}
 			}
+
+			log.info(" -------***** TOTAL ROW FOR workerMaxProcInstances: " + workerMaxProcInstances);
+
+
 		}
-		
+
 		// Sync counters from DB
 		syncCounters("updateProcessCountersAndLimits");
-		
+
 		// Only log if configuration changed
 		//
 		String postConfig = "limits: " + workerMaxProcInstances + ",  counts: " + processCounters;
@@ -314,11 +323,11 @@ public class WorkerService implements InitializingBean {
 			lastProcCounterStatusMsg = postConfig;
 			return true; // config changed
 		}
-		
+
 		return false; // no change to config
 	}
-	
-	
+
+
 	/**
 	 * If no more process starts are being accepted for the specified deploymentId,
 	 * then unregister the process application.
@@ -330,27 +339,27 @@ public class WorkerService implements InitializingBean {
 			managementService.unregisterProcessApplication(deploymentId, true);
 		}
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	public int updateProcessAppDeploymentRegistrations(ProcessApplicationReference processApp) {
 		log.trace("updateProcessAppDeploymentRegistrations()...");
-		
+
 		// Get deployments available for execution by all engines, and
 		// register them with this process application.
 		//
 		// processEngine.getRepositoryService().createDeploymentQuery().deploymentName("available-to-all-engines").list();
 		List<Deployment> deployments = repositoryService.createDeploymentQuery().list();
-		
+
 		// Construct set of applicable deployment IDs
 		//
 		Set<String> applicableProcDefKeys = new HashSet<String>();
 		for (Map<String,Object> row : schedulerDbService.getWorkerProcDefRows(workerId, true)) {
 			applicableProcDefKeys.add(row.get("proc_def_key").toString());
 		}
-		
+
 		if (log.isTraceEnabled()) {
 			if (!applicableProcDefKeys.isEmpty()) {
 				log.trace(applicableProcDefKeys.size() + " proc defs applicable to this worker.");
@@ -359,21 +368,21 @@ public class WorkerService implements InitializingBean {
 				}
 			}
 		}
-		
+
 		Set<String> alreadyRegisteredDeployments = managementService.getRegisteredDeployments();
 		for (String regDeployment : alreadyRegisteredDeployments) {
 			log.trace("already registered: " + regDeployment);
 		}
-		
+
 		int numChanges = 0;
 		int numNewDeployments = 0;
-		
+
 		for (Deployment deployment : deployments) {
 			String deploymentId = deployment.getId();
 			log.trace("got deployment: " + deploymentId);
-			
+
 			List<ProcessDefinition> procDefs = repositoryService.createProcessDefinitionQuery().deploymentId(deploymentId).list();
-			
+
 			boolean doDeploy = false;
 			for (ProcessDefinition procDef : procDefs) {
 				if (applicableProcDefKeys.contains(procDef.getKey())) {
@@ -381,24 +390,24 @@ public class WorkerService implements InitializingBean {
 					break;
 				}
 			}
-			
+
 			if (doDeploy) {
-				
+
 				// Only register, if not already registered
 				//
 				if (!alreadyRegisteredDeployments.contains(deploymentId)) {
 					log.debug("REGISTERING DEPLOYMENT: " + deployment);
-					
+
 					// register the deployment
 					managementService.registerProcessApplication(deploymentId, processApp);
-					
+
 					numChanges++;
 					numNewDeployments++;
 				}
 				else {
 					log.trace("SKIPPING REGISTRATION OF : " + deployment);
 				}
-				
+
 				// make sure there are cws_worker_proc_def rows for each process definition
 				//
 				for (ProcessDefinition procDef : procDefs) {
@@ -408,7 +417,7 @@ public class WorkerService implements InitializingBean {
 						SchedulerDbService.DEFAULT_WORKER_PROC_DEF_MAX_INSTANCES
 					);
 				}
-				
+
 			}
 			else {
 				//
@@ -419,7 +428,7 @@ public class WorkerService implements InitializingBean {
 					// Only unregister, if it's currently registered
 					//
 					if (alreadyRegisteredDeployments.contains(deploymentId)) {
-						
+
 						String procDefKey = null;
 						for (ProcessDefinition procDef : procDefs) {
 							procDefKey = procDef.getKey();
@@ -444,55 +453,52 @@ public class WorkerService implements InitializingBean {
 				}
 			}
 		}
-		
+
 		// Log final state of registrations, if there were changes
 		//
 		if (numChanges > 0) {
 			log.info("deployments:  " + managementService.getRegisteredDeployments());
 		}
-		
+
 		return numNewDeployments;
 	}
-	
-	
+
+
 	/**
 	 * Gets the 'job_executor_max_pool_size' value out of the database,
 	 * and updates the job executor via JMX.
-	 * 
+	 *
 	 */
 	public void updateJobExecutorMaxPoolSize() {
 		int jobExecutorMaxPoolSize = schedulerDbService.getWorkerJobExecutorMaxPoolSize(workerId);
 		setJobExecutorMaxPoolSize(jobExecutorMaxPoolSize, false);
 	}
-	
+
 	private void refreshJmxConnector() {
 		try {
 			url = new JMXServiceURL(JMX_SERVICE_URL);
 			// Get connector to JMX
 			jmxc = JMXConnectorFactory.connect(url, null);
 			jmxc.connect();
-			
+
 			// Get MBean server connection
 			mbsc = jmxc.getMBeanServerConnection();
-			
+
 			// Set the service name (executor-service endpoint name)
 			serviceName = new ObjectName("org.camunda.bpm.platform:type=executor-service");
-			
+
 		}
 		catch (Exception e) {
 			log.error("problem refreshing JMX connector", e);
 		}
 	}
-	
+
 	public void heartbeat() {
 		log.trace("workerHeartbeat...");
 		try {
 			refreshJmxConnector();
 			Integer activeCount = (Integer)mbsc.getAttribute(serviceName, "ActiveCount");
 			mbsc = null;
-
-			//log.info("*** LOG ACTIVECOUNT: " + activeCount);
-			//log.info("*** LOG activeCount.intValue() : " + activeCount.intValue());
 
 
 			if (activeCount == null) {
@@ -516,25 +522,25 @@ public class WorkerService implements InitializingBean {
 					log.error("problem closing jmxc", e);
 				}
 			}
-			
+
 			url = null;
 			serviceName = null;
 		}
 	}
-	
-	
+
+
 	public void setWorkerAcceptingNew(boolean acceptingNew) {
 		log.info("Setting worker '" + workerId + "' acceptingNew to " + acceptingNew + "...");
 		schedulerDbService.setWorkerAcceptingNew(acceptingNew, workerId);
 	}
-	
-	
+
+
 	public void setWorkerStatus(String newStatus) {
 		log.info("Setting worker '" + workerId + "' status to '" + newStatus + "'...");
 		schedulerDbService.updateWorkerStatus(workerId, newStatus);
 	}
-	
-	
+
+
 	public void autoRegisterAllProcDefs() {
 		try {
 			// Get deployments available for execution by all engines,
@@ -545,13 +551,13 @@ public class WorkerService implements InitializingBean {
 				String deploymentId = deployment.getId();
 				log.info("AUTO-REGISTER DEPLOYMENT: " + deployment.getName() + " " + deploymentId);
 				List<ProcessDefinition> procDefs = repositoryService.createProcessDefinitionQuery().deploymentId(deploymentId).active().list();
-				
+
 				for (ProcessDefinition procDef : procDefs) {
 					log.info("  PROCDEF = " + procDef.getKey());
 					schedulerDbService.updateWorkerProcDefEnabled(workerId, procDef.getKey(), deploymentId, true);
 				}
 			}
-			
+
 			// Now that the database is updated, perform the config change actions.
 			// This will actually register the deployments, update in the in-memory counters, etc..
 			//
@@ -561,25 +567,25 @@ public class WorkerService implements InitializingBean {
 			log.error("Problem encountered during process of auto-registering all proc defs", t);
 		}
 	}
-	
-	
+
+
 	/**
 	 * Gets called when a worker config change message arrives,
 	 * or after a Worker in "startup_autoregister_process_defs" mode starts up, and adds new proc def configuration
-	 * 
+	 *
 	 */
 	public void doWorkerConfigChangeActions() {
 		// Check for any new deployments to register
 		//
 		int numNewDeployments = updateProcessAppDeploymentRegistrations(procAppRef);
-		
+
 		boolean countersOrLimitsChanged = updateProcessCountersAndLimits();
-		
+
 		log.debug("Updating set of accepting proc def keys for worker...");
 		updateAcceptingProcDefKeys();
-		
+
 		updateJobExecutorMaxPoolSize();
-		
+
 		// If we have new deployments, or limits have changed,
 		// then there is a potential to run new processes
 		//
@@ -588,10 +594,10 @@ public class WorkerService implements InitializingBean {
 			procStartReqAction(null, "worker config changed");
 		}
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	public void procStartReqAction(String limitToProcDefKey, String reason) {
 		if (!jobExecutorEnabled) {
@@ -600,15 +606,15 @@ public class WorkerService implements InitializingBean {
 			// processes to execute.
 			return;
 		}
-		
+
 		int count = processorExecuteCount.incrementAndGet();
 		//log.debug("processorExecuteCount = " + count);
-		
+
 		// FIXME: remove this check once confident
-		if (count <= 0) { 
+		if (count <= 0) {
 			log.error("unexpected counter value! " + count);
 		}
-		
+
 		// If we have already maximized the thread pool,
 		// then don't unnecessarily submit more jobs to it.
 		if (count > PROCESSOR_THREAD_POOL_SIZE) {
@@ -620,11 +626,11 @@ public class WorkerService implements InitializingBean {
 				log.warn("skipped " + skippedMessages + " messages (procStartReqAction) so far (processor count = " + count + ").");
 			}
 			count = processorExecuteCount.decrementAndGet(); // reset to where it was
-			
+
 			log.debug("NOT PERFORMING START REQUEST ACTION (current processorExecuteCount = " + count + ", reason = '" + reason + "')");
-			
+
 			// FIXME: remove this check once confident
-			if (count < 0) { 
+			if (count < 0) {
 				log.error("unexpected counter value! " + count);
 			}
 		}
@@ -634,8 +640,8 @@ public class WorkerService implements InitializingBean {
 			);
 		}
 	}
-	
-	
+
+
 	public void updateAcceptingProcDefKeys() {
 		// Construct set of applicable deployment IDs
 		//
@@ -647,38 +653,30 @@ public class WorkerService implements InitializingBean {
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * This method figures out how much capacity this worker has to run extra processes,
 	 * then claims that many processes in the database.
-	 * 
+	 *
 	 * If processes were successfully claimed, then the in-memory process counter is
 	 * incremented by the amount claimed, and the claimed rows are returned.
-	 * 
+	 *
 	 */
 	public List<Map<String,Object>> claimWithCounter(String limitToProcDefKey) {
 		long t0 = System.currentTimeMillis();
-		
+
 		List<String> claimUuids = new ArrayList<String>();
-		
+
 		// For each defined process max (should be list of all eligible PDs),
 		//  -- determine how many more can be run
 		//  -- attempt to claim that many
 		//  -- updated in-memory counters to reflect actual # claimed
 		//
 		//log.debug("workerMaxProcInstances: " + workerMaxProcInstances);
-		
+
 		long t1 = 0;
 
-		for (Entry<String,Integer> procMax : workerMaxProcInstances.entrySet()) {
-			String procDefKey = procMax.getKey();
-			//System.out.println(" **** OUTPUT LOGS ****" + procDefKey);
-			//System.out.println(" ---- ");
-			//log.info(" **** OUTPUT LOGS ****" + procDefKey);
-			log.info(" -------- ");
-			//log.info(" 1***REMAINDER: -- " + remainder);
-		}
 
 		synchronized (procStateLock) { // procCountsLock
 			t1 = System.currentTimeMillis();
@@ -692,64 +690,42 @@ public class WorkerService implements InitializingBean {
 					//log.debug("skipping " + procDefKey + " BECAUSE IT NOT ACCEPTING RIGHT NOW!!!!");
 					continue;
 				}
-				
+
 				//log.trace("getting currentCount for procDefKey " + procDefKey);
 				int currentCount = processCounters.get(procDefKey);
 				//log.trace("currentCount for " + procDefKey + " is " + currentCount);
 				int remainder = procMaxNumber - currentCount;
 				//log.trace("remainder for " + procDefKey + " is " + remainder);
 
-				log.info(" *** LOG currentCount : " + currentCount + " FOR PROC --  " + procDefKey);
-				log.info(" *** LOG remainder : " + remainder + " FOR PROC --  " + procDefKey);
 
 				// total proc running
 				int totalWorkerProcsCount = 0;
+				int totalNumOfProcDefKeysOnWorker = 0;
 				for (Entry<String,Integer> entry : processCounters.entrySet()) {
 					totalWorkerProcsCount += entry.getValue().intValue();
+					totalNumOfProcDefKeysOnWorker = totalNumOfProcDefKeysOnWorker + 1;
 				}
 
-				log.info(" *** LOG totalWorkerProcsCount : " + totalWorkerProcsCount);
-				log.info(" *** LOG1 processCounters.entrySet() : " + processCounters.entrySet());
-				log.info(" ***WORKERID " + workerId + " DB MAX NUM " + schedulerDbService.getMaxProcsValueForWorker(workerId));
 
-				/*
-				for (Map.Entry<String,Integer> entry : processCounters.entrySet()) {
-					processCounters.put(entry.getKey(), 0);
-				}
-
-				for(int i = 1; i <= workerMaxNumRunningProcs; i++){
-					Random random = new Random();
-					List<String> keys = new ArrayList<String>(processCounters.keySet());
-					String randomKey = keys.get( random.nextInt(keys.size()) );
-					processCounters.put(randomKey, processCounters.get(procDefKey) + 1);
-				}
-				 */
-
-				/*
-				log.info(" **** PROCDEFKEY: -- " + procDefKey + "WORKER ID: " + workerId + "--- " + "workerMaxNumRunningProcs:  " + schedulerDbService.getMaxProcsValueForWorker(workerId));
-				Map<String,Integer> numProcsPerWorkerRemaining = new HashMap<String,Integer>();
-
-				numProcsPerWorkerRemaining.put(workerId, workerMaxNumRunningProcs);
-				log.info(" ****numProcsPerWorkerRemaining: " + numProcsPerWorkerRemaining);
-
-				if (numProcsPerWorkerRemaining.get(workerId) == 0) {
-					remainder = 0;
-
-				}
-				 */
+				int MaxNumForProcsOnWorker = schedulerDbService.getMaxProcsValueForWorker(workerId);
 
 				int queryLimit = Math.min(EXEC_SERVICE_MAX_POOL_SIZE, remainder);
+
+				int cappedQueryLimit = MaxNumForProcsOnWorker - totalWorkerProcsCount;
 				//log.trace("queryLimit for " + procDefKey + " is " + queryLimit);
 
-				//maxProcsPerWorkerClaimable.put("key1", 1);
-				// 	if (remainder > 0 && totalWorkerProcsCount <= workerMaxNumRunningProcs) {
-				// 	if (remainder > 0 && workerMaxNumRunningProcs < schedulerDbService.getMaxProcsValueForWorker(workerId)) {
-				if (remainder > 0 && totalWorkerProcsCount < schedulerDbService.getMaxProcsValueForWorker(workerId)) {
+				if (remainder > 0 && totalWorkerProcsCount <= MaxNumForProcsOnWorker) {
+				//if (remainder > 0) {
 					// claim for remainder (marks DB rows as "claimedByWorker")
-					Map<String,List<String>> claimRowData = 
+
+					if (queryLimit > MaxNumForProcsOnWorker - totalWorkerProcsCount) {
+						queryLimit = cappedQueryLimit;
+					}
+
+					Map<String,List<String>> claimRowData =
 						schedulerDbService.claimHighestPriorityStartReq(
-							workerId, procDefKey, queryLimit);
-					
+							workerId, procDefKey, cappedQueryLimit);
+
 					List<String> claimed = claimRowData.get("claimUuids");
 
 					if (!claimed.isEmpty()) {
@@ -761,27 +737,12 @@ public class WorkerService implements InitializingBean {
 						// update uuid list
 						procStartReqUuidStartedThisWorker.addAll(claimRowData.get("claimedRowUuids"));
 						//log.debug("procStartReqUuidStartedThisWorker = " + procStartReqUuidStartedThisWorker);
-						
+
 						log.info("(CLAIMED " + claimed.size() + " / " + queryLimit + ", maxProcs=" + procMaxNumber + ", configMaxNumOfProcsForWorker=" + workerMaxNumRunningProcs + ")  for procDef '" + procDefKey + "' (limitToProcDefKey="+limitToProcDefKey+")");
-						
+
 						claimUuids.addAll(claimed);
 
-						/*
-						if (numProcsPerWorkerRemaining.get(workerId) != 0) {
-							workerMaxNumRunningProcs = workerMaxNumRunningProcs - 1;
-						}
-						 */
 
-						/*
-						for (Entry<String,Integer> entry : processCounters.entrySet()) {
-							if (entry.getValue().intValue() > 0) {
-								entry.setValue(0);
-							} else {
-								entry.setValue(1);
-							}
-						}
-						log.info(" *** LOG2 processCounters.entrySet() : " + processCounters.entrySet());
-						 */
 
 					}
 					//else {
@@ -790,15 +751,15 @@ public class WorkerService implements InitializingBean {
 				}
 				else {
 					log.debug("[" + procDefKey + "] remainder <= 0, so not attempting claim. " +
-							"(remainder = " + remainder + 
+							"(remainder = " + remainder +
 							", procMaxNumber = " + procMaxNumber +
 							", currentCount = " + currentCount + ")");
 				}
-				
+
 			} // end for loop
-			
+
 		} // release lock
-		
+
 		// Timing logging
 		//
 		long preClaimTime = System.currentTimeMillis() - t0;
@@ -808,7 +769,7 @@ public class WorkerService implements InitializingBean {
 		else {
 			log.trace("pre-claim portion completed in " + preClaimTime + " ms.");
 		}
-		
+
 		if (!claimUuids.isEmpty()) {
 			// If one or more claimed, then construct procStartReqData from DB data
 			//
@@ -818,8 +779,8 @@ public class WorkerService implements InitializingBean {
 			return null;
 		}
 	}
-	
-	
+
+
 	public boolean processEndedActions(String procDefKeyThatEnded, String uuidThatEnded) {
 		log.trace("processEndedActions("+procDefKeyThatEnded+", " + uuidThatEnded + ")");
 		synchronized (procStateLock) { // lock
@@ -836,13 +797,13 @@ public class WorkerService implements InitializingBean {
 			}
 		} // unlock
 	}
-	
-	
+
+
 	/*
 	 * Synchronizes the processCounters map with the knowledge in Camunda's database.
-	 * 
+	 *
 	 * Returns true, if the process counter state changed.
-	 * 
+	 *
 	 */
 	public boolean syncCounters(String reason) {
 		if (!jobExecutorEnabled) {
@@ -850,29 +811,29 @@ public class WorkerService implements InitializingBean {
 			// intended to be initiated, except manually, then don't sync counters.
 			return false;
 		}
-		
+
 		if (log.isTraceEnabled()) {
 			log.trace("------------ SYNC COUNTERS (" + reason + ")... ---------------");
 		}
-		
+
 		boolean stateChanged = false;
-		
+
 		synchronized (procStateLock) { // lock
-			
+
 			if (log.isTraceEnabled()) {
 				log.trace("PRE-SYNC COUNTERS: " + processCounters);
 				log.trace("PRE-UUIDS        : " + procStartReqUuidStartedThisWorker.size());
 			}
-			
+
 			// Get Camunda statuses for all process instances started by this worker.
 			// [proc_def_key, status, cnt]
 			// this actually gives you uuid, proc_def_key, status
-			List<Map<String,Object>> statusesMap = 
+			List<Map<String,Object>> statusesMap =
 					schedulerDbService.getStatsForScheduledProcs(procStartReqUuidStartedThisWorker);
-			
+
 			// Clear out the set of UUIDs -- we will re-populate below
 			procStartReqUuidStartedThisWorker.clear();
-			
+
 			//
 			// Get the set of processes that were
 			// started by this worker, and are still running
@@ -888,7 +849,7 @@ public class WorkerService implements InitializingBean {
 					procStartReqUuidStartedThisWorker.add(uuid);
 				}
 			}
-			
+
 			//
 			// For processes that were started on this worker are still running,
 			// modify counters to match current counts from database
@@ -902,7 +863,7 @@ public class WorkerService implements InitializingBean {
 					stateChanged = true;
 				}
 			}
-			
+
 			//
 			// Any processes that used to be in the processCounters map,
 			// but are now gone, zero out...
@@ -914,20 +875,20 @@ public class WorkerService implements InitializingBean {
 					stateChanged = true;
 				}
 			}
-			
+
 			if (log.isTraceEnabled()) {
 				log.trace("POST-SYNC COUNTERS: " + processCounters);
 				log.trace("POST-UUIDS        : " + procStartReqUuidStartedThisWorker.size());
 			}
-		}	
-		
+		}
+
 		return stateChanged;
 	}
-	
-	
+
+
 	/**
 	 * Via JMX, set attributes of JobExecutor
-	 * 
+	 *
 	 */
 	public void setJobExecutorMaxPoolSize(Integer executorServiceMaxPoolSize, boolean doDbUpdate) {
 		if (executorServiceMaxPoolSize != null) {
@@ -943,38 +904,38 @@ public class WorkerService implements InitializingBean {
 						log.trace("JMX remote running on port " + Integer.parseInt(portString));
 					}
 				}
-				
+
 				// Get connector to JMX
 				JMXServiceURL url = new JMXServiceURL(JMX_SERVICE_URL);
 				JMXConnector jmxc = JMXConnectorFactory.connect(url, null);
 				jmxc.connect();
-				
+
 				// Get MBean server connection
 				MBeanServerConnection mbsc = jmxc.getMBeanServerConnection();
-				
+
 				// Set the "MaximumPoolSize" attribute
 				ObjectName serviceName = new ObjectName("org.camunda.bpm.platform:type=executor-service");
-				
+
 				// Set the CorePoolSize.
 				// Through experimentation, we have seen that the max doesn't get reached, but
 				// its the core size that counts.
 				//
 				Attribute attr2 = new Attribute("CorePoolSize", executorServiceMaxPoolSize);
 				mbsc.setAttribute(serviceName, attr2);
-				
+
 				// Also set the MaximumPoolSize
 				//
 				// FIXME:  make this attribute configurable in "advanced" configuration of configure.sh
 				Attribute attr = new Attribute("MaximumPoolSize", executorServiceMaxPoolSize);
 				mbsc.setAttribute(serviceName, attr);
-				
+
 				// Finally set the member variable (used to determine how many to query in claim phase)
 				//
 				EXEC_SERVICE_MAX_POOL_SIZE = executorServiceMaxPoolSize;
-				
+
 				// Close JMX connector
 				jmxc.close();
-				
+
 				log.info("Set Job Executor max pool size to " + executorServiceMaxPoolSize + " (JMX URL: " + JMX_SERVICE_URL + ")");
 				log.info("(WorkerService) configMaxNumOfProcsForWorker=" + workerMaxNumRunningProcs);
 
@@ -984,7 +945,7 @@ public class WorkerService implements InitializingBean {
 					schedulerDbService.updateWorkerNumJobExecutorThreads(workerId, executorServiceMaxPoolSize);
 				}
 			}
-			catch (Exception  e) { 
+			catch (Exception  e) {
 				log.error("Exception occurred while trying to set " +
 						"org.camunda.bpm.platform:type=executor-service " +
 						"MaximumPoolSize attribute to " + executorServiceMaxPoolSize +
@@ -994,19 +955,19 @@ public class WorkerService implements InitializingBean {
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Cleanup thing when bringing worker down.
 	 * NOTE:  there are still cases where tomcat doesn't fully shutdown,
 	 * I think due to threads hanging around.  A prime candidate seems to be the Camunda
 	 * "pool-*" threads.  I tried interrupting them, but that doesn't seem to help..
 	 * Further investigation is needed.
-	 * 
+	 *
 	 */
 	public void bringWorkerDown() {
 		log.info("BRINGING WORKER DOWN...");
-		
+
 		//
 		// DEBUGGING LOGGING
 		// REMOVE ONCE ALL ISSUES WORKED OUT
@@ -1018,7 +979,7 @@ public class WorkerService implements InitializingBean {
 			Thread t = i.next();
 			log.info("A THREAD(" + (++threadNum) + ") = " + t);
 		}
-		
+
 		log.info("  Shutting down DefaultMessageListenerContainers...");
 		Map<String,DefaultMessageListenerContainer> beans = SpringApplicationContext.getBeansOfType(DefaultMessageListenerContainer.class);
 		for (Entry<String,DefaultMessageListenerContainer> bean : beans.entrySet()) {
@@ -1030,10 +991,10 @@ public class WorkerService implements InitializingBean {
 			System.out.println("    container.shutdown: " + container);
 			container.shutdown();
 		}
-		
+
 		CachingConnectionFactory cc = (CachingConnectionFactory)SpringApplicationContext.getBean("cachingConnectionFactory");
 		cc.destroy();
-		
+
 		log.info("  Shutting down thread pools...");
 		starterPool   = Executors.newFixedThreadPool(STARTER_THREAD_POOL_SIZE,   starterThreadFactory);
 		try {
@@ -1049,8 +1010,8 @@ public class WorkerService implements InitializingBean {
 				log.info("      didn't run " + notRunJobs.size());
 				starterPool = null;
 			}
-			
-			
+
+
 			log.info("    Shutting down processorPool...");
 			processorPool.shutdown();
 			log.info("    Shut down processorPool.");
@@ -1063,16 +1024,16 @@ public class WorkerService implements InitializingBean {
 				log.info("      didn't run " + notRunJobs.size());
 				processorPool = null;
 			}
-			
-		
+
+
 		} catch (InterruptedException e) {
 			log.error("    Shutting down pools interrupted!");
 		}
-		
+
 		setWorkerAcceptingNew(false);
-		
+
 		setWorkerStatus("down");
-		
+
 		//
 		// DEBUGGING LOGGING
 		// REMOVE ONCE ALL ISSUES WORKED OUT
@@ -1095,11 +1056,11 @@ public class WorkerService implements InitializingBean {
 			Thread t = i.next();
 			log.info("C THREAD (" + (++threadNum)  + ") " + t.getName() + " " + t.isAlive() + " " + t.isInterrupted() + " " + t.isDaemon() + " " + t.getClass());
 		}
-		
+
 		// TODO: perform any other necessary actions
 	}
-	
-	
+
+
 	public String getWorkerId() {
 		return workerId;
 	}

@@ -366,6 +366,18 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			new Object[] {workerId}, Integer.class);
 	}
 
+	public int getProcDefKeyPerWorker(String workerId) {
+		return jdbcTemplate.queryForObject(
+			"SELECT COUNT(*) FROM cws_worker_proc_def WHERE worker_id=?",
+			new Object[] {workerId}, Integer.class);
+	}
+
+	public int getMaxInstancesValueForProcDef(String workerId, String procDefKey) {
+		return jdbcTemplate.queryForObject(
+			"SELECT max_instances FROM cws_worker_proc_def WHERE worker_id=? AND proc_def_key=?",
+			new Object[] {workerId, procDefKey}, Integer.class);
+	}
+
 	public Map<String,Object> getProcInstRow(String uuid) {
 		List<Map<String,Object>> list = jdbcTemplate.queryForList(
 			"SELECT * FROM cws_sched_worker_proc_inst " +
