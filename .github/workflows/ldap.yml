@@ -97,7 +97,7 @@ jobs:
         shell: bash
 
       - name: Send custom JSON data to Slack workflow
-        if: ${{ always() && github.event.commits.username == 'RonnyFrayRegato'}}
+        if: ${{ always() && github.event.commits.author.username == 'RonnyFrayRegato'}}
         id: slack
         uses: slackapi/slack-github-action@v1.19.0
         with:
