@@ -110,7 +110,7 @@ jobs:
           path: test-screenshots/
 
       - name: Send custom JSON data to Slack workflow
-        if: ${{ always() && github.actor == "RonnyFrayRegato"}}
+        if: ${{ always() && github.actor == 'RonnyFrayRegato'}}
         id: slack
         uses: slackapi/slack-github-action@v1.19.0
         with:
@@ -222,7 +222,7 @@ jobs:
           path: test-screenshots/
 
       - name: Send custom JSON data to Slack workflow
-        if: ${{ always() && github.actor == "RonnyFrayRegato"}}
+        if: ${{ always() && github.actor == 'RonnyFrayRegato'}}
         id: slack
         uses: slackapi/slack-github-action@v1.19.0
         with:
