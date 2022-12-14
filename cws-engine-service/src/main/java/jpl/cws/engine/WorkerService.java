@@ -63,21 +63,19 @@ public class WorkerService implements InitializingBean {
 	@Autowired private RuntimeService runtimeService;
 	@Autowired private RepositoryService repositoryService;
 	@Autowired private ManagementService managementService;
-
+	
 	private ProcessApplicationReference procAppRef; // need this like this, because of chicken-before-egg situation with CwsEngineProcessApplication class
-
+	
 	@Value("${cws.jmx.service.url}") private String JMX_SERVICE_URL;
 	@Value("${cws.worker.id}") private String workerId;
-
+	
 	// Camunda Job Executor max pool size (and core pool size -- they should be the same)
 	@Value("${camunda.executor.service.max.pool.size}") private Integer EXEC_SERVICE_MAX_POOL_SIZE;
-
+	
 	@Value("${cws.engine.jobexecutor.enabled}") private boolean jobExecutorEnabled;
 
 	@Value("${cws.tomcat.lib}") private String cwsTomcatLib;
-
-	@Value("${worker.max.num.running.procs}") private int workerMaxNumRunningProcs;
-
+	
 	private Logger log;
 	
 	public static AtomicInteger processorExecuteCount = new AtomicInteger(0);
@@ -402,7 +400,7 @@ public class WorkerService implements InitializingBean {
 				else {
 					log.trace("SKIPPING REGISTRATION OF : " + deployment);
 				}
-
+				
 				// make sure there are cws_worker_proc_def rows for each process definition
 				//
 				for (ProcessDefinition procDef : procDefs) {
@@ -412,7 +410,7 @@ public class WorkerService implements InitializingBean {
 						SchedulerDbService.DEFAULT_WORKER_PROC_DEF_MAX_INSTANCES
 					);
 				}
-
+				
 			}
 			else {
 				//
@@ -468,17 +466,17 @@ public class WorkerService implements InitializingBean {
 		int jobExecutorMaxPoolSize = schedulerDbService.getWorkerJobExecutorMaxPoolSize(workerId);
 		setJobExecutorMaxPoolSize(jobExecutorMaxPoolSize, false);
 	}
-
+	
 	private void refreshJmxConnector() {
 		try {
 			url = new JMXServiceURL(JMX_SERVICE_URL);
 			// Get connector to JMX
 			jmxc = JMXConnectorFactory.connect(url, null);
 			jmxc.connect();
-
+			
 			// Get MBean server connection
 			mbsc = jmxc.getMBeanServerConnection();
-
+			
 			// Set the service name (executor-service endpoint name)
 			serviceName = new ObjectName("org.camunda.bpm.platform:type=executor-service");
 			
@@ -520,14 +518,14 @@ public class WorkerService implements InitializingBean {
 			serviceName = null;
 		}
 	}
-
-
+	
+	
 	public void setWorkerAcceptingNew(boolean acceptingNew) {
 		log.info("Setting worker '" + workerId + "' acceptingNew to " + acceptingNew + "...");
 		schedulerDbService.setWorkerAcceptingNew(acceptingNew, workerId);
 	}
-
-
+	
+	
 	public void setWorkerStatus(String newStatus) {
 		log.info("Setting worker '" + workerId + "' status to '" + newStatus + "'...");
 		schedulerDbService.updateWorkerStatus(workerId, newStatus);
@@ -590,7 +588,7 @@ public class WorkerService implements InitializingBean {
 	
 	
 	/**
-	 *
+	 * 
 	 */
 	public void procStartReqAction(String limitToProcDefKey, String reason) {
 		if (!jobExecutorEnabled) {
@@ -599,15 +597,15 @@ public class WorkerService implements InitializingBean {
 			// processes to execute.
 			return;
 		}
-
+		
 		int count = processorExecuteCount.incrementAndGet();
 		//log.debug("processorExecuteCount = " + count);
-
+		
 		// FIXME: remove this check once confident
-		if (count <= 0) {
+		if (count <= 0) { 
 			log.error("unexpected counter value! " + count);
 		}
-
+		
 		// If we have already maximized the thread pool,
 		// then don't unnecessarily submit more jobs to it.
 		if (count > PROCESSOR_THREAD_POOL_SIZE) {
@@ -619,11 +617,11 @@ public class WorkerService implements InitializingBean {
 				log.warn("skipped " + skippedMessages + " messages (procStartReqAction) so far (processor count = " + count + ").");
 			}
 			count = processorExecuteCount.decrementAndGet(); // reset to where it was
-
+			
 			log.debug("NOT PERFORMING START REQUEST ACTION (current processorExecuteCount = " + count + ", reason = '" + reason + "')");
-
+			
 			// FIXME: remove this check once confident
-			if (count < 0) {
+			if (count < 0) { 
 				log.error("unexpected counter value! " + count);
 			}
 		}
@@ -633,8 +631,8 @@ public class WorkerService implements InitializingBean {
 			);
 		}
 	}
-
-
+	
+	
 	public void updateAcceptingProcDefKeys() {
 		// Construct set of applicable deployment IDs
 		//
@@ -667,10 +665,9 @@ public class WorkerService implements InitializingBean {
 		//  -- updated in-memory counters to reflect actual # claimed
 		//
 		//log.debug("workerMaxProcInstances: " + workerMaxProcInstances);
-
+		
 		long t1 = 0;
-
-
+		
 		synchronized (procStateLock) { // procCountsLock
 			t1 = System.currentTimeMillis();
 			for (Entry<String,Integer> procMax : workerMaxProcInstances.entrySet()) {
@@ -683,7 +680,7 @@ public class WorkerService implements InitializingBean {
 					//log.debug("skipping " + procDefKey + " BECAUSE IT NOT ACCEPTING RIGHT NOW!!!!");
 					continue;
 				}
-
+				
 				//log.trace("getting currentCount for procDefKey " + procDefKey);
 				int currentCount = processCounters.get(procDefKey);
 				//log.trace("currentCount for " + procDefKey + " is " + currentCount);
@@ -691,21 +688,15 @@ public class WorkerService implements InitializingBean {
 				//log.trace("remainder for " + procDefKey + " is " + remainder);
 				int queryLimit = Math.min(EXEC_SERVICE_MAX_POOL_SIZE, remainder);
 				//log.trace("queryLimit for " + procDefKey + " is " + queryLimit);
-
-				if (remainder > 0 && totalWorkerProcsCount <= MaxNumForProcsOnWorker) {
-				//if (remainder > 0) {
+				
+				if (remainder > 0) {
 					// claim for remainder (marks DB rows as "claimedByWorker")
-
-					if (queryLimit > MaxNumForProcsOnWorker - totalWorkerProcsCount) {
-						queryLimit = cappedQueryLimit;
-					}
-
-					Map<String,List<String>> claimRowData =
+					Map<String,List<String>> claimRowData = 
 						schedulerDbService.claimHighestPriorityStartReq(
-							workerId, procDefKey, cappedQueryLimit);
-
+							workerId, procDefKey, queryLimit);
+					
 					List<String> claimed = claimRowData.get("claimUuids");
-
+					
 					if (!claimed.isEmpty()) {
 						// increment counter by amount that was actually claimed
 						// in anticipation that the start will actually work.
@@ -715,9 +706,9 @@ public class WorkerService implements InitializingBean {
 						// update uuid list
 						procStartReqUuidStartedThisWorker.addAll(claimRowData.get("claimedRowUuids"));
 						//log.debug("procStartReqUuidStartedThisWorker = " + procStartReqUuidStartedThisWorker);
-
-						log.info("(CLAIMED " + claimed.size() + " / " + queryLimit + ", maxProcs=" + procMaxNumber + ", configMaxNumOfProcsForWorker=" + workerMaxNumRunningProcs + ")  for procDef '" + procDefKey + "' (limitToProcDefKey="+limitToProcDefKey+")");
-
+						
+						log.debug("(CLAIMED " + claimed.size() + " / " + queryLimit + ", maxProcs=" + procMaxNumber + ")  for procDef '" + procDefKey + "' (limitToProcDefKey="+limitToProcDefKey+")");
+						
 						claimUuids.addAll(claimed);
 					}
 					//else {
@@ -726,13 +717,13 @@ public class WorkerService implements InitializingBean {
 				}
 				else {
 					log.debug("[" + procDefKey + "] remainder <= 0, so not attempting claim. " +
-							"(remainder = " + remainder +
+							"(remainder = " + remainder + 
 							", procMaxNumber = " + procMaxNumber +
 							", currentCount = " + currentCount + ")");
 				}
-
+				
 			} // end for loop
-
+			
 		} // release lock
 		
 		// Timing logging
@@ -776,9 +767,9 @@ public class WorkerService implements InitializingBean {
 	
 	/*
 	 * Synchronizes the processCounters map with the knowledge in Camunda's database.
-	 *
+	 * 
 	 * Returns true, if the process counter state changed.
-	 *
+	 * 
 	 */
 	public boolean syncCounters(String reason) {
 		if (!jobExecutorEnabled) {
@@ -824,7 +815,7 @@ public class WorkerService implements InitializingBean {
 					procStartReqUuidStartedThisWorker.add(uuid);
 				}
 			}
-
+			
 			//
 			// For processes that were started on this worker are still running,
 			// modify counters to match current counts from database
@@ -850,20 +841,20 @@ public class WorkerService implements InitializingBean {
 					stateChanged = true;
 				}
 			}
-
+			
 			if (log.isTraceEnabled()) {
 				log.trace("POST-SYNC COUNTERS: " + processCounters);
 				log.trace("POST-UUIDS        : " + procStartReqUuidStartedThisWorker.size());
 			}
-		}
-
+		}	
+		
 		return stateChanged;
 	}
-
-
+	
+	
 	/**
 	 * Via JMX, set attributes of JobExecutor
-	 *
+	 * 
 	 */
 	public void setJobExecutorMaxPoolSize(Integer executorServiceMaxPoolSize, boolean doDbUpdate) {
 		if (executorServiceMaxPoolSize != null) {
@@ -884,7 +875,7 @@ public class WorkerService implements InitializingBean {
 				JMXServiceURL url = new JMXServiceURL(JMX_SERVICE_URL);
 				JMXConnector jmxc = JMXConnectorFactory.connect(url, null);
 				jmxc.connect();
-
+				
 				// Get MBean server connection
 				MBeanServerConnection mbsc = jmxc.getMBeanServerConnection();
 				
