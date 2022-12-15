@@ -7,8 +7,8 @@ on:
     # trigger a build and test of CWS weekly on Monday at 5 AM PST / 12 PM UTC
     - cron: '0 12 * * 1'
 
-#env:
-  #TEAM: ("jamesfwood" "voxparcxls" "galenhollins" "galenatjpl" "RonnyFrayRegato")
+env:
+  TEAM: ("jamesfwood" "voxparcxls" "galenhollins" "galenatjpl" "jeffreypon")
 
 jobs:
 
@@ -99,16 +99,8 @@ jobs:
         run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars, -Dit.test=LdapTestIT verify -DskipTests
         shell: bash
 
-      - uses: altMindInc/verify-user-membership@v1.0
-        id: checkUserMembership
-        with:
-          username: ${{ github.actor }}
-          organization: 'NASA-AMMOS'
-          team: 'cws-core'
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Send custom JSON data to Slack workflow
-        if: ${{ always() && !steps.checkUserMembership.outputs.isUserMember }}
+        if: ${{ always() && contains(env.TEAM, github.actor) }}
         id: slack
         uses: slackapi/slack-github-action@v1.19.0
         with:
