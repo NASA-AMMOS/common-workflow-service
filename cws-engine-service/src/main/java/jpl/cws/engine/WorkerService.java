@@ -691,16 +691,16 @@ public class WorkerService implements InitializingBean {
 				int queryLimit = Math.min(EXEC_SERVICE_MAX_POOL_SIZE, remainder);
 				//log.trace("queryLimit for " + procDefKey + " is " + queryLimit);
 
-				// total proc running
-				int totalWorkerProcsCount = 0;
+				// total current running proc running
+				int totalCurrentRunningProcsOnWorker = 0;
 				for (Entry<String,Integer> entry : processCounters.entrySet()) {
-					totalWorkerProcsCount += entry.getValue().intValue();
+					totalCurrentRunningProcsOnWorker += entry.getValue().intValue();
 				}
 
 				int MaxNumForProcsOnWorker = schedulerDbService.getMaxProcsValueForWorker(workerId);
-				int cappedQueryLimit = MaxNumForProcsOnWorker - totalWorkerProcsCount;
+				int cappedQueryLimit = MaxNumForProcsOnWorker - totalCurrentRunningProcsOnWorker;
 
-				if (remainder > 0 && totalWorkerProcsCount <= MaxNumForProcsOnWorker) {
+				if (remainder > 0 && totalCurrentRunningProcsOnWorker <= MaxNumForProcsOnWorker) {
 					// claim for remainder (marks DB rows as "claimedByWorker")
 					if (queryLimit > cappedQueryLimit) {
 						queryLimit = cappedQueryLimit;
