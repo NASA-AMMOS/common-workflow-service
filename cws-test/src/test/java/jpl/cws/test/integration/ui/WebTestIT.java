@@ -1,10 +1,10 @@
-package jpl.cws.test;
+package jpl.cws.test.integration.ui;
 
 import java.io.File;
 import java.io.IOException;
 
+import jpl.cws.test.WebTestUtil;
 import org.apache.commons.io.FileUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
@@ -57,7 +57,7 @@ public class WebTestIT extends WebTestUtil {
 		gotoLoginPage();
 		login();
 		gotoDeployments();
-		uploadProcessDefinitionFile();
+		deployFile("test_set_vars");
 		logout();
 		log.info("------ END deployTest ------");
 	}
@@ -68,29 +68,12 @@ public class WebTestIT extends WebTestUtil {
 		gotoLoginPage();
 		login();
 		gotoDeployments();
-		uploadProcessDefinitionFile();
-		
+		deployFile("test_set_vars");
+
 		// Enable Process Def
-		WebElement enable = findElById("pv-test_set_vars");
-		enable.click();
-		sleep(1000);
+		enableWorkers("test_set_vars");
 
-		WebElement allWorkers = findElById("all-workers");
-		WebElement allWorkersDone = findElById("done-workers-btn");
 
-		if(allWorkers.isSelected()) {
-			allWorkersDone.click();
-			sleep(1000);
-		} else {
-			allWorkers.click();
-			sleep(1000);
-			allWorkersDone.click();
-			sleep(1000);
-		}
-
-		sleep(2000);
-		
-		
 		// Start Instance
 		WebElement tasks = driver.findElement(By.xpath("//a[@href='/camunda/app/tasklist']"));
 		tasks.click();		
@@ -135,29 +118,10 @@ public class WebTestIT extends WebTestUtil {
 		gotoLoginPage();
 		login();
 		gotoDeployments();
-		uploadErrorHandlingProcessDefinitionFile();
+		deployFile("test_error_handling");
 
-		
 		// Enable Process Def
-		WebElement enable = findElById("pv-test_error_handling");
-		enable.click();
-		sleep(1000);
-
-
-		WebElement allWorkers = findElById("all-workers");
-		WebElement allWorkersDone = findElById("done-workers-btn");
-
-		if(allWorkers.isSelected()) {
-			allWorkersDone.click();
-			sleep(1000);
-		} else {
-			allWorkers.click();
-			sleep(1000);
-			allWorkersDone.click();
-			sleep(1000);
-		}
-
-		sleep(2000);
+		enableWorkers("test_error_handling");
 		
 		
 		// Start Instance (1) through Camunda
@@ -206,25 +170,8 @@ public class WebTestIT extends WebTestUtil {
 		goToPage("deployments");
 
 		uploadTestHelloWorld();
-		
-		WebElement enable = findElById("pv-test_hello_world");
-		enable.click();
-		sleep(1000);
-		
-		WebElement allWorkers = findElById("all-workers");
-		WebElement allWorkersDone = findElById("done-workers-btn");
 
-		if(allWorkers.isSelected()) {
-			allWorkersDone.click();
-			sleep(1000);
-		} else {
-			allWorkers.click();
-			sleep(1000);
-			allWorkersDone.click();
-			sleep(1000);
-		}
-
-		sleep(2000);
+		enableWorkers("test_hello_world");
 		
 		WebElement tasks = driver.findElement(By.xpath("//a[@href='/camunda/app/tasklist']"));
 		tasks.click();		
@@ -337,37 +284,7 @@ public class WebTestIT extends WebTestUtil {
 		logout();
 		log.info("------ END runProcessTest ------");
 	}
-	
-	
-	
-	private void uploadProcessDefinitionFile() {
-//		WebElement fileUploadInput = findElById("file-input");
-//		
-//		fileUploadInput.sendKeys(TEST_BPMN_DIR+"/test_set_vars.bpmn");
-//		
-//		WebElement deployProcDefBtn = findElById("deployProcDefBtn");
-//		deployProcDefBtn.click();
-//		findOnPage("Deployed Process Definitions");
-//		findOnPage("test_set_vars");
-//		
-//		sleep(1000);
-		deployFile("test_set_vars");
-	}
-	
-	private void uploadErrorHandlingProcessDefinitionFile() {
-//		WebElement fileUploadInput = findElById("file-input");
-//		
-//		fileUploadInput.sendKeys(TEST_BPMN_DIR+"/test_error_handling.bpmn");
-//		
-//		WebElement deployProcDefBtn = findElById("deployProcDefBtn");
-//		deployProcDefBtn.click();
-//		findOnPage("Deployed Process Definitions");
-//		findOnPage("test_error_handling");
-//		
-//		sleep(1000);
-		deployFile("test_error_handling");
-		
-	}
+
 
 	//Demo for Sarjil
 	private void goToProcesses() {

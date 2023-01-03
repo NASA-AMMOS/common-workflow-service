@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
  * @author rfray
  *
  */
-public class WebTestLdap extends WebTestUtil {
-    private static final Logger log = LoggerFactory.getLogger(jpl.cws.test.WebTestIT.class);
+public class LdapTestIT extends WebTestUtil {
+    private static final Logger log = LoggerFactory.getLogger(LdapTestIT.class);
 
     @Test
     public void loginTest() {

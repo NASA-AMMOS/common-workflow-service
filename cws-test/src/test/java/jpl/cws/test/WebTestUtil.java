@@ -17,14 +17,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -127,6 +120,8 @@ public class WebTestUtil {
 		chromeOptions.setAcceptInsecureCerts(true);
 		chromeOptions.addArguments("--window-size=1920,1080");
 		chromeOptions.addArguments("--no-sandbox");
+		chromeOptions.addArguments("--disable-gpu");
+		chromeOptions.addArguments("--disable-dev-shm-usage");
 
 		WebDriverManager.chromedriver().setup();
 		driver = new ChromeDriver(chromeOptions);
@@ -247,26 +242,7 @@ public class WebTestUtil {
 		deployFile(procDef);
 		WebDriverWait wait = new WebDriverWait(driver,30);
 
-		wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
-		WebElement enable = findElById("pv-"+procDef);
-		enable.click();
-		sleep(1000);
-
-		WebElement allWorkers = findElById("all-workers");
-		WebElement allWorkersDone = findElById("done-workers-btn");
-		log.info("Enabling workers.");
-
-		if(allWorkers.isSelected()) {
-			allWorkersDone.click();
-			sleep(1000);
-		} else {
-			allWorkers.click();
-			sleep(1000);
-			allWorkersDone.click();
-			sleep(1000);
-		}
-
-		sleep(2000);
+		enableWorkers(procDef);
 
 		log.info("Clicking Tasklist button.");
 		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@href='/camunda/app/tasklist']")));
@@ -326,6 +302,31 @@ public class WebTestUtil {
 		} else {
 			allWorkers.click();
 			sleep(1000);
+			allWorkersDone.click();
+			sleep(1000);
+		}
+
+		sleep(2000);
+	}
+
+	public void disableWorkers(String procDef) {
+		WebDriverWait wait = new WebDriverWait(driver,30);
+
+		wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
+		WebElement enable = findElById("pv-"+procDef);
+		enable.click();
+		sleep(1000);
+
+		WebElement allWorkers = findElById("all-workers");
+		WebElement allWorkersDone = findElById("done-workers-btn");
+		log.info("Disabling workers.");
+
+		if(allWorkers.isSelected()) {
+			allWorkers.click();
+			sleep(1000);
+			allWorkersDone.click();
+			sleep(1000);
+		} else {
 			allWorkersDone.click();
 			sleep(1000);
 		}
@@ -446,23 +447,7 @@ public class WebTestUtil {
 		goToPage("deployments");
 
 		if(driver.getPageSource().contains(procName)) {
-			wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procName)));
-			WebElement enable = findElById("pv-"+procName);
-			enable.click();
-			sleep(1000);
-
-			WebElement allWorkers = findElById("all-workers");
-			WebElement allWorkersDone = findElById("done-workers-btn");
-
-			if(allWorkers.isSelected()) {
-				allWorkers.click();
-				sleep(1000);
-				allWorkersDone.click();
-				sleep(1000);
-			} else {
-				allWorkersDone.click();
-				sleep(1000);
-			}
+			disableWorkers(procName);
 
 			wait.until(ExpectedConditions.elementToBeClickable(By.id("delete-"+procName)));
 			WebElement delButton = driver.findElement(By.id("delete-"+procName));
@@ -496,6 +481,18 @@ public class WebTestUtil {
 			log.info("Sleeping " + millis + "ms.");
 		} catch (InterruptedException e) {
 			log.error("InterruptedException during sleep", e);
+		}
+	}
+
+	public void checkIdle() {
+		try {
+			WebDriverWait wait = new WebDriverWait(driver,0);
+			wait.until(ExpectedConditions.elementToBeClickable(By.id("resume-refresh")));
+			WebElement resume = driver.findElement(By.id("resume-refresh"));
+			resume.click();
+			log.info("Processes had been paused due to browser being idle more than 10 minutes. Resuming...");
+		} catch (TimeoutException e) {
+			log.info("Browser remains not idle.");
 		}
 	}
 }
