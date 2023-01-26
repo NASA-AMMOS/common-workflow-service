@@ -245,7 +245,7 @@ function auto_conf_data () {
         CWS_JMX_PORT=31098
     elif [[ "${INSTALL_TYPE}" == "worker2" ]]; then
         INSTALL_TYPE_CODE=3
-        WORKER_TYPE="run_models_only"
+        WORKER_TYPE="run_all"
         CWS_WEB_PORT=36080
         CWS_SSL_PORT=36443
         CWS_AJP_PORT=36009
@@ -254,7 +254,7 @@ function auto_conf_data () {
         CWS_JMX_PORT=31097
     elif [[ "${INSTALL_TYPE}" == "worker3" ]]; then
         INSTALL_TYPE_CODE=3
-        WORKER_TYPE="run_external_tasks_only"
+        WORKER_TYPE="run_all"
         CWS_WEB_PORT=33080
         CWS_SSL_PORT=33443
         CWS_AJP_PORT=33009

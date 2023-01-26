@@ -897,12 +897,12 @@ public class CwsInstaller {
 		// make sure preset is valid positive integer
 		try {
 			if (Integer.parseInt(worker_max_num_running_procs) <= 0) {
-				log.warn("Processes per worker value must be a positive integer. Got: " + worker_max_num_running_procs + ". Defaulting to 25.");
-				worker_max_num_running_procs = "25";
+				log.warn("Processes per worker value must be a positive integer. Got: " + worker_max_num_running_procs + ". Defaulting to number of processing cores on machine.");
+				worker_max_num_running_procs = CORES + "";
 			}
 		} catch (NumberFormatException e) {
-			log.warn("Processes per worker value failed to parse as an integer. Got: " + worker_max_num_running_procs + ". Defaulting to 25.");
-			worker_max_num_running_procs = "25";
+			log.warn("Processes per worker value failed to parse as an integer. Got: " + worker_max_num_running_procs + ". Defaulting to number of processing cores on machine.");
+			worker_max_num_running_procs = CORES + "";
 		}
 
 		if (cws_installer_mode.equals("interactive")) {

@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `cws_worker` (
 	`cws_worker_type` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
 	`status` varchar(255) COLLATE utf8_bin DEFAULT NULL,
 	`job_executor_max_pool_size` int(11) DEFAULT NULL,
-	`worker_max_num_running_procs` int(11) DEFAULT NULL,
+	`max_num_running_procs` int(11) NOT NULL,
 	`active_count` int(11) DEFAULT NULL,
 	`created_time` datetime DEFAULT NULL,
 	`last_heartbeat_time` datetime NOT NULL,

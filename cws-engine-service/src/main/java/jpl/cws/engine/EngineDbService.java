@@ -181,7 +181,7 @@ public class EngineDbService extends DbService implements InitializingBean {
 						numUpdated = jdbcTemplate.update(
 							"INSERT INTO cws_worker" +
 								"   (id, lock_owner, name, install_directory, cws_install_type, cws_worker_type, " +
-								"    status, job_executor_max_pool_size, worker_max_num_running_procs, created_time, last_heartbeat_time) " +
+								"    status, job_executor_max_pool_size, max_num_running_procs, created_time, last_heartbeat_time) " +
 								"VALUES (?,?,?,?,?,?,?,?,?,?,?)",
 							new Object[]{
 								workerId,

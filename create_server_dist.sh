@@ -81,6 +81,7 @@ cp ${INSTALL_DIR}/cws-ui/sqs_dispatcher_thread_bean.xml       ${CONFIG_TEMPLATES
 cp ${INSTALL_DIR}/camunda_mods/web.xml                        ${CONFIG_TEMPLATES_DIR}/camunda_mods
 cp ${INSTALL_DIR}/engine-rest/web.xml                         ${CONFIG_TEMPLATES_DIR}/engine-rest_mods
 cp ${INSTALL_DIR}/logging/cws-logstash.conf                   ${CONFIG_TEMPLATES_DIR}/logging
+cp ${INSTALL_DIR}/upgrade/upgrade_2.3_to_2.4.sh               ${CONFIG_TEMPLATES_DIR}
 cp ${INSTALL_DIR}/refresh_cws_token.sh                        ${CONFIG_TEMPLATES_DIR}
 cp ${INSTALL_DIR}/stop_cws.sh                                 ${CONFIG_TEMPLATES_DIR}
 cp ${INSTALL_DIR}/clean_es_history.sh                         ${CONFIG_TEMPLATES_DIR}

@@ -49,15 +49,22 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 	public static final int PROCESSES_PAGE_SIZE = 100;
 	
 	// KEY FOR THIS IS:  KEY `claimKey` (`status`,`proc_def_key`,`priority`,`created_time`)
+	// "  proc_def_key=? " +
+	// "(" + "\"" + String.join("\", \"", activeProcDefKeys) + "\"" + ")";
+	// "WHERE claim_uuid IN (" + claimUuidsStr + ")"
+
+	// "  proc_def_key IN " + "(" + "?" + ")" +
 	public static final String FIND_CLAIMABLE_ROWS_SQL = 
 			"SELECT uuid FROM cws_sched_worker_proc_inst " +
 			"WHERE " +
 			"  status='"+PENDING+"' AND " +
-			"  proc_def_key=? " +
+			"  proc_def_key=?" +
 			"ORDER BY " +
 			"  priority ASC, " +     // lower priorities    favored
 			"  created_time ASC " +  // older dates (FIFO)  favored
 			"LIMIT ?";
+
+
 
 	public static final String UPDATE_CLAIMABLE_ROW_SQL = 
 			"UPDATE cws_sched_worker_proc_inst " +
@@ -249,13 +256,24 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 	/**
 	 * Attempt to claim a process start request in the database.
 	 * 
-	 * @param procDefKey -- only attempt to claim rows for this process definition
+	 * @param workerProcsList -- attempts to claim rows for the active set of process definition(s)
 	 * @return mappings of claimUuids and claimedRowUuids
 	 *
 	 */
-	public Map<String,List<String>> claimHighestPriorityStartReq(String workerId, String procDefKey, int limit) {
+	// submit list of procDefs to have fair dist of starts
+
+	// 	public Map<String,List<String>> claimHighestPriorityStartReq(String workerId, Map<String,Integer> procDefKeyList, Map<String,Integer> procLimits, int limit, List<String> setOfProcDefKeysWithQueryLimits) {
+
+	// 	public Map<String,List<String>> claimHighestPriorityStartReq(String workerId, Map<String,Integer> procDefKeyList, int limit) {
+	public Map<String,List<String>> claimHighestPriorityStartReq(String workerId, Map<String,Integer> workerProcsList, Map<String,Integer> limitsPerProcs, int limit) {
 		List<String> claimUuids = new ArrayList<String>();
 		List<String> rowUuids = new ArrayList<String>();
+		List<String> rowUuidsPerProcDefKey = new ArrayList<String>();
+		List<String> claimedUuidsCountsPerProcs = new ArrayList<String>();
+		List<String> activeProcDefKeys = new ArrayList<String>();
+		LinkedHashMap<String, String> uuidAndProcDefKeyPair = new LinkedHashMap<String, String>();
+		List<String> clearOutUnclaimedInst = new ArrayList<String>();
+		List<String> unfilteredRowUuids = new ArrayList<String>();
 		List<String> claimedRowUuids = new ArrayList<String>();
 		long t0 = System.currentTimeMillis();
 		int numClaimed = 0;
@@ -268,11 +286,244 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			try {
 				// Find claimable rows
 				//
+
+
+				for (Map.Entry<String, Integer> getprocDefKeyName : workerProcsList.entrySet()) {
+					activeProcDefKeys.add(getprocDefKeyName.getKey());
+				}
+
+
+				log.info(" *** SchedulerDbService.java --- PASSED PARAMETER TO SQL1111 : " + activeProcDefKeys);
+				log.info(" *** SchedulerDbService.java --- PASSED PARAMETER TO SQL2222 : " + String.join(",", activeProcDefKeys));
+				String activeProcDefKeyArray = "\"" + String.join("\", \"", activeProcDefKeys) + "\"";
+
+				String activeSTRINGProcDefs = String.join(",", activeProcDefKeys);
+
+				log.info(" *** SchedulerDbService.java --- PASSED PARAMETER TO SQL3333 : " + activeProcDefKeyArray);
+
+				/*
 				rowUuids = jdbcTemplate.queryForList(
+					FIND_CLAIMABLE_ROWS_SQL, String.class,
+					new Object[] {procDefKey,
+						limit*2}); // over-find because some workers might compete with this set
+
+				 */
+
+				/*
+				log.info(" *** SchedulerDbService.java --- procDefKeyList 3434 : " + procDefKeyList.entrySet());
+				log.info(" *** SchedulerDbService.java --- procDefKeyList SIZE 5757 : " + procDefKeyList.size());
+				log.info(" *** SchedulerDbService.java --- procLimits 8989 : " + procLimits);
+				*/
+
+				/*
+
+				for (Map.Entry<String,Integer> pdfLimit : procLimits.entrySet()) {
+
+					log.info(" *** INSIDE0000 SchedulerDbService - which procdefKey: " + pdfLimit.getKey());
+
+
+					rowUuidsPerProcDefKey = jdbcTemplate.queryForList(
+						FIND_CLAIMABLE_ROWS_SQL, String.class,
+						new Object[] {pdfLimit.getKey(),
+							procLimits.get(pdfLimit.getKey())}); // over-find because some workers might compete with this set
+					// 	procLimits.get(procDefKeyEntry.getKey())*2}); // over-find because some workers might compete with this set
+					log.info(" *** INSIDE1111 SchedulerDbService - size procdefKey: " + rowUuidsPerProcDefKey.size());
+
+
+					rowUuids.addAll(rowUuidsPerProcDefKey);
+				}
+
+				 */
+
+				log.info(" *** SchedulerDbService.java --- OUTSIDE LOOP rowUuids SIZE : " + unfilteredRowUuids.size());
+				log.info(" *** SchedulerDbService.java --- TOTAL unfilteredRowUuids: (" + unfilteredRowUuids + ")");
+				log.info(" *** SchedulerDbService.java --- SHOW BEFORE SORT unfilteredRowUuids: (" + unfilteredRowUuids + ")");
+
+
+				/*
+				Collections.sort(rowUuids);
+
+				 */
+
+
+				//log.info(" *** SchedulerDbService.java --- BOTH getKey and getValue: " + " -- KEY: " + procDefKeyList + " VALUE: " + procDefKeyList);
+				log.info(" *** SchedulerDbService.java --- PER ---limit: " + limit);
+
+
+				//log.info(" *** SchedulerDbService.java --- totalsizeALL: " + rowUuids.size() + " -- workerID: " + workerId + " -- procDefKey: " + procDefKeyList + " -- limit: " + procLimits);
+				log.info(" *** SchedulerDbService.java --- SHOW AFTER SORT rowsuuid: (" + rowUuids + ")");
+
+
+				/*
+				int procsLimitsSum = 0;
+				for (int p : procLimits.values()) {
+					procsLimitsSum = procsLimitsSum + p;
+				}
+
+				 */
+
+
+				log.info(" *** SchedulerDbService.java --- WHAT IS THE PASSED IN limit ? : " + limit);
+
+
+
+				/*
+
+				if (rowUuids.size() > limit) {
+					rowUuids.subList(limit, rowUuids.size()).clear();
+
+
+					log.info(" *** SchedulerDbService.java --- SUBLIST rowUuids SET : " + rowUuids);
+					log.info(" *** SchedulerDbService.java --- SUBLIST rowUuids SIZE : " + rowUuids.size());
+				}
+
+				 */
+
+
+				int sumOfProcsLimitSet = 0;
+				for (int limitValue : limitsPerProcs.values()) {
+					sumOfProcsLimitSet += limitValue;
+				}
+				log.info(" *** SchedulerDbService.java --- OUTPUT sumOfProcsLimitSet : " + sumOfProcsLimitSet);
+
+				// ORDER BY priority ASC,  created_time ASC,LENGTH(initiation_key) ASC
+
+
+				/*
+				String queryRowUuids = "SELECT uuid FROM cws_sched_worker_proc_inst " +
+						"WHERE status='" + PENDING + "' AND" +
+						"  proc_def_key IN (" + activeProcDefKeyArray + ") " +
+						"ORDER BY" +
+						"  priority ASC," +     // lower priorities    favored
+						"  created_time ASC," +  // older dates (FIFO)  favored
+						"  LENGTH(initiation_key) ASC " +
+						"LIMIT " + sumOfProcsLimitSet * 2;
+
+				 */
+
+				for (Map.Entry<String, Integer> procs : limitsPerProcs.entrySet()) {
+
+					String queryRowUuids = "SELECT uuid FROM cws_sched_worker_proc_inst " +
+						"WHERE status='" + PENDING + "' AND" +
+						"  proc_def_key='" + procs.getKey() + "' " +
+						"ORDER BY" +
+						"  priority ASC," +     // lower priorities    favored
+						"  created_time ASC " +  // older dates (FIFO)  favored
+						"LIMIT " + procs.getValue() * 2;
+
+
+					// get list of uuids using array of procdefkeys IN (keys)
+					rowUuidsPerProcDefKey = jdbcTemplate.queryForList(queryRowUuids, String.class); // over-find because some workers might compete with this set
+
+					log.info(" *** SchedulerDbService.java --- PRINT OUT queryRowUuids : " + queryRowUuids + " &&&& rowUuidsPerProcDefKey SIZE : " + rowUuidsPerProcDefKey.size());
+
+					unfilteredRowUuids.addAll(rowUuidsPerProcDefKey);
+
+				}
+
+
+				Collections.sort(unfilteredRowUuids);
+
+
+
+				log.info(" *** SchedulerDbService.java --- PRINT OUT unfilteredRowUuids SIZE : " + unfilteredRowUuids.size());
+
+
+
+				for (String id : unfilteredRowUuids) {
+					String procDefKeyString = getProcDefKeyFromUuid(id);
+					uuidAndProcDefKeyPair.put(id, procDefKeyString);
+				}
+
+
+				log.info(" *** SchedulerDbService.java --- yyyyyy Map.Entry<String,Integer> procLimit : limitsPerProcs.entrySet() ? : " + limitsPerProcs.entrySet());
+
+
+
+				for (Map.Entry<String,Integer> procLimit : limitsPerProcs.entrySet()) {
+
+					log.info(" *** SchedulerDbService.java --- INSIDE LOOP rrrr -- procLimit.getValue() : " + procLimit.getValue());
+
+					Set<String> keys = uuidAndProcDefKeyPair.keySet();
+					int applyPerProcsCap = 0;
+
+					for (String key : keys) {
+
+						if (uuidAndProcDefKeyPair.get(key).equals(procLimit.getKey())) {
+							log.info(" *** SchedulerDbService.java --- " + key + "  COMBO  " + uuidAndProcDefKeyPair.get(key));
+
+
+							applyPerProcsCap = applyPerProcsCap + 1;
+							log.info(" *** SchedulerDbService.java --- " + applyPerProcsCap + "  COMPARE  " +procLimit.getValue());
+
+							if (applyPerProcsCap > procLimit.getValue()) {
+								//lhm.remove(key);
+								log.info(" *** SchedulerDbService.java --- THIS KEY&VALUE is BEING REMOVED -- " +  key + " === " + uuidAndProcDefKeyPair.get(key));
+								clearOutUnclaimedInst.add(key);
+							}
+
+						}
+					}
+
+				}
+
+				//uuidAndProcDefKeyPair.remove(clearOutUnclaimedInst);
+
+				log.info(" *** SchedulerDbService.java --- REFERENCE FOR  clearOutUnclaimedInst : " + clearOutUnclaimedInst);
+
+
+
+				log.info(" *** SchedulerDbService.java --- BEFORE  uuidAndProcDefKeyPair : " + uuidAndProcDefKeyPair);
+
+				for (String removeUuidFromList : clearOutUnclaimedInst) {
+					uuidAndProcDefKeyPair.remove(removeUuidFromList);
+				}
+
+				log.info(" *** SchedulerDbService.java --- AFTER  uuidAndProcDefKeyPair : " + uuidAndProcDefKeyPair);
+
+
+
+				Set<String> uuidKeys = uuidAndProcDefKeyPair.keySet();
+
+				// after its filtered add the uuids to rowUuids arraylist
+				for (String key : uuidKeys) {
+					rowUuids.add(key);
+				}
+
+				log.info(" *** SchedulerDbService.java --- THE UNFILTERED UUIDS LIST : " + unfilteredRowUuids);
+
+
+				log.info(" *** SchedulerDbService.java --- FINISHED FILTERING UUIDS : " + rowUuids);
+
+
+
+				/*
+				rowUuids = jdbcTemplate.queryForList( // make procDef List ; return procDefKey and rowuuid
 						FIND_CLAIMABLE_ROWS_SQL, String.class,
 						new Object[] {procDefKey,
-								limit*2}); // over-find because some workers might compete with this set
+							limit*2}); // over-find because some workers might compete with this set
 
+				 */
+
+
+
+				/*
+				for (Map.Entry<String,Integer> procDefKeyEntry : procDefKeyList.entrySet()) {
+					//totalCurrentRunningProcsOnWorker += entry.getValue().intValue();
+					rowUuidsPerProcDefKey = jdbcTemplate.queryForList( // make procDef List ; return procDefKey and rowuuid
+						FIND_CLAIMABLE_ROWS_SQL, String.class,
+						new Object[] {procDefKeyEntry.getKey(),
+							procDefKeyEntry.getValue()}); // over-find because some workers might compete with this set
+
+					rowUuids.addAll(rowUuidsPerProcDefKey);
+				}
+
+				 */
+
+
+
+				// make query that uses multi limit per ProcDefkey (JOIN)
+				// iterate to grab 30
 				if (!rowUuids.isEmpty()) {
 					// Found some claimable rows, so now try to claim them..
 					//
@@ -285,7 +536,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 							numClaimed++;
 							claimUuids.add(claimUuid);
 							claimedRowUuids.add(uuid);
-							log.debug("CLAIMED " + claimUuid + " (uuid=" +uuid+") for procDefKey '" + procDefKey + "'");
+							//log.debug("CLAIMED " + claimUuid + " (uuid=" +uuid+") for procDefKey '" + procDefKeyList + "'");
 						}
 
 						if (numClaimed == limit) {
@@ -295,12 +546,12 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 
 					if (numClaimed == 0) {
 						// other workers beat us to claiming the rows
-						log.warn("Attempted to claim " + rowUuids.size() + " rows for procDefKey '" + procDefKey + "', but claimed none! " +
+						log.warn("Attempted to claim " + rowUuids.size() + " rows for procDefKey '" + workerProcsList + "', but claimed none! " +
 								(attempts < 10 ? "Retrying..." : "GIVING UP!"));
 						continue; // retry finding claimable rows
 					}
 					else {
-						log.debug("Claimed (" + numClaimed + " of " + rowUuids.size() + ") for procDefKey '" + procDefKey + "'");
+						log.debug("Claimed (" + numClaimed + " of " + rowUuids.size() + ") for procDefKey '" + workerProcsList + "'");
 					}
 				}
 				else if (log.isTraceEnabled()) {
@@ -337,10 +588,48 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		if (numClaimed != claimUuids.size()) {
 			log.error("numUpdated != claimUuids.size()" );
 		}
-		
+
+
+		String listOfClaimUuid = "\"" + String.join("\", \"", claimUuids) + "\"" ;
+
+
+		//log.info(" *** SchedulerDbService.java --- PASSED PARAMETER TO SQL3333 : " + activeProcDefKeyArray);
+
+
+
+		//for (String procDefKey : setOfProcDefKeysWithQueryLimits) {
+
+			//log.info(" *** INSIDE0000 SchedulerDbService - which procdefKey: " + pdfLimit.getKey());
+			//String procDefKey = jdbcTemplate.queryForList(GET_COUNT_FOR_CLAIMED_PROC_INST_PER_KEY, String.class, new Object[] {uuid}); // over-find because some workers might compete with this set
+
+			// "SELECT proc_def_key FROM cws_sched_worker_proc_inst WHERE claim_uuid=?";
+
+			/*
+			int hii = jdbcTemplate.queryForObject(
+				"SELECT COUNT(*) FROM cws_sched_worker_proc_inst WHERE proc_def_key=?",
+				new Object[] {procDefKey}, Integer.class);
+
+			 */
+
+			//String query = "SELECT count(*) FROM cws_sched_worker_proc_inst " + "WHERE proc_def_key=? AND claim_uuid IN (" + listOfClaimUuid + ")";
+
+			//log.info(" *** INSIDE666666 SchedulerDbService - SHOW QUERY: " + query);
+
+			//int claimedUuidsCount = jdbcTemplate.queryForObject(query , new Object[]{procDefKey}, Integer.class);
+
+			//claimedUuidsCountsPerProcs.add();
+			//log.info(" *** INSIDE1111 SchedulerDbService - size procdefKey: " + rowUuidsPerProcDefKey.size());
+			//rowUuids.addAll(rowUuidsPerProcDefKey);
+		//}
+
+
+		log.info(" *** SchedulerDbService.java --- RIGHT BEFORE return claimUuids : " + claimUuids);
+
+
 		Map<String,List<String>> ret = new HashMap<String,List<String>>();
 		ret.put("claimUuids", claimUuids);
 		ret.put("claimedRowUuids", claimedRowUuids);
+		//ret.put("claimedUuidsPerProcDefKeys", claimedUuidsCountsPerProcs);
 		
 		return ret;
 	}
@@ -359,10 +648,12 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		}
 	}
 
+	// read the first n set of the procDef
+
 	public int getMaxProcsValueForWorker(String workerId) {
 
 		return jdbcTemplate.queryForObject(
-			"SELECT worker_max_num_running_procs FROM cws_worker WHERE id=?",
+			"SELECT max_num_running_procs FROM cws_worker WHERE id=?",
 			new Object[] {workerId}, Integer.class);
 	}
 
@@ -376,6 +667,33 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		return jdbcTemplate.queryForObject(
 			"SELECT max_instances FROM cws_worker_proc_def WHERE worker_id=? AND proc_def_key=?",
 			new Object[] {workerId, procDefKey}, Integer.class);
+	}
+
+	// GET_COUNT_FOR_CLAIMED_PROC_INST_PER_KEY
+	// String query = "SELECT count(*) FROM cws_sched_worker_proc_inst " + "WHERE proc_def_key=? AND claim_uuid IN (" + listOfClaimUuid + ")";
+	public int getCountForClaimedProcInstPerKey(String procDefKey, List<String> claimedUuids) {
+		String listOfClaimUuid = "\"" + String.join("\", \"", claimedUuids) + "\"" ;
+
+		String query = "SELECT count(*) FROM cws_sched_worker_proc_inst " + "WHERE proc_def_key='" + procDefKey + "' " + "AND claim_uuid IN (" + listOfClaimUuid + ")";
+
+		log.info(" *** INSIDE666666 SchedulerDbService - SHOW getCountForClaimedProcInstPerKey QUERY: " + query);
+
+		return jdbcTemplate.queryForObject(query, Integer.class);
+
+
+		//return jdbcTemplate.queryForObject(query, new Object[] {procDefKey, listOfClaimUuid}, Integer.class);
+	}
+
+
+	public String getProcDefKeyFromUuid(String uuid) {
+		//String listOfClaimUuid = "\"" + String.join("\", \"", claimedUuids) + "\"" ;
+
+		String query = "SELECT proc_def_key FROM cws_sched_worker_proc_inst " + "WHERE uuid='" + uuid + "'";
+
+		//log.info(" *** INSIDE666666 SchedulerDbService - SHOW getCountForClaimedProcInstPerKey QUERY: " + query);
+
+		return jdbcTemplate.queryForObject(query, String.class);
+
 	}
 
 	public Map<String,Object> getProcInstRow(String uuid) {

@@ -81,6 +81,7 @@ public class ProcessEventListener implements MessageListener, InitializingBean {
 								
 								// If the process counter state changed, then we potentially have more bandwidth to
 								// execute more processes of the type that was just completed/failed.
+								// QUESTION: whats the reason to have this? It would take away bandwith for other procs
 								workerService.procStartReqAction(procDefKey, "sync message received");
 							}
 						}
