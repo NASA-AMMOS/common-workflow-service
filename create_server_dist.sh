@@ -62,7 +62,7 @@ cp ${INSTALL_DIR}/logging/logstash-${LOGSTASH_VER}.zip ${CWS}/server
 # MOVE TEMPLATE CONFIG FILES INTO PLACE
 print 'Copying configuration templates...'
 CONFIG_TEMPLATES_DIR=${CWS}/config/templates
-mkdir -p ${CONFIG_TEMPLATES_DIR}/{cws-engine,cws-ui,tomcat_bin,tomcat_lib,tomcat_conf,camunda_mods,engine-rest_mods,logging,upgrade}
+mkdir -p ${CONFIG_TEMPLATES_DIR}/{cws-engine,cws-ui,tomcat_bin,tomcat_lib,tomcat_conf,camunda_mods,engine-rest_mods,logging}
 
 cp ${INSTALL_DIR}/tomcat_lib/css-jaas.cfg                     ${CONFIG_TEMPLATES_DIR}/tomcat_lib
 cp ${INSTALL_DIR}/tomcat_bin/setenv.sh                        ${CONFIG_TEMPLATES_DIR}/tomcat_bin
