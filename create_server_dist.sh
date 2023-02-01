@@ -19,7 +19,7 @@ print 'Removing previous distribution directory...'
 rm -rf ${DIST}
 
 print 'Creating new CWS distribution directory...'
-mkdir -p ${CWS}/{bpmn,config/templates,installer,logs,sql/cws}
+mkdir -p ${CWS}/{bpmn,config/templates,installer,logs,upgrade,sql/cws}
 
 print 'Unzipping Camunda into distribution...'
 unzip ${INSTALL_DIR}/cws_camunda-bpm-tomcat-${CAMUNDA_VER}.zip -x start-camunda.bat start-camunda.sh -d ${CWS} > ${CWS}/logs/camunda_extract.log 2>&1
@@ -81,7 +81,6 @@ cp ${INSTALL_DIR}/cws-ui/sqs_dispatcher_thread_bean.xml       ${CONFIG_TEMPLATES
 cp ${INSTALL_DIR}/camunda_mods/web.xml                        ${CONFIG_TEMPLATES_DIR}/camunda_mods
 cp ${INSTALL_DIR}/engine-rest/web.xml                         ${CONFIG_TEMPLATES_DIR}/engine-rest_mods
 cp ${INSTALL_DIR}/logging/cws-logstash.conf                   ${CONFIG_TEMPLATES_DIR}/logging
-cp ${INSTALL_DIR}/upgrade/upgrade_schema_2.3_to_2.4.sh        ${CONFIG_TEMPLATES_DIR}/upgrade
 cp ${INSTALL_DIR}/refresh_cws_token.sh                        ${CONFIG_TEMPLATES_DIR}
 cp ${INSTALL_DIR}/stop_cws.sh                                 ${CONFIG_TEMPLATES_DIR}
 cp ${INSTALL_DIR}/clean_es_history.sh                         ${CONFIG_TEMPLATES_DIR}
@@ -219,6 +218,10 @@ cp ${INSTALL_DIR}/launch_ls.sh                         ${CWS}
 
 print 'Copying Modeller scripts and libraries...'
 cp -R ${INSTALL_DIR}/modeler                    ${CWS}
+
+print 'Copying Upgrade scripts...'
+cp -R ${INSTALL_DIR}/upgrade/upgrade_2.3_to_2.4.sh     ${CWS}/upgrade
+cp -R ${INSTALL_DIR}/upgrade/upgrade_core_db.sql       ${CWS}/upgrade
 
 print 'Installing context.xml to Tomcat...'
 cp ${INSTALL_DIR}/context.xml ${CWS_TOMCAT_ROOT}/conf/context.xml

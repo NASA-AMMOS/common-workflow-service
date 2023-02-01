@@ -6,14 +6,13 @@
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 
-# re-do question (include specific new column)
-read -p "Would you like to upgrade the CWS DB Schema for CWSv2.3 to CWSv2.4     (Y/N): " UPGRADE_DB
+read -p "Would you like to upgrade the CWS Database from CWSv2.3 to CWSv2.4?  (Y/N): " UPGRADE_DB
 while [[ ! ${UPGRADE_DB} =~ $(echo "^(y|Y|n|N)$") ]]; do
-  print "  ERROR: Must specify either 'Y' or 'N'.";
+  echo "  ERROR: Must specify either 'Y' or 'N'.";
   read -p "Continue? (Y/N): " UPGRADE_DB
 done
 
-
+echo " "
 
 if [[ ${UPGRADE_DB} =~ $(echo "^(y|Y)$") ]]
 then
@@ -28,22 +27,17 @@ then
   echo " "
 
 
-
   # ----------------------------------------
   echo " "
-  echo "Database configuration is:"
-  echo "  DB HOST:   ${DB_HOST}"
-  echo "  DB NAME:   ${DB_NAME}"
-  echo "  DB PORT:   ${DB_PORT}"
+  echo "Database Configuration is:"
+  echo "  DB HOST:       ${DB_HOST}"
+  echo "  DB NAME:       ${DB_NAME}"
+  echo "  DB PORT:       ${DB_PORT}"
   echo "  DB USERNAME:   ${DB_USERNAME}"
-  echo "  DB PASSWORD:   ${DB_PASSWORD}"
+  echo "  DB PASSWORD:   [PASSWORD]"
 
-  echo " the ROOT is ${ROOT}"
 
   echo " "
-
-  #mysql --defaults-file=my.cnf ${dbname} < sql/cws/upgrade.sql
-
 
   echo "[mysql]" > ${ROOT}/myupgrade.cnf
   echo "host=${DB_HOST}" >> ${ROOT}/myupgrade.cnf
@@ -51,10 +45,7 @@ then
   echo "password=\"${DB_PASSWORD}\"" >> ${ROOT}/myupgrade.cnf
   chmod 644 ${ROOT}/myupgrade.cnf
 
-  pwd
-  ls
 
-  cat ${ROOT}/myupgrade.cnf
 
   echo "Checking whether database ${DB_NAME} already exists..."
   RES=`mysql --defaults-file=${ROOT}/myupgrade.cnf -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${DB_NAME}'"`
@@ -65,21 +56,39 @@ then
     rm -f ${ROOT}/myupgrade.cnf
     exit 1
   fi
-  echo "  Database ${DB_NAME} exists."
+
+  FOUND=`echo $RES | grep ${DB_NAME} | wc -l`
+
+  if [[ ${FOUND} -eq 1 ]]; then
+      echo "  Database ${DB_NAME} exists."
 
 
+      echo " "
+      echo "Updating tables in CWS CORE DB..."
+      mysql --defaults-file=${ROOT}/myupgrade.cnf ${DB_NAME} < ${ROOT}/upgrade_core_db.sql
 
-  echo "Upgrading tables in CWS CORE DB..."
-  mysql --defaults-file=${ROOT}/myupgrade.cnf ${DB_NAME} < ${ROOT}/upgrade_core_db.sql
+      if [[ $? -gt 0 ]]; then
+          echo "ERROR: Problem updating tables. Database Column may already exist."
+          echo "  Please check your database upgrade sql template '${ROOT}/upgrade_core_db.sql', and try again."
+          rm -rf ${ROOT}/myupgrade.cnf
+          exit 1
+      fi
 
-  if [[ $? -gt 0 ]]; then
-      echo "ERROR: Problem creating upgrading tables."
-      echo "  Please check your database upgrade script '${ROOT}/upgrade_core_db.sql', and try again."
       rm -rf ${ROOT}/myupgrade.cnf
-      exit 1
+
+  else
+
+      echo "  Database ${DB_NAME} DOES NOT exists. Please check your database configuration"
+
+
   fi
-  # MAKE SURE TO DELETE myupgrade file
+
+
+
+
 
 else
 		echo "  Upgrade to CWS DB was NOT made."
+	  rm -rf ${ROOT}/myupgrade.cnf
+
 fi

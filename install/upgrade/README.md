@@ -1,4 +1,4 @@
-# CWS v2.4 DB Schema Upgrade
+# CWS v2.4 Database Upgrade
 
 
 ### _Purpose:_
@@ -14,9 +14,5 @@ cd install/upgrade/
 ```
 
 ```
-chmod +x upgrade_schema_2.3_to_2.4.sh
-```
-
-```
-./upgrade_schema_2.3_to_2.4.sh
+./upgrade_2.3_to_2.4.sh
 ```
