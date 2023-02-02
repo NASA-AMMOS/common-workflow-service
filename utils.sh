@@ -178,7 +178,6 @@ function check_java_requirements () {
 
 # Creates a complete installation configuration file for a CWS console/worker to streamline development installs.
 function auto_conf_data () {
-    set -x
     INSTALL_TYPE=${1}
 
     # VALUES SET FROM dev.sh
@@ -245,7 +244,7 @@ function auto_conf_data () {
         CWS_JMX_PORT=31098
     elif [[ "${INSTALL_TYPE}" == "worker2" ]]; then
         INSTALL_TYPE_CODE=3
-        WORKER_TYPE="run_all"
+        WORKER_TYPE="run_models_only"
         CWS_WEB_PORT=36080
         CWS_SSL_PORT=36443
         CWS_AJP_PORT=36009
@@ -254,7 +253,7 @@ function auto_conf_data () {
         CWS_JMX_PORT=31097
     elif [[ "${INSTALL_TYPE}" == "worker3" ]]; then
         INSTALL_TYPE_CODE=3
-        WORKER_TYPE="run_all"
+        WORKER_TYPE="run_external_tasks_only"
         CWS_WEB_PORT=33080
         CWS_SSL_PORT=33443
         CWS_AJP_PORT=33009
@@ -319,5 +318,4 @@ function auto_conf_data () {
     cws_token_expiration_hours=240
     user_provided_logstash=n
 EOF
-set +x
 }

@@ -893,6 +893,9 @@ public class CwsInstaller {
 		if (worker_max_num_running_procs == null) {
 			worker_max_num_running_procs = getPreset("default_worker_max_num_running_procs");
 		}
+		if (worker_max_num_running_procs == null) {
+			worker_max_num_running_procs = CORES + "";
+		}
 
 		// make sure preset is valid positive integer
 		try {
