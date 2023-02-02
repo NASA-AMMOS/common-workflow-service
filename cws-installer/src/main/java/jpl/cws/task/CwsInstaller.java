@@ -909,7 +909,7 @@ public class CwsInstaller {
 			boolean done = false;
 			while (!done) {
 				worker_max_num_running_procs = readLine("Enter the maximum number of processes that run on worker(s). " +
-					"Default is " + worker_max_num_running_procs + ": ", worker_max_num_running_procs);
+					"Default is " + CORES + "" + ": ", worker_max_num_running_procs);
 
 				// make sure input was valid
 				try {
