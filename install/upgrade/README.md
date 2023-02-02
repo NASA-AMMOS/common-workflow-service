@@ -6,7 +6,7 @@
 * *CWSv2.4* : Alter database table *cws_worker*  to add new column `max_num_running_procs`
 
 
-## Instructions for running bash script
+To run use the commands:
 
 
 ```
