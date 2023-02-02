@@ -39,6 +39,8 @@ public class CustomMethodCallTest extends CwsTestBase {
 	 * Tests BPMN process that calls a custom method
 	 * 
 	 * DOES NOT WORK CURRENTLY
+	 *
+	 * TODO: verify this is a valid test and restore
 	 * 
 	 */
 	@Test

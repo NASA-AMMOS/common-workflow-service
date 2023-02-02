@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -54,7 +53,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			if (Integer.toString(testCasesCompleted).equals("8")) {
 				scriptPass = true;
 			} else {
-				log.info("Not all test cases passed. Only " + testCasesCompleted + "/9 passed.");
+				log.info("Not all test cases passed. Only " + testCasesCompleted + "/8 passed.");
 			}
 
 			log.info("------ END DeploymentsTestIT:runDeploymentsPageTest ------");
@@ -273,24 +272,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 
 			goToPage("deployments");
 
-			log.info("Disabling workers.");
-			wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-test_deployments_page")));
-			WebElement enable = findElById("pv-test_deployments_page");
-			enable.click();
-			sleep(1000);
-
-			WebElement allWorkers = findElById("all-workers");
-			WebElement allWorkersDone = findElById("done-workers-btn");
-
-			if(allWorkers.isSelected()) {
-				allWorkers.click();
-				sleep(1000);
-				allWorkersDone.click();
-				sleep(1000);
-			} else {
-				allWorkersDone.click();
-				sleep(1000);
-			}
+			disableWorkers("test_deployments_page");
 
 			log.info("Deleting process definition");
 			wait.until(ExpectedConditions.elementToBeClickable(By.id("delete-test_deployments_page")));
@@ -381,6 +363,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 		WebDriverWait wait = new WebDriverWait(driver,30);
 		try {
 			log.info("------ START DeploymentsTestIT:runOneWorkerTest ------");
+			disableWorkers("test_deployments_page");
 			WebElement enable = findElById("pv-test_deployments_page");
 			waitForElement(enable);
 			enable.click();

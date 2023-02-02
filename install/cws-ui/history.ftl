@@ -123,6 +123,68 @@
 		return minutes + " min " + seconds + " sec"
 	}
 
+	function formatMsg(msg) {
+
+		var index = 0, count = 0, maxCount = 30
+
+		for ( ; count < maxCount && i2 != -1; count++) {
+
+			var i2 = msg.indexOf('\n', index)
+
+			if (i2 != -1) {
+				index = i2 + 1
+			}
+		}
+
+		if (count < maxCount - 1 || index > msg.length / 2) {
+			return msg.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
+		}
+
+		var first = msg.substring(0, index).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
+		var rest = msg.substring(index).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
+
+		return first + '<details><summary>Show All</summary>' + rest + '</details>'
+	}
+
+	function makeRow(key, value, cmd) {
+
+		var style = 'width: 210px;'
+
+		if (cmd.endsWith('_out =')) {
+			style = 'width: 120px;'
+		}
+
+		if (key == 'stdout' || key == 'stderr') {
+			return '<tr><td style="' + style + ';font-weight:bold;">' + key + '</td><td>' + formatMsg(value) + '</td></tr>'
+		}
+		return '<tr><td style="' + style + ';font-weight:bold;">' + key + '</td><td>' + value + '</td></tr>'
+	}
+
+	function outputMessage(msg) {
+
+		if (msg.startsWith("Setting (json) ")) {
+
+			var i2 = msg.indexOf("= ")
+
+			if (i2 != -1) {
+				var cmd = msg.substring(0, i2 + 1)
+				var jsonObj = JSON.parse(msg.substring(i2 + 2))
+				var output = '<table><tr>' + cmd + '<br/><br/><table id=\"logData\" class=\"table table-striped table-bordered\">'
+
+				Object.keys(jsonObj).forEach(function(key) {
+					var value = jsonObj[key];
+					output += makeRow(key, value, cmd)
+				});
+
+				output += '</table>'
+
+				return output
+			}
+		}
+
+		return msg.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
+	}
+
 	function buildHistoryRows(data) {
 	
 		let tableRows = [];
@@ -140,7 +202,7 @@
 				const row = "<tr><td>"+ date + "</td>" +
 							"<td>"+ entry["type"] + "</td>"+
 							"<td>"+ entry["activity"] + "</td>"+
-							"<td>"+ entry["message"].replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</td></tr>";
+							"<td>"+ outputMessage(entry["message"]) + "</td></tr>";
 						
 				tableRows.push(row);
 			}
@@ -248,7 +310,9 @@
 		font-family: courier,consolas;
 		/*white-space: normal !important;*/
 	}
-
+	summary {
+		display: list-item;
+	}
 	</style>
 
 </head>

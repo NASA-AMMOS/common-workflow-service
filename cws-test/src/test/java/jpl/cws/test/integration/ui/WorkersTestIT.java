@@ -200,24 +200,7 @@ public class WorkersTestIT extends WebTestUtil {
 			
 			deployFile("test_thread_limit");
 		
-			wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-test_thread_limit")));
-			WebElement enable = findElById("pv-test_thread_limit");
-			log.info("Enabling workers...");
-			enable.click();
-			sleep(1000);
-			
-			WebElement allWorkers = findElById("all-workers");
-			WebElement allWorkersDone = findElById("done-workers-btn");
-			
-			if (allWorkers.isSelected()) {
-				allWorkersDone.click();
-				sleep(1000);
-			} else {
-				allWorkers.click();
-				sleep(1000);
-				allWorkersDone.click();
-				sleep(1000);
-			}
+			enableWorkers("test_thread_limit");
 			
 			goToPage("workers");
 			
