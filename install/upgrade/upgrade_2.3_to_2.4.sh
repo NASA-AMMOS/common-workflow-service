@@ -57,7 +57,6 @@ then
     echo "  CORE: " ${CORE_NUMBER}
   fi
 
-
   echo "Checking whether database ${DB_NAME} already exists..."
   RES=`mysql --defaults-file=${ROOT}/myupgrade.cnf -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${DB_NAME}'"`
 
@@ -78,7 +77,7 @@ then
       echo " "
       echo "Updating tables in CWS CORE DB..."
 
-      echo "ALTER TABLE cws_worker ADD max_num_running_procs int(11) DEFAULT ${CORE_NUMBER};" > ${ROOT}/upgrade_core_db.sql
+      echo "ALTER TABLE cws_worker ADD max_num_running_procs int(11) DEFAULT ${CORE_NUMBER} AFTER job_executor_max_pool_size;" > ${ROOT}/upgrade_core_db.sql
 
       mysql --defaults-file=${ROOT}/myupgrade.cnf ${DB_NAME} < ${ROOT}/upgrade_core_db.sql
 
@@ -93,7 +92,7 @@ then
       rm -rf ${ROOT}/myupgrade.cnf
       rm -rf ${ROOT}/upgrade_core_db.sql
 
-		  echo "  Upgrade to CWS DB was made."
+		  echo "  Upgrade to CWS Database was made."
 
   else
       echo "  Database ${DB_NAME} DOES NOT exists. Please check your database configuration"
@@ -105,7 +104,7 @@ then
 
 
 else
-		echo "  Upgrade to CWS DB was NOT made."
+		echo "  Upgrade to CWS Database was NOT made."
 	  rm -rf ${ROOT}/myupgrade.cnf
     rm -rf ${ROOT}/upgrade_core_db.sql
 
