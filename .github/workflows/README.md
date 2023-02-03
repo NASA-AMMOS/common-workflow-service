@@ -2,7 +2,7 @@
 
 The following workflows establish continuous integration and continuous delivery (CI/CD) pipelines for this repository containing the open-source release of the [NASA-AMMOS](https://ammos.nasa.gov/) Common Workflow Service (CWS).
 
-Utilizing GitHub Actions, the workflows build, test, and deliver CWS by configuring steps required to accomplish these tasks, making use of Marketplace Actions in the process. There are currently two CI pipelines: [CWS CI Camunda](https://github.com/NASA-AMMOS/common-workflow-service/actions/workflows/maven.yml) and [CWS CI LDAP](https://github.com/NASA-AMMOS/common-workflow-service/actions/workflows/ldap.yml).
+Utilizing GitHub Actions, the workflows build, test, and deliver CWS by configuring steps required to accomplish these tasks, making use of Marketplace Actions in the process. There are currently two CI pipelines: [CWS CI Camunda](https://github.com/NASA-AMMOS/common-workflow-service/actions/workflows/camunda.yml) and [CWS CI LDAP](https://github.com/NASA-AMMOS/common-workflow-service/actions/workflows/ldap.yml).
 
 ## CWS CI Camunda Workflow
 
