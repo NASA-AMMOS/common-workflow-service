@@ -2,11 +2,11 @@
 # -------------------
 # upgrade_2.3_to_2.4.sh
 # -------------------
-# Upgrade CWS-2.3 infrastructure/database to CWS-2.4
+# Upgrade CWS v2.3 infrastructure/database to CWS v2.4
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 
-read -p "Would you like to upgrade the CWS Database from CWSv2.3 to CWSv2.4?  (Y/N): " UPGRADE_DB
+read -p "Would you like to upgrade the CWS Database from CWS v2.3 to CWS v2.4?  (Y/N): " UPGRADE_DB
 while [[ ! ${UPGRADE_DB} =~ $(echo "^(y|Y|n|N)$") ]]; do
   echo "  ERROR: Must specify either 'Y' or 'N'.";
   read -p "Continue? (Y/N): " UPGRADE_DB

@@ -4,7 +4,7 @@
 
 ### Purpose:
 
-* *CWSv2.4* : Alter database table *cws_worker*  to add new column `max_num_running_procs`
+* *CWS v2.4* : Alter database table *cws_worker*  to add new column `max_num_running_procs`
 
 
 To run use the commands:
