@@ -1,6 +1,6 @@
 # CWS v2.4 Database Upgrade
 
-#### _Notice: Make sure to use the CWS Version 2.4 installation after using this script for the relevant Database_
+#### _WARNING: Make sure to use the CWS Version 2.4 installation after using this script for the relevant Database_
 
 ### Purpose:
 
