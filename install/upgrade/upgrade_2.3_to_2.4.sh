@@ -18,7 +18,7 @@ if [[ ${UPGRADE_DB} =~ $(echo "^(y|Y)$") ]]
 then
 
 
-  read -p 'DB HOST: ' DB_HOST
+  read -p 'DB Host: ' DB_HOST
   read -p 'DB Name: ' DB_NAME
   read -p 'DB Port: ' DB_PORT
   read -p 'DB Username: ' DB_USERNAME
@@ -46,6 +46,17 @@ then
   chmod 644 ${ROOT}/myupgrade.cnf
 
 
+  echo "Checking number of CORES on machine..."
+
+  if [[ "$OSTYPE" =~ ^darwin ]]; then
+    CORE_NUMBER=`sysctl -n hw.ncpu`
+    echo "  CORE: " ${CORE_NUMBER}
+  fi
+  if [[ "$OSTYPE" =~ ^linux ]]; then
+    CORE_NUMBER_=`lscpu -b -p=Core,Socket | grep -v '^#' | sort -u | wc -l`
+    echo "  CORE: " ${CORE_NUMBER}
+  fi
+
 
   echo "Checking whether database ${DB_NAME} already exists..."
   RES=`mysql --defaults-file=${ROOT}/myupgrade.cnf -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${DB_NAME}'"`
@@ -54,6 +65,7 @@ then
     echo "ERROR: Problem checking for database. "
     echo "  Please check your database configuration, and try again."
     rm -f ${ROOT}/myupgrade.cnf
+    rm -rf ${ROOT}/upgrade_core_db.sql
     exit 1
   fi
 
@@ -65,21 +77,26 @@ then
 
       echo " "
       echo "Updating tables in CWS CORE DB..."
+
+      echo "ALTER TABLE cws_worker ADD max_num_running_procs int(11) DEFAULT ${CORE_NUMBER};" > ${ROOT}/upgrade_core_db.sql
+
       mysql --defaults-file=${ROOT}/myupgrade.cnf ${DB_NAME} < ${ROOT}/upgrade_core_db.sql
 
       if [[ $? -gt 0 ]]; then
           echo "ERROR: Problem updating tables. Database Column may already exist."
           echo "  Please check your database upgrade sql template '${ROOT}/upgrade_core_db.sql', and try again."
           rm -rf ${ROOT}/myupgrade.cnf
+          rm -rf ${ROOT}/upgrade_core_db.sql
           exit 1
       fi
 
       rm -rf ${ROOT}/myupgrade.cnf
+      rm -rf ${ROOT}/upgrade_core_db.sql
+
+		  echo "  Upgrade to CWS DB was made."
 
   else
-
       echo "  Database ${DB_NAME} DOES NOT exists. Please check your database configuration"
-
 
   fi
 
@@ -90,5 +107,6 @@ then
 else
 		echo "  Upgrade to CWS DB was NOT made."
 	  rm -rf ${ROOT}/myupgrade.cnf
+    rm -rf ${ROOT}/upgrade_core_db.sql
 
 fi
