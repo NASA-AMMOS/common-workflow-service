@@ -684,9 +684,6 @@ public class WorkerService implements InitializingBean {
 			for (Entry<String,Integer> procMax : workerMaxProcInstances.entrySet()) {
 				String procDefKey = procMax.getKey();
 
-				if (limitToProcDefKey != null && !limitToProcDefKey.equals(procDefKey)) {
-					continue;
-				}
 				int procMaxNumber = procMax.getValue();
 				if (!acceptingProcDefKeys.contains(procDefKey)) {
 					//log.debug("skipping " + procDefKey + " BECAUSE IT NOT ACCEPTING RIGHT NOW!!!!");
