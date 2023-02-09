@@ -75,7 +75,9 @@ public class WorkerService implements InitializingBean {
 	@Value("${cws.engine.jobexecutor.enabled}") private boolean jobExecutorEnabled;
 
 	@Value("${cws.tomcat.lib}") private String cwsTomcatLib;
-	
+
+	@Value("${worker.max.num.running.procs}") private int workerMaxNumRunningProcs;
+
 	private Logger log;
 	
 	public static AtomicInteger processorExecuteCount = new AtomicInteger(0);
@@ -84,8 +86,9 @@ public class WorkerService implements InitializingBean {
 	
 	// Map of procDefKey and count of active process instances
 	public static Map<String,Integer> processCounters = new HashMap<String,Integer>();
-	
+
 	private static Map<String,Integer> workerMaxProcInstances = new HashMap<String,Integer>();
+
 	private static Set<String> procStartReqUuidStartedThisWorker = new HashSet<String>();
 	private static Set<String> acceptingProcDefKeys = new HashSet<String>();
 	//private static Set<String> runningToCompleteTransitionUuids = new HashSet<String>();
@@ -185,7 +188,7 @@ public class WorkerService implements InitializingBean {
 			
 		}
 		
-		log.debug("AFTER INIT: limits: " + workerMaxProcInstances + ",  counts: " + processCounters);
+		log.info("AFTER INIT: limits: " + workerMaxProcInstances + ",  counts: " + processCounters);
 	}
 	
 
@@ -312,7 +315,7 @@ public class WorkerService implements InitializingBean {
 		//
 		String postConfig = "limits: " + workerMaxProcInstances + ",  counts: " + processCounters;
 		if (lastProcCounterStatusMsg == null || !lastProcCounterStatusMsg.equals(postConfig)) {
-			log.debug("NEW: " + postConfig + ",  OLD: " + lastProcCounterStatusMsg);
+			log.info("NEW: " + postConfig + ",  OLD: " + lastProcCounterStatusMsg);
 			lastProcCounterStatusMsg = postConfig;
 			return true; // config changed
 		}
@@ -670,59 +673,92 @@ public class WorkerService implements InitializingBean {
 		
 		synchronized (procStateLock) { // procCountsLock
 			t1 = System.currentTimeMillis();
+
+			int procSetSize = 0;
+			//int totalCurrentRunningProcsOnWorker = 0;
+			Map<String,Integer> currentCounts = new HashMap<String,Integer>();
+			Map<String,Integer> remainders = new HashMap<String,Integer>();
+			Map<String,Integer> queryLimitForProcSet = new HashMap<String,Integer>();
+			Map<String,Integer> limitToProcDefKeyObject = new HashMap<String,Integer>();
+
 			for (Entry<String,Integer> procMax : workerMaxProcInstances.entrySet()) {
 				String procDefKey = procMax.getKey();
-				if (limitToProcDefKey != null && !limitToProcDefKey.equals(procDefKey)) {
-					continue;
-				}
+
 				int procMaxNumber = procMax.getValue();
 				if (!acceptingProcDefKeys.contains(procDefKey)) {
 					//log.debug("skipping " + procDefKey + " BECAUSE IT NOT ACCEPTING RIGHT NOW!!!!");
 					continue;
 				}
-				
+
+				currentCounts.put(procDefKey, processCounters.get(procDefKey));
+				remainders.put(procDefKey, procMaxNumber - currentCounts.get(procDefKey));
+				queryLimitForProcSet.put(procDefKey, Math.min(EXEC_SERVICE_MAX_POOL_SIZE, remainders.get(procDefKey)));
+
 				//log.trace("getting currentCount for procDefKey " + procDefKey);
-				int currentCount = processCounters.get(procDefKey);
+				//int currentCount = processCounters.get(procDefKey);
 				//log.trace("currentCount for " + procDefKey + " is " + currentCount);
-				int remainder = procMaxNumber - currentCount;
+				//int remainder = procMaxNumber - currentCount;
 				//log.trace("remainder for " + procDefKey + " is " + remainder);
-				int queryLimit = Math.min(EXEC_SERVICE_MAX_POOL_SIZE, remainder);
+				//int queryLimit = Math.min(EXEC_SERVICE_MAX_POOL_SIZE, remainder); // FIXME: needs revisit for proper min
 				//log.trace("queryLimit for " + procDefKey + " is " + queryLimit);
-				
-				if (remainder > 0) {
-					// claim for remainder (marks DB rows as "claimedByWorker")
-					Map<String,List<String>> claimRowData = 
-						schedulerDbService.claimHighestPriorityStartReq(
-							workerId, procDefKey, queryLimit);
-					
-					List<String> claimed = claimRowData.get("claimUuids");
-					
-					if (!claimed.isEmpty()) {
-						// increment counter by amount that was actually claimed
-						// in anticipation that the start will actually work.
-						// If the start turns out not to later worker, then this count will be decremented at that time.
-						//
-						processCounters.put(procDefKey, processCounters.get(procDefKey) + claimed.size());
-						// update uuid list
-						procStartReqUuidStartedThisWorker.addAll(claimRowData.get("claimedRowUuids"));
-						//log.debug("procStartReqUuidStartedThisWorker = " + procStartReqUuidStartedThisWorker);
-						
-						log.debug("(CLAIMED " + claimed.size() + " / " + queryLimit + ", maxProcs=" + procMaxNumber + ")  for procDef '" + procDefKey + "' (limitToProcDefKey="+limitToProcDefKey+")");
-						
-						claimUuids.addAll(claimed);
-					}
-					//else {
-					//	log.debug("NONE CLAIMED  (queryLimit=" + queryLimit + ", max=" + procMaxNumber + ")  for procDef '" + procDefKey + "' (limitToProcDefKey="+limitToProcDefKey+")");
-					//}
-				}
-				else {
-					log.debug("[" + procDefKey + "] remainder <= 0, so not attempting claim. " +
-							"(remainder = " + remainder + 
-							", procMaxNumber = " + procMaxNumber +
-							", currentCount = " + currentCount + ")");
-				}
-				
+
 			} // end for loop
+
+			int totalCurrentRunningProcsOnWorker = 0;
+			for (Entry<String,Integer> entry : processCounters.entrySet()) {
+				totalCurrentRunningProcsOnWorker += entry.getValue().intValue();
+			}
+
+			// rename to workerMaxProcQueryLimit
+			int MaxNumForProcsOnWorker = schedulerDbService.getMaxProcsValueForWorker(workerId);
+			// this is for all procDefs cap
+			int workerMaxProcQueryLimit = MaxNumForProcsOnWorker - totalCurrentRunningProcsOnWorker;
+
+			int remaindersTotal = 0;
+			for (int r: remainders.values()) {
+				remaindersTotal += r;
+			}
+
+			if (remaindersTotal > 0 && workerMaxProcQueryLimit > 0) {
+				// claim for remainder (marks DB rows as "claimedByWorker")
+
+				int queryLimit = Math.min(MaxNumForProcsOnWorker, workerMaxProcQueryLimit);
+
+				Map<String,List<String>> claimRowData =
+					schedulerDbService.claimHighestPriorityStartReq(
+						workerId, currentCounts, queryLimitForProcSet, queryLimit); // pass list of procDefkey and a map of queryLimit per procDefKey
+
+				List<String> claimed = claimRowData.get("claimUuids");
+
+				if (!claimed.isEmpty()) {
+					// increment counter by amount that was actually claimed
+					// in anticipation that the start will actually work.
+					// If the start turns out not to later worker, then this count will be decremented at that time.
+					//
+					for (Map.Entry<String,Integer> procDefKey : processCounters.entrySet()) {
+						int claimedInstCount = schedulerDbService.getCountForClaimedProcInstPerKey(procDefKey.getKey(), claimed);
+						processCounters.put(procDefKey.getKey(), processCounters.get(procDefKey.getKey()) + claimedInstCount);
+					}
+
+					// update uuid list
+					procStartReqUuidStartedThisWorker.addAll(claimRowData.get("claimedRowUuids"));
+					//log.debug("procStartReqUuidStartedThisWorker = " + procStartReqUuidStartedThisWorker);
+
+					log.debug("(CLAIMED " + claimed.size() + " / " + queryLimit + ", maxProcs=" + workerMaxProcInstances.entrySet() + ")  for procDefKeys '" + workerMaxProcInstances.keySet() + "' (limitToProcDefKey="+limitToProcDefKey+")" + ", workerMaxNumRunningProcs=" + MaxNumForProcsOnWorker);
+					claimUuids.addAll(claimed);
+				}
+				//else {
+				//	log.debug("NONE CLAIMED  (queryLimit=" + queryLimit + ", max=" + procMaxNumber + ")  for procDef '" + procDefKey + "' (limitToProcDefKey="+limitToProcDefKey+")");
+				//}
+			}
+			else {
+				log.debug("Remainder for Worker Max Process Limit [" + workerMaxProcQueryLimit + "] workerMaxProcQueryLimit <= 0 OR Total of remainders [" + remaindersTotal + "] is <=0, so not attempting claim. " +
+					"(remainders = " + remainders +
+					", procMaxNumbers = " + workerMaxProcInstances.entrySet() +
+					", currentCounts = " + currentCounts + ")");
+			}
+
+
 			
 		} // release lock
 		
