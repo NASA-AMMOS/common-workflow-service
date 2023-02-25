@@ -24,7 +24,7 @@
 		<activeio-core.version>3.1.4</activeio-core.version>
 		<software.amazon.awssdk.version>2.16.93</software.amazon.awssdk.version>
 		<!-- <boon.version>0.12</boon.version> -->
-		<camunda.version>7.13.0</camunda.version>
+		<camunda.version>7.14.0</camunda.version>
 		<camunda-spin.version>1.9.0</camunda-spin.version>
 		<commons-compress.version>1.20</commons-compress.version>
 		<commons-configuration.version>1.10</commons-configuration.version>
@@ -80,7 +80,7 @@
 		<skip.integration.tests>false</skip.integration.tests>
 		<spring.framework.version>4.3.23.RELEASE</spring.framework.version>
 		<surefire.version>2.22.0</surefire.version>
-		<tomcat-catalina.version>9.0.33</tomcat-catalina.version>
+		<tomcat-catalina.version>9.0.36</tomcat-catalina.version>
 		<urlrewritefilter.version>4.0.3</urlrewritefilter.version>
 		<xbean-spring.version>3.17</xbean-spring.version>
 		<xmlunit.version>2.6.2</xmlunit.version>
@@ -512,7 +512,7 @@
 			<dependency>
 				<groupId>org.camunda.bpm.assert</groupId>
 				<artifactId>camunda-bpm-assert</artifactId>
-				<version>7.0.0</version> <!-- for Camunda 7.13 w/ AssertJ 3.16.1 -->
+				<version>10.0.0</version> <!-- for Camunda 7.14 w/ AssertJ 3.18.1 -->
 				<scope>test</scope>
 				<!--<exclusions>-->
 					<!--<exclusion>-->
@@ -524,7 +524,7 @@
 			<dependency>
 				<groupId>org.assertj</groupId>
 				<artifactId>assertj-core</artifactId>
-				<version>3.16.1</version> <!-- for Camunda 7.13 w/ Camunda BPM Assert 7.0.0 -->
+				<version>3.18.1</version> <!-- for Camunda 7.14 w/ Camunda BPM Assert 10.0.0 -->
 				<scope>test</scope>
 			</dependency>
 
