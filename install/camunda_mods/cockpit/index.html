@@ -135,12 +135,15 @@
     <footer cam-widget-footer
             version="v7.15.0"></footer>
 
-    <script type="module">
-      import cockpitConf from "$APP_ROOT/app/cockpit/scripts/config.js";
+    <script type="application/javascript">
+      var cockpitConf = window.camCockpitConf = {};
 
-      window.cockpitConf = cockpitConf;
       window.PLUGIN_DEPENDENCIES = $PLUGIN_DEPENDENCIES || [];
       window.PLUGIN_PACKAGES = $PLUGIN_PACKAGES || [];
+
+      window.require = {
+        waitSeconds: 0
+      };
     </script>
 
     <!--[if lte IE 9]><script type="text/javascript">
