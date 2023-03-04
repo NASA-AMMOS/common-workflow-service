@@ -132,18 +132,13 @@
     <footer cam-widget-footer
             version="v7.15.0"></footer>
 
-    <script type="application/javascript">
-      var adminConf = window.camAdminConf = {};
+    <script type="module">
+      import adminConf from "$APP_ROOT/app/admin/scripts/config.js";
 
+      window.adminConf = adminConf;
       window.PLUGIN_DEPENDENCIES = $PLUGIN_DEPENDENCIES || [];
       window.PLUGIN_PACKAGES = $PLUGIN_PACKAGES || [];
-
-      window.require = {
-          waitSeconds: 0
-      };
     </script>
-
-    <script type="text/javascript" src="$APP_ROOT/app/admin/scripts/config.js"></script>
 
     <!--[if lte IE 9]><script type="text/javascript">
       adminConf.polyfills = adminConf.polyfills || [];
