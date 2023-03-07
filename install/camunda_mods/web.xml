@@ -5,7 +5,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
-  <display-name>camunda bpm webapp</display-name>
+  <display-name>Camunda Platform webapp</display-name>
 
   <!-- cockpit bootstrap listener -->
   <listener>
@@ -113,6 +113,18 @@
   <filter>
     <filter-name>HttpHeaderSecurity</filter-name>
     <filter-class>org.camunda.bpm.webapp.impl.security.filter.headersec.HttpHeaderSecurityFilter</filter-class>
+
+    <!--
+    The Strict Transport Security header is disabled by default.
+    You can enable it by uncommenting the configuration below.
+    Read more about it in the documentation
+    https://docs.camunda.org/manual/latest/webapps/shared-options/header-security/#strict-transport-security
+    -->
+
+    <init-param>
+      <param-name>hstsDisabled</param-name>
+      <param-value>false</param-value>
+    </init-param>
   </filter>
 
   <filter-mapping>
