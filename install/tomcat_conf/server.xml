@@ -81,6 +81,8 @@
 
               transactionIsolation="TRANSACTION_READ_COMMITTED" />
 
+    __ADAPTATION_SERVER_RESOURCE__
+
     <Resource name="global/camunda-bpm-platform/process-engine/ProcessEngineService!org.camunda.bpm.ProcessEngineService" auth="Container"
               type="org.camunda.bpm.ProcessEngineService"
               description="camunda BPM platform Process Engine Service"
