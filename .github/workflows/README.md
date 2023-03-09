@@ -14,7 +14,7 @@ The `advanced-test` job is fundamentally the same for the build of CWS, except 2
 
 The `publish-cws-image` job is the CD component of the workflow, triggered upon a commit with a tag and dependant upon successful completion of the `build-and-test-cws` and `advanced-test` jobs.
 
-> **Note**
+> **Warning**
 > The current GitHub runner configuration used for the build and test of CWS, as well as the advanced test, supports up to 1 console and 2 workers.
 > More than 2 workers may result in test failures due to the stress on the runner.
 
@@ -24,7 +24,9 @@ The `publish-cws-image` job is the CD component of the workflow, triggered upon 
   - MariaDB
     - Image: mariadb:10.3
     - Ports: 3306:3306
-- [**checkout**](https://github.com/marketplace/actions/checkout): This action checks out the repository under `$GITHUB_WORKSPACE`, so the workflow can access it.
+- [**checkout**](https://github.com/marketplace/actions/checkout):
+  - This action checks out the repository under `$GITHUB_WORKSPACE`, so the workflow can access it.
+  - `lfs` is set to `true`, enabling the download of Git-LFS files. Starting with Camunda 7.16, this is required because the Camunda Platform with Tomcat distribution bundled with CWS exceeds GitHub's file size limit of 100 MB.
 - Set up JDK 8:
   - [**setup-java**](https://github.com/marketplace/actions/setup-java-jdk): This action downloads and sets up a requested version of Java
   - Current configuration:
@@ -107,7 +109,7 @@ The `build-and-test-cws` job performs all the necessary preliminary steps requir
 
 The following are key differences in the steps of the `build-and-test-cws` job between the `CWS CI Camunda` and `CWS CI LDAP` workflows.
 
-> **Note**
+> **Warning**
 > The current GitHub runner configuration used for the build and test of CWS supports up to 1 console and 2 workers.
 > More than 2 workers may result in test failures due to the stress on the runner.
 
