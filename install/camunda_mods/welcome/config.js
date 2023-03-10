@@ -21,7 +21,7 @@ export default {
     //   vendor: 'Company'
     // },
     // customScripts: [
-    //   // If you have a folder called 'my-custom-script' (in the 'cockpit' folder)
+    //   // If you have a folder called 'my-custom-script' (in the 'welcome' folder)
     //   // with a file called 'customScript.js' in it
     //   // 'my-custom-script/customScript'
     // ],

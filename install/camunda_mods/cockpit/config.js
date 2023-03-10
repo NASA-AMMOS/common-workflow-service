@@ -16,8 +16,11 @@
  */
 
 export default {
-    // // custom libraries and scripts loading and initialization,
-    // // see: http://docs.camunda.org/guides/user-guide/#tasklist-customizing-custom-scripts
+    // // change the app name and vendor
+    // app: {
+    //   name: 'Operations',
+    //   vendor: 'Company'
+    // },
     // customScripts: [
     //   // If you have a folder called 'my-custom-script' (in the 'cockpit' folder)
     //   // with a file called 'customScript.js' in it
@@ -60,7 +63,10 @@ export default {
     // 'batchOperation' : {
     //   // select mode of query for process instances or decision instances
     //   // possible values: filter, search
-    //   'mode': 'filter'
+    //   'mode': 'filter',
+    //
+    //   // select if Historic Batches should be loaded automatically when navigating to #/batch
+    //   'autoLoadEnded': true
     // },
     // bpmnJs: {
     //   moddleExtensions: {
@@ -82,5 +88,6 @@ export default {
     // },
     // csrfCookieName: 'XSRF-TOKEN',
     // disableWelcomeMessage: false,
-    // userOperationLogAnnotationLength: 4000
+    // userOperationLogAnnotationLength: 5000,
+    // previewHtml: true
 };
