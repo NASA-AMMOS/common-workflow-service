@@ -16,10 +16,15 @@
  */
 
 export default {
+    // // change the app name and vendor
+    // app: {
+    //   name: 'Admin',
+    //   vendor: 'Company'
+    // },
     // // custom libraries and scripts loading and initialization,
     // // see: http://docs.camunda.org/guides/user-guide/#tasklist-customizing-custom-scripts
     // customScripts: [
-    //   // If you have a folder called 'my-custom-script' (in the 'cockpit' folder)
+    //   // If you have a folder called 'my-custom-script' (in the 'admin' folder)
     //   // with a file called 'customScript.js' in it
     //   // 'my-custom-script/customScript'
     // ],

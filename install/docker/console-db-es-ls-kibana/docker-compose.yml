@@ -121,7 +121,7 @@ services:
       retries: 12
     volumes:
       - ./config.properties:/home/cws_user/config.properties:ro
-      - logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.43/logs
+      - logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.52/logs
   cws-worker:
     container_name: cws-worker1
     labels:
@@ -145,7 +145,7 @@ services:
       - ES_PORT=9200
     volumes:
       - ./worker-config.properties:/home/cws_user/config.properties:ro
-      - logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.43/logs
+      - logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.52/logs
 
 volumes:
   logs-volume:
