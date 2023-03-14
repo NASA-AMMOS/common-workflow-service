@@ -24,9 +24,7 @@ The `publish-cws-image` job is the CD component of the workflow, triggered upon 
   - MariaDB
     - Image: mariadb:10.3
     - Ports: 3306:3306
-- [**checkout**](https://github.com/marketplace/actions/checkout):
-  - This action checks out the repository under `$GITHUB_WORKSPACE`, so the workflow can access it.
-  - `lfs` is set to `true`, enabling the download of Git-LFS files. Starting with Camunda 7.16, this is required because the Camunda Platform with Tomcat distribution bundled with CWS exceeds GitHub's file size limit of 100 MB.
+- [**checkout**](https://github.com/marketplace/actions/checkout): This action checks out the repository under `$GITHUB_WORKSPACE`, so the workflow can access it.
 - Set up JDK 8:
   - [**setup-java**](https://github.com/marketplace/actions/setup-java-jdk): This action downloads and sets up a requested version of Java
   - Current configuration:
