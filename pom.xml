@@ -24,7 +24,7 @@
 		<activeio-core.version>3.1.4</activeio-core.version>
 		<software.amazon.awssdk.version>2.16.93</software.amazon.awssdk.version>
 		<!-- <boon.version>0.12</boon.version> -->
-		<camunda.version>7.16.0</camunda.version>
+		<camunda.version>7.17.0</camunda.version>
 		<camunda-spin.version>1.9.0</camunda-spin.version>
 		<commons-compress.version>1.20</commons-compress.version>
 		<commons-configuration.version>1.10</commons-configuration.version>
@@ -45,7 +45,7 @@
 		<fst.version>1.55</fst.version> <!--  USE 1.35 for Java6, 1.55 for Java7 -->
 		<grizzly-http-server.version>2.3.11</grizzly-http-server.version>
 		<!-- <groovy.version>2.4.5</groovy.version> -->
-		<gson.version>2.8.5</gson.version>
+		<gson.version>2.8.9</gson.version>
 		<h2.version>1.2.132</h2.version>
 		<!-- <httpclient.version>4.3</httpclient.version> -->
 		<jacoco.version>0.8.2</jacoco.version>
@@ -65,7 +65,7 @@
 		<exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
 		<maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
 		<maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-		<mockito.version>1.9.5</mockito.version>
+		<mockito.version>4.3.1</mockito.version>
 		<mybatis.version>3.5.3</mybatis.version>
 		<mysql-connector.version>8.0.16</mysql-connector.version>
 		<hikaricp.version>4.0.3</hikaricp.version>
@@ -80,7 +80,7 @@
 		<skip.integration.tests>false</skip.integration.tests>
 		<spring.framework.version>4.3.23.RELEASE</spring.framework.version>
 		<surefire.version>2.22.2</surefire.version>
-		<tomcat-catalina.version>9.0.52</tomcat-catalina.version>
+		<tomcat-catalina.version>9.0.58</tomcat-catalina.version>
 		<urlrewritefilter.version>4.0.3</urlrewritefilter.version>
 		<xbean-spring.version>3.17</xbean-spring.version>
 		<xmlunit.version>2.6.2</xmlunit.version>
@@ -510,9 +510,9 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.camunda.bpm.assert</groupId>
+				<groupId>org.camunda.bpm</groupId>
 				<artifactId>camunda-bpm-assert</artifactId>
-				<version>15.0.0</version> <!-- for Camunda 7.16 w/ AssertJ 3.21.0 -->
+				<version>${camunda.version}</version>
 				<scope>test</scope>
 				<!--<exclusions>-->
 					<!--<exclusion>-->
@@ -524,7 +524,7 @@
 			<dependency>
 				<groupId>org.assertj</groupId>
 				<artifactId>assertj-core</artifactId>
-				<version>3.21.0</version> <!-- for Camunda 7.16 w/ Camunda BPM Assert 15.0.0 -->
+				<version>3.21.0</version> <!-- for Camunda 7.17 -->
 				<scope>test</scope>
 			</dependency>
 

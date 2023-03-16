@@ -32,8 +32,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          lfs: true
 
       - name: Set up JDK 8
         uses: actions/setup-java@v3
@@ -80,7 +78,7 @@ jobs:
 
       - name: Show CWS Log
         run: |
-          cd dist/console-only/cws/server/apache-tomcat-9.0.52/logs
+          cd dist/console-only/cws/server/apache-tomcat-9.0.58/logs
           ls -al
 
       - name: Set up Google Chrome
@@ -157,8 +155,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          lfs: true
 
       - name: Set up JDK 8
         uses: actions/setup-java@v3
@@ -205,7 +201,7 @@ jobs:
 
       - name: Show CWS Log
         run: |
-          cd dist/console-only/cws/server/apache-tomcat-9.0.52/logs
+          cd dist/console-only/cws/server/apache-tomcat-9.0.58/logs
           ls -al
 
       - name: Set up Google Chrome
