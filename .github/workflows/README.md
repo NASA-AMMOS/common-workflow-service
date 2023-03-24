@@ -22,7 +22,7 @@ The `publish-cws-image` job is the CD component of the workflow, triggered upon 
 
 - [**Services**](https://docs.github.com/en/actions/using-containerized-services/about-service-containers):
   - MariaDB
-    - Image: mariadb:10.3
+    - Image: mariadb:10.6
     - Ports: 3306:3306
 - [**checkout**](https://github.com/marketplace/actions/checkout): This action checks out the repository under `$GITHUB_WORKSPACE`, so the workflow can access it.
 - Set up JDK 8:

@@ -3,7 +3,7 @@ version: '3.2'
 services:
   db:
     restart: always
-    image: mariadb:10.3
+    image: mariadb:10.6
     container_name: cws-db
     ports:
       - "3306:3306"
