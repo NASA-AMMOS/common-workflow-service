@@ -58,6 +58,7 @@ public class WebTestIT extends WebTestUtil {
 		login();
 		gotoDeployments();
 		deployFile("test_set_vars");
+		deleteProc("test_set_vars");
 		logout();
 		log.info("------ END deployTest ------");
 	}
@@ -105,7 +106,7 @@ public class WebTestIT extends WebTestUtil {
 
 		
 		// Wait for Finish
-		sleep(90000);
+		sleep(35000);
 
 		deleteProc("test_set_vars");
 		logout();
@@ -154,7 +155,7 @@ public class WebTestIT extends WebTestUtil {
 		findOnPage("CWS - Deployments");
 
 		// Wait for Finish
-		sleep(180000);
+		sleep(110000);
 		procCounter++;
 
 		deleteProc("test_error_handling");
@@ -202,39 +203,7 @@ public class WebTestIT extends WebTestUtil {
 		findOnPage("CWS - Deployments");
 
 		// Wait for Finish
-		sleep(90000);
-		
-		
-		/*
-		//Start Instance (2) through Initiators
-		goToInitiators();
-		
-		sleep(9000000);
-		
-		WebElement saveXmlBtn = findElById("saveXmlBtn");
-		saveXmlBtn.click();
-		sleep(1000);
-		
-		WebElement saveConfirmBtn = findElById("saveConfirmBtn");
-		saveConfirmBtn.click();
-		sleep(1000);
-		allWorkers.click();
-		sleep(1000);
-		allWorkersDone.click();
-		sleep(1000);
-		
-		WebElement enableAction = findElById("toggle_repeat_1");
-		enableAction.click();
-		sleep(1000);
-		
-		gotoDeployments();
-		
-		sleep(5000);
-		
-		goToProcesses();
-		
-		sleep(1000);
-		*/
+		sleep(65000);
 
 		
 		if(findOnPage("completed")) {
@@ -279,7 +248,7 @@ public class WebTestIT extends WebTestUtil {
 		log.info("------ START runProcessTest ------");
 		gotoLoginPage();
 		login();
-		startProcDef("test_simplest", "Test Simplest", 90000);
+		startProcDef("test_simplest", "Test Simplest", 65000);
 		deleteProc("test_simplest");
 		logout();
 		log.info("------ END runProcessTest ------");

@@ -57,7 +57,6 @@ public class WorkersTestIT extends WebTestUtil {
 			scriptPass = false;
 		}
 		deleteProc("test_workers_page");
-		deleteProc("test_deployments_page");
 		deleteProc("test_thread_limit");
 		logout();
 		assertTrue("Workers Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
@@ -294,7 +293,7 @@ public class WorkersTestIT extends WebTestUtil {
 			// Each of the 3 test_thread_limit tasks is configured to sleep for 15 seconds and since they should be
 			// running in parallel, we expect them all to complete after 30 seconds, but before 90 (which would be
 			// the case running serially).
-			sleep(80000);
+			sleep(45000);
 			
 			child = statsText.getText();
 

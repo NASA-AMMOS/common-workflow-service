@@ -35,7 +35,7 @@ public class ProcessesTestIT extends WebTestUtil {
 			
 			goToPage("deployments");
 			
-			startProcDef("test_processes_page", "Test Processes Page", 90000);
+			startProcDef("test_processes_page", "Test Processes Page", 15000);
 			
 			runStatusCompleteTest();
 			

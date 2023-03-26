@@ -34,7 +34,7 @@ public class HistoryTestIT extends WebTestUtil {
 
 			goToPage("deployments");
 
-			startProcDef("test_history_page", "Test History Page", 90000);
+			startProcDef("test_history_page", "Test History Page", 70000);
 
 			runResultsTest();
 
@@ -83,7 +83,7 @@ public class HistoryTestIT extends WebTestUtil {
 
 			findOnPage("CWS - History");
 
-			if (findOnPage("History Page")
+			if (findOnPage("History Page.")
 					&& findOnPage("Command 'mkdir Test' exit code: 0")
 					&& findOnPage("Command 'ls' exit code: 0")
 					&& findOnPage("LINE: Test")
