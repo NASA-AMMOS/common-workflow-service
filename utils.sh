@@ -6,7 +6,7 @@
 
 # Update versions as necessary
 export CWS_VER='2.4.0pre.1'    # update this each CWS release
-export CAMUNDA_VER='7.17.0'
+export CAMUNDA_VER='7.18.0'
 export TOMCAT_VER='9.0.58'
 export LOGSTASH_VER='7.16.2'
 
