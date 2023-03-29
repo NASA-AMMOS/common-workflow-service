@@ -1,8 +1,17 @@
 #!/bin/bash
 
+ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 echo
 echo "Camunda Modeler Installer for Mac OS"
 echo
+
+if [ ! -f "elements.json" ]; then
+    echo "*** WARNING *** : File 'elements.json' does not exists in ${ROOT} directory"
+    echo
+    echo "Run the Camunda Modeler Installer from 'modeler/' folder or copy elements.json to ${ROOT}"
+    echo
+fi
 
 if [ ! -d "/Applications" ]; then
   echo "Error: Cannot find '/Applications' directory.  Is this a Mac OS machine?"
