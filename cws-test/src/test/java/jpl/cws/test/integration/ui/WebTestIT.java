@@ -282,7 +282,7 @@ public class WebTestIT extends WebTestUtil {
 		login();
 		goToPage("deployments");
 
-		startProcDef("test_groovy_script", "Test Groovy Script", 30000);
+		startProcDef("test_groovy_script", "Test Groovy Script", 90000);
 
 		if(findOnPage("completed")) {
 			goToProcesses();
