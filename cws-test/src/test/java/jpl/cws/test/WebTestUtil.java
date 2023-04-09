@@ -11,7 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -122,13 +122,14 @@ public class WebTestUtil {
 		chromeOptions.addArguments("--no-sandbox");
 		chromeOptions.addArguments("--disable-gpu");
 		chromeOptions.addArguments("--disable-dev-shm-usage");
+		chromeOptions.addArguments("--remote-allow-origins=*");
 
 		WebDriverManager.chromedriver().setup();
 		driver = new ChromeDriver(chromeOptions);
 
 		log.info("Driver initialized: " + driver);
 
-		driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(60));
 	}
 
 	protected WebElement findElById(String id) {
@@ -176,7 +177,7 @@ public class WebTestUtil {
 
 		driver.get("http://"+HOSTNAME+":"+PORT + "/cws-ui/login");
 		driver.manage().window().setSize(new Dimension(1024, 768));
-		driver.manage().timeouts().pageLoadTimeout(60, TimeUnit.SECONDS);
+		driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(60));
 		// Verify we have made it to the Login page
 		findOnPage("Login");
 	}
@@ -222,7 +223,7 @@ public class WebTestUtil {
 		log.info("Navigating to " + page + " page");
 		driver.get("http://"+HOSTNAME+":"+PORT + "/cws-ui/" + page);
 		driver.manage().window().setSize(new Dimension(1024, 768));
-		driver.manage().timeouts().pageLoadTimeout(30, TimeUnit.SECONDS);
+		driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
 		postLogging(page, "Navigated to ");
 
 	}
@@ -240,7 +241,7 @@ public class WebTestUtil {
 
 	public void startProcDef(String procDef, String procName, long procTime) {
 		deployFile(procDef);
-		WebDriverWait wait = new WebDriverWait(driver,30);
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 
 		enableWorkers(procDef);
 
@@ -285,7 +286,7 @@ public class WebTestUtil {
 	}
 
 	public void enableWorkers(String procDef) {
-		WebDriverWait wait = new WebDriverWait(driver,30);
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 
 		wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
 		WebElement enable = findElById("pv-"+procDef);
@@ -310,7 +311,7 @@ public class WebTestUtil {
 	}
 
 	public void disableWorkers(String procDef) {
-		WebDriverWait wait = new WebDriverWait(driver,30);
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 
 		wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
 		WebElement enable = findElById("pv-"+procDef);
@@ -397,22 +398,22 @@ public class WebTestUtil {
 	}
 
 	public void waitForElement(WebElement arg0) {
-	    WebDriverWait wait = new WebDriverWait(driver,30);
+	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 	    wait.until(ExpectedConditions.elementToBeClickable(arg0));
 	}
 
 	public void waitForElementID(String item) {
-	    WebDriverWait wait = new WebDriverWait(driver,30);
+	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 	    wait.until(ExpectedConditions.elementToBeClickable(By.id(item)));
 	}
 
 	public void waitForElementXPath(String item) {
-	    WebDriverWait wait = new WebDriverWait(driver,30);
+	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 	    wait.until(ExpectedConditions.elementToBeClickable(By.xpath(item)));
 	}
 
 	public void waitForElementClass(String item) {
-	    WebDriverWait wait = new WebDriverWait(driver,30);
+	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 	    wait.until(ExpectedConditions.elementToBeClickable(By.className(item)));
 	}
 
@@ -443,7 +444,7 @@ public class WebTestUtil {
 	}
 
 	public void deleteProc(String procName) {
-		WebDriverWait wait = new WebDriverWait(driver,30);
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 		goToPage("deployments");
 
 		if(driver.getPageSource().contains(procName)) {
@@ -486,7 +487,7 @@ public class WebTestUtil {
 
 	public void checkIdle() {
 		try {
-			WebDriverWait wait = new WebDriverWait(driver,0);
+			WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(0));
 			wait.until(ExpectedConditions.elementToBeClickable(By.id("resume-refresh")));
 			WebElement resume = driver.findElement(By.id("resume-refresh"));
 			resume.click();
