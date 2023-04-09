@@ -24,7 +24,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.github.bonigarcia.wdm.WebDriverManager;
 
 /**
  *
@@ -116,15 +115,13 @@ public class WebTestUtil {
 		ChromeOptions chromeOptions = new ChromeOptions();
 
 		// Turn on headless mode for Bamboo
-		chromeOptions.setHeadless(true);
+		chromeOptions.addArguments("--headless=new");
 		chromeOptions.setAcceptInsecureCerts(true);
 		chromeOptions.addArguments("--window-size=1920,1080");
 		chromeOptions.addArguments("--no-sandbox");
 		chromeOptions.addArguments("--disable-gpu");
 		chromeOptions.addArguments("--disable-dev-shm-usage");
-		chromeOptions.addArguments("--remote-allow-origins=*");
 
-		WebDriverManager.chromedriver().setup();
 		driver = new ChromeDriver(chromeOptions);
 
 		log.info("Driver initialized: " + driver);
