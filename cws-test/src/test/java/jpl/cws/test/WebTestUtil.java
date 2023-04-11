@@ -118,17 +118,15 @@ public class WebTestUtil {
 		// Turn on headless mode for Bamboo
 		chromeOptions.setHeadless(true);
 		chromeOptions.setAcceptInsecureCerts(true);
-		chromeOptions.addArguments("--window-size=1920,1080");
 		chromeOptions.addArguments("--no-sandbox");
 		chromeOptions.addArguments("--disable-gpu");
 		chromeOptions.addArguments("--disable-dev-shm-usage");
 
 		WebDriverManager.chromedriver().setup();
 		driver = new ChromeDriver(chromeOptions);
+		driver.manage().window().maximize();
 
 		log.info("Driver initialized: " + driver);
-
-		driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
 	}
 
 	protected WebElement findElById(String id) {
