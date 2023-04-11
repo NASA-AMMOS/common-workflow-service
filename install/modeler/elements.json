@@ -1,5 +1,6 @@
 [
 	{
+		"$schema": "https://unpkg.com/@camunda/element-templates-json-schema/resources/schema.json",
 		"name": "Command Line Execution",
 		"id": "jpl.cws.task.CmdLineExecTask",
 		"appliesTo": [
@@ -180,14 +181,10 @@
 					"name": "camunda:topic"
 				}
 			}
-		],
-		"entriesVisible": {
-			"_all": true,
-			"implementation": false,
-			"externalTopic": false
-		}
+		]
 	},
 	{
+		"$schema": "https://unpkg.com/@camunda/element-templates-json-schema/resources/schema.json",
 		"name": "Blow Up",
 		"id": "jpl.cws.task.BlowUpTask",
 		"appliesTo": [
@@ -207,20 +204,17 @@
 			{
 				"label": "Implementation",
 				"type": "Hidden",
-				"value": null,
+				"value": "null",
 				"editable": false,
 				"binding": {
 					"type": "property",
 					"name": "camunda:type"
 				}
 			}
-		],
-		"entriesVisible": {
-			"_all": true,
-			"implementation": false
-		}
+		]
 	},
 	{
+		"$schema": "https://unpkg.com/@camunda/element-templates-json-schema/resources/schema.json",
 		"name": "Schedule Process",
 		"id": "jpl.cws.task.ScheduleProcTask",
 		"appliesTo": [
@@ -340,20 +334,17 @@
 			{
 				"label": "Implementation",
 				"type": "Hidden",
-				"value": null,
+				"value": "null",
 				"editable": false,
 				"binding": {
 					"type": "property",
 					"name": "camunda:type"
 				}
 			}
-		],
-		"entriesVisible": {
-			"_all": true,
-			"implementation": false
-		}
+		]
 	},
 	{
+		"$schema": "https://unpkg.com/@camunda/element-templates-json-schema/resources/schema.json",
 		"name": "Log Message",
 		"id": "jpl.cws.task.LogTask",
 		"appliesTo": [
@@ -412,20 +403,17 @@
 			{
 				"label": "Implementation",
 				"type": "Hidden",
-				"value": null,
+				"value": "null",
 				"editable": false,
 				"binding": {
 					"type": "property",
 					"name": "camunda:type"
 				}
 			}
-		],
-		"entriesVisible": {
-			"_all": true,
-			"implementation": false
-		}
+		]
 	},
 	{
+		"$schema": "https://unpkg.com/@camunda/element-templates-json-schema/resources/schema.json",
 		"name": "Send Email",
 		"id": "jpl.cws.task.EmailTask",
 		"appliesTo": [
@@ -557,20 +545,17 @@
 			{
 				"label": "Implementation",
 				"type": "Hidden",
-				"value": null,
+				"value": "null",
 				"editable": false,
 				"binding": {
 					"type": "property",
 					"name": "camunda:type"
 				}
 			}
-		],
-		"entriesVisible": {
-			"_all": true,
-			"implementation": false
-		}
+		]
 	},
 	{
+		"$schema": "https://unpkg.com/@camunda/element-templates-json-schema/resources/schema.json",
 		"name": "Sleep",
 		"id": "jpl.cws.task.SleepTask",
 		"appliesTo": [
@@ -639,20 +624,17 @@
 			{
 				"label": "Implementation",
 				"type": "Hidden",
-				"value": null,
+				"value": "null",
 				"editable": false,
 				"binding": {
 					"type": "property",
 					"name": "camunda:type"
 				}
 			}
-		],
-		"entriesVisible": {
-			"_all": true,
-			"implementation": false
-		}
+		]
 	},
 	{
+		"$schema": "https://unpkg.com/@camunda/element-templates-json-schema/resources/schema.json",
 		"name": "Rest GET",
 		"id": "jpl.cws.task.RestGetTask",
 		"appliesTo": [
@@ -771,20 +753,17 @@
 			{
 				"label": "Implementation",
 				"type": "Hidden",
-				"value": null,
+				"value": "null",
 				"editable": false,
 				"binding": {
 					"type": "property",
 					"name": "camunda:type"
 				}
 			}
-		],
-		"entriesVisible": {
-			"_all": true,
-			"implementation": false
-		}
+		]
 	},
 	{
+		"$schema": "https://unpkg.com/@camunda/element-templates-json-schema/resources/schema.json",
 		"name": "Rest POST",
 		"id": "jpl.cws.task.RestPostTask",
 		"appliesTo": [
@@ -912,20 +891,17 @@
 			{
 				"label": "Implementation",
 				"type": "Hidden",
-				"value": null,
+				"value": "null",
 				"editable": false,
 				"binding": {
 					"type": "property",
 					"name": "camunda:type"
 				}
 			}
-		],
-		"entriesVisible": {
-			"_all": true,
-			"implementation": false
-		}
+		]
 	},
 	{
+		"$schema": "https://unpkg.com/@camunda/element-templates-json-schema/resources/schema.json",
 		"name": "Set Variables",
 		"id": "jpl.cws.task.SetVariablesTask",
 		"appliesTo": [
@@ -995,20 +971,17 @@
 			{
 				"label": "Implementation",
 				"type": "Hidden",
-				"value": null,
+				"value": "null",
 				"editable": false,
 				"binding": {
 					"type": "property",
 					"name": "camunda:type"
 				}
 			}
-		],
-		"entriesVisible": {
-			"_all": true,
-			"implementation": false
-		}
+		]
 	},
 	{
+		"$schema": "https://unpkg.com/@camunda/element-templates-json-schema/resources/schema.json",
 		"name": "Roll the Dice",
 		"id": "jpl.cws.task.RollTheDiceTask",
 		"appliesTo": [
@@ -1064,20 +1037,17 @@
 			{
 				"label": "Implementation",
 				"type": "Hidden",
-				"value": null,
+				"value": "null",
 				"editable": false,
 				"binding": {
 					"type": "property",
 					"name": "camunda:type"
 				}
 			}
-		],
-		"entriesVisible": {
-			"_all": true,
-			"implementation": false
-		}
+		]
 	},
 	{
+		"$schema": "https://unpkg.com/@camunda/element-templates-json-schema/resources/schema.json",
 		"name": "Command Line Execution (short-lived)",
 		"id": "jpl.cws.task.CmdLineExecTaskNonExt",
 		"appliesTo": [
@@ -1202,17 +1172,13 @@
 			{
 				"label": "Implementation",
 				"type": "Hidden",
-				"value": null,
+				"value": "null",
 				"editable": false,
 				"binding": {
 					"type": "property",
 					"name": "camunda:type"
 				}
 			}
-		],
-		"entriesVisible": {
-			"_all": true,
-			"implementation": false
-		}
+		]
 	}
 ]
