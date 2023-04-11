@@ -3,9 +3,9 @@ package jpl.cws.test.integration.ui;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -58,7 +58,7 @@ public class ProcessesTestIT extends WebTestUtil {
 			
 	public void runStatusCompleteTest() throws IOException {
 		Boolean scriptPass = false;
-		WebDriverWait wait = new WebDriverWait(driver,30);
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 		try {
 			log.info("------ START ProcessesTestIT:runStatusCompleteTest ------");
 
