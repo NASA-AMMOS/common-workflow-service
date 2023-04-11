@@ -2,12 +2,15 @@
 
 #### _WARNING: Make sure to use the CWS Version 2.4 installation after using this script for the relevant Database_
 
-### Purpose:
+This script helps to prepare an existing CWS v2.3 database to be used for a new CWS v2.4 installation by updating its schema to match that of CWS v2.4 core. This method of upgrading the CWS database gives the user the option of preserving data and migrating to a newer CWS installation without blowing up the entire database.
 
-* *CWS v2.4* : Alter database table *cws_worker*  to add new column `max_num_running_procs`
+### Actions:
 
+* *CWS v2.4* : 
+  * Alter database table *cws_worker* to add new column `max_num_running_procs`
+  * Remove existing worker rows from tables `cws_worker` and `cws_worker_proc_def`
 
-To run use the commands:
+To run the commands:
 
 
 ```
