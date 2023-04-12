@@ -1,11 +1,25 @@
 #!/bin/bash
 
+ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 echo
 echo "Camunda Modeler Installer for Linux"
 echo
 echo "This will install the Camunda Modeler in this directory:"
 pwd
 echo
+
+if [ ! -f "elements.json" ]; then
+    echo "****************************************"
+    echo "*************** WARNING ! **************"
+    echo "****************************************"
+    echo "+--------------------------------------+"
+    echo "File 'elements.json' does not exists in ${ROOT} directory   "
+    echo "+--------------------------------------+"
+    echo
+    echo "Run the Camunda Modeler Installer from 'modeler/' folder or copy elements.json to ${ROOT} before continuing "
+    echo
+fi
 
 # Confirm Install
 while [[ ! $REPLY =~ ^(y|Y|n|N)$ ]]; do

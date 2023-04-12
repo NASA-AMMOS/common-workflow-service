@@ -7,9 +7,14 @@ echo "Camunda Modeler Installer for Mac OS"
 echo
 
 if [ ! -f "elements.json" ]; then
-    echo "*** WARNING *** : File 'elements.json' does not exists in ${ROOT} directory"
+    echo "****************************************"
+    echo "*************** WARNING ! **************"
+    echo "****************************************"
+    echo "+--------------------------------------+"
+    echo "File 'elements.json' does not exists in ${ROOT} directory   "
+    echo "+--------------------------------------+"
     echo
-    echo "Run the Camunda Modeler Installer from 'modeler/' folder or copy elements.json to ${ROOT}"
+    echo "Run the Camunda Modeler Installer from 'modeler/' folder or copy elements.json to ${ROOT} before continuing "
     echo
 fi
 
