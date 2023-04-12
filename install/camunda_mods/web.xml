@@ -139,6 +139,14 @@
       <param-name>hstsDisabled</param-name>
       <param-value>false</param-value>
     </init-param>
+
+    <init-param>
+      <param-name>contentSecurityPolicyValue</param-name>
+      <param-value>
+        base-uri 'self';
+        default-src 'self' 'unsafe-inline'
+      </param-value>
+    </init-param>
   </filter>
 
   <filter-mapping>

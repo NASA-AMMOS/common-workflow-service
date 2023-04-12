@@ -176,55 +176,17 @@ public class CwsExternalTaskThread extends Thread  {
 			}
 		}
 		catch (Throwable t) {
+			String msg = "Failed to retrieve and/or parse input variables.  Details: " + t.getMessage();
+			log.error("Error: " + msg, t);
 
-			// See if we have any more retries for variable lookup failure
-			String fieldName = activityId + "_cwsVariableLookupFailRetries";
-			
-			// Initialize it to 3 if not already set
-			int variableLookupRetries = 3;
-			
-			if (task.getVariables().containsKey(fieldName)) {
-
-				// It does exist, so read it in
-				variableLookupRetries = Integer.parseInt((String)task.getVariables().get(fieldName));
-			}
-
-			log.warn("Error: Failed to retrieve input variables from execution listener. " + variableLookupRetries + " retries remaining.");
-
-			if (variableLookupRetries > 0) {
-				
-				// Decrement variable lookup retries
-				variableLookupRetries--;
-
-				// Update in database
-				setOutputVariable(fieldName, variableLookupRetries + "");
-
-				// Allow for this task to be fetched again and wait for the listener to set the input variables
-				//
-				// Get retries for this task
-				int taskRetries = getAndIncrementRetriesForTask(task, cmdInputFields.retries);
-
-				// Retry this external task
-				handleCamundaApiCall(Resolution.HANDLE_FAILURE, task.getId(), "Retrying due to variable lookup failure...", t.toString(), taskRetries, 3000L);
-			}
-			else
-			{
-				// We got an error and failed to retry this task 3 times, indicating that a critical failure caused the
-				// variables to never get set. An incident can now be reasonably thrown.
-
-				String msg = "Failed to retrieve and/or parse input variables.  Details: " + t.getMessage();
-				log.error("Error: " + msg, t);
-
-				// Create an incident
-				handleCamundaApiCall(Resolution.HANDLE_FAILURE, task.getId(), msg, t.toString(), 0, 0L);
-			}
+			// Create an incident
+			handleCamundaApiCall(Resolution.HANDLE_FAILURE, task.getId(), msg, t.toString(), 0, 0L);
 
 			// Don't do anything else with this task -- go to the next one.
 			return;
 		}
 
 		try {
-			setOutputVariable("lockedTime", lockedTime);
 			cmdOutputFields.lockedTime = lockedTime;
 
 			boolean success = executeTask(cmdInputFields, cmdOutputFields);
@@ -565,9 +527,6 @@ public class CwsExternalTaskThread extends Thread  {
 			int exitValue = resultHandler.getExitValue();
 			log.info("Command '" + cmdInputFields.command + "' exit code: " + exitValue + "\nRan in " + (t1 - t0) + " ms.");
 
-			// putting redundant names here on purpose to reduce operator error
-			setOutputVariable("exitValue", exitValue + "");
-			setOutputVariable("exitCode", exitValue + "");
 			cmdOutputFields.exitCode = exitValue;
 			
 			// Set "success" variable based on comparison with successExitValue
@@ -583,14 +542,12 @@ public class CwsExternalTaskThread extends Thread  {
 			if (!success) {
 				log.warn("Exit value " + exitValue + " determined to be a FAILURE");
 			}
-			setOutputVariable("success", success.toString());
 			cmdOutputFields.success = success;
 
 			// Detect whether a certain event case applies (based on exit code)
 			//
 			for (String eventCode : exitCodeEventsMap.keySet()) {
 				if (new Boolean(Integer.parseInt(eventCode) == exitValue)) {
-					setOutputVariable("event", exitCodeEventsMap.get(eventCode));
 					cmdOutputFields.event = exitCodeEventsMap.get(eventCode);
 					break; // can only be one event
 				}
@@ -608,24 +565,14 @@ public class CwsExternalTaskThread extends Thread  {
 				sortedLines.put(stdErrLine, stdErrLine);
 			}
 
-			// Get trimmed output variable
-			String outputStr = StringUtils.join(
-					Collections2.transform(sortedLines.values(), new StripOrderId<String, String>()), '\n');
-
-			// trim out the cwsVariable section (if present)
-			outputStr.replaceAll(CWS_VARS_FROM_STDOUT_REGEX, "");
-			setOutputVariable("output", outputStr);
-
 			// Set stdout output into variable
 			//
 			String stdoutStr = StringUtils.join(Collections2.transform(stdOutLines, new StripOrderId<String, String>()), '\n');
-			setOutputVariable("stdout", stdoutStr);
 			cmdOutputFields.stdout = stdoutStr;
 
 			// Set stderr output into variable
 			//
 			String stderrStr = StringUtils.join(Collections2.transform(stdErrLines, new StripOrderId<String, String>()), '\n');
-			setOutputVariable("stderr", stderrStr);
 			cmdOutputFields.stderr = stderrStr;
 
 			setStdOutVariables(stdOutLines);
