@@ -40,7 +40,7 @@ services:
       - ES_HOST=es
       - ES_PORT=9200
     volumes:
-      - ./worker2-config.properties:/home/cws_user/config.properties:ro
+      - ./config.properties:/home/cws_user/config.properties:ro
       - worker2-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.33/logs
 
 volumes:
