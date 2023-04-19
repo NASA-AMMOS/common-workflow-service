@@ -23,6 +23,7 @@ mkdir -p ${CWS}/{bpmn,config/templates,installer,logs,sql/cws}
 
 print 'Unzipping Camunda into distribution...'
 unzip ${INSTALL_DIR}/cws_camunda-bpm-tomcat-${CAMUNDA_VER}.zip -x start-camunda.bat start-camunda.sh -d ${CWS} > ${CWS}/logs/camunda_extract.log 2>&1
+unzip ${INSTALL_DIR}/cws_camunda-bpm-tomcat-${CAMUNDA_VER}-lib.zip -d ${CWS}/lib > ${CWS}/logs/camunda_extract.log 2>&1
 
 if [[ $? -gt 0 ]]; then
     print "ERROR: failed to unzip Camunda distribution, check ${CWS}/logs/camunda_extract.log for details."

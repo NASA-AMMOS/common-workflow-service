@@ -15,21 +15,29 @@
  * limitations under the License.
  */
 
-window.camCockpitConf = {
-    // // custom libraries and scripts loading and initialization,
-    // // see: http://docs.camunda.org/guides/user-guide/#tasklist-customizing-custom-scripts
-     customScripts: {
-       // AngularJS module names
-       ngDeps: [],
-       // RequireJS configuration for a complete configuration documentation see:
-       // http://requirejs.org/docs/api.html#config
-       deps: ['jquery', 'cws'],
-       paths: {
-         // if you have a folder called `custom-ui` (in the `cockpit` folder)
-         // with a file called `scripts.js` in it and defining the `custom-ui` AMD module
-         'cws': 'cws/scripts'
-       }
-     },
+export default {
+    // // change the app name and vendor
+    // app: {
+    //   name: 'Operations',
+    //   vendor: 'Company'
+    // },
+    // customScripts: [
+    //   // If you have a folder called 'my-custom-script' (in the 'cockpit' folder)
+    //   // with a file called 'customScript.js' in it
+    //   // 'my-custom-script/customScript'
+    // ],
+    requireJsConfig: {
+        // AngularJS module names
+        ngDeps: [],
+        // RequireJS configuration for a complete configuration documentation see:
+        // http://requirejs.org/docs/api.html#config
+        deps: ['jquery', 'cws'],
+        paths: {
+            // if you have a folder called `custom-ui` (in the `cockpit` folder)
+            // with a file called `scripts.js` in it and defining the `custom-ui` AMD module
+            'cws': 'cws/scripts'
+        }
+    },
     // historicActivityInstanceMetrics: {
     //   adjustablePeriod: true,
     //   //select from the default time period: day, week, month, complete
@@ -55,7 +63,10 @@ window.camCockpitConf = {
     // 'batchOperation' : {
     //   // select mode of query for process instances or decision instances
     //   // possible values: filter, search
-    //   'mode': 'filter'
+    //   'mode': 'filter',
+    //
+    //   // select if Historic Batches should be loaded automatically when navigating to #/batch
+    //   'autoLoadEnded': true
     // },
     // bpmnJs: {
     //   moddleExtensions: {
@@ -63,11 +74,11 @@ window.camCockpitConf = {
     //     // with a file called 'camunda.json' in it defining the 'camunda' moddle extension
     //     camunda: 'my-custom-moddle/camunda'
     //   },
-    //   additionalModules: {
+    //   additionalModules: [
     //     // if you have a folder called 'my-custom-module' (in the 'cockpit' folder)
-    //     // with a file called 'module.js' in it defining the 'my-custom-module' AMD module
-    //     myCustomModule: 'my-custom-module/module'
-    //   }
+    //     // with a file called 'module.js' in it
+    //     'my-custom-module/module'
+    //   ],
     // },
     // defaultFilter: {
     //   historicProcessDefinitionInstancesSearch: {
@@ -77,5 +88,6 @@ window.camCockpitConf = {
     // },
     // csrfCookieName: 'XSRF-TOKEN',
     // disableWelcomeMessage: false,
-    // userOperationLogAnnotationLength: 4000
+    // userOperationLogAnnotationLength: 5000,
+    // previewHtml: true
 };

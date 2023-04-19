@@ -14,7 +14,7 @@ The `advanced-test` job is fundamentally the same for the build of CWS, except 2
 
 The `publish-cws-image` job is the CD component of the workflow, triggered upon a commit with a tag and dependant upon successful completion of the `build-and-test-cws` and `advanced-test` jobs.
 
-> **Note**
+> **Warning**
 > The current GitHub runner configuration used for the build and test of CWS, as well as the advanced test, supports up to 1 console and 2 workers.
 > More than 2 workers may result in test failures due to the stress on the runner.
 
@@ -107,7 +107,7 @@ The `build-and-test-cws` job performs all the necessary preliminary steps requir
 
 The following are key differences in the steps of the `build-and-test-cws` job between the `CWS CI Camunda` and `CWS CI LDAP` workflows.
 
-> **Note**
+> **Warning**
 > The current GitHub runner configuration used for the build and test of CWS supports up to 1 console and 2 workers.
 > More than 2 workers may result in test failures due to the stress on the runner.
 
