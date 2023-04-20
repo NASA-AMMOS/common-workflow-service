@@ -4,10 +4,13 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.*;
 
 import java.util.Map;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
+import org.camunda.spin.json.SpinJsonNode;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,8 +58,16 @@ public class Issue16Test extends CwsTestBase {
 		log.info("************************************** " + processInstance);
 
 		Map<String, Object> vars = runtimeService().getVariables(processInstance.getProcessInstanceId());
-		Assert.assertTrue(vars.containsKey("ServiceTask_1_success"));
-		Assert.assertTrue(vars.get("ServiceTask_1_success").equals("false"));
+		// get the value of the map, a JSON object represented by a JacksonJsonNode
+		SpinJsonNode jsonNode = (SpinJsonNode) vars.get("ServiceTask_1_out");
+		// convert the SpinJsonNode to a string
+		String jsonString = jsonNode.toString();
+		// parse the JSON string into a JsonObject
+		JsonObject jsonObject = new Gson().fromJson(jsonString, JsonObject.class);
+
+		Assert.assertTrue(vars.containsKey("ServiceTask_1_out"));
+		Assert.assertEquals(false, jsonObject.get("success").getAsBoolean());
+
 
 		log.info(runtimeService().getVariables(processInstance.getProcessInstanceId()).toString());
 

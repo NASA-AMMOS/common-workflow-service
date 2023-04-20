@@ -180,9 +180,6 @@ public class CmdLineExecTask extends CwsTask {
 
 			CmdLineOutputFields cmdOutputFields = new CmdLineOutputFields();
 
-			// putting redundant names here on purpose to reduce operator error
-			setOutputVariable("exitValue", exitValue + "");
-			setOutputVariable("exitCode", exitValue + "");
 			cmdOutputFields.exitCode = exitValue;
 
 			// Set "success" variable based on comparison with successExitValue
@@ -198,14 +195,12 @@ public class CmdLineExecTask extends CwsTask {
 			if (!success) {
 				log.warn("Exit value " + exitValue + " determined to be a FAILURE");
 			}
-			setOutputVariable("success", success.toString());
 			cmdOutputFields.success = success;
 
 			// Detect whether a certain event case applies (based on exit code)
 			//
 			for (String eventCode : exitCodeEventsMap.keySet()) {
 				if (new Boolean(Integer.parseInt(eventCode) == exitValue)) {
-					setOutputVariable("event", exitCodeEventsMap.get(eventCode));
 					cmdOutputFields.event = exitCodeEventsMap.get(eventCode);
 					break; // can only be one event
 				}
@@ -226,20 +221,15 @@ public class CmdLineExecTask extends CwsTask {
 			// Get trimmed output variable
 			String outputStr = StringUtils.join(
 					Collections2.transform(sortedLines.values(), new StripOrderId<String, String>()), '\n');
-			// trim out the cwsVariable section (if present)
-			outputStr.replaceAll(CWS_VARS_FROM_STDOUT_REGEX, "");
-			setOutputVariable("output", outputStr);
 
 			// Set stdout output into variable
 			//
 			String stdoutStr = StringUtils.join(Collections2.transform(stdOutLines, new StripOrderId<String, String>()), '\n');
-			setOutputVariable("stdout", stdoutStr);
 			cmdOutputFields.stdout = stdoutStr;
 
 			// Set stderr output into variable
 			//
 			String stderrStr = StringUtils.join(Collections2.transform(stdErrLines, new StripOrderId<String, String>()), '\n');
-			setOutputVariable("stderr", stderrStr);
 			cmdOutputFields.stderr = stderrStr;
 
 			setStdOutVariables(stdOutLines);
