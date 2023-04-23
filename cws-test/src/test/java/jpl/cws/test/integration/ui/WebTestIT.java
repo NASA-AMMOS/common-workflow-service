@@ -243,6 +243,52 @@ public class WebTestIT extends WebTestUtil {
 		logout();
 		log.info("------ END deployTest ------");
 	}
+
+	@Test
+	public void runGroovyTest() {
+		log.info("------ START runGroovyTest ------");
+		gotoLoginPage();
+		login();
+		goToPage("deployments");
+
+		startProcDef("test_groovy_script", "Test Groovy Script", 90000);
+
+		if(findOnPage("completed")) {
+			goToProcesses();
+			sleep(1000);
+			log.info("Found a completed task.");
+
+			WebElement completeBox = findElById("complete");
+			completeBox.click();
+			sleep(1000);
+
+			Select select = new Select(findElById("pd-select"));
+			select.selectByVisibleText("Test Groovy Script");
+			sleep(1000);
+
+			WebElement filterSubmit = findElById("filter-submit-btn");
+			filterSubmit.click();
+			sleep(1000);
+
+			waitForElementXPath("//button[contains(text(),'History')]");
+			WebElement historyButton = driver.findElement(By.xpath("//button[contains(text(),'History')]"));
+			historyButton.click();
+			sleep(1000);
+
+			findOnPage("Groovy.");
+
+			sleep(9000);
+
+
+		} else {
+			log.info("Process did not complete either in time or at all");
+		}
+
+		deleteProc("test_groovy_script");
+		logout();
+		log.info("------ END runGroovyTest ------");
+	}
+
 	@Test
 	public void runProcessTest() {
 		log.info("------ START runProcessTest ------");

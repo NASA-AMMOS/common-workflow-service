@@ -3,8 +3,8 @@ package jpl.cws.test.integration.ui;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.time.Duration;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -90,7 +90,7 @@ public class LogsTestIT extends WebTestUtil {
 	
 	public void runTableColumnTest() throws IOException {
 		Boolean scriptPass = false;
-		WebDriverWait wait = new WebDriverWait(driver,30);
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 		try {
 			log.info("------ START LogsTestIT:runTableColumnTest ------");
 			
@@ -150,7 +150,7 @@ public class LogsTestIT extends WebTestUtil {
 	//Disabled test for inconsistency on the refresh in the logs.
 	public void runOutputRefreshTest() throws IOException {
 		Boolean scriptPass = false;
-		WebDriverWait wait = new WebDriverWait(driver,30);
+		WebDriverWait wait = new WebDriverWait(driver,Duration.ofSeconds(30));
 		try {
 			log.info("------ START LogsTestIT:runOutputRefreshTest ------");
 			
