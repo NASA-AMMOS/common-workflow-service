@@ -171,7 +171,6 @@ public class WebTestUtil {
 		log.info("navigating to the login page...");
 
 		driver.get("http://"+HOSTNAME+":"+PORT + "/cws-ui/login");
-		driver.manage().window().setSize(new Dimension(1024, 768));
 		driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(60));
 		// Verify we have made it to the Login page
 		findOnPage("Login");
@@ -217,7 +216,6 @@ public class WebTestUtil {
 	protected void goToPage(String page) {
 		log.info("Navigating to " + page + " page");
 		driver.get("http://"+HOSTNAME+":"+PORT + "/cws-ui/" + page);
-		driver.manage().window().setSize(new Dimension(1024, 768));
 		driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
 		postLogging(page, "Navigated to ");
 
