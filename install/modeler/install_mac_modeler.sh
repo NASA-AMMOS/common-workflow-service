@@ -15,7 +15,7 @@ if [ ! -f "elements.json" ]; then
     echo "+--------------------------------------+"
     echo
     echo "Run the Camunda Modeler Installer from 'modeler/' folder or copy elements.json to '${ROOT}' before running modeler script "
-    echo Aborting...
+    echo "Exiting..."
     exit 1
 fi
 
