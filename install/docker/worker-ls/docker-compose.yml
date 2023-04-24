@@ -41,10 +41,10 @@ services:
       - ES_PORT=9200
     volumes:
       - ./config.properties:/home/cws_user/config.properties:ro
-      - logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.58/logs
+      - worker2-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.58/logs
 
 volumes:
-  logs-volume:
+  worker2-logs-volume:
 
 networks:
   default:
