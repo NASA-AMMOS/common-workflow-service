@@ -17,8 +17,9 @@ if [ ! -f "elements.json" ]; then
     echo "File 'elements.json' does not exists in ${ROOT} directory   "
     echo "+--------------------------------------+"
     echo
-    echo "Run the Camunda Modeler Installer from 'modeler/' folder or copy elements.json to ${ROOT} before continuing "
-    echo
+    echo "Run the Camunda Modeler Installer from 'modeler/' folder or copy elements.json to '${ROOT}' before running modeler script "
+    echo Aborting...
+    exit 1
 fi
 
 # Confirm Install
