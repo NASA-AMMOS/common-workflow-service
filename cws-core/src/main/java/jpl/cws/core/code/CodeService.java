@@ -6,10 +6,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
@@ -60,19 +57,10 @@ public class CodeService implements InitializingBean {
 		// Construct the set of URLs
 		File outputDir = new File(TEMP_DIR_PATH);
 
-		URLClassLoader cl = ((URLClassLoader) (Thread.currentThread().getContextClassLoader()));
-		URLClassLoader parent = cl;
-
-		while (parent != null) {
-			for (URL url : parent.getURLs()) {
-				urls.add(url);
-				log.trace("CC ["+parent+"] URL: " + url);
-			}
-			parent = (URLClassLoader) parent.getParent(); // traverse up chain..
-		}
-
-		if (cl != null) {
-			cl.close();
+		List<URL> classpathUrls = getClasspathUrls();
+		urls.addAll(classpathUrls);
+		for (URL url : classpathUrls) {
+			log.trace("URL: " + url);
 		}
 
 		urls.add(outputDir.toURI().toURL());
@@ -329,5 +317,14 @@ public class CodeService implements InitializingBean {
 	public String getTempDirPath() {
 		return TEMP_DIR_PATH;
 	}
-	
+
+	public List<URL> getClasspathUrls() throws IOException {
+		List<URL> result = new ArrayList<>();
+		Enumeration<URL> resources = getClass().getClassLoader().getResources("");
+		while (resources.hasMoreElements()) {
+			result.add(resources.nextElement());
+		}
+		return result;
+	}
+
 }

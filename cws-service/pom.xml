@@ -55,6 +55,11 @@
 				</dependency>
 
 				<dependency>
+					<groupId>javax.annotation</groupId>
+					<artifactId>javax.annotation-api</artifactId>
+				</dependency>
+
+				<dependency>
 					<groupId>org.tuckey</groupId>
 					<artifactId>urlrewritefilter</artifactId>
 				</dependency>
@@ -262,8 +267,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
+					<release>${java.version}</release>
 				</configuration>
 			</plugin>
 		</plugins>
