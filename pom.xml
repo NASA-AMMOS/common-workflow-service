@@ -564,6 +564,7 @@
 				<groupId>org.seleniumhq.selenium</groupId>
 				<artifactId>selenium-http-jdk-client</artifactId>
 				<version>${selenium.version}</version>
+				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.jacoco</groupId>
