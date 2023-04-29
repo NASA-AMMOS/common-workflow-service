@@ -48,13 +48,13 @@ else
 	exit 1
 fi
 
-if [[ "$java_version" > "1.8" && "$java_version" < "1.9" ]]; then
-	echo "  Java version == 1.8x      [OK]"
+if [[ "$java_version" > "11" && "$java_version" < "12" ]]; then
+	echo "  Java version == 11x      [OK]"
 else
 	echo " +-------+----------------------------------------------------"
 	echo " | ERROR |                                                    "
 	echo " +-------+                                                    "
-	echo " | Java version is less than 1.8.  Must run with java 1.8x    "
+	echo " | Java version is less than 11.  Must run with Java 11x    "
 	echo " | Aborting program...                                        "
 	echo "--------------------------------------------------------------"
 	exit 1

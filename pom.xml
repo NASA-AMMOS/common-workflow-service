@@ -559,11 +559,11 @@
 				<version>${selenium.version}</version>
 				<scope>test</scope>
 			</dependency>
-			<!-- Needed to resolve Netty conflict with Selenium 4 -->
+			<!-- Needed to use Java 11+ HTTP Client in Selenium 4.5.0+-->
 			<dependency>
-				<groupId>io.netty</groupId>
-				<artifactId>netty-codec</artifactId>
-				<version>4.1.91.Final</version>
+				<groupId>org.seleniumhq.selenium</groupId>
+				<artifactId>selenium-http-jdk-client</artifactId>
+				<version>${selenium.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.jacoco</groupId>
