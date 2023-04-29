@@ -37,7 +37,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '11'
-          distribution: 'oracle'
+          distribution: 'corretto'
           cache: maven
 
       - name: Create open-source certs
@@ -160,7 +160,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '11'
-          distribution: 'oracle'
+          distribution: 'corretto'
           cache: maven
 
       - name: Create open-source certs
@@ -261,7 +261,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '11'
-          distribution: 'oracle'
+          distribution: 'corretto'
           cache: maven
 
       - name: Log in to Docker Hub
