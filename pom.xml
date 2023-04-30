@@ -83,8 +83,6 @@
 		<urlrewritefilter.version>4.0.3</urlrewritefilter.version>
 		<xbean-spring.version>3.17</xbean-spring.version>
 		<xmlunit.version>2.6.2</xmlunit.version>
-		<maven.compiler.source>11</maven.compiler.source>
-		<maven.compiler.target>11</maven.compiler.target>
 	</properties>
 
 	<profiles>
