@@ -34,7 +34,7 @@ public class AdminTestIT extends WebTestUtil {
         sleep(1000);
 
         log.info("Checking IDs in List of Users for " + USERNAME + ".");
-        WebElement users = findElByXPath("//*[contains(text(),'Users')]");
+        WebElement users = findElByXPath("//*[contains(@class, 'section-title')]//*[text() = 'Users']");
         users.click();
         sleep(1000);
         findOnPage(USERNAME);
@@ -111,7 +111,7 @@ public class AdminTestIT extends WebTestUtil {
 
         // Delete new group
         log.info("Deleting group " + USERNAME + ".");
-        WebElement editButton = findElByXPath("(//a[contains(text(),'Edit')])[2]");
+        WebElement editButton = findElByXPath("//a[contains(@href,'#/groups/" + USERNAME + "')]");
         editButton.click();
         sleep(1000);
 

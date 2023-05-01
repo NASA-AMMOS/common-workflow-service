@@ -293,7 +293,7 @@ public class WorkersTestIT extends WebTestUtil {
 			// Each of the 3 test_thread_limit tasks is configured to sleep for 15 seconds and since they should be
 			// running in parallel, we expect them all to complete after 30 seconds, but before 90 (which would be
 			// the case running serially).
-			sleep(45000);
+			sleep(50000);
 			
 			child = statsText.getText();
 
@@ -321,7 +321,18 @@ public class WorkersTestIT extends WebTestUtil {
 			correctThreadLimit.sendKeys(origThreadLimit);
 			
 			driver.findElement(By.id("workers-table")).click();
-			
+
+			goToPage("initiators");
+
+			sleep(1000);
+			WebElement disableAction = findElById("toggle_repeat_2");
+			wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.id("toggle_repeat_2")));
+			if(disableAction.isSelected()) {
+				log.info("Disabling repeat_2...");
+				js.executeScript("arguments[0].click();", findElById("toggle_repeat_2"));
+				sleep(1000);
+			}
+
 			log.info("------ END WorkersTestIT:runThreadLimitTest ------");
 		}
 		catch (Throwable e) {
