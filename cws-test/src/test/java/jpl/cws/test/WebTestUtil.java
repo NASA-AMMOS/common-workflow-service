@@ -116,7 +116,7 @@ public class WebTestUtil {
 		System.setProperty("webdriver.http.factory", "jdk-http-client");
 		ChromeOptions chromeOptions = new ChromeOptions();
 
-		// Turn on headless mode for Bamboo
+		// Turn on headless mode for GitHub Actions
 		chromeOptions.addArguments("--headless=new");
 		chromeOptions.setAcceptInsecureCerts(true);
 		chromeOptions.addArguments("--window-size=1920,1080");
