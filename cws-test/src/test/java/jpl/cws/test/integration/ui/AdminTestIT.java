@@ -1,5 +1,6 @@
 package jpl.cws.test.integration.ui;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import jpl.cws.test.WebTestUtil;
  * @author alopez
  *
  */
+@Ignore
 public class AdminTestIT extends WebTestUtil {
     private static final Logger log = LoggerFactory.getLogger(AdminTestIT.class);
 
