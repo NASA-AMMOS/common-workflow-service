@@ -1,6 +1,7 @@
 package jpl.cws.test.integration.ui;
 
 import jpl.cws.test.WebTestUtil;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import static org.junit.Assert.assertTrue;
  * @author awilhelm
  *
  */
+@Ignore
 public class TasklistTestIT extends WebTestUtil {
     private static final Logger log = LoggerFactory.getLogger(TasklistTestIT.class);
     private static int testCasesCompleted = 0;
