@@ -87,7 +87,7 @@ public class LoadTestIT extends WebTestUtil {
 
             log.info("Implementing initiators on Ace Editor...");
             //go into the div element in CWS and paste it there.
-            WebElement aceEditor = driver.findElement(By.cssSelector("textarea.ace_text-input"));
+            WebElement aceEditor = findElByXPath("//*[contains(@class,'ace_text-input')]");
             JavascriptExecutor js = (JavascriptExecutor) driver;
             js.executeScript("ace.edit('editorDiv').navigateFileEnd();");
             js.executeScript("ace.edit('editorDiv').setValue('');");
