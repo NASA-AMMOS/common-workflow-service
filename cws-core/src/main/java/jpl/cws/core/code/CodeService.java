@@ -3,6 +3,7 @@ package jpl.cws.core.code;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -57,10 +58,23 @@ public class CodeService implements InitializingBean {
 		// Construct the set of URLs
 		File outputDir = new File(TEMP_DIR_PATH);
 
-		List<URL> classpathUrls = getClasspathUrls();
-		urls.addAll(classpathUrls);
-		for (URL url : classpathUrls) {
-			log.trace("URL: " + url);
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		ClassLoader parent = cl;
+
+		while (parent != null) {
+			if (parent.getClass().getName().equals("java.net.URLClassLoader")) {
+				try {
+					Method getURLsMethod = parent.getClass().getMethod("getURLs");
+					URL[] urlsArray = (URL[]) getURLsMethod.invoke(parent);
+					for (URL url : urlsArray) {
+						urls.add(url);
+						log.trace("CC ["+parent+"] URL: " + url);
+					}
+				} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+					log.error("Error accessing getURLs() method on classloader: " + parent, e);
+				}
+			}
+			parent = parent.getParent(); // traverse up the chain
 		}
 
 		urls.add(outputDir.toURI().toURL());
@@ -316,16 +330,6 @@ public class CodeService implements InitializingBean {
 	
 	public String getTempDirPath() {
 		return TEMP_DIR_PATH;
-	}
-
-
-	public List<URL> getClasspathUrls() throws IOException {
-		List<URL> result = new ArrayList<>();
-		Enumeration<URL> resources = getClass().getClassLoader().getResources("");
-		while (resources.hasMoreElements()) {
-			result.add(resources.nextElement());
-		}
-		return result;
 	}
 
 }
