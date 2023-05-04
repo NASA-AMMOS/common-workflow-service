@@ -64,7 +64,7 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			log.info("Clicking on Ace Editor and implementing new snippet: helloWorld();");
 			//go into the div element in CWS and paste it there.
-			WebElement aceEditor = driver.findElement(By.cssSelector("textarea.ace_text-input"));
+			WebElement aceEditor = findElByXPath("//*[contains(@class,'ace_text-input')]");
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 			js.executeScript("ace.edit('editorDiv').navigateFileEnd();");
 			js.executeScript("ace.edit('editorDiv').setValue('');");
@@ -176,7 +176,7 @@ public class SnippetsTestIT extends WebTestUtil {
 		try {
 			log.info("------ START SnippetsTestIT:UpdateSnippetTest ------");
 			driver.navigate().refresh();
-			WebElement aceEditor = driver.findElement(By.cssSelector("textarea.ace_text-input"));
+			WebElement aceEditor = findElByXPath("//*[contains(@class,'ace_text-input')]");
 
 			log.info("Updating snippets through Ace Editor...");
 			JavascriptExecutor js = (JavascriptExecutor) driver;
@@ -238,7 +238,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			driver.navigate().refresh();
 			sleep(2000);
 
-			WebElement aceEditor = driver.findElement(By.cssSelector("textarea.ace_text-input"));
+			WebElement aceEditor = findElByXPath("//*[contains(@class,'ace_text-input')]");
 			log.info("Updating snippets through Ace Editor.");
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 			js.executeScript("ace.edit('editorDiv').navigateFileEnd();");
@@ -274,7 +274,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			driver.navigate().refresh();
 			sleep(2000);
 
-			WebElement aceEditor = driver.findElement(By.cssSelector("textarea.ace_text-input"));
+			WebElement aceEditor = findElByXPath("//*[contains(@class,'ace_text-input')]");
 			log.info("Updating snippets through Ace Editor.");
 
 			JavascriptExecutor js = (JavascriptExecutor) driver;
