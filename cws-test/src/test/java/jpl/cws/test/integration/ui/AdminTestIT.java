@@ -180,5 +180,204 @@ public class AdminTestIT extends WebTestUtil {
         }
         assertTrue("Admin Page Test reported unexpected success value (scriptPass=" + scriptPass + ")", scriptPass);
     }
+
+    @Test
+    public void runTenantsTest() {
+        Boolean scriptPass = false;
+        try {
+            log.info("------ START AdminTestIT:runTenantsTest ------");
+            gotoLoginPage();
+            login();
+
+            goToPage("deployments");
+
+            // Go to Tenants page
+            log.info("Navigating to Admin page...");
+            WebElement admin = findElByXPath("//*[contains(text(),'Admin')]");
+            admin.click();
+            sleep(5000);
+
+            WebElement dashboard = findElByXPath("//*[contains(text(),'Dashboard')]");
+            dashboard.click();
+            sleep(1000);
+
+            log.info("Navigating to Tenants page...");
+            WebElement tenantsPage = findElByXPath("//*[contains(text(),'Tenants')]");
+            tenantsPage.click();
+            sleep(1000);
+
+            WebElement newTenantButton = findElByXPath("//a[contains(text(),'Create new tenant')]");
+            newTenantButton.click();
+            sleep(1000);
+
+            // Create new tenant
+            log.info("Creating tenant cwstestdev");
+            WebElement tenantIdField = findElById("inputTenantId");
+            tenantIdField.sendKeys("cwstestdev");
+            sleep(1000);
+
+            WebElement tenantNameField = findElById("inputTenantName");
+            tenantNameField.sendKeys(USERNAME);
+            sleep(1000);
+
+            WebElement createTenantButton = findElByXPath("//button[contains(.,'Create new tenant')]");
+            createTenantButton.click();
+            sleep(1000);
+
+            findOnPage("Created new tenant cwstestdev");
+
+            // Delete new tenant
+            log.info("Deleting tenant cwstestdev");
+            WebElement editButton = findElByXPath("//a[contains(text(),'Edit')]");
+            editButton.click();
+            sleep(1000);
+
+            WebElement deleteTenantButton = findElByXPath("//button[contains(.,'Delete Tenant')]");
+            deleteTenantButton.click();
+            sleep(1000);
+
+            WebElement proceedButton = findElByXPath("//button[contains(.,'Proceed')]");
+            proceedButton.click();
+            sleep(1000);
+
+            if (findOnPage("Tenant cwstestdev successfully deleted.")) {
+                scriptPass = true;
+            }
+            sleep(1000);
+            screenShot("AdminTestIT-runTenantsTest");
+
+            goToPage("deployments");
+            logout();
+            log.info("------ END AdminTestIT:runTenantsTest ------");
+        }
+        catch (Throwable e) {
+            System.out.println(e.toString());
+            scriptPass = false;
+        }
+        assertTrue("Admin Page Test reported unexpected success value (scriptPass=" + scriptPass + ")", scriptPass);
+    }
+
+    @Test
+    public void runAuthorizationsTest() {
+        Boolean scriptPass = false;
+        try {
+            log.info("------ START AdminTestIT:runAuthorizationsTest ------");
+            gotoLoginPage();
+            login();
+
+            goToPage("deployments");
+
+            // Go to Authorizations page
+            log.info("Navigating to Admin page...");
+            WebElement admin = findElByXPath("//*[contains(text(),'Admin')]");
+            admin.click();
+            sleep(5000);
+
+            WebElement dashboard = findElByXPath("//*[contains(text(),'Dashboard')]");
+            dashboard.click();
+            sleep(1000);
+
+            log.info("Navigating to Authorizations page...");
+            WebElement authorizationsPage = findElByXPath("//*[contains(text(),'Authorizations')]");
+            authorizationsPage.click();
+            sleep(1000);
+
+            // Create new application authorization
+            log.info("Creating application authorization for cwstestdev");
+            WebElement addAuthorizationButton = findElByXPath("//*[contains(text(),'Create new authorization')]");
+            addAuthorizationButton.click();
+            sleep(1000);
+
+            WebElement userIdField = findElByXPath("//input[@type='text']");
+            userIdField.sendKeys("cwstestdev");
+            sleep(1000);
+
+            WebElement resourceIdField = findElById("inputResourceId");
+            resourceIdField.clear();
+            resourceIdField.sendKeys("cockpit");
+            sleep(1000);
+
+            WebElement submitButton = findElByXPath("//button[@type='submit']");
+            submitButton.click();
+            sleep(1000);
+
+            findOnPage("cwstestdev");
+
+            // Delete application authorization
+            log.info("Deleting application authorization for cwstestdev");
+            WebElement deleteButton = findElByXPath("(//a[contains(text(),'Delete')])[2]");
+            deleteButton.click();
+            sleep(1000);
+
+            WebElement confirmDeleteButton = findElByXPath("//button[contains(.,'Delete')]");
+            confirmDeleteButton.click();
+            sleep(1000);
+
+            findOnPage("The authorization has been deleted successfully.");
+
+            WebElement okButton = findElByXPath("//button[contains(.,'OK')]");
+
+            if (okButton.isDisplayed()) {
+                okButton.click();
+                scriptPass = true;
+            }
+            sleep(1000);
+            screenShot("AdminTestIT-runAuthorizationsTest");
+
+            goToPage("deployments");
+            logout();
+            log.info("------ END AdminTestIT:runAuthorizationsTest ------");
+        }
+        catch (Throwable e) {
+            System.out.println(e.toString());
+            scriptPass = false;
+        }
+        assertTrue("Admin Page Test reported unexpected success value (scriptPass=" + scriptPass + ")", scriptPass);
+    }
+
+    @Test
+    public void runSystemsTest() {
+        Boolean scriptPass = false;
+        try {
+            log.info("------ START AdminTestIT:runSystemsTest ------");
+            gotoLoginPage();
+            login();
+
+            goToPage("deployments");
+
+            // Go to Systems page
+            log.info("Navigating to Admin page..");
+            WebElement admin = findElByXPath("//*[contains(text(),'Admin')]");
+            admin.click();
+            sleep(5000);
+
+            WebElement dashboard = findElByXPath("//*[contains(text(),'Dashboard')]");
+            dashboard.click();
+            sleep(1000);
+
+            log.info("Navigating to System page...");
+            WebElement systemPage = findElByXPath("//*[contains(text(),'System')]");
+            systemPage.click();
+            sleep(1000);
+
+            // Check process engine status
+            log.info("Checking if process engine is up and running");
+
+            if (findOnPage(" is up and running.")) {
+                scriptPass = true;
+            }
+            sleep(1000);
+            screenShot("AdminTestIT-runSystemsTest");
+
+            goToPage("deployments");
+            logout();
+            log.info("------ END AdminTestIT:runSystemsTest ------");
+        }
+        catch (Throwable e) {
+            System.out.println(e.toString());
+            scriptPass = false;
+        }
+        assertTrue("Admin Page Test reported unexpected success value (scriptPass=" + scriptPass + ")", scriptPass);
+    }
     // Add more admin page tests here
 }
