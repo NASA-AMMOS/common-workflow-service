@@ -1,12 +1,15 @@
 package jpl.cws.test.integration.ui;
 
-import jpl.cws.test.WebTestUtil;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+
 import org.junit.Test;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertTrue;
+import jpl.cws.test.WebTestUtil;
 
 /**
  *
@@ -18,14 +21,41 @@ public class TasklistTestIT extends WebTestUtil {
     private static int testCasesCompleted = 0;
 
     @Test
-    public void runCreateTaskTest() {
+    public void runTasklistPageTest() {
+        Boolean scriptPass = false;
+        try {
+            log.info("------ START DeploymentsTestIT:runTasklistPageTest ------");
+            gotoLoginPage();
+            login();
+            goToPage("deployments");
+
+            runCreateTaskTest();
+            runUserRestrictionTest();
+            runUserAccessTest();
+            runCompleteTaskTest();
+
+            // Verify that all test cases passed successfully.
+            if (Integer.toString(testCasesCompleted).equals("4")) {
+                scriptPass = true;
+            } else {
+                log.info("Not all test cases passed. Only " + testCasesCompleted + "/4 passed.");
+            }
+
+            log.info("------ END DeploymentsTestIT:runTasklistPageTest ------");
+        }
+        catch (Throwable e) {
+            System.out.println(e.toString());
+            scriptPass = false;
+        }
+        goToPage("deployments");
+        logout();
+        assertTrue("Deployments Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
+    }
+
+    public void runCreateTaskTest() throws IOException {
         Boolean scriptPass = false;
         try {
             log.info("------ START TasklistTestIT:runCreateTaskTest ------");
-
-            gotoLoginPage();
-            login();
-            gotoDeployments();
 
             // Navigate to tasklist page.
             log.info("Navigating to Tasklist button.");
@@ -69,34 +99,21 @@ public class TasklistTestIT extends WebTestUtil {
             }
             sleep(1000);
 
-            // Verify task creation.
-            log.info("Verifying task creation.");
-            WebElement taskCount = findElByXPath("//*[contains(@class,'counter')]");
-            if (taskCount.getText().equals("1")) {
-                log.info("1 task created.");
-            } else {
-                log.info("There was either 0 or more than 1 tasks in the task list.");
-                log.info("Not all test cases passed. Only " + testCasesCompleted + "/2 passed.");
-                assertTrue("Tasklist Page Test reported unexpected success value (scriptPass=" + scriptPass + ")", scriptPass);
-            }
-            sleep(1000);
-
             findOnPage("Test Task");
             WebElement createdTask = findElByXPath("//*[contains(text(),'Test Task')]");
             createdTask.click();
             sleep(1000);
 
-            // Ensure that only the assigned user can complete a task.
-            log.info("Verifying user access.");
-            runUserAccessTest();
-            sleep(1000);
-
-            log.info("Completing the task.");
-            WebElement completeButton = findElByXPath("//*[contains(text(),'Complete')]");
-            completeButton.click();
-            sleep(1000);
-            scriptPass = true;
-            testCasesCompleted++;
+            // Verify task creation.
+            log.info("Verifying task creation.");
+            WebElement taskCounter = findElByXPath("//*[contains(@class,'counter')]");
+            if (taskCounter.getText().equals("1")) {
+                log.info("1 task created.");
+                testCasesCompleted++;
+                scriptPass = true;
+            } else {
+                log.info("There was not exactly 1 task in the task list.");
+            }
 
             log.info("------ END TasklistTestIT:runCreateTaskTest ------");
         }
@@ -104,25 +121,40 @@ public class TasklistTestIT extends WebTestUtil {
             System.out.println(e.toString());
             scriptPass = false;
         }
+        screenShot("TasklistTestIT-runCreateTaskTest");
         assertTrue("Tasklist Page Test reported unexpected success value (scriptPass=" + scriptPass + ")", scriptPass);
     }
 
-    public void runUserAccessTest(){
+    public void runUserRestrictionTest() throws IOException {
         Boolean scriptPass = false;
-
         try {
-            log.info("------ START TasklistTestIT:runUserAccessTest ------");
+            log.info("------ START TasklistTestIT:runUserRestrictionTest ------");
+
+            log.info("Verifying user access.");
 
             // Check that non-assigned users cannot edit the task.
             WebElement completeButton = findElByXPath("//*[contains(text(),'Complete')]");
             if (!completeButton.isEnabled()) {
                 scriptPass = true;
                 log.info("Verified complete button is not clickable.");
+                testCasesCompleted++;
             } else {
                 log.info("Complete button was clickable when user was not assigned to task.");
-                log.info("Not all test cases passed. Only " + testCasesCompleted + "/2 passed.");
-                assertTrue("Tasklist Page Test reported unexpected success value (scriptPass=" + scriptPass + ")", scriptPass);
             }
+            log.info("------ END TasklistTestIT:runUserRestrictionTest ------");
+        }
+        catch (Throwable e) {
+            System.out.println(e.toString());
+            scriptPass = false;
+        }
+        screenShot("TasklistTestIT-runUserRestrictionTest");
+        assertTrue("Tasklist Page Test reported unexpected success value (scriptPass=" + scriptPass + ")", scriptPass);
+    }
+
+    public void runUserAccessTest() throws IOException {
+        Boolean scriptPass = false;
+        try {
+            log.info("------ START TasklistTestIT:runUserAccessTest ------");
 
             // Claim the task.
             log.info("Claiming task.");
@@ -131,21 +163,48 @@ public class TasklistTestIT extends WebTestUtil {
             sleep(1000);
 
             // Check that assigned users can edit the task.
+            WebElement completeButton = findElByXPath("//*[contains(text(),'Complete')]");
             if (completeButton.isEnabled()) {
                 scriptPass = true;
                 log.info("Verified complete button is clickable.");
+                testCasesCompleted++;
             } else {
                 log.info("Complete button was not clickable when user was assigned to task.");
-                log.info("Not all test cases passed. Only " + testCasesCompleted + "/2 passed.");
-                assertTrue("Tasklist Page Test reported unexpected success value (scriptPass=" + scriptPass + ")", scriptPass);
             }
-            testCasesCompleted++;
             log.info("------ END TasklistTestIT:runUserAccessTest ------");
         }
         catch (Throwable e) {
             System.out.println(e.toString());
             scriptPass = false;
         }
+        screenShot("TasklistTestIT-runUserAccessTest");
+        assertTrue("Tasklist Page Test reported unexpected success value (scriptPass=" + scriptPass + ")", scriptPass);
+    }
+
+    public void runCompleteTaskTest() throws IOException {
+        Boolean scriptPass = false;
+        try {
+            log.info("------ START TasklistTestIT:runCompleteTaskTest ------");
+
+            log.info("Completing the task.");
+            WebElement completeButton = findElByXPath("//*[contains(text(),'Complete')]");
+            completeButton.click();
+            sleep(1000);
+            WebElement taskCounter = findElByXPath("//*[contains(@class,'counter')]");
+            if (taskCounter.getText().equals("0")) {
+                scriptPass = true;
+                log.info("Verified 0 tasks in tasklist.");
+                testCasesCompleted++;
+            } else {
+                log.info("There was not exactly 0 tasks in the task list.");
+            }
+            log.info("------ END TasklistTestIT:runCompleteTaskTest ------");
+        }
+        catch (Throwable e) {
+            System.out.println(e.toString());
+            scriptPass = false;
+        }
+        screenShot("TasklistTestIT-runCompleteTaskTest");
         assertTrue("Tasklist Page Test reported unexpected success value (scriptPass=" + scriptPass + ")", scriptPass);
     }
     // Add more tasklist page tests here
