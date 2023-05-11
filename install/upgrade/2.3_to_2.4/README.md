@@ -14,7 +14,7 @@ To run the commands:
 
 
 ```
-cd install/upgrade/
+cd install/upgrade/2.3_to_2.4/
 ```
 
 ```

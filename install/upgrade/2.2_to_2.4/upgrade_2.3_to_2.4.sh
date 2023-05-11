@@ -1,11 +1,11 @@
 #!/bin/bash
 # -------------------
-# upgrade_2.3_to_2.4.sh
+# upgrade_2.2_to_2.4.sh
 # -------------------
-# Upgrade CWS v2.3 infrastructure/database to CWS v2.4
+# Upgrade CWS v2.2 infrastructure/database to CWS v2.4
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-read -p "Would you like to upgrade the CWS Database from CWS v2.3 to CWS v2.4?  (Y/N): " UPGRADE_DB
+read -p "Would you like to upgrade the CWS Database from CWS v2.2 to CWS v2.4?  (Y/N): " UPGRADE_DB
 while [[ ! ${UPGRADE_DB} =~ $(echo "^(y|Y|n|N)$") ]]; do
   echo "  ERROR: Must specify either 'Y' or 'N'.";
   read -p "Continue? (Y/N): " UPGRADE_DB
@@ -74,7 +74,15 @@ then
       echo " "
       echo "Updating tables in CWS CORE DB..."
 
-      echo -e "DELETE FROM cws_worker_proc_def WHERE worker_id=(SELECT id FROM cws_worker WHERE name='worker0000');\nDELETE FROM cws_worker WHERE name='worker0000';\nDELETE FROM cws_worker_proc_def;\nDELETE FROM cws_worker;\nALTER TABLE cws_worker ADD max_num_running_procs int(11) DEFAULT ${CORE_NUMBER} AFTER job_executor_max_pool_size;" >> ${ROOT}/upgrade_core_db.sql
+cat > ${ROOT}/upgrade_core_db.sql <<- EOF
+DELETE FROM cws_log_usage WHERE worker_id=(SELECT id FROM cws_worker WHERE name='worker0000');
+DELETE FROM cws_worker_proc_def WHERE worker_id=(SELECT id FROM cws_worker WHERE name='worker0000');
+DELETE FROM cws_worker WHERE name='worker0000';
+DELETE FROM cws_log_usage;
+DELETE FROM cws_worker_proc_def;
+DELETE FROM cws_worker;
+ALTER TABLE cws_worker ADD max_num_running_procs int(11) DEFAULT ${CORE_NUMBER} AFTER job_executor_max_pool_size;
+EOF
 
       mysql --defaults-file=${ROOT}/myupgrade.cnf ${DB_NAME} < ${ROOT}/upgrade_core_db.sql
 
@@ -85,7 +93,6 @@ then
           rm -rf ${ROOT}/upgrade_core_db.sql
           exit 1
       fi
-
       rm -rf ${ROOT}/myupgrade.cnf
       rm -rf ${ROOT}/upgrade_core_db.sql
 		  echo "   Upgrade to CWS Database was made."
