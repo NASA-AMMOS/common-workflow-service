@@ -5,7 +5,7 @@
 # Shell utility functions and environment settings used throughout CWS setup scripts
 
 # Update versions as necessary
-export CWS_VER='2.3.0'    # update this each CWS release
+export CWS_VER='2.4.0pre.1'    # update this each CWS release
 export CAMUNDA_VER='7.13.0'
 export TOMCAT_VER='9.0.33'
 export LOGSTASH_VER='7.16.2'
@@ -203,9 +203,10 @@ function auto_conf_data () {
     ADMIN_LASTNAME=${21}
     ADMIN_EMAIL=${22}
     NUM_WORKERS=${23}
-    WORKER_ABANDONED_DAYS=${24}
+    WORKER_MAX_NUM_RUNNING_PROCS=${24}
+    WORKER_ABANDONED_DAYS=${25}
 
-    OUTPUT_FILE=${25}
+    OUTPUT_FILE=${26}
 
     source ${ROOT}/utils.sh
 
@@ -297,6 +298,7 @@ function auto_conf_data () {
     cws_amq_jmx_port=${CWS_AMQ_JMX_PORT}
     cws_jmx_port=${CWS_JMX_PORT}
     history_days_to_live=1
+    worker_max_num_running_procs=${WORKER_MAX_NUM_RUNNING_PROCS}
     worker_abandoned_days=${WORKER_ABANDONED_DAYS}
     notify_users_email=y
     email_subject=[CWS] You have been assigned a task (CWS_TASK_NAME)
@@ -316,5 +318,4 @@ function auto_conf_data () {
     cws_token_expiration_hours=240
     user_provided_logstash=n
 EOF
-
 }
