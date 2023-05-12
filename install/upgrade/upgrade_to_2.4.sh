@@ -1,11 +1,11 @@
 #!/bin/bash
 # -------------------
-# upgrade_2.2_to_2.4.sh
+# upgrade_to_2.4.sh
 # -------------------
-# Upgrade CWS v2.2 infrastructure/database to CWS v2.4
+# Update previous version of CWS database schema to CWS v2.4 core schema
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-read -p "Would you like to upgrade the CWS Database from CWS v2.2 to CWS v2.4?  (Y/N): " UPGRADE_DB
+read -p "Would you like to upgrade the CWS database schema to CWS v2.4?  (Y/N): " UPGRADE_DB
 while [[ ! ${UPGRADE_DB} =~ $(echo "^(y|Y|n|N)$") ]]; do
   echo "  ERROR: Must specify either 'Y' or 'N'.";
   read -p "Continue? (Y/N): " UPGRADE_DB
@@ -74,14 +74,11 @@ then
       echo " "
       echo "Updating tables in CWS CORE DB..."
 
-cat > ${ROOT}/upgrade_core_db.sql <<- EOF
-DELETE FROM cws_log_usage WHERE worker_id=(SELECT id FROM cws_worker WHERE name='worker0000');
-DELETE FROM cws_worker_proc_def WHERE worker_id=(SELECT id FROM cws_worker WHERE name='worker0000');
-DELETE FROM cws_worker WHERE name='worker0000';
-DELETE FROM cws_log_usage;
-DELETE FROM cws_worker_proc_def;
-DELETE FROM cws_worker;
-ALTER TABLE cws_worker ADD max_num_running_procs int(11) DEFAULT ${CORE_NUMBER} AFTER job_executor_max_pool_size;
+      cat > ${ROOT}/upgrade_core_db.sql <<- EOF
+      DELETE FROM cws_log_usage;
+      DELETE FROM cws_worker_proc_def;
+      DELETE FROM cws_worker;
+      ALTER TABLE cws_worker ADD max_num_running_procs int(11) DEFAULT ${CORE_NUMBER} AFTER job_executor_max_pool_size;
 EOF
 
       mysql --defaults-file=${ROOT}/myupgrade.cnf ${DB_NAME} < ${ROOT}/upgrade_core_db.sql
@@ -89,6 +86,8 @@ EOF
       if [[ $? -gt 0 ]]; then
           echo "ERROR: Problem updating tables. Database Column may already exist."
           echo "  Please check your database upgrade sql template '${ROOT}/upgrade_core_db.sql', and try again."
+          cat ${ROOT}/upgrade_core_db.sql
+          cat ${ROOT}/myupgrade.cnf
           rm -rf ${ROOT}/myupgrade.cnf
           rm -rf ${ROOT}/upgrade_core_db.sql
           exit 1
