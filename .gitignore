@@ -33,3 +33,5 @@ install/logging/logstash-*.zip
 /target
 /jacoco-reports
 /test-screenshots
+
+*.cnf
