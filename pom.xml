@@ -77,7 +77,7 @@
 		<log4j.version>2.17.1</log4j.version>
 		<slf4j-log4j2-bind.version>2.17.1</slf4j-log4j2-bind.version>
 		<skip.integration.tests>false</skip.integration.tests>
-		<spring.framework.version>4.3.23.RELEASE</spring.framework.version>
+		<spring.framework.version>5.2.20.RELEASE</spring.framework.version>
 		<surefire.version>2.22.2</surefire.version>
 		<tomcat-catalina.version>9.0.58</tomcat-catalina.version>
 		<urlrewritefilter.version>4.0.3</urlrewritefilter.version>
@@ -276,6 +276,11 @@
 				<groupId>javax.jms</groupId>
 				<artifactId>jms</artifactId>
 				<version>${jms.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.jms</groupId>
+				<artifactId>javax.jms-api</artifactId>
+				<version>2.0.1</version>
 			</dependency>
 
 			<!-- Database drivers (MariaDB and MySQL supported) -->
