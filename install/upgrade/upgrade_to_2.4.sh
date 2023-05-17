@@ -52,7 +52,7 @@ then
     echo "  CORE: " ${CORE_NUMBER}
   fi
   if [[ "$OSTYPE" =~ ^linux ]]; then
-    CORE_NUMBER_=`lscpu -b -p=Core,Socket | grep -v '^#' | sort -u | wc -l`
+    CORE_NUMBER=`lscpu -b -p=Core,Socket | grep -v '^#' | sort -u | wc -l`
     echo "  CORE: " ${CORE_NUMBER}
   fi
 
