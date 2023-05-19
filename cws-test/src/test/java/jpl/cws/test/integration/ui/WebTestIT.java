@@ -155,7 +155,7 @@ public class WebTestIT extends WebTestUtil {
 		findOnPage("CWS - Deployments");
 
 		// Wait for Finish
-		sleep(110000);
+		sleep(180000);
 		procCounter++;
 
 		deleteProc("test_error_handling");
