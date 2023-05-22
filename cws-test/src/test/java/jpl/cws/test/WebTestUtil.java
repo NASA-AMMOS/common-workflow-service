@@ -117,7 +117,6 @@ public class WebTestUtil {
 		// Turn on headless mode for Bamboo
 		chromeOptions.addArguments("--headless=new");
 		chromeOptions.setAcceptInsecureCerts(true);
-		chromeOptions.addArguments("--window-size=1920,1080");
 		chromeOptions.addArguments("--no-sandbox");
 		chromeOptions.addArguments("--disable-gpu");
 		chromeOptions.addArguments("--disable-dev-shm-usage");
@@ -125,6 +124,8 @@ public class WebTestUtil {
 		driver = new ChromeDriver(chromeOptions);
 
 		log.info("Driver initialized: " + driver);
+
+		driver.manage().window().setSize(new Dimension(1920, 1080));
 	}
 
 	protected WebElement findElById(String id) {
