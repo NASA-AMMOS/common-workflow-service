@@ -114,7 +114,7 @@ public class SystemLevelTestIT extends WebTestUtil {
 	            
 	            log.info("Worker has been shutdown.");
 	            
-	            sleep(75000); //wait for shutdown of worker.
+	            sleep(85000); //wait for shutdown of worker.
 	            
 	            driver.navigate().refresh();
 	            
@@ -139,7 +139,7 @@ public class SystemLevelTestIT extends WebTestUtil {
 		            System.out.println("### " + outputStart);
 		            
 		            //wait for start up of worker.
-		            sleep(75000);
+		            sleep(85000);
 		            		 
 		            driver.navigate().refresh();
 		            
