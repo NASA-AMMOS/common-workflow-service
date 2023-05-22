@@ -139,7 +139,7 @@ public class SystemLevelTestIT extends WebTestUtil {
 		            System.out.println("### " + outputStart);
 		            
 		            //wait for start up of worker.
-		            sleep(65000);
+		            sleep(75000);
 		            		 
 		            driver.navigate().refresh();
 		            
