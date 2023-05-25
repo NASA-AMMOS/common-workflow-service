@@ -287,7 +287,9 @@ public class WebTestUtil {
 		enable.click();
 		sleep(1000);
 
+		wait.until(ExpectedConditions.elementToBeClickable(findElById("all-workers")));
 		WebElement allWorkers = findElById("all-workers");
+		wait.until(ExpectedConditions.elementToBeClickable(findElById("done-workers-btn")));
 		WebElement allWorkersDone = findElById("done-workers-btn");
 		log.info("Enabling workers.");
 
@@ -312,7 +314,9 @@ public class WebTestUtil {
 		enable.click();
 		sleep(1000);
 
+		wait.until(ExpectedConditions.elementToBeClickable(findElById("all-workers")));
 		WebElement allWorkers = findElById("all-workers");
+		wait.until(ExpectedConditions.elementToBeClickable(findElById("done-workers-btn")));
 		WebElement allWorkersDone = findElById("done-workers-btn");
 		log.info("Disabling workers.");
 
