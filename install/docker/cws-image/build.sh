@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-ver='2.4.0pre.1'    # update this each CWS release
+ver='2.4.0'    # update this each CWS release
 
 # Rebuild cws tar-ball
 ROOT=$(pwd)
