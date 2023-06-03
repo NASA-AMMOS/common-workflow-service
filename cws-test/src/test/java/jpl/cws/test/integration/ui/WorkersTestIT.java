@@ -322,17 +322,6 @@ public class WorkersTestIT extends WebTestUtil {
 			
 			driver.findElement(By.id("workers-table")).click();
 
-			goToPage("initiators");
-
-			sleep(1000);
-			WebElement disableAction = findElById("toggle_repeat_2");
-			wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.id("toggle_repeat_2")));
-			if(disableAction.isSelected()) {
-				log.info("Disabling repeat_2...");
-				js.executeScript("arguments[0].click();", findElById("toggle_repeat_2"));
-				sleep(1000);
-			}
-
 			log.info("------ END WorkersTestIT:runThreadLimitTest ------");
 		}
 		catch (Throwable e) {

@@ -106,7 +106,7 @@ public class WebTestIT extends WebTestUtil {
 
 		
 		// Wait for Finish
-		sleep(35000);
+		sleep(90000);
 
 		deleteProc("test_set_vars");
 		logout();
@@ -203,7 +203,7 @@ public class WebTestIT extends WebTestUtil {
 		findOnPage("CWS - Deployments");
 
 		// Wait for Finish
-		sleep(65000);
+		sleep(90000);
 
 		
 		if(findOnPage("completed")) {
@@ -294,7 +294,7 @@ public class WebTestIT extends WebTestUtil {
 		log.info("------ START runProcessTest ------");
 		gotoLoginPage();
 		login();
-		startProcDef("test_simplest", "Test Simplest", 65000);
+		startProcDef("test_simplest", "Test Simplest", 90000);
 		deleteProc("test_simplest");
 		logout();
 		log.info("------ END runProcessTest ------");

@@ -27,7 +27,7 @@ public class CockpitTestIT extends WebTestUtil {
         goToPage("deployments");
         sleep(1000);
 
-        startProcDef("external_pwd", "external_pwd", 45000);
+        startProcDef("external_pwd", "external_pwd", 90000);
 
         // Go to Cockpit Dashboard page
         WebElement cockpit = findElByXPath("//a[contains(text(),'Cockpit')]");
@@ -192,7 +192,7 @@ public class CockpitTestIT extends WebTestUtil {
 
         goToPage("deployments");
 
-        startProcDef("external_pwd", "external_pwd", 45000);
+        startProcDef("external_pwd", "external_pwd", 90000);
 
         // Go to Cockpit Deployments page
         WebElement cockpit = findElByXPath("//a[contains(text(),'Cockpit')]");

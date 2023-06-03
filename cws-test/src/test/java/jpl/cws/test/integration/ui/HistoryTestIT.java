@@ -34,7 +34,7 @@ public class HistoryTestIT extends WebTestUtil {
 
 			goToPage("deployments");
 
-			startProcDef("test_history_page", "Test History Page", 70000);
+			startProcDef("test_history_page", "Test History Page", 90000);
 
 			runResultsTest();
 

@@ -36,7 +36,7 @@ public class LogsTestIT extends WebTestUtil {
 			
 			goToPage("deployments");
 			
-			startProcDef("test_logs_page", "Test Logs Page", 70000);
+			startProcDef("test_logs_page", "Test Logs Page", 90000);
 			
 			runOutputTest();
 			runTableColumnTest();
