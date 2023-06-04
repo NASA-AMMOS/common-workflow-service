@@ -80,6 +80,12 @@ jobs:
         run: |
           cd dist/console-only/cws/server/apache-tomcat-9.0.58/logs
           ls -al
+          
+      - name: Upload CWS Log
+        uses: actions/upload-artifact@v3
+        with:
+          name: cws-log
+          path: dist/console-only/cws/server/apache-tomcat-9.0.58/logs/
 
       - name: Set up Google Chrome
         run:  |
