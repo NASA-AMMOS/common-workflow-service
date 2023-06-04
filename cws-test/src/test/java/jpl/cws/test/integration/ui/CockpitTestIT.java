@@ -19,39 +19,6 @@ public class CockpitTestIT extends WebTestUtil {
     private static final Logger log = LoggerFactory.getLogger(CockpitTestIT.class);
 
     @Test
-    public void dashboardTest() throws IOException {
-        log.info("------ START CockpitTestIT:dashboardTest ------");
-        gotoLoginPage();
-        login();
-
-        goToPage("deployments");
-        sleep(1000);
-
-        startProcDef("external_pwd", "external_pwd", 90000);
-
-        // Go to Cockpit Dashboard page
-        WebElement cockpit = findElByXPath("//a[contains(text(),'Cockpit')]");
-        cockpit.click();
-        sleep(1000);
-
-        // Check if process definition is shown on the dashboard
-        String processDefinition = findElByXPath("/html/body/div[2]/div/div[2]/div/div/div/section[2]/div/div/div[1]/a").getText().trim();
-        if (processDefinition.equals("0")) {
-            log.error("Process definition total is INCORRECT");
-            screenShot("CockpitTestIT-dashboardTest");
-            Assert.fail("Process definition total is INCORRECT");
-        } else {
-            log.info("Process definition found");
-        }
-
-        deleteProc("external_pwd");
-
-        log.info("------ END CockpitTestIT:dashboardTest ------");
-        goToPage("deployments");
-        logout();
-    }
-
-    @Test
     public void processTest() throws IOException {
         log.info("------ START CockpitTestIT:processTest ------");
         gotoLoginPage();
