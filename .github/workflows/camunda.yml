@@ -85,7 +85,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: cws-log
-          path: dist/console-only/cws/server/apache-tomcat-9.0.58/logs/
+          path: dist/console-only/cws/server/apache-tomcat-9.0.72/logs/
 
       - name: Set up Google Chrome
         run:  |
