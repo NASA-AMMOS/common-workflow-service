@@ -957,9 +957,6 @@ public class RestService extends MvcCore {
 		
 		Map<String, String> procs = cwsConsoleService.getWorkerNumRunningProcs();
 
-		log.info("*** LOG cwsConsoleService.getWorkerNumRunningProcs() : " + procs);
-
-
 		for (String workerId : procs.keySet()) {
 			int count = Integer.parseInt(procs.get(workerId));
 			
@@ -971,9 +968,6 @@ public class RestService extends MvcCore {
 
 			procs.put(workerId, Integer.toString(total));
 		}
-
-		log.info("*** LOG return procs : " + procs);
-
 
 		return procs;
 	}

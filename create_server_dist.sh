@@ -19,7 +19,7 @@ print 'Removing previous distribution directory...'
 rm -rf ${DIST}
 
 print 'Creating new CWS distribution directory...'
-mkdir -p ${CWS}/{bpmn,config/templates,installer,logs,sql/cws}
+mkdir -p ${CWS}/{bpmn,config/templates,installer,logs,upgrade,sql/cws}
 
 print 'Unzipping Camunda into distribution...'
 unzip ${INSTALL_DIR}/cws_camunda-bpm-tomcat-${CAMUNDA_VER}.zip -x start-camunda.bat start-camunda.sh -d ${CWS} > ${CWS}/logs/camunda_extract.log 2>&1
@@ -219,6 +219,10 @@ cp ${INSTALL_DIR}/launch_ls.sh                         ${CWS}
 
 print 'Copying Modeller scripts and libraries...'
 cp -R ${INSTALL_DIR}/modeler                    ${CWS}
+
+print 'Copying Upgrade scripts...'
+cp -R ${INSTALL_DIR}/upgrade/upgrade_to_2.4.sh         ${CWS}/upgrade
+cp -R ${INSTALL_DIR}/upgrade/README.md                 ${CWS}/upgrade
 
 print 'Installing context.xml to Tomcat...'
 cp ${INSTALL_DIR}/context.xml ${CWS_TOMCAT_ROOT}/conf/context.xml

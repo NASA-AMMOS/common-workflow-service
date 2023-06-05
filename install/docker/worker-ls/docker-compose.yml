@@ -28,7 +28,7 @@ services:
     labels:
       com.example.service: "cws-worker2"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.4.0pre.1    # update this each CWS release
+    image: nasa-ammos/common-workflow-service:2.4.0    # update this each CWS release
     #depends_on:
     #  - logstash
     hostname: cws-worker2
@@ -41,7 +41,7 @@ services:
       - ES_PORT=9200
     volumes:
       - ./config.properties:/home/cws_user/config.properties:ro
-      - worker2-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.58/logs
+      - worker2-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.72/logs
 
 volumes:
   worker2-logs-volume:

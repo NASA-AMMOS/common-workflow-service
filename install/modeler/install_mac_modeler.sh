@@ -1,8 +1,23 @@
 #!/bin/bash
 
+ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 echo
 echo "Camunda Modeler Installer for Mac OS"
 echo
+
+if [ ! -f "elements.json" ]; then
+    echo "****************************************"
+    echo "*************** WARNING ! **************"
+    echo "****************************************"
+    echo "+--------------------------------------+"
+    echo "File 'elements.json' does not exists in ${ROOT} directory   "
+    echo "+--------------------------------------+"
+    echo
+    echo "Run the Camunda Modeler Installer from 'modeler/' folder or copy elements.json to '${ROOT}' before running modeler script "
+    echo "Exiting..."
+    exit 1
+fi
 
 if [ ! -d "/Applications" ]; then
   echo "Error: Cannot find '/Applications' directory.  Is this a Mac OS machine?"
@@ -38,7 +53,7 @@ cd temp
 
 echo
 echo "Downloading camunda modeler now..."
-curl -LO https://downloads.camunda.cloud/release/camunda-modeler/5.7.0/camunda-modeler-5.7.0-mac.zip
+curl -LO https://downloads.camunda.cloud/release/camunda-modeler/5.11.0/camunda-modeler-5.11.0-mac.zip
 
 unzip *.zip
 

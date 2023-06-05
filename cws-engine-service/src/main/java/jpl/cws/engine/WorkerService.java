@@ -188,7 +188,7 @@ public class WorkerService implements InitializingBean {
 			
 		}
 		
-		log.info("AFTER INIT: limits: " + workerMaxProcInstances + ",  counts: " + processCounters);
+		log.debug("AFTER INIT: limits: " + workerMaxProcInstances + ",  counts: " + processCounters);
 	}
 	
 
@@ -217,7 +217,7 @@ public class WorkerService implements InitializingBean {
 			@Override
 			public boolean accept(File dir, String name) {
 				
-				if (name.startsWith("catalina") || name.startsWith("localhost")) {
+				if (name.startsWith("catalina") || name.startsWith("localhost") || name.startsWith("cws")) {
 					return true;
 				}
 				
@@ -315,7 +315,7 @@ public class WorkerService implements InitializingBean {
 		//
 		String postConfig = "limits: " + workerMaxProcInstances + ",  counts: " + processCounters;
 		if (lastProcCounterStatusMsg == null || !lastProcCounterStatusMsg.equals(postConfig)) {
-			log.info("NEW: " + postConfig + ",  OLD: " + lastProcCounterStatusMsg);
+			log.debug("NEW: " + postConfig + ",  OLD: " + lastProcCounterStatusMsg);
 			lastProcCounterStatusMsg = postConfig;
 			return true; // config changed
 		}

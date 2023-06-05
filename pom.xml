@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 	<artifactId>common-workflow-service</artifactId>
-	<version>2.4.0pre.1</version>    <!-- update this each CWS release -->
+	<version>2.4.0</version>    <!-- update this each CWS release -->
 	<packaging>pom</packaging>
 	<name>cws</name>
 	<description>CWS</description>
@@ -24,7 +24,7 @@
 		<activeio-core.version>3.1.4</activeio-core.version>
 		<software.amazon.awssdk.version>2.16.93</software.amazon.awssdk.version>
 		<!-- <boon.version>0.12</boon.version> -->
-		<camunda.version>7.18.0</camunda.version>
+		<camunda.version>7.19.0</camunda.version>
 		<camunda-spin.version>1.9.0</camunda-spin.version>
 		<commons-compress.version>1.20</commons-compress.version>
 		<commons-configuration.version>1.10</commons-configuration.version>
@@ -77,9 +77,9 @@
 		<log4j.version>2.17.1</log4j.version>
 		<slf4j-log4j2-bind.version>2.17.1</slf4j-log4j2-bind.version>
 		<skip.integration.tests>false</skip.integration.tests>
-		<spring.framework.version>4.3.23.RELEASE</spring.framework.version>
+		<spring.framework.version>5.2.20.RELEASE</spring.framework.version>
 		<surefire.version>2.22.2</surefire.version>
-		<tomcat-catalina.version>9.0.58</tomcat-catalina.version>
+		<tomcat-catalina.version>9.0.72</tomcat-catalina.version>
 		<urlrewritefilter.version>4.0.3</urlrewritefilter.version>
 		<xbean-spring.version>3.17</xbean-spring.version>
 		<xmlunit.version>2.6.2</xmlunit.version>
@@ -276,6 +276,11 @@
 				<groupId>javax.jms</groupId>
 				<artifactId>jms</artifactId>
 				<version>${jms.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.jms</groupId>
+				<artifactId>javax.jms-api</artifactId>
+				<version>2.0.1</version>
 			</dependency>
 
 			<!-- Database drivers (MariaDB and MySQL supported) -->
@@ -514,7 +519,7 @@
 			<dependency>
 				<groupId>org.assertj</groupId>
 				<artifactId>assertj-core</artifactId>
-				<version>3.21.0</version> <!-- for Camunda 7.18 -->
+				<version>3.22.0</version> <!-- for Camunda 7.19 -->
 				<scope>test</scope>
 			</dependency>
 
