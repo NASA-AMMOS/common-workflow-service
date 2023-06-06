@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1pjqrkw" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.1.1">
+  <bpmn:process id="cmd_sleep_n" name="Command Sleep N seconds" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" camunda:asyncBefore="true">
+      <bpmn:outgoing>Flow_1crw3vy</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1crw3vy" sourceRef="StartEvent_1" targetRef="Activity_0dgfqfw" />
+    <bpmn:serviceTask id="Activity_13v4mzy" name="Sleep N sec" camunda:modelerTemplate="jpl.cws.task.CmdLineExecTask" camunda:type="external" camunda:topic="__CWS_CMD_TOPIC__">
+      <bpmn:extensionElements>
+        <camunda:field name="cmdLine">
+          <camunda:expression>bash -c 'sleep ${nSeconds}; echo "This is our sleep ${nSeconds} output"'</camunda:expression>
+        </camunda:field>
+        <camunda:field name="workingDir">
+          <camunda:expression>.</camunda:expression>
+        </camunda:field>
+        <camunda:field name="successExitValues">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnFailures">
+          <camunda:expression>true</camunda:expression>
+        </camunda:field>
+        <camunda:field name="exitCodeEvents">
+          <camunda:expression>0=success,1=error</camunda:expression>
+        </camunda:field>
+        <camunda:field name="throwOnTruncatedVariable">
+          <camunda:expression>false</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition" />
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+        <camunda:field name="timeout">
+          <camunda:expression>86400</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retries">
+          <camunda:expression>0</camunda:expression>
+        </camunda:field>
+        <camunda:field name="retryDelay">
+          <camunda:expression>1000</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0wj3rjq</bpmn:incoming>
+      <bpmn:outgoing>Flow_0iisaaq</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0iisaaq" sourceRef="Activity_13v4mzy" targetRef="Activity_0y8rdd5" />
+    <bpmn:endEvent id="Event_0vmiax7">
+      <bpmn:incoming>Flow_1137p4s</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1137p4s" sourceRef="Activity_0y8rdd5" targetRef="Event_0vmiax7" />
+    <bpmn:serviceTask id="Activity_0y8rdd5" name="Log Done" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>Process done!</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0iisaaq</bpmn:incoming>
+      <bpmn:outgoing>Flow_1137p4s</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0wj3rjq" sourceRef="Activity_0dgfqfw" targetRef="Activity_13v4mzy" />
+    <bpmn:serviceTask id="Activity_0dgfqfw" name="Log N seconds" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
+      <bpmn:extensionElements>
+        <camunda:field name="message">
+          <camunda:expression>Now sleeping for ${nSeconds} seconds...</camunda:expression>
+        </camunda:field>
+        <camunda:field name="preCondition">
+          <camunda:expression>none</camunda:expression>
+        </camunda:field>
+        <camunda:field name="onPreConditionFail">
+          <camunda:expression>ABORT_PROCESS</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1crw3vy</bpmn:incoming>
+      <bpmn:outgoing>Flow_0wj3rjq</bpmn:outgoing>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="cmd_sleep_n">
+      <bpmndi:BPMNEdge id="Flow_0wj3rjq_di" bpmnElement="Flow_0wj3rjq">
+        <di:waypoint x="370" y="117" />
+        <di:waypoint x="430" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1137p4s_di" bpmnElement="Flow_1137p4s">
+        <di:waypoint x="690" y="117" />
+        <di:waypoint x="752" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0iisaaq_di" bpmnElement="Flow_0iisaaq">
+        <di:waypoint x="530" y="117" />
+        <di:waypoint x="590" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1crw3vy_di" bpmnElement="Flow_1crw3vy">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="270" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1e5kiv5_di" bpmnElement="Activity_13v4mzy">
+        <dc:Bounds x="430" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0vmiax7_di" bpmnElement="Event_0vmiax7">
+        <dc:Bounds x="752" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0f331lg_di" bpmnElement="Activity_0y8rdd5">
+        <dc:Bounds x="590" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ne4eiu_di" bpmnElement="Activity_0dgfqfw">
+        <dc:Bounds x="270" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

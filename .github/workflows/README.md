@@ -37,7 +37,7 @@ The `publish-cws-image` job is the CD component of the workflow, triggered upon 
 - **Download Logstash**:
   - [**download-file-action**](https://github.com/marketplace/actions/download-file-to-workspace): This action downloads a file from the internet into the workspace
     - Downloads Logstash using a URL
-    - Renames the file as `logstash-7.16.2.zip`
+    - Renames the file as `logstash-8.8.0.zip`
     - Stores Logstash in appropriate directory
 - **Check for Logstash**:
   - List files in the directory where Logstash is expected

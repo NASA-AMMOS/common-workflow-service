@@ -5,7 +5,7 @@ services:
     labels:
       com.example.service: "es"
       com.example.description: "For searching and indexing data"
-    image: elasticsearch:7.16.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
     container_name: cws-es-only
     networks:
       - es-net
@@ -16,6 +16,7 @@ services:
       - MAX_MAP_COUNT=262144
       - discovery.type=single-node
       - cluster.name=docker-cluster
+      - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     healthcheck:
         test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
@@ -34,7 +35,7 @@ services:
 #    labels:
 #      com.example.service: "kibana"
 #      com.example.description: "Data visualisation and for log aggregation"
-#    image: kibana:7.16.2
+#    image: kibana:8.8.0
 #    container_name: cws-kibana
 #    ports:
 #      - "5601:5601"
