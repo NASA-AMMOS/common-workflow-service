@@ -83,7 +83,7 @@ public class HistoryTestIT extends WebTestUtil {
 
 			findOnPage("CWS - History");
 
-			if (findOnPage("History Page")
+			if (findOnPage("History Page.")
 					&& findOnPage("Command 'mkdir Test' exit code: 0")
 					&& findOnPage("Command 'ls' exit code: 0")
 					&& findOnPage("LINE: Test")

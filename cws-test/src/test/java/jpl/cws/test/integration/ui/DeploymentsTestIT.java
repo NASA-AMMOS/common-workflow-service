@@ -344,7 +344,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			select.selectByVisibleText("1 second refresh rate");
 
 			if (driver.getPageSource().contains("1 second refresh rate")) {
-				log.info("Found the seledcted Status Refresh Rate.");
+				log.info("Found the selected Status Refresh Rate.");
 				scriptPass = true;
 				testCasesCompleted++;
 			}

@@ -58,6 +58,7 @@ public class WebTestIT extends WebTestUtil {
 		login();
 		gotoDeployments();
 		deployFile("test_set_vars");
+		deleteProc("test_set_vars");
 		logout();
 		log.info("------ END deployTest ------");
 	}
@@ -203,38 +204,6 @@ public class WebTestIT extends WebTestUtil {
 
 		// Wait for Finish
 		sleep(90000);
-		
-		
-		/*
-		//Start Instance (2) through Initiators
-		goToInitiators();
-		
-		sleep(9000000);
-		
-		WebElement saveXmlBtn = findElById("saveXmlBtn");
-		saveXmlBtn.click();
-		sleep(1000);
-		
-		WebElement saveConfirmBtn = findElById("saveConfirmBtn");
-		saveConfirmBtn.click();
-		sleep(1000);
-		allWorkers.click();
-		sleep(1000);
-		allWorkersDone.click();
-		sleep(1000);
-		
-		WebElement enableAction = findElById("toggle_repeat_1");
-		enableAction.click();
-		sleep(1000);
-		
-		gotoDeployments();
-		
-		sleep(5000);
-		
-		goToProcesses();
-		
-		sleep(1000);
-		*/
 
 		
 		if(findOnPage("completed")) {

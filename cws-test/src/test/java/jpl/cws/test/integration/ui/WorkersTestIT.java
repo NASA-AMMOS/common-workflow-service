@@ -57,7 +57,6 @@ public class WorkersTestIT extends WebTestUtil {
 			scriptPass = false;
 		}
 		deleteProc("test_workers_page");
-		deleteProc("test_deployments_page");
 		deleteProc("test_thread_limit");
 		logout();
 		assertTrue("Workers Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
@@ -322,7 +321,7 @@ public class WorkersTestIT extends WebTestUtil {
 			correctThreadLimit.sendKeys(origThreadLimit);
 			
 			driver.findElement(By.id("workers-table")).click();
-			
+
 			log.info("------ END WorkersTestIT:runThreadLimitTest ------");
 		}
 		catch (Throwable e) {
