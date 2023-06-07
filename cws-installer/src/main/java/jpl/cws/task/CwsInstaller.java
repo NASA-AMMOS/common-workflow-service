@@ -2248,9 +2248,15 @@ public class CwsInstaller {
 		else {
 			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
 			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
-			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
-			content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
-			content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
+			if (identityAttr[0] != null) {
+				content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
+			}
+			if (identityAttr[1] != null) {
+				content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
+			}
+			if (identityAttr[2] != null) {
+				content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
+			}
 		}
 		writeToFile(filePath, content);
 		copy(
@@ -2335,9 +2341,15 @@ public class CwsInstaller {
 		} else {
 			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
 			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
-			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
-			content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
-			content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
+			if (identityAttr[0] != null) {
+				content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
+			}
+			if (identityAttr[1] != null) {
+				content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
+			}
+			if (identityAttr[2] != null) {
+				content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
+			}
 		}
 
 		content = content.replace("__CWS_NOTIFICATION_EMAILS__",           cws_notification_emails);
@@ -2451,9 +2463,15 @@ public class CwsInstaller {
 		} else {
 			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
 			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
-			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
-			content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
-			content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
+			if (identityAttr[0] != null) {
+				content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
+			}
+			if (identityAttr[1] != null) {
+				content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
+			}
+			if (identityAttr[2] != null) {
+				content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
+			}
 		}
 
 		content = content.replace("__CWS_NOTIFICATION_EMAILS__",         cws_notification_emails);
@@ -2814,9 +2832,15 @@ public class CwsInstaller {
 		} else {
 			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
 			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
-			setPreset("admin_firstname", identityAttr[0]);
-			setPreset("admin_lastname", identityAttr[1]);
-			setPreset("admin_email", identityAttr[2]);
+			if (identityAttr[0] != null) {
+				setPreset("admin_firstname", identityAttr[0]);
+			}
+			if (identityAttr[1] != null) {
+				setPreset("admin_lastname", identityAttr[1]);
+			}
+			if (identityAttr[2] != null) {
+				setPreset("admin_email", identityAttr[2]);
+			}
 		}
 
 		setPreset("cws_web_port", cws_tomcat_connector_port);
