@@ -25,10 +25,10 @@ The `publish-cws-image` job is the CD component of the workflow, triggered upon 
     - Image: mariadb:10.3
     - Ports: 3306:3306
 - [**checkout**](https://github.com/marketplace/actions/checkout): This action checks out the repository under `$GITHUB_WORKSPACE`, so the workflow can access it.
-- Set up JDK 8:
+- Set up JDK 11:
   - [**setup-java**](https://github.com/marketplace/actions/setup-java-jdk): This action downloads and sets up a requested version of Java
   - Current configuration:
-      - Java-version: 8
+      - Java-version: 11
       - Distribution: Temurin
       - Cache: Maven
 - **Create open-source certs**:
@@ -87,7 +87,7 @@ The `publish-cws-image` job is the CD component of the workflow, triggered upon 
 - **Check out the repo**:
   - Utilizes the same `checkout` action to check out the repository again
   - This is done in a new GitHub runner
-- **Set up JDK 8**
+- **Set up JDK 11**
   - Utilizes the same `setup-java` action to set up Java
 - **Log in to Docker Hub**:
   - [**Docker Login**](https://github.com/marketplace/actions/docker-login): This action is used to log in against a Docker registry
