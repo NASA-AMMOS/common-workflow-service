@@ -322,33 +322,6 @@
 			});
 		}
 
-		//function to check if a cookie exists and if it does, return the value
-		//if it doesn't, return an empty string
-		function getCookieValue(cookieName){
-			let name = cookieName + "=";
-			let decodedCookies = decodeURIComponent(document.cookie);
-			let cookies = decodedCookies.split(';');
-			for(let i = 0; i < cookies.length; i++){
-				let cookie = cookies[i];
-				while(cookie.charAt(0) == ' '){
-					cookie = cookie.substring(1);
-				}
-				if(cookie.indexOf(name) == 0){
-					return cookie.substring(name.length, cookie.length);
-				}
-			}
-			return "";
-		}
-
-		//function to handle creating / updating a cookie
-		//cookie expires 7 days after today's date
-		function updateCookie(cookieName, cookieValue, expireDays){
-			let d = new Date();
-			d.setTime(d.getTime() + expireDays*24*60*60*1000);
-			let expireString = "expires=" + d.toUTCString();
-			document.cookie = cookieName + "=" + cookieValue + ";" + expireString + ";path=/";
-		}
-
 		$( document ).ready(function() {
 			// DISPLAY MESSAGE AT TOP OF PAGE
 			//
