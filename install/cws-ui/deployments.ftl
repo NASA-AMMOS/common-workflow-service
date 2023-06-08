@@ -242,9 +242,13 @@
 			if (refreshing) return;
 
 			refreshing = true;
+
+			//grab the cookie here so we don't have to do it multiple times
+			var statsCookieValue = parseInt(getCookieValue("CWS_DASH_DEPLOY_LAST_NUM_HOURS"));
+
 			$.ajax({ 
 				url: "/${base}/rest/stats/processInstanceStatsJSON",
-				data: parseInt(getCookieValue("CWS_DASH_DEPLOY_LAST_NUM_HOURS")) ? "lastNumHours=" + getCookieValue("CWS_DASH_DEPLOY_LAST_NUM_HOURS") : "",
+				data: statsCookieValue ? "lastNumHours=" + statsCookieValue : "",
 				success: function( data ) {
 				
 					statsTotalVal.pending = 0;
@@ -336,10 +340,7 @@
 			return "";
 		}
 
-		//function to handle cookies for the refresh rate
-		//checks if cookie already exists. if it does, set the value of the cookie to the refresh rate
-		//if it doesn't, create a cookie with the refresh rate
-		//note: the cookie's name should be in the format of "CWS_DASH_DEPLOY_REFRESH_RATE"
+		//function to handle creating / updating a cookie
 		//cookie expires 7 days after today's date
 		function updateCookie(cookieName, cookieValue, expireDays){
 			let d = new Date();
