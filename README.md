@@ -23,26 +23,27 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
     - Verify installation using: `mvn -v`
 - [**Docker**](https://docs.docker.com/get-docker/): Used to run external Elasticsearch, and create and configure mariaDB database container
   - Recommended minimum system requirements from Docker Resources window:
-      - CPUs: 4
-      - Memory: 5.00 GB
+      - CPUs: 5
+      - Memory: 14.00 GB
       - Swap: 1 GB
-      - Disk image size: 59.6 GB
+      - Disk image size: 64 GB
 - MariaDB or MySQL database set up on either your local machine or a remote host. You will also need to create the following:
     - A database for CWS to use. `cws_dev` is a good default name.
     - A database user with full access to the above database.
 - [**ITerm2**](https://iterm2.com/): Currently these build scripts include commands to open new terminal windows using ITerm2, so they are best run from that terminal.
-- **Logstash 7.16.2+**: Download Logstash (OSS version) for the Windows platform. Rename the ZIP file from 'logstash-oss-7.16.2-windows-x86_64.zip' to 'logstash-7.16.2.zip' and place in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/past-releases/logstash-oss-7-16-2).
-- **Elasticsearch 7.16.2+**: CWS requires an externally-configured elasticsearch cluster to be set up. You can use an SSL Secure Elasticsearch with or without authentication, or an Insecure HTTP Elasticsearch.
+- **Logstash 8.8.0+**: Download Logstash for your platform. Uncompress it (only if it is a .tar.gz) and then ZIP back it up with the filename 'logstash-8.8.0.zip' and place in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/logstash).
+- **Elasticsearch 8.8.0+**: CWS requires an externally-configured elasticsearch cluster to be set up. You can use an SSL Secure Elasticsearch with or without authentication, or an Insecure HTTP Elasticsearch.
   - The "Elasticsearch Setup" instruction below provides a contained Dockerized way of running Elasticsearch. This serves as an alternative to installing Elasticsearch.
 - Tomcat **keystore and truststore files** (needed for CWS web console to work properly):
     - You will need to add your own Tomcat keystore file to this path: `install/.keystore`
     - You will need to add your own truststore file to this path: `install/tomcat_lib/cws_truststore.jks`
     - See: https://tomcat.apache.org/tomcat-9.0-doc/ssl-howto.html
-  - **Java 8 SE JDK**: JDK 9+ deprecated, and JDK 11+ removed, dependencies used by CWS.
+  - **Java 11 JDK**: CWS only runs on JDK 11 now, but planning for JDK 17 soon.
     - For Homebrew users:
-      - Install OpenJDK 8 using: `brew install openjdk@8`.`/usr/local/opt/openjdk@8`
-      - Point Maven to this JDK: `export JAVA_HOME=/usr/local/opt/openjdk@8`
-      - (Optional) Add this to your path: `export PATH="/usr/local/opt/openjdk@8/bin:$PATH"`
+      - Install OpenJDK 11 using: `brew install openjdk@11`
+      - Check the exact version installed using `/usr/libexec/java_home -V`
+      - Add to your Shell startup (e.g. .zprofile): `export JAVA_HOME=$(/usr/libexec/java_home -v X.X.X)`
+        - Replace the X.X.X version above with the OpenJDK 11 output from the `/usr/libexec/java_home -V` command.
 
 
 ### **Development Environment Configuration**

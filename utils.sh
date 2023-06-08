@@ -8,7 +8,7 @@
 export CWS_VER='2.4.0'    # update this each CWS release
 export CAMUNDA_VER='7.19.0'
 export TOMCAT_VER='9.0.72'
-export LOGSTASH_VER='7.16.2'
+export LOGSTASH_VER='8.8.0'
 
 # Prints the provided string, tagging with the script that called it
 function print () {
