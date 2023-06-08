@@ -244,7 +244,7 @@
 			refreshing = true;
 			$.ajax({ 
 				url: "/${base}/rest/stats/processInstanceStatsJSON",
-				data: lastNumHours ? "lastNumHours=" + lastNumHours : "",
+				data: parseInt(getCookieValue("CWS_DASH_DEPLOY_LAST_NUM_HOURS")) ? "lastNumHours=" + getCookieValue("CWS_DASH_DEPLOY_LAST_NUM_HOURS") : "",
 				success: function( data ) {
 				
 					statsTotalVal.pending = 0;
@@ -317,6 +317,37 @@
 				}
 			});
 		}
+
+		//function to check if a cookie exists and if it does, return the value
+		//if it doesn't, return an empty string
+		function getCookieValue(cookieName){
+			let name = cookieName + "=";
+			let decodedCookies = decodeURIComponent(document.cookie);
+			let cookies = decodedCookies.split(';');
+			for(let i = 0; i < cookies.length; i++){
+				let cookie = cookies[i];
+				while(cookie.charAt(0) == ' '){
+					cookie = cookie.substring(1);
+				}
+				if(cookie.indexOf(name) == 0){
+					return cookie.substring(name.length, cookie.length);
+				}
+			}
+			return "";
+		}
+
+		//function to handle cookies for the refresh rate
+		//checks if cookie already exists. if it does, set the value of the cookie to the refresh rate
+		//if it doesn't, create a cookie with the refresh rate
+		//note: the cookie's name should be in the format of "CWS_DASH_DEPLOY_REFRESH_RATE"
+		//cookie expires 7 days after today's date
+		function updateCookie(cookieName, cookieValue, expireDays){
+			let d = new Date();
+			d.setTime(d.getTime() + expireDays*24*60*60*1000);
+			let expireString = "expires=" + d.toUTCString();
+			document.cookie = cookieName + "=" + cookieValue + ";" + expireString + ";path=/";
+		}
+
 		$( document ).ready(function() {
 			// DISPLAY MESSAGE AT TOP OF PAGE
 			//
@@ -329,9 +360,15 @@
 					$('#statusMessageDiv').fadeOut(refreshRate, "linear");
 				}
 			}
+
+			// State persistance for refresh rate and show stats for last x hours
+			$("#refresh-rate").val(String(getCookieValue("CWS_DASH_DEPLOY_REFRESH_RATE")/1000));
+
+			$("#stats-last-num-hours").val(String(getCookieValue("CWS_DASH_DEPLOY_LAST_NUM_HOURS")));
+			
 			
 			refreshStats();
-			pageRefId  = setInterval(pageRefresh, refreshRate);
+			pageRefId  = setInterval(pageRefresh, getCookieValue("CWS_DASH_DEPLOY_REFRESH_RATE"));
 			idleTimer  = setInterval(idleMode, idleInterval);
 			
 			$("#resume-refresh").click(function(){
@@ -536,7 +573,7 @@
 					<option value="3">3 second refresh rate</option>
 					<option value="1">1 second refresh rate</option>
 					<option value="0">Stop auto-refresh</option>
-				</select>
+					</select>
 			</div>
 			<br>
 			<div>
@@ -933,17 +970,22 @@
 		}
 	});
 
+
+	//Handles refresh rate for stats
 	$("#refresh-rate").on('change',function(){
 		refreshRate = parseInt($(this).val()) * 1000;
+		updateCookie("CWS_DASH_DEPLOY_REFRESH_RATE", refreshRate, 7);
 		clearInterval(pageRefId);
 		if(refreshRate == 0)
 			return;
 		refreshStats();
-		pageRefId = setInterval(pageRefresh, refreshRate);
+		pageRefId = setInterval(pageRefresh, getCookieValue("CWS_DASH_DEPLOY_REFRESH_RATE"));
 	});
+
 
 	$("#stats-last-num-hours").on('change',function(){
 		lastNumHours = parseInt($(this).val()) | null;
+		updateCookie("CWS_DASH_DEPLOY_LAST_NUM_HOURS", lastNumHours, 7);
 		refreshStats();
 	});
 	
