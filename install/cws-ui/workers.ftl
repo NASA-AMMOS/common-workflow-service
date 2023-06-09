@@ -14,9 +14,6 @@
 		
 		var refreshCount = 0;
 		var refreshRate = 1000;
-
-		//controls when cookies will expire, in days
-		var cookieExpireDays = 7;
 	
 		function refreshStats() {
 		
@@ -415,17 +412,17 @@
 			$('#workers-table tbody tr').filter(function () {
 		        return $.trim($(this).find('td').eq(1).text()) === "down"
 		    }).hide();
-			updateCookie("CWS_DASH_WORKERS_HIDE_DOWN", 1, cookieExpireDays);
+			localStorage.setItem("CWS_DASH_WORKERS_HIDE_DOWN", "1");
 		}
 		else {
 			$('#workers-table tbody tr').filter(function () {
 		        return $.trim($(this).find('td').eq(1).text()) === "down"
 		    }).show();
-			updateCookie("CWS_DASH_WORKERS_HIDE_DOWN", 0, cookieExpireDays);
+			localStorage.setItem("CWS_DASH_WORKERS_HIDE_DOWN", "0");
 		}
 	});
 
-	if(getCookieValue("CWS_DASH_WORKERS_HIDE_DOWN") == 1) {
+	if(localStorage.getItem("CWS_DASH_WORKERS_HIDE_DOWN") === "1") {
 		$("#hide-down-btn").prop("checked", true);
 		$('#workers-table tbody tr').filter(function () {
 	        return $.trim($(this).find('td').eq(1).text()) === "down"
