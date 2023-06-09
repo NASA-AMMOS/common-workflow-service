@@ -21,6 +21,9 @@
 		var idleTimer = 0;
 		var idleInterval = 600000 // 10 minutes (10 * 60 * 1000)
 
+		//controls when cookies will expire, in days
+		var cookieExpireDays = 7;
+
 		<#list procDefs as x>
 			statsVal.${x.key} = {pending:'...', disabled:'...', active:'...', completed:'...', error:'...', fts:'...', incident:'...'};
 		</#list>
@@ -880,12 +883,12 @@
 	$("#hide-sus-btn").click(function(){
 		if($(this).prop("checked")){
 			$("#process-table tr.disabled").hide(100);
-			updateCookie("CWS_DASH_DEPLOY_HIDE_SUS", 1, 7);
+			updateCookie("CWS_DASH_DEPLOY_HIDE_SUS", 1, cookieExpireDays);
 			hideall=true;
 		}
 		else{
 			$("#process-table tr.disabled").show(100);
-			updateCookie("CWS_DASH_DEPLOY_HIDE_SUS", 0, 7);
+			updateCookie("CWS_DASH_DEPLOY_HIDE_SUS", 0, cookieExpireDays);
 			hideall=true;
 		}
 	});
@@ -960,7 +963,7 @@
 	//Handles refresh rate for stats
 	$("#refresh-rate").on('change',function(){
 		refreshRate = parseInt($(this).val()) * 1000;
-		updateCookie("CWS_DASH_DEPLOY_REFRESH_RATE", refreshRate, 7);
+		updateCookie("CWS_DASH_DEPLOY_REFRESH_RATE", refreshRate, cookieExpireDays);
 		clearInterval(pageRefId);
 		if(refreshRate == 0)
 			return;
@@ -971,7 +974,7 @@
 
 	$("#stats-last-num-hours").on('change',function(){
 		lastNumHours = parseInt($(this).val()) | null;
-		updateCookie("CWS_DASH_DEPLOY_LAST_NUM_HOURS", lastNumHours, 7);
+		updateCookie("CWS_DASH_DEPLOY_LAST_NUM_HOURS", lastNumHours, cookieExpireDays);
 		refreshStats();
 	});
 	
