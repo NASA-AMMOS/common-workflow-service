@@ -9,6 +9,13 @@
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<script>
+	
+		//STATE PERSISTANCE CONSTS
+		const username = "username"; //temporary, hardcoded value for now
+		const lastNumHoursVar = "CWS_DASH_DEPLOY_LAST_NUM_HOURS" + username;
+		const refreshRateVar = "CWS_DASH_DEPLOY_REFRESH_RATE" + username;
+		const hideSusVar = "CWS_DASH_DEPLOY_HIDE_SUS" + username;
+
 		var statsVal = {};
 		var statsTotalVal = {};
 
@@ -244,7 +251,7 @@
 			refreshing = true;
 
 			//grab the value here so we don't have to do it multiple times
-			var statsCookieValue = parseInt(localStorage.getItem("CWS_DASH_DEPLOY_LAST_NUM_HOURS"));
+			var statsCookieValue = parseInt(localStorage.getItem(lastNumHoursVar));
 
 			$.ajax({ 
 				url: "/${base}/rest/stats/processInstanceStatsJSON",
@@ -336,17 +343,17 @@
 			}
 
 			// State persistance for refresh rate and show stats for last x hours
-			$("#refresh-rate").val(localStorage.getItem("CWS_DASH_DEPLOY_REFRESH_RATE")/1000);
+			$("#refresh-rate").val(localStorage.getItem(refreshRateVar)/1000);
 
-			if (localStorage.getItem("CWS_DASH_DEPLOY_LAST_NUM_HOURS") != null) {
-				$("#stats-last-num-hours").val(localStorage.getItem("CWS_DASH_DEPLOY_LAST_NUM_HOURS"));
+			if (localStorage.getItem(lastNumHoursVar) != null) {
+				$("#stats-last-num-hours").val(localStorage.getItem(lastNumHoursVar));
 			} else {
 				$("#stats-last-num-hours").val(24);
 			}
 			
 			
 			refreshStats();
-			pageRefId  = setInterval(pageRefresh, parseInt(localStorage.getItem("CWS_DASH_DEPLOY_REFRESH_RATE")));
+			pageRefId  = setInterval(pageRefresh, parseInt(localStorage.getItem(refreshRateVar)));
 			idleTimer  = setInterval(idleMode, idleInterval);
 			
 			$("#resume-refresh").click(function(){
@@ -884,17 +891,17 @@
 	$("#hide-sus-btn").click(function(){
 		if($(this).prop("checked")){
 			$("#process-table tr.disabled").hide(100);
-			localStorage.setItem("CWS_DASH_DEPLOY_HIDE_SUS", "1");
+			localStorage.setItem(hideSusVar, "1");
 			hideall=true;
 		}
 		else{
 			$("#process-table tr.disabled").show(100);
-			localStorage.setItem("CWS_DASH_DEPLOY_HIDE_SUS", "0");
+			localStorage.setItem(hideSusVar, "0");
 			hideall=true;
 		}
 	});
 
-	if(parseInt(localStorage.getItem("CWS_DASH_DEPLOY_HIDE_SUS")) == 0) {
+	if(parseInt(localStorage.getItem(hideSusVar)) == 0) {
 		$("#hide-sus-btn").prop("checked", false);
 		$("#process-table tr.disabled").show(100);
 		hideall==true;
@@ -964,18 +971,18 @@
 	//Handles refresh rate for stats
 	$("#refresh-rate").on('change',function(){
 		refreshRate = parseInt($(this).val()) * 1000;
-		localStorage.setItem("CWS_DASH_DEPLOY_REFRESH_RATE", refreshRate.toString());
+		localStorage.setItem(refreshRateVar, refreshRate.toString());
 		clearInterval(pageRefId);
 		if(refreshRate == 0)
 			return;
 		refreshStats();
-		pageRefId = setInterval(pageRefresh, parseInt(localStorage.getItem("CWS_DASH_DEPLOY_REFRESH_RATE")));
+		pageRefId = setInterval(pageRefresh, parseInt(localStorage.getItem(refreshRateVar)));
 	});
 
 
 	$("#stats-last-num-hours").on('change',function(){
 		lastNumHours = parseInt($(this).val()) | null;
-		localStorage.setItem("CWS_DASH_DEPLOY_LAST_NUM_HOURS", lastNumHours.toString());
+		localStorage.setItem(lastNumHoursVar, lastNumHours.toString());
 		refreshStats();
 	});
 	

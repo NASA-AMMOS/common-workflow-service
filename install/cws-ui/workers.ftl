@@ -9,6 +9,10 @@
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<script>
+
+		//STATE PERSISTANCE CONSTS
+		const username = "username"; //temporary, hardcoded value for now
+		const hideDownWorkersVar = "CWS_DASH_WORKERS_HIDE_DOWN" + username;
 	
 		var numProcDefs = ${procDefs?size};
 		
@@ -412,17 +416,17 @@
 			$('#workers-table tbody tr').filter(function () {
 		        return $.trim($(this).find('td').eq(1).text()) === "down"
 		    }).hide();
-			localStorage.setItem("CWS_DASH_WORKERS_HIDE_DOWN", "1");
+			localStorage.setItem(hideDownWorkersVar, "1");
 		}
 		else {
 			$('#workers-table tbody tr').filter(function () {
 		        return $.trim($(this).find('td').eq(1).text()) === "down"
 		    }).show();
-			localStorage.setItem("CWS_DASH_WORKERS_HIDE_DOWN", "0");
+			localStorage.setItem(hideDownWorkersVar, "0");
 		}
 	});
 
-	if(localStorage.getItem("CWS_DASH_WORKERS_HIDE_DOWN") === "1") {
+	if(localStorage.getItem(hideDownWorkersVar) === "1") {
 		$("#hide-down-btn").prop("checked", true);
 		$('#workers-table tbody tr').filter(function () {
 	        return $.trim($(this).find('td').eq(1).text()) === "down"

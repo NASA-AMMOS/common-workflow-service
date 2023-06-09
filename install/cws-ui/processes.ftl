@@ -16,11 +16,6 @@
 			font-size: 90%;
 		}
 	</style>
-	
-	<script>
-	
-
-	</script>
 
 	<!-- Just for debugging purposes. Don't actually copy this line! -->
 	<!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -195,16 +190,19 @@
 
 <script type="text/javascript">
 
+	//STATE PERSISTANCE CONSTS
+	const username = "username"; //temporary, hardcoded value for now
+	const qstringVar = "CWS_DASH_PROC_QSTRING" + username; 
+
 	var params = {};
 	var rows;
 	var MAX_ROWS = 100;
 
 	$( document ).ready(function() {
-
 		//get our current url
 		var currentUrl = window.location.href;
 		//get our local storage url
-		var localStorageUrl = localStorage.getItem("CWS_DASH_PROC_QSTRING");
+		var localStorageUrl = localStorage.getItem(qstringVar);
 		//check if a cookie has been stored (indicating we can restore state)
 		if(localStorageUrl != null) {
 			//remove everything before ?
@@ -338,7 +336,7 @@
 			}
 		}
 		qstring = qstring.substring(0,qstring.length-1);
-		localStorage.setItem("CWS_DASH_PROC_QSTRING", qstring);
+		localStorage.setItem(qstringVar, qstring);
 		console.log(encodeURI(qstring));
 		window.location="/${base}/processes" + qstring;
 	}

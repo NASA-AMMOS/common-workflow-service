@@ -13,6 +13,18 @@
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<script>
 
+	//STATE PERSISTANCE CONSTS
+	const username = "username"; //temporary, hardcoded value for now
+	const cwsHostVar = "CWS_DASH_LOGS_CWSHOST" + username;
+	const cwsWIDVar = "CWS_DASH_LOGS_CWSWID" + username;
+	const logLevelVar = "CWS_DASH_LOGS_LOGLVL" + username;
+	const thnVar = "CWS_DASH_LOGS_THN" + username;
+	const pdkVar = "CWS_DASH_LOGS_PDK" + username;
+	const pidVar = "CWS_DASH_LOGS_PID" + username;
+	const refreshRateVar = "CWS_DASH_LOGS_REFRESH_RATE" + username;
+	const refreshVar = "CWS_DASH_LOGS_REFRESH" + username;
+	const qstringVar = "CWS_DASH_LOGS_QSTRING" + username;
+
 	// Global vars
 	var params;
 	var FETCH_COUNT = 200;
@@ -164,27 +176,27 @@
 	$( document ).ready(function() {
 
 		//go through the local storage and set checkboxes accordingly
-		if (localStorage.getItem("CWS_DASH_LOGS_CWSHOST") === "1") {
+		if (localStorage.getItem(cwsHostVar) === "1") {
 			collapseColumn(2);
 			$("#cwshost-chkbox").prop("checked", true);
 		}
-		if (localStorage.getItem("CWS_DASH_LOGS_CWSWID") === "1") {
+		if (localStorage.getItem(cwsWIDVar) === "1") {
 			collapseColumn(3);
 			$("#cwswid-chkbox").prop("checked", true);
 		}
-		if (localStorage.getItem("CWS_DASH_LOGS_LOGLVL") === "1") {
+		if (localStorage.getItem(logLevelVar) === "1") {
 			collapseColumn(4);
 			$("#loglvl-chkbox").prop("checked", true);
 		}
-		if (localStorage.getItem("CWS_DASH_LOGS_THN") === "1") {
+		if (localStorage.getItem(thnVar) === "1") {
 			collapseColumn(5);
 			$("#thn-chkbox").prop("checked", true);
 		}
-		if (localStorage.getItem("CWS_DASH_LOGS_PDK") === "1") {
+		if (localStorage.getItem(pdkVar) === "1") {
 			collapseColumn(6);
 			$("#pdk-chkbox").prop("checked", true);
 		}
-		if (localStorage.getItem("CWS_DASH_LOGS_PID") === "1") {
+		if (localStorage.getItem(pidVar) === "1") {
 			collapseColumn(7);
 			$("#pid-chkbox").prop("checked", true);
 		}
@@ -201,17 +213,17 @@
 			}
 		}
 
-		if (localStorage.getItem("CWS_DASH_LOGS_REFRESH_RATE") === null) {
-		localStorage.setItem("CWS_DASH_LOGS_REFRESH_RATE", "10000");
+		if (localStorage.getItem(refreshRateVar) === null) {
+		localStorage.setItem(refreshRateVar, "10000");
 		}
 
-		$("#refresh-rate").val((parseInt(localStorage.getItem("CWS_DASH_LOGS_REFRESH_RATE"))/1000).toString());
+		$("#refresh-rate").val((parseInt(localStorage.getItem(refreshRateVar))/1000).toString());
 
 
 
-		if(localStorage.getItem("CWS_DASH_LOGS_REFRESH") === "1") {
+		if(localStorage.getItem(refreshVar) === "1") {
 			$("#refresh-checkbox").prop("checked", true);
-			refreshRate = parseInt(localStorage.getItem("CWS_DASH_LOGS_REFRESH_RATE"));
+			refreshRate = parseInt(localStorage.getItem(refreshRateVar));
 			refID = setInterval(refreshLogs, refreshRate);
 		}
 		else{
@@ -221,7 +233,7 @@
 		//get our current url
 		var currentUrl = window.location.href;
 		//get our local storage url
-		var localStorageUrl = localStorage.getItem("CWS_DASH_LOGS_QSTRING");
+		var localStorageUrl = localStorage.getItem(qstringVar);
 		//check if a cookie has been stored (indicating we can restore state)
 		if(localStorageUrl != null) {
 			//remove everything before ?
@@ -515,7 +527,7 @@
 			qstring += p+"="+params[p]+"&";
 		}
 		qstring = qstring.substring(0,qstring.length-1);
-		localStorage.setItem("CWS_DASH_LOGS_QSTRING", qstring);
+		localStorage.setItem(qstringVar, qstring);
 		//console.log(encodeURI(qstring));
 		window.location="/${base}/logs" + qstring;
 	});
@@ -542,20 +554,20 @@
 	var refID;
 	$("#refresh-checkbox").click(function(){
 		if($(this).prop("checked")){
-			localStorage.setItem("CWS_DASH_LOGS_REFRESH", "1");
-			refreshRate = parseInt(localStorage.getItem("CWS_DASH_LOGS_REFRESH_RATE"));
+			localStorage.setItem(refreshVar, "1");
+			refreshRate = parseInt(localStorage.getItem(refreshRateVar));
 			refreshLogs();
 			refID = setInterval(refreshLogs, refreshRate);
 		}
 		else{
-			localStorage.setItem("CWS_DASH_LOGS_REFRESH", "0");
+			localStorage.setItem(refreshVar, "0");
 			clearInterval(refID);
 		}
 	});
 
 	$("#refresh-rate").on('change', function(){
 		refreshRate = parseInt($(this).val()) * 1000;
-		localStorage.setItem("CWS_DASH_LOGS_REFRESH_RATE", refreshRate.toString());
+		localStorage.setItem(refreshRateVar, refreshRate.toString());
 		if($("#refresh-checkbox").prop("checked")){
 			clearInterval(refID);
 			refID = setInterval(refreshLogs, refreshRate);
@@ -603,27 +615,27 @@
 	$("#sh-cols div input").click(function(){
 		switch ($(this).attr('id') ){
 			case 'cwshost-chkbox':
-				toggleLocalStorage("CWS_DASH_LOGS_CWSHOST");
+				toggleLocalStorage(cwsHostVar);
 				collapseColumn(2);
 				break;
 			case 'cwswid-chkbox':
-				toggleLocalStorage("CWS_DASH_LOGS_CWSWID");
+				toggleLocalStorage(cwsWIDVar);
 				collapseColumn(3);
 				break;
 			case 'loglvl-chkbox':
-				toggleLocalStorage("CWS_DASH_LOGS_LOGLVL");
+				toggleLocalStorage(logLevelVar);
 				collapseColumn(4);
 				break;
 			case 'thn-chkbox':
-				toggleLocalStorage("CWS_DASH_LOGS_THN");
+				toggleLocalStorage(thnVar);
 				collapseColumn(5);
 				break;
 			case 'pdk-chkbox':
-				toggleLocalStorage("CWS_DASH_LOGS_PDK");
+				toggleLocalStorage(pdkVar);
 				collapseColumn(6);
 				break;
 			case 'pid-chkbox':
-				toggleLocalStorage("CWS_DASH_LOGS_PID");
+				toggleLocalStorage(pidVar);
 				collapseColumn(7);
 				break;
 
