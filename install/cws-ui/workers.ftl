@@ -5,6 +5,7 @@
 	<script src="/${base}/js/jquery.min.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<script src="/${base}/js/adaptation-workers.js"></script>
+	<script src="/${base}/js/cws.js"></script>
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<script>
@@ -13,6 +14,9 @@
 		
 		var refreshCount = 0;
 		var refreshRate = 1000;
+
+		//controls when cookies will expire, in days
+		var cookieExpireDays = 7;
 	
 		function refreshStats() {
 		
@@ -411,13 +415,27 @@
 			$('#workers-table tbody tr').filter(function () {
 		        return $.trim($(this).find('td').eq(1).text()) === "down"
 		    }).hide();
+			updateCookie("CWS_DASH_WORKERS_HIDE_DOWN", 1, cookieExpireDays);
 		}
 		else {
 			$('#workers-table tbody tr').filter(function () {
 		        return $.trim($(this).find('td').eq(1).text()) === "down"
 		    }).show();
+			updateCookie("CWS_DASH_WORKERS_HIDE_DOWN", 0, cookieExpireDays);
 		}
 	});
+
+	if(getCookieValue("CWS_DASH_WORKERS_HIDE_DOWN") == 1) {
+		$("#hide-down-btn").prop("checked", true);
+		$('#workers-table tbody tr').filter(function () {
+	        return $.trim($(this).find('td').eq(1).text()) === "down"
+	    }).hide();
+	} else {
+		$("#hide-down-btn").prop("checked", false);
+		$('#workers-table tbody tr').filter(function () {
+	        return $.trim($(this).find('td').eq(1).text()) === "down"
+	    }).show();
+	}
 </script>
 </body>
 </html>
