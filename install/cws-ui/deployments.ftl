@@ -880,14 +880,26 @@
 	$("#hide-sus-btn").click(function(){
 		if($(this).prop("checked")){
 			$("#process-table tr.disabled").hide(100);
+			updateCookie("CWS_DASH_DEPLOY_HIDE_SUS", 1, 7);
 			hideall=true;
 		}
 		else{
 			$("#process-table tr.disabled").show(100);
+			updateCookie("CWS_DASH_DEPLOY_HIDE_SUS", 0, 7);
 			hideall=true;
 		}
 	});
-	$( "#hide-sus-btn" ).click(); // check by default
+
+	if(getCookieValue("CWS_DASH_DEPLOY_HIDE_SUS") == 0) {
+		$("#hide-sus-btn").prop("checked", false);
+		$("#process-table tr.disabled").show(100);
+		hideall==true;
+	}
+	else {
+		$("#hide-sus-btn").prop("checked", true);
+		$("#process-table tr.disabled").hide(100);
+	}
+	
 	
 	function listWorkersInModal(dataProcKey){
 		$.get("/${base}/rest/worker/"+dataProcKey+"/getWorkersForProc", function(data){
