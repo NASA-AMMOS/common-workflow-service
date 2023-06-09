@@ -201,6 +201,21 @@
 
 	$( document ).ready(function() {
 
+		//get our current url
+		var currentUrl = window.location.href;
+		//get our local storage url
+		var localStorageUrl = localStorage.getItem("CWS_DASH_PROC_QSTRING");
+		//check if a cookie has been stored (indicating we can restore state)
+		if(localStorageUrl != null) {
+			//remove everything before ?
+			currentUrl = currentUrl.substring(currentUrl.indexOf("?"));
+			//compare against what is in local storage
+			if (currentUrl != localStorageUrl) {
+				//if they are different, go to the one in local storage (essentially restoring from last time used)
+				window.location="/${base}/processes" + localStorageUrl;
+			}
+		}
+
 		$("#filters-btn").click(function(){
 			if($("#filters-div").is(":visible"))
 				$("#filter-arrow").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
@@ -323,6 +338,7 @@
 			}
 		}
 		qstring = qstring.substring(0,qstring.length-1);
+		localStorage.setItem("CWS_DASH_PROC_QSTRING", qstring);
 		console.log(encodeURI(qstring));
 		window.location="/${base}/processes" + qstring;
 	}
