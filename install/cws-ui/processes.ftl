@@ -192,7 +192,7 @@
 
 	//STATE PERSISTANCE CONSTS
 	const username = "username"; //temporary, hardcoded value for now
-	const qstringVar = "CWS_DASH_PROC_QSTRING" + username; 
+	const qstringVar = "CWS_DASH_PROC_QSTRING-" + username; 
 
 	var params = {};
 	var rows;

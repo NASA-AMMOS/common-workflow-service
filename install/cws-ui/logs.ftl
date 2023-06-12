@@ -15,15 +15,15 @@
 
 	//STATE PERSISTANCE CONSTS
 	const username = "username"; //temporary, hardcoded value for now
-	const cwsHostVar = "CWS_DASH_LOGS_CWSHOST" + username;
-	const cwsWIDVar = "CWS_DASH_LOGS_CWSWID" + username;
-	const logLevelVar = "CWS_DASH_LOGS_LOGLVL" + username;
-	const thnVar = "CWS_DASH_LOGS_THN" + username;
-	const pdkVar = "CWS_DASH_LOGS_PDK" + username;
-	const pidVar = "CWS_DASH_LOGS_PID" + username;
-	const refreshRateVar = "CWS_DASH_LOGS_REFRESH_RATE" + username;
-	const refreshVar = "CWS_DASH_LOGS_REFRESH" + username;
-	const qstringVar = "CWS_DASH_LOGS_QSTRING" + username;
+	const cwsHostVar = "CWS_DASH_LOGS_CWSHOST-" + username;
+	const cwsWIDVar = "CWS_DASH_LOGS_CWSWID-" + username;
+	const logLevelVar = "CWS_DASH_LOGS_LOGLVL-" + username;
+	const threadNameVar = "CWS_DASH_LOGS_THN-" + username;
+	const processDefKeyVar = "CWS_DASH_LOGS_PDK-" + username;
+	const processInstIDVar = "CWS_DASH_LOGS_PID-" + username;
+	const refreshRateVar = "CWS_DASH_LOGS_REFRESH_RATE-" + username;
+	const refreshVar = "CWS_DASH_LOGS_REFRESH-" + username;
+	const qstringVar = "CWS_DASH_LOGS_QSTRING-" + username;
 
 	// Global vars
 	var params;
@@ -188,15 +188,15 @@
 			collapseColumn(4);
 			$("#loglvl-chkbox").prop("checked", true);
 		}
-		if (localStorage.getItem(thnVar) === "1") {
+		if (localStorage.getItem(threadNameVar) === "1") {
 			collapseColumn(5);
 			$("#thn-chkbox").prop("checked", true);
 		}
-		if (localStorage.getItem(pdkVar) === "1") {
+		if (localStorage.getItem(processDefKeyVar) === "1") {
 			collapseColumn(6);
 			$("#pdk-chkbox").prop("checked", true);
 		}
-		if (localStorage.getItem(pidVar) === "1") {
+		if (localStorage.getItem(processInstIDVar) === "1") {
 			collapseColumn(7);
 			$("#pid-chkbox").prop("checked", true);
 		}
@@ -627,15 +627,15 @@
 				collapseColumn(4);
 				break;
 			case 'thn-chkbox':
-				toggleLocalStorage(thnVar);
+				toggleLocalStorage(threadNameVar);
 				collapseColumn(5);
 				break;
 			case 'pdk-chkbox':
-				toggleLocalStorage(pdkVar);
+				toggleLocalStorage(processDefKeyVar);
 				collapseColumn(6);
 				break;
 			case 'pid-chkbox':
-				toggleLocalStorage(pidVar);
+				toggleLocalStorage(processInstIDVar);
 				collapseColumn(7);
 				break;
 

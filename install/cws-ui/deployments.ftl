@@ -12,9 +12,9 @@
 	
 		//STATE PERSISTANCE CONSTS
 		const username = "username"; //temporary, hardcoded value for now
-		const lastNumHoursVar = "CWS_DASH_DEPLOY_LAST_NUM_HOURS" + username;
-		const refreshRateVar = "CWS_DASH_DEPLOY_REFRESH_RATE" + username;
-		const hideSusVar = "CWS_DASH_DEPLOY_HIDE_SUS" + username;
+		const lastNumHoursVar = "CWS_DASH_DEPLOY_LAST_NUM_HOURS-" + username;
+		const refreshRateVar = "CWS_DASH_DEPLOY_REFRESH_RATE-" + username;
+		const hideSuspendedProcVar = "CWS_DASH_DEPLOY_HIDE_SUS-" + username;
 
 		var statsVal = {};
 		var statsTotalVal = {};
@@ -343,9 +343,13 @@
 			}
 
 			// State persistance for refresh rate and show stats for last x hours
-			$("#refresh-rate").val(localStorage.getItem(refreshRateVar)/1000);
+			if (localStorage.getItem(refreshRateVar) !== null) {
+				$("#refresh-rate").val(localStorage.getItem(refreshRateVar)/1000);
+			} else {
+				$("#refresh-rate").val("5");
+			}
 
-			if (localStorage.getItem(lastNumHoursVar) != null) {
+			if (localStorage.getItem(lastNumHoursVar) !== null) {
 				$("#stats-last-num-hours").val(localStorage.getItem(lastNumHoursVar));
 			} else {
 				$("#stats-last-num-hours").val(24);
@@ -891,17 +895,17 @@
 	$("#hide-sus-btn").click(function(){
 		if($(this).prop("checked")){
 			$("#process-table tr.disabled").hide(100);
-			localStorage.setItem(hideSusVar, "1");
+			localStorage.setItem(hideSuspendedProcVar, "1");
 			hideall=true;
 		}
 		else{
 			$("#process-table tr.disabled").show(100);
-			localStorage.setItem(hideSusVar, "0");
+			localStorage.setItem(hideSuspendedProcVar, "0");
 			hideall=true;
 		}
 	});
 
-	if(parseInt(localStorage.getItem(hideSusVar)) == 0) {
+	if(parseInt(localStorage.getItem(hideSuspendedProcVar)) == 0) {
 		$("#hide-sus-btn").prop("checked", false);
 		$("#process-table tr.disabled").show(100);
 		hideall==true;

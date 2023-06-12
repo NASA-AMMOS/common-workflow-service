@@ -12,7 +12,7 @@
 
 		//STATE PERSISTANCE CONSTS
 		const username = "username"; //temporary, hardcoded value for now
-		const hideDownWorkersVar = "CWS_DASH_WORKERS_HIDE_DOWN" + username;
+		const hideDownWorkersVar = "CWS_DASH_WORKERS_HIDE_DOWN-" + username;
 	
 		var numProcDefs = ${procDefs?size};
 		
