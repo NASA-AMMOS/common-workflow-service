@@ -209,8 +209,12 @@
 			currentUrl = currentUrl.substring(currentUrl.indexOf("?"));
 			//compare against what is in local storage
 			if (currentUrl != localStorageUrl) {
-				//if they are different, go to the one in local storage (essentially restoring from last time used)
-				window.location="/${base}/processes" + localStorageUrl;
+				//check if we are viewing subprocs (if we are, we don't want to restore state)
+				var subprocs = currentUrl.indexOf("superProcInstId") + 16;
+				if(subprocs === "null") {
+					//if they are different, go to the one in local storage (essentially restoring from last time used)
+					window.location="/${base}/processes" + localStorageUrl;
+				}
 			}
 		}
 
