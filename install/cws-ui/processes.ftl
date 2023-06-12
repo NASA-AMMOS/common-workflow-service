@@ -353,6 +353,8 @@
 	
 		if (procInstId !== '') {
 			window.location = "/${base}/history?procInstId=" + procInstId;
+		} else {
+			return false;
 		}
 	}
 	
@@ -360,6 +362,8 @@
 	
 		if (procInstId !== '') {
 			window.location = "/${base}/processes?superProcInstId=" + procInstId;
+		} else {
+			return false;
 		}
 	}
 	
@@ -406,8 +410,8 @@
 						$("#processes-table").append(
 						"<tr id=\""+i+"\" class=\"tr-"+ res[i].status +"\" procInstId=\"" + procInstId + "\">"+
 							"<td>" + actionTd + "</td>" +
-							"<td><button onclick=\"viewHistory('" + procInstId + "')\" class=\"btn btn-default btn-sm\">History</button></td>" +
-							"<td><button onclick=\"viewSubProcs('" + procInstId + "')\" class=\"btn btn-default btn-sm\">Subprocs</button></td>" +
+							"<td><a onclick=\"viewHistory('" + procInstId + "')\" href=\"/${base}/history?procInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">History</a></td>" +
+							"<td><a onclick=\"viewSubProcs('" + procInstId + "')\" href=\"/${base}/processes?superProcInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">Subprocs</a></td>" +
 							"<td id=\"row-" + i + "initiationKey\">"+ (res[i].initiationKey == undefined ? '' : res[i].initiationKey) + "</td>" +
 							"<td>"+ res[i].procDefKey +"</td>"+
 							"<td>"+ (res[i].status == 'incident' ? ("<a href=\""+ incidentUrl +"\" target=\"blank_\">" + procInstId + "</a>") : procInstId) + "</td>" +
