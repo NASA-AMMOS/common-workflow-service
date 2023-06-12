@@ -329,7 +329,7 @@
 					</div>
 
 					<div class="col-md-12">
-						<input type="button" id="filter-submit-btn" class="btn btn-info pull-right" value="Filter"/>
+						<a id="filter-submit-btn" class="btn btn-info pull-right" href="#">Filter</a>
 					</div>
 			</div>
 			<div id="filters-btn" class="btn btn-warning"><span class="glyphicon glyphicon-filter">
@@ -425,7 +425,7 @@
 
 	});
 
-	$("#filter-submit-btn").click(function(){
+	function getFilterQString() {
 		var params = {};
 		if($("#pd-select").val() != "def"){
 			params.procDefKey = $("#pd-select").val();
@@ -457,8 +457,17 @@
 		}
 		qstring = qstring.substring(0,qstring.length-1);
 		//console.log(encodeURI(qstring));
-		window.location="/${base}/logs" + qstring;
+		return qstring;
+	}
+
+	$("#filter-submit-btn").click(function(e){
+		e.preventDefault();
+		window.location="/${base}/logs" + getFilterQString();
 	});
+
+	$("#filter-submit-btn").on("contextmenu", function(e){
+			$(this).attr("href", "/${base}/logs" + getFilterQString(false));
+		});
 
 	var today = new Date();
 	var todayDate = today.getDate() + "/" + today.getMonth() + "/" + today.getFullYear() ;
