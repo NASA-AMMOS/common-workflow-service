@@ -130,7 +130,7 @@
 					</div>
 				<br/>
 				<div class="col-md-12">
-					<input type="button" id="filter-submit-btn" class="btn btn-info pull-right" value="Filter"/>
+					<a id="filter-submit-btn" class="btn btn-info pull-right" href="#">Filter</a>
 				</div>
 			</div>
 
@@ -221,9 +221,13 @@
 			todayHighlight:true
 		});
 		
-		$("#filter-submit-btn").click(function(){
-
+		$("#filter-submit-btn").click(function(e){
+			e.preventDefault();
 			updateLocation(false);
+		});
+
+		$("#filter-submit-btn").on("contextmenu", function(e){
+			$(this).attr("href", "/${base}/processes" + getFilterQString(false));
 		});
 		
 		displayMessage();
@@ -278,7 +282,7 @@
 		}
 	});
 
-	function updateLocation(changeHideSubs) {
+	function getFilterQString(changeHideSubs) {
 		var params = {};
 
 		if($("#pd-select").val() != "def"){
@@ -324,11 +328,14 @@
 		}
 		qstring = qstring.substring(0,qstring.length-1);
 		console.log(encodeURI(qstring));
-		window.location="/${base}/processes" + qstring;
+		return qstring;
+	}
+
+	function updateLocation(changeHideSubs) {
+		window.location="/${base}/processes" + getFilterQString(changeHideSubs);
 	}
 	
 	$("#hide-subprocs-btn").click(function(){
-		
 		updateLocation(true);
 	});
 	
