@@ -169,7 +169,7 @@
 			if (i2 != -1) {
 				var cmd = msg.substring(0, i2 + 1)
 				var jsonObj = JSON.parse(msg.substring(i2 + 2))
-				var output = '<table><tr>' + cmd + '<br/><br/><table id=\"logData\" class=\"table table-striped table-bordered\">'
+				var output = '<table><tr>' + cmd + '<br/><br/><table id=\"logDataNest\" class=\"table table-striped table-bordered\">'
 
 				Object.keys(jsonObj).forEach(function(key) {
 					var value = jsonObj[key];
@@ -249,6 +249,130 @@
 		console.log("Errors", historyError, logError);
 		
 		alert("Error retrieving history data.");
+	}
+
+	function downloadLogCSV() {
+		var CSV = "";
+		var headers = $("#logData th");
+
+		headers.each(function(index) {
+			CSV += $(this).text() + ";";
+		});
+		CSV.slice(0, CSV.length - 1);
+
+		CSV += "\r\n";
+
+		$("#logData > tbody > tr").each(function(i) {
+			if (i > 0) {
+				var cells = $(this).find("td");
+				cells.each(function(j) {
+					var nestedJsonHere = false;
+					//first three iterations we don't need to worry about - just surround with quotes and add to csv
+					if (j < 3) {
+						CSV += '"' + $(this).text() + '";';
+					} 
+					if (j === 3) {
+						//this is the details section. We need to check if there is a nested json object here or if we can just add it
+						var cellValue = $(this).text();
+						if(cellValue.indexOf("(json)") !== -1) {
+							console.log("we found a nested json");
+							nestedJsonHere = true;
+							if (cellValue.indexOf("_in =") !== -1) {
+								cellValue = cellValue.substring(0, cellValue.indexOf("_in =")+3);
+							} else {
+								cellValue = cellValue.substring(0, cellValue.indexOf("_out =")+4);
+							}
+							//we need to sanitize cellValue to make compatable with CSV
+							cellValue = cellValue.replaceAll('"', '""');
+							//we aren't adding double quotes at the end here because we might have more to add
+							CSV += '"' + cellValue + ' ';
+						} else {
+							//we don't have a nested json object. sanitize and add to CSV and move on to next row
+							cellValue = cellValue.replaceAll('"', '""');
+							CSV += '"' + cellValue + '"';
+						}
+					}
+					if (j > 3) {
+						//we are now in a nested json object. We need to add this cell to the CSV after sanitizing it
+						var cellValue = $(this).text();
+						cellValue = cellValue.replaceAll('"', '""');
+						CSV += cellValue + ' ';
+					}
+					if (nestedJsonHere === true) {
+						//we need to add closing quotes to the csv
+						CSV += '"';
+					}
+					});
+					CSV += '\r\n';
+				}});
+		var dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(CSV);
+		var downloadAnchorElement = document.getElementById('downloadAnchorElement');
+		downloadAnchorElement.setAttribute("href", dataStr);
+		downloadAnchorElement.setAttribute("download", $("#procInstId").text() + ".csv");
+		downloadAnchorElement.click();
+	}
+
+		
+
+	function downloadLogJSON() {
+		var logRows = [];
+		var logHeaders = [];
+		var headers = $("#logData th");
+
+		var rows = $("#logData > tbody > tr").each(function(i) {
+			cells = $(this).find("td");
+			logRows[i] = {};
+			var nestedJson = [];
+			cells.each(function(j) {
+				if (j < 4) {
+					if(logHeaders[j] === undefined) {
+						logHeaders[j] = $(headers[j]).text();
+					}
+					var cellValue = $(this).text();
+					if(cellValue.indexOf("(json)") !== -1) {
+							console.log("we found a nested json");
+							if (cellValue.indexOf("_in =") !== -1) {
+								cellValue = cellValue.substring(0, cellValue.indexOf("_in =")+3);
+							} else {
+								cellValue = cellValue.substring(0, cellValue.indexOf("_out =")+4);
+							}
+						}
+					logRows[i][logHeaders[j]] = cellValue;
+				} else {
+					nestedJson.push($(this).text());
+				}
+			});
+			if (nestedJson.length > 0) {
+				var nestedJsonObject = {};
+				for(var k = 0; k < nestedJson.length; k+= 2) {
+					nestedJsonObject[nestedJson[k]] = nestedJson[k+1];
+				}
+				console.log(nestedJsonObject);
+			}
+			logRows[i]["json"] = nestedJsonObject;
+		});
+
+		logRows.shift();
+
+		var logInfo = {
+			"process_definition": $("#procDefKey").text(),
+			"process_instance": $("#procInstId").text(),
+			"start_time": $("#procStartTime").text(),
+			"end_time": $("#procEndTime").text(),
+			"duration": $("#procDuration").text(),
+			"status": $("#procStatus").text()
+		}
+
+		var jsonObj = {
+			"process_info": logInfo,
+			"log": logRows	
+		};
+		
+		var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonObj));
+		var downloadAnchorElement = document.getElementById('downloadAnchorElement');
+		downloadAnchorElement.setAttribute("href", dataStr);
+		downloadAnchorElement.setAttribute("download", $("#procInstId").text() + ".json");
+		downloadAnchorElement.click();
 	}
 	
 	$( document ).ready(function() {
@@ -344,6 +468,14 @@
 					</tr>
 				</table>
 		</div>
+
+		<div class="row">
+			<div class="text-center">
+				<button class="btn btn-primary" role="button" onclick="downloadLogJSON()">Download Log (JSON)</button>
+				<button class="btn btn-primary" role="button" onclick="downloadLogCSV()">Download Log (CSV)</button>
+			</div>
+			
+		</div>
 		
 		<div class="row">
 			<div class="ajax-spinner"></div>
@@ -362,6 +494,7 @@
 				</div>
 			</div>
 		</div>
+		<a id="downloadAnchorElement" style="display:none"></a>
 	</div>
 
 <script type="text/javascript" src="/${base}/js/cws.js"></script>
