@@ -13,6 +13,18 @@
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<script>
 
+	//STATE PERSISTANCE CONSTS
+	const username = "username"; //temporary, hardcoded value for now
+	const cwsHostVar = "CWS_DASH_LOGS_CWSHOST-" + username;
+	const cwsWIDVar = "CWS_DASH_LOGS_CWSWID-" + username;
+	const logLevelVar = "CWS_DASH_LOGS_LOGLVL-" + username;
+	const threadNameVar = "CWS_DASH_LOGS_THN-" + username;
+	const processDefKeyVar = "CWS_DASH_LOGS_PDK-" + username;
+	const processInstIDVar = "CWS_DASH_LOGS_PID-" + username;
+	const refreshRateVar = "CWS_DASH_LOGS_REFRESH_RATE-" + username;
+	const refreshVar = "CWS_DASH_LOGS_REFRESH-" + username;
+	const qstringVar = "CWS_DASH_LOGS_QSTRING-" + username;
+
 	// Global vars
 	var params;
 	var FETCH_COUNT = 200;
@@ -162,6 +174,33 @@
 	}
 
 	$( document ).ready(function() {
+
+		//go through the local storage and set checkboxes accordingly
+		if (localStorage.getItem(cwsHostVar) === "1") {
+			collapseColumn(2);
+			$("#cwshost-chkbox").prop("checked", true);
+		}
+		if (localStorage.getItem(cwsWIDVar) === "1") {
+			collapseColumn(3);
+			$("#cwswid-chkbox").prop("checked", true);
+		}
+		if (localStorage.getItem(logLevelVar) === "1") {
+			collapseColumn(4);
+			$("#loglvl-chkbox").prop("checked", true);
+		}
+		if (localStorage.getItem(threadNameVar) === "1") {
+			collapseColumn(5);
+			$("#thn-chkbox").prop("checked", true);
+		}
+		if (localStorage.getItem(processDefKeyVar) === "1") {
+			collapseColumn(6);
+			$("#pdk-chkbox").prop("checked", true);
+		}
+		if (localStorage.getItem(processInstIDVar) === "1") {
+			collapseColumn(7);
+			$("#pid-chkbox").prop("checked", true);
+		}
+
 		// DISPLAY MESSAGE AT TOP OF PAGE
 		//
 		if ($("#statusMessageDiv:contains('ERROR:')").length >= 1) {
@@ -171,6 +210,38 @@
 			$("#statusMessageDiv").css( "color", "green" );
 			if ($('#statusMessageDiv').html().length > 9) {
 				$('#statusMessageDiv').fadeOut(5000, "linear");
+			}
+		}
+
+		if (localStorage.getItem(refreshRateVar) === null) {
+		localStorage.setItem(refreshRateVar, "10000");
+		}
+
+		$("#refresh-rate").val((parseInt(localStorage.getItem(refreshRateVar))/1000).toString());
+
+
+
+		if(localStorage.getItem(refreshVar) === "1") {
+			$("#refresh-checkbox").prop("checked", true);
+			refreshRate = parseInt(localStorage.getItem(refreshRateVar));
+			refID = setInterval(refreshLogs, refreshRate);
+		}
+		else{
+			$("#refresh-checkbox").prop("checked", false);
+		}
+
+		//get our current url
+		var currentUrl = window.location.href;
+		//get our local storage url
+		var localStorageUrl = localStorage.getItem(qstringVar);
+		//check if a cookie has been stored (indicating we can restore state)
+		if(localStorageUrl != null) {
+			//remove everything before ?
+			currentUrl = currentUrl.substring(currentUrl.indexOf("logs")+4);
+			//compare against what is in local storage
+			if (currentUrl != localStorageUrl) {
+				//if they are different, go to the one in local storage (essentially restoring from last time used)
+				window.location="/${base}/logs" + localStorageUrl;
 			}
 		}
 		
@@ -456,6 +527,7 @@
 			qstring += p+"="+params[p]+"&";
 		}
 		qstring = qstring.substring(0,qstring.length-1);
+		localStorage.setItem(qstringVar, qstring);
 		//console.log(encodeURI(qstring));
 		window.location="/${base}/logs" + qstring;
 	});
@@ -480,44 +552,53 @@
 	// AUTO-REFRESH SETTING
 	//
 	var refID;
-	var refreshRate = 5000;
 	$("#refresh-checkbox").click(function(){
 		if($(this).prop("checked")){
-			refreshRate = $("#refresh-rate").val() * 1000;
+			localStorage.setItem(refreshVar, "1");
+			refreshRate = parseInt(localStorage.getItem(refreshRateVar));
 			refreshLogs();
 			refID = setInterval(refreshLogs, refreshRate);
 		}
 		else{
+			localStorage.setItem(refreshVar, "0");
 			clearInterval(refID);
 		}
 	});
 
 	$("#refresh-rate").on('change', function(){
+		refreshRate = parseInt($(this).val()) * 1000;
+		localStorage.setItem(refreshRateVar, refreshRate.toString());
 		if($("#refresh-checkbox").prop("checked")){
-			refreshRate = parseInt($(this).val()) * 1000;
 			clearInterval(refID);
 			refID = setInterval(refreshLogs, refreshRate);
 		}
 	});
 
-	var logDataTableHeaders =
-		"<tr>"+
-			'<th class="sort" style="width: 190px">Time Stamp</th>'+
-			'<th class="'+$("#logData tr th:nth-child(2)").attr('class')+'">CWS Host</th>'+
-			'<th class="'+$("#logData tr th:nth-child(3)").attr('class')+'">CWS Worker ID</th>'+
-			'<th class="'+$("#logData tr th:nth-child(4)").attr('class')+'">Log Level</th>'+
-			'<th class="'+$("#logData tr th:nth-child(5)").attr('class')+'">Thread Name</th>'+
-			'<th class="'+$("#logData tr th:nth-child(6)").attr('class')+'">Proc Def Key</th>'+
-			'<th class="'+$("#logData tr th:nth-child(7)").attr('class')+'">Proc Inst ID</th>'+
-			'<th>Message</th>'+
-		"</tr>";
-
 	function refreshLogs(){
+		var logDataTableHeaders = $("#logData").html().substring(0, $("#logData").html().indexOf("</tr>")+5).split("<th ");
+		logDataTableHeaders.shift();
+		logDataTableHeaders.shift();
+		for (i = 0; i < logDataTableHeaders.length; i++) {
+			pos = logDataTableHeaders[i].indexOf(`=\"`) + 2;
+			logDataTableHeaders[i] = logDataTableHeaders[i].substring(pos, logDataTableHeaders[i].indexOf(`\">`, pos));
+		}
+
+		var logDataHeader = "<tr>"+
+				'<th class="sort" style="width: 190px">Time Stamp</th>'+
+				'<th class="'+logDataTableHeaders[0]+'">CWS Host</th>'+
+				'<th class="'+logDataTableHeaders[1]+'">CWS Worker ID</th>'+
+				'<th class="'+logDataTableHeaders[2]+'">Log Level</th>'+
+				'<th class="'+logDataTableHeaders[3]+'">Thread Name</th>'+
+				'<th class="'+logDataTableHeaders[4]+'">Proc Def Key</th>'+
+				'<th class="'+logDataTableHeaders[5]+'">Proc Inst ID</th>'+
+				'<th>Message</th>'+
+			"</tr>";
+
 		$(".ajax-spinner").show();
 
 		// CLEAR OUT LOG DATA TABLE
 		//
-		$("#logData").html(logDataTableHeaders);
+		$("#logData").html(logDataHeader);
 
 		if (params == null) {
 			loadDefaultLog();
@@ -534,27 +615,43 @@
 	$("#sh-cols div input").click(function(){
 		switch ($(this).attr('id') ){
 			case 'cwshost-chkbox':
+				toggleLocalStorage(cwsHostVar);
 				collapseColumn(2);
 				break;
 			case 'cwswid-chkbox':
+				toggleLocalStorage(cwsWIDVar);
 				collapseColumn(3);
 				break;
 			case 'loglvl-chkbox':
+				toggleLocalStorage(logLevelVar);
 				collapseColumn(4);
 				break;
 			case 'thn-chkbox':
+				toggleLocalStorage(threadNameVar);
 				collapseColumn(5);
 				break;
 			case 'pdk-chkbox':
+				toggleLocalStorage(processDefKeyVar);
 				collapseColumn(6);
 				break;
 			case 'pid-chkbox':
+				toggleLocalStorage(processInstIDVar);
 				collapseColumn(7);
 				break;
 
 			default:break;
 		}
 	});
+
+function toggleLocalStorage(key) {
+	if (localStorage.getItem(key) == null) {
+		localStorage.setItem(key, "1");
+	} else if (localStorage.getItem(key) == "1") {
+		localStorage.setItem(key, "0");
+	} else {
+		localStorage.setItem(key, "1");
+	}
+}
 
 function collapseColumn(nth){
 	$("#logData tr th:nth-child("+nth+")").toggleClass('collapse');
