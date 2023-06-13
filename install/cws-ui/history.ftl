@@ -256,7 +256,7 @@
 		var headers = $("#logData th");
 
 		headers.each(function(index) {
-			CSV += $(this).text() + ";";
+			CSV += $(this).text() + ",";
 		});
 		CSV.slice(0, CSV.length - 1);
 
@@ -265,54 +265,59 @@
 		$("#logData > tbody > tr").each(function(i) {
 			if (i > 0) {
 				var cells = $(this).find("td");
+				var rowContents = [];
 				cells.each(function(j) {
-					var nestedJsonHere = false;
-					//first three iterations we don't need to worry about - just surround with quotes and add to csv
 					if (j < 3) {
-						CSV += '"' + $(this).text() + '";';
-					} 
-					if (j === 3) {
-						//this is the details section. We need to check if there is a nested json object here or if we can just add it
+						//these are the first 3 columns - sanitize and add
+						rowContents.push($(this).text().replaceAll('"', '""'));
+					} else if (j == 3) {
+						//this is the message column - we need to check if this is a nested json
 						var cellValue = $(this).text();
-						if(cellValue.indexOf("(json)") !== -1) {
-							console.log("we found a nested json");
-							nestedJsonHere = true;
+						if (cellValue.indexOf("(json)") !== -1) {
+							//this is a nested json - we need to parse it and add each key/value pair to the csv
 							if (cellValue.indexOf("_in =") !== -1) {
 								cellValue = cellValue.substring(0, cellValue.indexOf("_in =")+3);
 							} else {
 								cellValue = cellValue.substring(0, cellValue.indexOf("_out =")+4);
 							}
-							//we need to sanitize cellValue to make compatable with CSV
-							cellValue = cellValue.replaceAll('"', '""');
-							//we aren't adding double quotes at the end here because we might have more to add
-							CSV += '"' + cellValue + ' ';
+							//sanitize and push
+							rowContents.push(cellValue.replaceAll('"', '""'));
 						} else {
-							//we don't have a nested json object. sanitize and add to CSV and move on to next row
-							cellValue = cellValue.replaceAll('"', '""');
-							CSV += '"' + cellValue + '"';
+							//not a nested json - just sanitize and push
+							rowContents.push(cellValue.replaceAll('"', '""'));
+						}
+					} else {
+						//we will only get here if this is a nested json - these will be the cells in that nested json.
+						//sanitize and push
+						rowContents.push($(this).text().replaceAll('"', '""'));
+					}
+				});
+				//now we have to push the row contents to the csv
+				for (var k = 0; k < rowContents.length; k++) {
+					if (k < 3) {
+						CSV += '"' + rowContents[k] + '",';
+					} else if (k == 3) {
+						if (rowContents.length > 4) {
+							CSV += '"' + rowContents[k] + ' ';
+						} else {
+							CSV += '"' + rowContents[k] + '"';
+						}
+					} else {
+						if (k == rowContents.length - 1) {
+							CSV += rowContents[k] + '"';
+						} else {
+							CSV += rowContents[k] + ' ';
 						}
 					}
-					if (j > 3) {
-						//we are now in a nested json object. We need to add this cell to the CSV after sanitizing it
-						var cellValue = $(this).text();
-						cellValue = cellValue.replaceAll('"', '""');
-						CSV += cellValue + ' ';
-					}
-					if (nestedJsonHere === true) {
-						//we need to add closing quotes to the csv
-						CSV += '"';
-					}
-					});
-					CSV += '\r\n';
-				}});
+				}
+				CSV += "\r\n";
+			}});
 		var dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(CSV);
 		var downloadAnchorElement = document.getElementById('downloadAnchorElement');
 		downloadAnchorElement.setAttribute("href", dataStr);
 		downloadAnchorElement.setAttribute("download", $("#procInstId").text() + ".csv");
 		downloadAnchorElement.click();
 	}
-
-		
 
 	function downloadLogJSON() {
 		var logRows = [];
@@ -330,7 +335,6 @@
 					}
 					var cellValue = $(this).text();
 					if(cellValue.indexOf("(json)") !== -1) {
-							console.log("we found a nested json");
 							if (cellValue.indexOf("_in =") !== -1) {
 								cellValue = cellValue.substring(0, cellValue.indexOf("_in =")+3);
 							} else {
@@ -347,7 +351,6 @@
 				for(var k = 0; k < nestedJson.length; k+= 2) {
 					nestedJsonObject[nestedJson[k]] = nestedJson[k+1];
 				}
-				console.log(nestedJsonObject);
 			}
 			logRows[i]["json"] = nestedJsonObject;
 		});
