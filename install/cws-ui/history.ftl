@@ -255,7 +255,7 @@
 		alert("Error retrieving history data.");
 	}
 
-	function downloadLogCSV() {
+	function prepareCSV() {
 		var CSV = "";
 		var headers = $("#logData th");
 
@@ -316,6 +316,11 @@
 				}
 				CSV += "\r\n";
 			}});
+		return CSV;
+	}
+
+	function downloadLogCSV() {
+		var CSV = prepareCSV();
 		var dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(CSV);
 		var downloadAnchorElement = document.getElementById('downloadAnchorElement');
 		downloadAnchorElement.setAttribute("href", dataStr);
@@ -323,7 +328,7 @@
 		downloadAnchorElement.click();
 	}
 
-	function downloadLogJSON() {
+	function prepareJSON() {
 		var logRows = [];
 		var logHeaders = [];
 		var headers = $("#logData th");
@@ -347,7 +352,19 @@
 						}
 					logRows[i][logHeaders[j]] = cellValue;
 				} else {
-					nestedJson.push($(this).text());
+					if ($(this).text().indexOf("Show All") !== -1) {
+						var rawHtml = $(this).html();
+						//remove everything between "<summary>" and "</summary>"
+						var summaryStart = rawHtml.indexOf("<summary>");
+						var summaryEnd = rawHtml.indexOf("</summary>");
+						var summary = rawHtml.substring(summaryStart, summaryEnd+10);
+						rawHtml = rawHtml.replace(summary, "");
+						//replace all "<br>" with new lines"
+						rawHtml = rawHtml.replaceAll("<br>", " ");
+						nestedJson.push(rawHtml);
+					} else {
+						nestedJson.push($(this).text());
+					}
 				}
 			});
 			if (nestedJson.length > 0) {
@@ -374,21 +391,16 @@
 			"process_info": logInfo,
 			"log": logRows	
 		};
-		
+		return jsonObj;
+	}
+
+	function downloadLogJSON() {
+		var jsonObj = prepareJSON();		
 		var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonObj));
 		var downloadAnchorElement = document.getElementById('downloadAnchorElement');
 		downloadAnchorElement.setAttribute("href", dataStr);
 		downloadAnchorElement.setAttribute("download", $("#procInstId").text() + ".json");
 		downloadAnchorElement.click();
-	}
-
-	function downloadLog() {
-		var fileType = $("#downloadRadios input[name='fileType']:checked").val();
-		if (fileType === "csv") {
-			downloadLogCSV();
-		} else {
-			downloadLogJSON();
-		}
 	}
 	
 	$( document ).ready(function() {
@@ -414,25 +426,31 @@
 			}, 180000);
 		}
 
-		if (localStorage.getItem(downloadFileTypeVar) === null) {
-			localStorage.setItem(downloadFileTypeVar, "json")
-		} else {
-			if (localStorage.getItem(downloadFileTypeVar) === "csv") {
-				$("#downloadRadios input[name='fileType'][value='csv']").prop("checked", true);
-			} else {
-				$("#downloadRadios input[name='fileType'][value='json']").prop("checked", true);
-			}
-		}
+		$("#json-bttn").click(function(e) {
+			e.preventDefault();
+			downloadLogJSON();
+		});
 
-		$("#downloadRadios input[name='fileType']").click(function() {
-			if ($(this).val() === "csv") {
-				localStorage.setItem(downloadFileTypeVar, "csv")
-			} else {
-				localStorage.setItem(downloadFileTypeVar, "json")
-			}
-	})
+		$("#csv-bttn").click(function(e) {
+			e.preventDefault();
+			downloadLogCSV();
+		});
 
+		$("#json-bttn").on("contextmenu", function(e){
+			var jsonObj = prepareJSON();		
+			var json = JSON.stringify(jsonObj);
+			var dataStr = "data:application/json;charset=utf-8," + encodeURIComponent(json);
+			$("#json-bttn").attr("href", dataStr);
+			$("#json-bttn").attr("download", $("#procInstId").text() + ".json");
+			console.log($("#json-bttn").attr("href"));
+			console.log($("#json-bttn").attr("download"));
+		});
 
+		$("#csv-bttn").on("contextmenu", function(e){
+			var CSV = prepareCSV();
+			var dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(CSV);
+			$(this).attr("href", dataStr);
+		});
 	}); //END OF DOCUMENT.READY
 
 	</script>
@@ -480,6 +498,7 @@
 	<#include "navbar.ftl">
 
 	<div class="container-fluid">
+		
 		<h2 class="sub-header">History</h2>
 		<div class="row">
 				<table align="center" class="table table-bordered " style="width: 50%; font-size:95%">
@@ -504,7 +523,18 @@
 				</table>
 		</div>
 
-		<div class="row">
+		<div class="col-md-12">
+				<div class="dropdown" style="display:inline;">
+				<button id="downloadButton" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Download &nbsp;
+					<span class="caret"></span>
+				</button>
+				<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">
+					<li id="action_download_json" class="enabled" role="presentation"><a id="json-bttn" role="menuitem" href="#">Download as JSON</a></li>
+					<li id="action_download_csv" class="enabled" role="presentation"><a id="csv-bttn" role="menuitem" href="#">Download as CSV</a></li>
+  				</ul>
+  			</div>
+			</div>
+		<!--
 			<div class="col-sm-12 main">
 				<p>Select file type:</p>
 				<div id="downloadRadios">
@@ -517,7 +547,7 @@
 				</div>
 				<button class="btn btn-primary" role="button" onclick="downloadLog()">Download Log</button>
 			</div>
-			
+		-->
 		</div>
 		
 		<div class="row">
