@@ -13,6 +13,10 @@
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<script>
 
+	//STATE PERSISTANCE VARS
+	var username = "username";
+	var downloadFileTypeVar = "CWS_DASH_HISTORY_DOWNLOAD_FILE_TYPE-" + username;
+
 	// Global vars
 	var params;
 	var FETCH_COUNT = 20;		// 20 seems to make for fastest load times
@@ -377,6 +381,15 @@
 		downloadAnchorElement.setAttribute("download", $("#procInstId").text() + ".json");
 		downloadAnchorElement.click();
 	}
+
+	function downloadLog() {
+		var fileType = $("#downloadRadios input[name='fileType']:checked").val();
+		if (fileType === "csv") {
+			downloadLogCSV();
+		} else {
+			downloadLogJSON();
+		}
+	}
 	
 	$( document ).ready(function() {
 
@@ -400,6 +413,25 @@
 				$(".ajax-spinner").hide();
 			}, 180000);
 		}
+
+		if (localStorage.getItem(downloadFileTypeVar) === null) {
+			localStorage.setItem(downloadFileTypeVar, "json")
+		} else {
+			if (localStorage.getItem(downloadFileTypeVar) === "csv") {
+				$("#downloadRadios input[name='fileType'][value='csv']").prop("checked", true);
+			} else {
+				$("#downloadRadios input[name='fileType'][value='json']").prop("checked", true);
+			}
+		}
+
+		$("#downloadRadios input[name='fileType']").click(function() {
+			if ($(this).val() === "csv") {
+				localStorage.setItem(downloadFileTypeVar, "csv")
+			} else {
+				localStorage.setItem(downloadFileTypeVar, "json")
+			}
+	})
+
 
 	}); //END OF DOCUMENT.READY
 
@@ -473,9 +505,17 @@
 		</div>
 
 		<div class="row">
-			<div class="text-center">
-				<button class="btn btn-primary" role="button" onclick="downloadLogJSON()">Download Log (JSON)</button>
-				<button class="btn btn-primary" role="button" onclick="downloadLogCSV()">Download Log (CSV)</button>
+			<div class="col-sm-12 main">
+				<p>Select file type:</p>
+				<div id="downloadRadios">
+					<form class="fileType">
+						<input type="radio" name="fileType" value="json" checked>
+						<label for="json">JSON</label><br>
+						<input type="radio" name="fileType" value="csv">
+						<label for="csv">CSV</label><br>
+					</form>
+				</div>
+				<button class="btn btn-primary" role="button" onclick="downloadLog()">Download Log</button>
 			</div>
 			
 		</div>
