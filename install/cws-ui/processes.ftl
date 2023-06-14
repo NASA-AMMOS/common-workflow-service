@@ -125,7 +125,7 @@
 					</div>
 				<br/>
 				<div class="col-md-12">
-					<input type="button" id="filter-submit-btn" class="btn btn-info pull-right" value="Filter"/>
+					<a id="filter-submit-btn" class="btn btn-info pull-right" href="#">Filter</a>
 				</div>
 			</div>
 
@@ -238,9 +238,13 @@
 			todayHighlight:true
 		});
 		
-		$("#filter-submit-btn").click(function(){
-
+		$("#filter-submit-btn").click(function(e){
+			e.preventDefault();
 			updateLocation(false);
+		});
+
+		$("#filter-submit-btn").on("contextmenu", function(e){
+			$(this).attr("href", "/${base}/processes" + getFilterQString(false));
 		});
 		
 		displayMessage();
@@ -295,7 +299,7 @@
 		}
 	});
 
-	function updateLocation(changeHideSubs) {
+	function getFilterQString(changeHideSubs) {
 		var params = {};
 
 		if($("#pd-select").val() != "def"){
@@ -342,11 +346,14 @@
 		qstring = qstring.substring(0,qstring.length-1);
 		localStorage.setItem(qstringVar, qstring);
 		console.log(encodeURI(qstring));
-		window.location="/${base}/processes" + qstring;
+		return qstring;
+	}
+
+	function updateLocation(changeHideSubs) {
+		window.location="/${base}/processes" + getFilterQString(changeHideSubs);
 	}
 	
 	$("#hide-subprocs-btn").click(function(){
-		
 		updateLocation(true);
 	});
 	
@@ -371,6 +378,8 @@
 	
 		if (procInstId !== '') {
 			window.location = "/${base}/history?procInstId=" + procInstId;
+		} else {
+			return false;
 		}
 	}
 	
@@ -378,6 +387,8 @@
 	
 		if (procInstId !== '') {
 			window.location = "/${base}/processes?superProcInstId=" + procInstId;
+		} else {
+			return false;
 		}
 	}
 	
@@ -424,8 +435,8 @@
 						$("#processes-table").append(
 						"<tr id=\""+i+"\" class=\"tr-"+ res[i].status +"\" procInstId=\"" + procInstId + "\">"+
 							"<td>" + actionTd + "</td>" +
-							"<td><button onclick=\"viewHistory('" + procInstId + "')\" class=\"btn btn-default btn-sm\">History</button></td>" +
-							"<td><button onclick=\"viewSubProcs('" + procInstId + "')\" class=\"btn btn-default btn-sm\">Subprocs</button></td>" +
+							"<td><a onclick=\"viewHistory('" + procInstId + "')\" href=\"/${base}/history?procInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">History</a></td>" +
+							"<td><a onclick=\"viewSubProcs('" + procInstId + "')\" href=\"/${base}/processes?superProcInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">Subprocs</a></td>" +
 							"<td id=\"row-" + i + "initiationKey\">"+ (res[i].initiationKey == undefined ? '' : res[i].initiationKey) + "</td>" +
 							"<td>"+ res[i].procDefKey +"</td>"+
 							"<td>"+ (res[i].status == 'incident' ? ("<a href=\""+ incidentUrl +"\" target=\"blank_\">" + procInstId + "</a>") : procInstId) + "</td>" +

@@ -201,7 +201,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 			waitForElementID("processes-table");
 
 			log.info("Clicking on Test Initiators Page history.");
-			WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
+			WebElement historyButton = findElByXPath("//a[contains(text(),'History')]");
 			waitForElement(historyButton);
 			historyButton.sendKeys(Keys.RETURN);
 
