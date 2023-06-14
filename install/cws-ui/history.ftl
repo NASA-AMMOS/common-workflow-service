@@ -9,6 +9,8 @@
 	<script src="/${base}/js/bootstrap.min.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/${base}/css/bootstrap-datepicker.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
+	<script src="/${base}/js/DataTables/datatables.js"></script>
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<script>
@@ -16,8 +18,10 @@
 	//STATE PERSISTANCE VARS
 	var username = "username";
 	var downloadFileTypeVar = "CWS_DASH_HISTORY_DOWNLOAD_FILE_TYPE-" + username;
+	var datatableStateVar = "CWS_DASH_HISTORY_DATATABLE_STATE-" + username + "_";
 
 	// Global vars
+	var isDataTablesInit = 0;
 	var params;
 	var FETCH_COUNT = 20;		// 20 seems to make for fastest load times
 	
@@ -31,25 +35,22 @@
 		},
 		"sort": { "@timestamp": { "order": "asc" } }
 	};
-	
-	/* Not used now, but may be added in the future
-	function downloadLog(data) {
-		var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(data);
-		
-		var dlAnchorElem = document.getElementById('downloadAnchorElem');
-		
-		dlAnchorElem.setAttribute("href", dataStr);
-		dlAnchorElem.setAttribute("download", "catalina.out");
-		
-		dlAnchorElem.click();
+
+	function initDataTable() {
+		$("#logData").DataTable({
+			stateSave: true
+		});
 	}
-	*/
 	
 	function renderSet(rows) {
 	
 		for (var i = 0; i < rows.length; i++) {
 		
 			$('#logData').append(rows[i]);
+		}
+		if (isDataTablesInit === 0) {
+			isDataTablesInit = 1;
+			initDataTable();
 		}
 	}
 		
@@ -255,129 +256,87 @@
 		alert("Error retrieving history data.");
 	}
 
-	function prepareCSV() {
-		var CSV = "";
-		var headers = $("#logData th");
-
-		headers.each(function(index) {
-			CSV += $(this).text() + ",";
-		});
-		CSV.slice(0, CSV.length - 1);
-
-		CSV += "\r\n";
-
-		$("#logData > tbody > tr").each(function(i) {
-			if (i > 0) {
-				var cells = $(this).find("td");
-				var rowContents = [];
-				cells.each(function(j) {
-					if (j < 3) {
-						//these are the first 3 columns - sanitize and add
-						rowContents.push($(this).text().replaceAll('"', '""'));
-					} else if (j == 3) {
-						//this is the message column - we need to check if this is a nested json
-						var cellValue = $(this).text();
-						if (cellValue.indexOf("(json)") !== -1) {
-							//this is a nested json - we need to parse it and add each key/value pair to the csv
-							if (cellValue.indexOf("_in =") !== -1) {
-								cellValue = cellValue.substring(0, cellValue.indexOf("_in =")+3);
-							} else {
-								cellValue = cellValue.substring(0, cellValue.indexOf("_out =")+4);
-							}
-							//sanitize and push
-							rowContents.push(cellValue.replaceAll('"', '""'));
-						} else {
-							//not a nested json - just sanitize and push
-							rowContents.push(cellValue.replaceAll('"', '""'));
-						}
-					} else {
-						//we will only get here if this is a nested json - these will be the cells in that nested json.
-						//sanitize and push
-						rowContents.push($(this).text().replaceAll('"', '""'));
-					}
-				});
-				//now we have to push the row contents to the csv
-				for (var k = 0; k < rowContents.length; k++) {
-					if (k < 3) {
-						CSV += '"' + rowContents[k] + '",';
-					} else if (k == 3) {
-						if (rowContents.length > 4) {
-							CSV += '"' + rowContents[k] + ' ';
-						} else {
-							CSV += '"' + rowContents[k] + '"';
-						}
-					} else {
-						if (k == rowContents.length - 1) {
-							CSV += rowContents[k] + '"';
-						} else {
-							CSV += rowContents[k] + ' ';
-						}
-					}
-				}
-				CSV += "\r\n";
-			}});
-		return CSV;
-	}
-
 	function downloadLogCSV() {
-		var CSV = prepareCSV();
-		var dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(CSV);
-		var downloadAnchorElement = document.getElementById('downloadAnchorElement');
-		downloadAnchorElement.setAttribute("href", dataStr);
-		downloadAnchorElement.setAttribute("download", $("#procInstId").text() + ".csv");
-		downloadAnchorElement.click();
+		var dt = $('#logData').DataTable();
+		var data = dt.buttons.exportData();
+		console.log(data);
+		//number of rows
+		var csvString = "";
+		//get headers and put them as first row in CSV
+		for (var i = 0; i < data.header.length; i++) {
+			csvString = csvString + data.header[i] + ",";
+		}
+		csvString = csvString.substring(0, csvString.length - 1);
+		csvString = csvString + "\r\n";
+
+		dt.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
+			var data = this.data();
+			console.log(data);
+			var details = data[3];
+			var tmpDetails = "";
+			var lineString = "";
+			if (data[3].indexOf("Setting (json)") === -1) {
+				details = details.replaceAll('<br>', "\n");
+				details = details.replaceAll("<p>", "");
+				details = details.replaceAll("</p>", "");
+				details = details.replaceAll('"' , '""');
+				details = details.replaceAll('\n' , ' ');
+				//add first and last char as double quotes
+				details = '"' + details + '"';
+				lineString = data[0] + "," + data[1] + "," + data[2] + "," + details + "\r\n";
+			} else {
+				lineString = data[0] + "," + data[1] + "," + data[2] + ",";
+				//remove last char
+				if (data[3].indexOf("_in =") !== -1) {
+					lineString += '"' + details.substring(0, details.indexOf("_in =")+3) + " ";
+					details = details.substring(details.indexOf("_in =")+3);
+				} else {
+					lineString += '"' + details.substring(0, details.indexOf("_out =")+4) + " ";
+					details = details.substring(details.indexOf("_out =")+4);
+				}
+				//now we need to go through and get details from json string
+				//note: key is always after <tr><td ...> and value is the following td
+				while (details.indexOf("<tr><td") !== -1) {
+					details = details.substring(details.indexOf("<tr><td")+8);
+					details = details.substring(details.indexOf(">")+1);
+					var key = details.substring(0, details.indexOf("</td>"));
+					details = details.substring(details.indexOf("<td>")+4);
+					var value = details.substring(0, details.indexOf("</td>"));
+					tmpDetails += key + ": " + value + "; ";
+				}
+				//check/clean tmpDetails
+				if (tmpDetails !== "") {
+					//replace all break points with new line
+					tmpDetails = tmpDetails.replaceAll(/<br>/g, " ");
+					//find and remove everything between <summary>  and  </summary>
+					tmpDetails = tmpDetails.replace(/<summary>.*<\/summary>/g, "");
+					//find and remove <details>  and  </details>
+					tmpDetails = tmpDetails.replace(/<details>/g, "");
+					tmpDetails = tmpDetails.replace(/<\/details>/g, "");
+					//CSV quirk: replace all " with ""
+					tmpDetails = tmpDetails.replaceAll('"' , '""');
+				}
+				//remove last char
+				tmpDetails = tmpDetails.substring(0, tmpDetails.length-1);
+				tmpDetails = tmpDetails + '"';
+				lineString += tmpDetails + "\r\n";
+				console.log(lineString);
+			}
+			csvString = csvString + lineString;
+		} );
+
+		$.fn.dataTable.fileSave(
+			new Blob( [ csvString ] ),
+			$("#procInstId").text() + '.csv'
+		);
 	}
 
-	function prepareJSON() {
-		var logRows = [];
-		var logHeaders = [];
-		var headers = $("#logData th");
-
-		var rows = $("#logData > tbody > tr").each(function(i) {
-			cells = $(this).find("td");
-			logRows[i] = {};
-			var nestedJson = [];
-			cells.each(function(j) {
-				if (j < 4) {
-					if(logHeaders[j] === undefined) {
-						logHeaders[j] = $(headers[j]).text();
-					}
-					var cellValue = $(this).text();
-					if(cellValue.indexOf("(json)") !== -1) {
-							if (cellValue.indexOf("_in =") !== -1) {
-								cellValue = cellValue.substring(0, cellValue.indexOf("_in =")+3);
-							} else {
-								cellValue = cellValue.substring(0, cellValue.indexOf("_out =")+4);
-							}
-						}
-					logRows[i][logHeaders[j]] = cellValue;
-				} else {
-					if ($(this).text().indexOf("Show All") !== -1) {
-						var rawHtml = $(this).html();
-						//remove everything between "<summary>" and "</summary>"
-						var summaryStart = rawHtml.indexOf("<summary>");
-						var summaryEnd = rawHtml.indexOf("</summary>");
-						var summary = rawHtml.substring(summaryStart, summaryEnd+10);
-						rawHtml = rawHtml.replace(summary, "");
-						//replace all "<br>" with new lines"
-						rawHtml = rawHtml.replaceAll("<br>", " ");
-						nestedJson.push(rawHtml);
-					} else {
-						nestedJson.push($(this).text());
-					}
-				}
-			});
-			if (nestedJson.length > 0) {
-				var nestedJsonObject = {};
-				for(var k = 0; k < nestedJson.length; k+= 2) {
-					nestedJsonObject[nestedJson[k]] = nestedJson[k+1];
-				}
-			}
-			logRows[i]["json"] = nestedJsonObject;
-		});
-
-		logRows.shift();
-
+	function downloadLogJSON() {
+		var dt = $('#logData').DataTable();
+		var data = dt.buttons.exportData();
+		//number of rows
+		var numRows = dt.rows().count();
+		var jsonFile = {};
 		var logInfo = {
 			"process_definition": $("#procDefKey").text(),
 			"process_instance": $("#procInstId").text(),
@@ -386,21 +345,74 @@
 			"duration": $("#procDuration").text(),
 			"status": $("#procStatus").text()
 		}
+		jsonFile["process_info"] = logInfo;
 
-		var jsonObj = {
-			"process_info": logInfo,
-			"log": logRows	
-		};
-		return jsonObj;
-	}
+		var logs = {};
 
-	function downloadLogJSON() {
-		var jsonObj = prepareJSON();		
-		var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonObj));
-		var downloadAnchorElement = document.getElementById('downloadAnchorElement');
-		downloadAnchorElement.setAttribute("href", dataStr);
-		downloadAnchorElement.setAttribute("download", $("#procInstId").text() + ".json");
-		downloadAnchorElement.click();
+		dt.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
+			var data = this.data();
+			var tmpDetails = data[3];
+			var details = "";
+			var lineJson = {};
+			var nestedJson = {};
+			if (data[3].indexOf("Setting (json)") === -1) {
+				details = data[3];
+				lineJson = {
+					"time-stamp": data[0],
+					"type": data[1],
+					"source": data[2],
+					"details": details
+				};
+			} else {
+				//we need to first separate the string from the rest of the HTML
+				if (data[3].indexOf("_in =") !== -1) {
+					details = data[3].substring(0, data[3].indexOf("_in =")+3);
+					tmpDetails = data[3].substring(data[3].indexOf("_in =")+3);
+				} else {
+					details = data[3].substring(0, data[3].indexOf("_out =")+4);
+					tmpDetails = data[3].substring(data[3].indexOf("_out =")+4);
+				}
+				//now we need to go through and get details from json string
+				//note: key is always after <tr><td ...> and value is the following td
+				while (tmpDetails.indexOf("<tr><td") !== -1) {
+					tmpDetails = tmpDetails.substring(tmpDetails.indexOf("<tr><td")+8);
+					tmpDetails = tmpDetails.substring(tmpDetails.indexOf(">")+1);
+					var key = tmpDetails.substring(0, tmpDetails.indexOf("</td>"));
+					tmpDetails = tmpDetails.substring(tmpDetails.indexOf("<td>")+4);
+					var value = tmpDetails.substring(0, tmpDetails.indexOf("</td>"));
+					nestedJson[key] = value;
+				}
+				//check/clean nested json object
+				if (nestedJson["stdout"] !== undefined) {
+					//replace all break points with new line
+					nestedJson["stdout"] = nestedJson["stdout"].replaceAll(/<br>/g, "\n");
+					//find and remove everything between <summary>  and  </summary>
+					nestedJson["stdout"] = nestedJson["stdout"].replace(/<summary>.*<\/summary>/g, "");
+				}
+				lineJson = {
+					"time-stamp": data[0],
+					"type": data[1],
+					"source": data[2],
+					"details": details,
+					"json": nestedJson
+				};
+			}
+			//check/clean details
+			if (lineJson["details"] !== "") {
+				//replace all break points with new line
+				details = details.replaceAll('<br>', "\n");
+				details = details.replaceAll("<p>", "");
+				details = details.replaceAll("</p>", "");
+				lineJson["details"] = details;
+			}
+			logs[numRows-rowLoop-1] = lineJson;
+		} );
+		jsonFile["logs"] = logs;
+		console.log(jsonFile);
+		$.fn.dataTable.fileSave(
+			new Blob( [ JSON.stringify(jsonFile) ] ),
+			$("#procInstId").text() + '.json'
+		);
 	}
 	
 	$( document ).ready(function() {
@@ -426,6 +438,8 @@
 			}, 180000);
 		}
 
+
+
 		$("#json-bttn").click(function(e) {
 			e.preventDefault();
 			downloadLogJSON();
@@ -434,22 +448,6 @@
 		$("#csv-bttn").click(function(e) {
 			e.preventDefault();
 			downloadLogCSV();
-		});
-
-		$("#json-bttn").on("contextmenu", function(e){
-			var jsonObj = prepareJSON();		
-			var json = JSON.stringify(jsonObj);
-			var dataStr = "data:application/json;charset=utf-8," + encodeURIComponent(json);
-			$("#json-bttn").attr("href", dataStr);
-			$("#json-bttn").attr("download", $("#procInstId").text() + ".json");
-			console.log($("#json-bttn").attr("href"));
-			console.log($("#json-bttn").attr("download"));
-		});
-
-		$("#csv-bttn").on("contextmenu", function(e){
-			var CSV = prepareCSV();
-			var dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(CSV);
-			$(this).attr("href", dataStr);
 		});
 	}); //END OF DOCUMENT.READY
 
@@ -557,12 +555,14 @@
 			<div class="col-md-12 main">
 				<div id="log-div">
 					<table id="logData" class="table table-striped table-bordered sortable">
-						<tr>
-							<th id="timeStampColumn" class="sort" style="width: 185px">Time Stamp</th>
-							<th class="sort">Type</th>
-							<th class="sort">Source</th>
-							<th class="sort">Details</th>
-						</tr>
+						<thead>
+							<tr>
+								<th id="timeStampColumn" style="width: 185px">Time Stamp</th>
+								<th>Type</th>
+								<th>Source</th>
+								<th>Details</th>
+							</tr>
+						</thead>
 					</table>
 				</div>
 			</div>
