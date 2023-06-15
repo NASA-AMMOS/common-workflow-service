@@ -345,8 +345,7 @@
 				"paging": false,
 				//filter is top left, length is top right, info is bottom left, pagination is bottom right
 				"dom": "<'row'<'col-sm-6 myfilter'f><'col-sm-6 mylength'l>>" +
-					   "<'row'<'col-sm-12'tr>>" +
-					   "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+					   "<'row'<'col-sm-12'tr>>"
 			});
 			
 			refreshStats();
