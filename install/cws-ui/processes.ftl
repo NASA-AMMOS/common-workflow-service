@@ -4,6 +4,8 @@
 	<title>CWS - Processes</title>
 	<script src="/${base}/js/jquery.min.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
+	<script src="/${base}/js/DataTables/datatables.js"></script>
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
 	<!-- Custom js adaptation script; override this file from your adaptation project -->
 	<script src="/${base}/js/adaptation-process-actions.js"></script>
@@ -184,10 +186,6 @@
 					<tbody>
 					</tbody>
 				</table>
-				<div class="text-center">
-				<ul id="proc-pages" class="pagination">
-				</ul>
-				</div>
 			</div>
 		</div>
 	</div>
@@ -197,7 +195,6 @@
 
 	var params = {};
 	var rows;
-	var MAX_ROWS = 100;
 
 	$( document ).ready(function() {
 
@@ -276,6 +273,9 @@
 			$("#min-date").val(params.minDate || "");
 			$("#max-date").val(params.maxDate || "");
 		}
+
+		$("#processes-table").DataTable({
+		});
 	});
 
 	function updateLocation(changeHideSubs) {
@@ -395,16 +395,17 @@
 					else {
 						pageNum = 0;
 					}
-					$("#showing_num_procs").html("Showing " + ((pageNum*MAX_ROWS)+1) + " - " + ((pageNum*MAX_ROWS) + numProcs));
+
+					var table = $("#processes-table").DataTable()
 					
 					// Remove all rows from the table, except the first
-					$("#processes-table").find("tr:gt(0)").remove();
+					table.clear();
 					for (i in res) {
 						var procInstId = (res[i].procInstId == undefined ? '' : res[i].procInstId);
 						var actionTd = (procInstId == '' || res[i].status == 'incident' || res[i].status == 'failedToStart' || res[i].status == 'fail' ? "<input id=\"select-row-" + i + "\" type=\"checkbox\"/>" : "");
 						var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + procInstId + "/runtime?tab=incidents-tab";
-						$("#processes-table").append(
-						"<tr id=\""+i+"\" class=\"tr-"+ res[i].status +"\" procInstId=\"" + procInstId + "\">"+
+						table.row.add(
+						$("<tr id=\""+i+"\" class=\"tr-"+ res[i].status +"\" procInstId=\"" + procInstId + "\">"+
 							"<td>" + actionTd + "</td>" +
 							"<td><button onclick=\"viewHistory('" + procInstId + "')\" class=\"btn btn-default btn-sm\">History</button></td>" +
 							"<td><button onclick=\"viewSubProcs('" + procInstId + "')\" class=\"btn btn-default btn-sm\">Subprocs</button></td>" +
@@ -416,8 +417,8 @@
 							"<td>"+ (res[i].startedByWorker == undefined ? '' : res[i].startedByWorker) + "</td>"+
 							"<td>"+ (res[i].procStartTime == undefined ? '' : res[i].procStartTime) + "</td>"+
 							"<td>"+ (res[i].procEndTime == undefined ? '' : res[i].procEndTime) + "</td>"+
-						"</tr>"
-						);
+						"</tr>")
+						).draw();
 
 						$("#select-row-" + i).attr( "status", res[i].status );
 						$("#select-row-" + i).attr( "uuid", res[i].uuid );
@@ -435,58 +436,6 @@
 			}
 		);
 
-		//
-		// Get total number of rows, and apply pagination
-		//
-		$.get("/${base}/rest/processes/getInstancesSize"+qstr,
-			function(totalProcs){
-				if(totalProcs > 0){
-					$("#out_of_procs").html(" (out of " + totalProcs + ")");
-				}
-				pagination(totalProcs);
-			}
-		);
-
-	}
-
-
-
-	//
-	//
-	//
-	function pagination(numProcs) {
-		var pages = Math.ceil(numProcs/MAX_ROWS);
-		var url = '';
-		var hasPage = false;
-		if(location.search.indexOf('page') > 0){
-			url = location.search.substring(0, location.search.indexOf('page') - 1);
-			hasPage = true;
-		}
-		else {
-			url = location.search;
-		}
-
-		var link = '';
-		for(i = 0; i < pages; i++){
-			if(i > 0 && url != ''){
-				link = url + '&page=' + i;
-			}
-			else if(i > 0 && url == ''){
-				link = '?page='+ i;
-			}
-			else {
-				link = url;
-			}
-			$("#proc-pages").append(
-				"<li"+
-				(
-					(!params && i == 0) || (params && !params.page && i == 0) || (params && params.page && params.page == i)
-						? " class='active'" : ''
-				)+
-				">"+
-				"<a href='processes"+link+"'>"+(i+1)+"</a></li>"
-			);
-		}
 	}
 
 	//
