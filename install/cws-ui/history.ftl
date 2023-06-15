@@ -8,9 +8,9 @@
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/${base}/css/bootstrap-datepicker.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
 	<script src="/${base}/js/DataTables/datatables.js"></script>
-	<link href="/${base}/css/bootstrap-datepicker.min.css" rel="stylesheet">
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<script>
@@ -35,14 +35,22 @@
 		},
 		"sort": { "@timestamp": { "order": "asc" } }
 	};
+
+	function initDataTable() {
+		$("#logData").DataTable({
+			order: [[0, 'desc']]
+		});
+	}
 	
 	function renderSet(rows) {
 	
 		for (var i = 0; i < rows.length; i++) {
-
-			var table = $("#logData").DataTable();
-			console.log(rows[i]);
-			table.row.add($(rows[i])).draw();
+		
+			$('#logData').append(rows[i]);
+		}
+		if (isDataTablesInit === 0) {
+			isDataTablesInit = 1;
+			initDataTable();
 		}
 	}
 		
@@ -409,9 +417,6 @@
 	
 	$( document ).ready(function() {
 
-		$("#logData").DataTable({
-		});
-
 		// Get query string values
 		params = getQueryString();
 
@@ -442,7 +447,6 @@
 			e.preventDefault();
 			downloadLogCSV();
 		});
-
 	}); //END OF DOCUMENT.READY
 
 	</script>
