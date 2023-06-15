@@ -6,8 +6,14 @@
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/${base}/css/bootstrap-toggle.min.css" rel="stylesheet">
 	<script src="/${base}/js/bootstrap-toggle.min.js"></script>
+	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
+	<script src="/${base}/js/DataTables/datatables.js"></script>
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
+	<style>
+		.dataTables_wrapper .myfilter .dataTables_filter{float:left; margin-top: 15px;}
+		.dataTables_wrapper .mylength .dataTables_length{float:right}
+	</style>
 	<script>
 		var statsVal = {};
 		var statsTotalVal = {};
@@ -24,6 +30,7 @@
 		<#list procDefs as x>
 			statsVal.${x.key} = {pending:'...', disabled:'...', active:'...', completed:'...', error:'...', fts:'...', incident:'...'};
 		</#list>
+
 		
 		function refreshStatUI(name, statsCounts) {
 			
@@ -329,6 +336,18 @@
 					$('#statusMessageDiv').fadeOut(refreshRate, "linear");
 				}
 			}
+
+			$("#process-table").DataTable({
+				columnDefs: [
+					{ orderable: false, targets: 5 },
+					{ orderable: false, targets: 3 }
+				],
+				"paging": false,
+				//filter is top left, length is top right, info is bottom left, pagination is bottom right
+				"dom": "<'row'<'col-sm-6 myfilter'f><'col-sm-6 mylength'l>>" +
+					   "<'row'<'col-sm-12'tr>>" +
+					   "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+			});
 			
 			refreshStats();
 			pageRefId  = setInterval(pageRefresh, refreshRate);
@@ -552,6 +571,18 @@
 					<option value="null">Show stats for All Time</option>
 				</select>
 			</div>
+			<br>
+			<div>
+				<div class="dropdown" style="display:inline;">
+					<button id="downloadButton" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Download &nbsp;
+						<span class="caret"></span>
+					</button>
+					<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">
+						<li id="action_download_json" class="enabled" role="presentation"><a id="json-bttn" role="menuitem" href="#">Download as JSON</a></li>
+					</ul>
+  				</div>
+			</div>
+			<br>
 			</div>
 
 			<div class="status-div col-md-7 col-md-offset-1">
@@ -1000,6 +1031,105 @@
 				}
 			}
 		});
+	}
+
+	$("#json-bttn").click(function(e) {
+		e.preventDefault();
+		downloadJSON();
+	});
+
+	function downloadJSON() {
+		var dt = $('#process-table').DataTable();
+		var data = dt.buttons.exportData();
+		//number of rows
+		var numRows = dt.rows().count();
+		var jsonFile = {};
+		var models = {};
+
+		dt.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
+			var thisModelJson = {};
+			var modelName = this.data()[0].replace(/<a.*?>/g, '');
+			modelName = modelName.substring(0, modelName.indexOf("</a>"));
+			
+			var modelId = this.data()[1];
+			//modelId = modelId.substring(modelId.indexOf("id=\"") + 4);
+			//modelId = modelId.substring(0, modelId.indexOf("\""));
+
+			var version = this.data()[2];
+
+			var status = this.data()[4];
+			//check if active is in str
+			if(status.indexOf("active") > -1){
+				status = "active";
+			}
+			else{
+				status = "inactive";
+			}
+
+			var hasAssignedWorkers = $("#pv-"+modelId).hasClass("btn-danger")? "false" : "true";
+
+			var statPending = 0;
+			var statDisabled = 0;
+			var statActive = 0;
+			var statCompleted = 0;
+			var statError = 0;
+			var statFailedToStart = 0;
+			var statIncident = 0;
+			var stats = $("#stat-txt-" + modelId).html();
+
+			if (stats !== "No stats for this process") {
+				if (stats.indexOf("pending") > -1) {
+					statPending = stats.substring(stats.indexOf("<b>pending</b>:&nbsp;") + 21);
+					statPending = parseInt(statPending.substring(0, statPending.indexOf("&")));
+				}
+				if (stats.indexOf("disabled") > -1) {
+					statDisabled = stats.substring(stats.indexOf("<b>disabled</b>:&nbsp;") + 22);
+					statDisabled = parseInt(statDisabled.substring(0, statDisabled.indexOf("&")));
+				}
+				if (stats.indexOf("running") > -1) {
+					statActive = stats.substring(stats.indexOf("<b>running</b>:&nbsp;") + 21);
+					statActive = parseInt(statActive.substring(0, statActive.indexOf("&")));
+				}
+				if (stats.indexOf("completed") > -1) {
+					statCompleted = stats.substring(stats.indexOf("<b>completed</b>:&nbsp;") + 23);
+					statCompleted = parseInt(statCompleted.substring(0, statCompleted.indexOf("&")));
+				}
+				if (stats.indexOf("failed") > -1) {
+					statError = stats.substring(stats.indexOf("<b>failed</b>:&nbsp;") + 20);
+					statError = parseInt(statError.substring(0, statError.indexOf("&")));
+				}
+				if (stats.indexOf("failed-start") > -1) {
+					statFailedToStart = stats.substring(stats.indexOf("<b>failed-start</b>:&nbsp;") + 28);
+					statFailedToStart = parseInt(statFailedToStart.substring(0, statFailedToStart.indexOf("&")));
+				}
+				if (stats.indexOf("incident") > -1) {
+					statIncident = stats.substring(stats.indexOf("<b>incidents</b>:&nbsp;") + 23);
+					statIncident = parseInt(statIncident.substring(0, statIncident.indexOf("&")));
+				}
+			}
+
+			thisModelJson["model-name"] = modelName;
+			thisModelJson["model-id"] = modelId;
+			thisModelJson["version"] = version;
+			thisModelJson["status"] = status;
+			thisModelJson["has-assigned-workers"] = hasAssignedWorkers;
+			thisModelJson["stat-proc-pending"] = statPending;
+			thisModelJson["stat-proc-disabled"] = statDisabled;
+			thisModelJson["stat-proc-running"] = statActive;
+			thisModelJson["stat-proc-completed"] = statCompleted;
+			thisModelJson["stat-proc-error"] = statError;
+			thisModelJson["stat-proc-failed-to-start"] = statFailedToStart;
+			thisModelJson["stat-proc-incident"] = statIncident;
+
+			models[modelId] = thisModelJson;
+
+		} );
+		jsonFile["models"] = models;
+		console.log(jsonFile);
+		$.fn.dataTable.fileSave(
+			new Blob( [ JSON.stringify(jsonFile) ] ),
+			'deployments_export.json'
+		);
 	}
 
 </script>

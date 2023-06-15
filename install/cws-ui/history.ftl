@@ -38,7 +38,10 @@
 
 	function initDataTable() {
 		$("#logData").DataTable({
-			stateSave: true
+			stateSave: true,
+			select: {
+				style: 'os'
+			}
 		});
 	}
 	
@@ -438,8 +441,6 @@
 			}, 180000);
 		}
 
-
-
 		$("#json-bttn").click(function(e) {
 			e.preventDefault();
 			downloadLogJSON();
@@ -531,7 +532,7 @@
 					<li id="action_download_csv" class="enabled" role="presentation"><a id="csv-bttn" role="menuitem" href="#">Download as CSV</a></li>
   				</ul>
   			</div>
-			</div>
+		</div>
 		<!--
 			<div class="col-sm-12 main">
 				<p>Select file type:</p>
@@ -557,9 +558,9 @@
 					<table id="logData" class="table table-striped table-bordered sortable">
 						<thead>
 							<tr>
-								<th id="timeStampColumn" style="width: 185px">Time Stamp</th>
-								<th>Type</th>
-								<th>Source</th>
+								<th id="timeStampColumn" style="width: 185px" class="sort">Time Stamp</th>
+								<th class="sort">Type</th>
+								<th class="sort">Source</th>
 								<th>Details</th>
 							</tr>
 						</thead>
