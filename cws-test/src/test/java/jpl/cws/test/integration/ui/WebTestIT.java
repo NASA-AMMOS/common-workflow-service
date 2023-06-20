@@ -223,8 +223,8 @@ public class WebTestIT extends WebTestUtil {
 			filterSubmit.click();
 			sleep(1000);
 
-			waitForElementXPath("//button[contains(text(),'History')]");
-			WebElement historyButton = driver.findElement(By.xpath("//button[contains(text(),'History')]"));
+			waitForElementXPath("//a[contains(text(),'History')]");
+			WebElement historyButton = driver.findElement(By.xpath("//a[contains(text(),'History')]"));
 			historyButton.click();
 			sleep(1000);
 
@@ -270,8 +270,8 @@ public class WebTestIT extends WebTestUtil {
 			filterSubmit.click();
 			sleep(1000);
 
-			waitForElementXPath("//button[contains(text(),'History')]");
-			WebElement historyButton = driver.findElement(By.xpath("//button[contains(text(),'History')]"));
+			waitForElementXPath("//a[contains(text(),'History')]");
+			WebElement historyButton = driver.findElement(By.xpath("//a[contains(text(),'History')]"));
 			historyButton.click();
 			sleep(1000);
 

@@ -18,11 +18,6 @@
 			font-size: 90%;
 		}
 	</style>
-	
-	<script>
-	
-
-	</script>
 
 	<!-- Just for debugging purposes. Don't actually copy this line! -->
 	<!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -132,7 +127,7 @@
 					</div>
 				<br/>
 				<div class="col-md-12">
-					<input type="button" id="filter-submit-btn" class="btn btn-info pull-right" value="Filter"/>
+					<a id="filter-submit-btn" class="btn btn-info pull-right" href="#">Filter</a>
 				</div>
 			</div>
 
@@ -193,10 +188,32 @@
 
 <script type="text/javascript">
 
+	//STATE PERSISTANCE CONSTS
+	const username = "username"; //temporary, hardcoded value for now
+	const qstringVar = "CWS_DASH_PROC_QSTRING-" + username; 
+
 	var params = {};
 	var rows;
 
 	$( document ).ready(function() {
+		//get our current url
+		var currentUrl = window.location.href;
+		//get our local storage url
+		var localStorageUrl = localStorage.getItem(qstringVar);
+		//check if a cookie has been stored (indicating we can restore state)
+		if(localStorageUrl != null) {
+			//remove everything before ?
+			currentUrl = currentUrl.substring(currentUrl.indexOf("?"));
+			//compare against what is in local storage
+			if (currentUrl != localStorageUrl) {
+				//check if we are viewing subprocs (if we are, we don't want to restore state)
+				var subprocs = currentUrl.indexOf("superProcInstId") + 16;
+				if(subprocs === "null") {
+					//if they are different, go to the one in local storage (essentially restoring from last time used)
+					window.location="/${base}/processes" + localStorageUrl;
+				}
+			}
+		}
 
 		$("#filters-btn").click(function(){
 			if($("#filters-div").is(":visible"))
@@ -218,9 +235,13 @@
 			todayHighlight:true
 		});
 		
-		$("#filter-submit-btn").click(function(){
-
+		$("#filter-submit-btn").click(function(e){
+			e.preventDefault();
 			updateLocation(false);
+		});
+
+		$("#filter-submit-btn").on("contextmenu", function(e){
+			$(this).attr("href", "/${base}/processes" + getFilterQString(false));
 		});
 		
 		displayMessage();
@@ -278,7 +299,7 @@
 		});
 	});
 
-	function updateLocation(changeHideSubs) {
+	function getFilterQString(changeHideSubs) {
 		var params = {};
 
 		if($("#pd-select").val() != "def"){
@@ -323,12 +344,16 @@
 			}
 		}
 		qstring = qstring.substring(0,qstring.length-1);
+		localStorage.setItem(qstringVar, qstring);
 		console.log(encodeURI(qstring));
-		window.location="/${base}/processes" + qstring;
+		return qstring;
+	}
+
+	function updateLocation(changeHideSubs) {
+		window.location="/${base}/processes" + getFilterQString(changeHideSubs);
 	}
 	
 	$("#hide-subprocs-btn").click(function(){
-		
 		updateLocation(true);
 	});
 	
@@ -353,6 +378,8 @@
 	
 		if (procInstId !== '') {
 			window.location = "/${base}/history?procInstId=" + procInstId;
+		} else {
+			return false;
 		}
 	}
 	
@@ -360,6 +387,8 @@
 	
 		if (procInstId !== '') {
 			window.location = "/${base}/processes?superProcInstId=" + procInstId;
+		} else {
+			return false;
 		}
 	}
 	
@@ -407,8 +436,8 @@
 						table.row.add(
 						$("<tr id=\""+i+"\" class=\"tr-"+ res[i].status +"\" procInstId=\"" + procInstId + "\">"+
 							"<td>" + actionTd + "</td>" +
-							"<td><button onclick=\"viewHistory('" + procInstId + "')\" class=\"btn btn-default btn-sm\">History</button></td>" +
-							"<td><button onclick=\"viewSubProcs('" + procInstId + "')\" class=\"btn btn-default btn-sm\">Subprocs</button></td>" +
+							"<td><a onclick=\"viewHistory('" + procInstId + "')\" href=\"/${base}/history?procInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">History</a></td>" +
+							"<td><a onclick=\"viewSubProcs('" + procInstId + "')\" href=\"/${base}/processes?superProcInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">Subprocs</a></td>" +
 							"<td id=\"row-" + i + "initiationKey\">"+ (res[i].initiationKey == undefined ? '' : res[i].initiationKey) + "</td>" +
 							"<td>"+ res[i].procDefKey +"</td>"+
 							"<td>"+ (res[i].status == 'incident' ? ("<a href=\""+ incidentUrl +"\" target=\"blank_\">" + procInstId + "</a>") : procInstId) + "</td>" +

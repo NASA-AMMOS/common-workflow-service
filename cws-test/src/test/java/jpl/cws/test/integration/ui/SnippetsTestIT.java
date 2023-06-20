@@ -120,7 +120,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			waitForElementID("processes-table");
 
 			log.info("Clicking on Test Snippets Page history.");
-			WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
+			WebElement historyButton = findElByXPath("//a[contains(text(),'History')]");
 			waitForElement(historyButton);
 			scrollTo(historyButton);
 			historyButton.click();

@@ -76,7 +76,7 @@ public class HistoryTestIT extends WebTestUtil {
 			waitForElementID("processes-table");
 
 			log.info("Verifying the header and output from the model.");
-			WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
+			WebElement historyButton = findElByXPath("//a[contains(text(),'History')]");
 			waitForElement(historyButton);
 			scrollTo(historyButton);
 			historyButton.click();
