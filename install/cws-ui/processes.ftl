@@ -13,6 +13,11 @@
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<link href="/${base}/css/bootstrap-datepicker.min.css" rel="stylesheet">
+	<style>
+		.dataTables_wrapper .filter .dataTables_filter{float:right; margin-top: 15px; display: inline; margin-right: 15px;}
+		.dataTables_wrapper .length .dataTables_length{float:left; display: inline; margin-top: 15px}
+		.dataTables_wrapper .buttons .dt-buttons{float:left; display: inline; margin-top: 15px; margin-left: 15px; margin-right: 15px;}
+	</style>
 	<style type="text/css">
 		#processes-table {
 			font-size: 90%;
@@ -170,17 +175,17 @@
 				<table id="processes-table" class="table table-striped table-bordered sortable">
 					<thead>
 					<tr>
-                        <th>Select&nbsp;<input id="select-all" type="checkbox" title="select all"/></th>
+                        <th>Select</th>
 						<th></th>
 						<th></th>
-						<th class='sort'>Initiator</th>
-						<th class='sort'>Definition Key</th>
-						<th class='sort'>Proc Inst ID</td>
-						<th class='sort'>Status</th>
-						<th class='sort'>Schedule Queued Time</th>
-						<th class='sort'>Started on Worker</th>
-						<th class='sort'>Process Start</th>
-						<th class='sort'>Process End</th>
+						<th>Initiator</th>
+						<th>Definition Key</th>
+						<th>Proc Inst ID</td>
+						<th>Status</th>
+						<th>Schedule Queued Time</th>
+						<th>Started on Worker</th>
+						<th>Process Start</th>
+						<th>Process End</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -231,10 +236,10 @@
 		//
 		$("#select-all").change(function() {
 			if($("#select-all:checked").length > 0) { // select all is checked
-				$("input[status]:not(:checked)").prop("checked", true); // make all row checkboxes checked
+				$("#processes-table").DataTable().rows( {page: "current"}).select(); // select all rows
 			}
 			else {
-				$("input[status]:checked").prop("checked", false); // make all row checkboxes unchecked
+				$("#processes-table").DataTable().rows().deselect(); // deselect all rows
 			}
 			updateActionList(); // make sure gray out/enable the appropriate actions
 		});
@@ -275,7 +280,63 @@
 		}
 
 		$("#processes-table").DataTable({
+			select: {
+				style: 'multi+shift',
+				selector: 'td:first-child'
+			},
+			columnDefs: [
+				{
+					orderable: false,
+					className: 'select-checkbox',
+					targets: 0
+				},
+				{
+					orderable: false,
+					targets: 1
+				},
+				{
+					orderable: false,
+					targets: 2
+				}
+        	],
+			stateSave: true,
+			dom: "<'row'<'col-sm-auto buttons'B><'col-sm-auto length'l><'col-sm-auto filter'f>>" + "tip",
+			buttons: [
+				{
+					text: "Select all on page",
+					action: function () {
+						$("#processes-table").DataTable().rows( {page: "current"}).select();
+						updateActionList();
+					}
+				},
+				{
+					text: "Unselect all on page",
+					action: function () {
+						$("#processes-table").DataTable().rows( {page: "current"}).deselect();
+						updateActionList();
+					}
+				},
+				{
+					text: "Select all",
+					action: function () {
+						$("#processes-table").DataTable().rows().select();
+						updateActionList();
+					}
+				},
+				{
+					text: "Unselect all",
+					action: function () {
+						$("#processes-table").DataTable().rows().deselect();
+						updateActionList();
+					}
+				}
+			]
 		});
+
+		var table = $("#processes-table").DataTable();
+		table.on( 'select', function ( e, dt, type, indexes ) {
+			updateActionList();
+		} );
 	});
 
 	function updateLocation(changeHideSubs) {
@@ -384,10 +445,7 @@
 			function(res) {
 				numProcs = res.length
 				
-				if(numProcs == 0) {
-					$("#processes-table").append("<tr class='no-results'><td colspan='11'>no results found</td></tr>");
-				}
-				else {
+				if(numProcs !== 0) {
 					var pageNum;
 					if (params && params.page) {
 						pageNum = params.page;
@@ -398,15 +456,13 @@
 
 					var table = $("#processes-table").DataTable()
 					
-					// Remove all rows from the table, except the first
 					table.clear();
 					for (i in res) {
 						var procInstId = (res[i].procInstId == undefined ? '' : res[i].procInstId);
-						var actionTd = (procInstId == '' || res[i].status == 'incident' || res[i].status == 'failedToStart' || res[i].status == 'fail' ? "<input id=\"select-row-" + i + "\" type=\"checkbox\"/>" : "");
 						var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + procInstId + "/runtime?tab=incidents-tab";
 						table.row.add(
 						$("<tr id=\""+i+"\" class=\"tr-"+ res[i].status +"\" procInstId=\"" + procInstId + "\">"+
-							"<td>" + actionTd + "</td>" +
+							"<td status=\"" + res[i].status + "\" uuid=\"" + res[i].uuid + "\" procInstId=\"" + res[i].procInstId + "\"></td>" +
 							"<td><button onclick=\"viewHistory('" + procInstId + "')\" class=\"btn btn-default btn-sm\">History</button></td>" +
 							"<td><button onclick=\"viewSubProcs('" + procInstId + "')\" class=\"btn btn-default btn-sm\">Subprocs</button></td>" +
 							"<td id=\"row-" + i + "initiationKey\">"+ (res[i].initiationKey == undefined ? '' : res[i].initiationKey) + "</td>" +
@@ -419,16 +475,6 @@
 							"<td>"+ (res[i].procEndTime == undefined ? '' : res[i].procEndTime) + "</td>"+
 						"</tr>")
 						).draw();
-
-						$("#select-row-" + i).attr( "status", res[i].status );
-						$("#select-row-" + i).attr( "uuid", res[i].uuid );
-						$("#select-row-" + i).attr( "procInstId", res[i].procInstId );
-
-						// Click handler for row selection
-						//
-						$("#select-row-" + i).change(function() {
-							toggleRow(this);
-						});
 					}
 				}
 				
@@ -438,32 +484,47 @@
 
 	}
 
-	//
-	//
-	//
-	function toggleRow(row, rowStatus) {
-		if($(row).is(":checked")) {
-			console.log(row);
-			//alert('row ' + row.id + ' is checked ' + JSON.stringify( $(row).data() )  );
-		}
-		else {
-			console.log(row);
-			//alert('row ' + row.id + ' is un-checked ' + JSON.stringify( $(row).data() ) );
-		}
-		updateActionList();
-	}
-
-
 	// ---------------------------------------------------------------
 	// Updates the list of active items in the Actions drop-down list
 	//
 	function updateActionList() {
-		var numSelected = $("input[status]:checked").length;
-		var numDisabledSelected = $("input[status='disabled']:checked").length;
-		var numPendingSelected = $("input[status='pending']:checked").length;
-		var numIncidentSelected = $("input[status='incident']:checked").length;
-		var numFailedToStartSelected = $("input[status='failedToStart']:checked").length;
-		var numFailedSelected = $("input[status='fail']:checked").length;
+		console.log("updateActionList called");
+
+		var table = $("#processes-table").DataTable();
+		
+		var selectedRows = table.rows( { selected: true } );
+
+		var numSelected = selectedRows.count();
+		var numDisabledSelected = 0;
+		var numPendingSelected = 0;
+		var numIncidentSelected = 0;
+		var numFailedToStartSelected = 0;
+		var numFailedSelected = 0;
+		var numComplete = 0;
+
+		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
+			var data = this.data();
+			switch (data[6]) {
+				case 'disabled':
+					numDisabledSelected++;
+					break;
+				case 'pending':
+					numPendingSelected++;
+					break;
+				case 'incident':
+					numIncidentSelected++;
+					break;
+				case 'failed_to_start':
+					numFailedToStartSelected++;
+					break;
+				case 'failed':
+					numFailedSelected++;
+					break;
+				case 'complete':
+					numComplete++;
+					break;
+			}
+		} );
 
 		if (numSelected > 0) {
 			var disabled      = numDisabledSelected      == numSelected;
@@ -638,20 +699,33 @@
 		//
 		// For each selected row...
 		//
-		$("input[status='disabled']:checked").each(function(el){
-			selectedRowUuids.push($( this ).attr('uuid'));
-		});
-		$("input[status='pending']:checked").each(function(el){
-			selectedRowUuids.push($( this ).attr('uuid'));
-		});
-		$("input[status='incident']:checked").each(function(el){
-			selectedRowUuids.push($( this ).attr('procInstId'));
-		});
-		$("input[status='failedToStart']:checked").each(function(el){
-			selectedRowUuids.push($( this ).attr('uuid'));
-		});
-		$("input[status='fail']:checked").each(function(el){
-			selectedRowUuids.push($( this ).attr('procInstId'));
+		var table = $('#processes-table').DataTable();
+		var selectedRows = table.rows( { selected: true } );
+		console.log(selectedRows.count());
+
+		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
+			var html = this.node();
+			var status = $(html).children("td:first").attr("status");
+			var uuid = $(html).children("td:first").attr("uuid");
+			var procInstId = $(html).children("td:first").attr("procInstId");
+			var data = this.data();
+			switch (status) {
+				case 'disabled':
+					selectedRowUuids.push(uuid);
+					break;
+				case 'pending':
+					selectedRowUuids.push(uuid);
+					break;
+				case 'incident':
+					selectedRowUuids.push(procInstId);
+					break;
+				case 'failedToStart':
+					selectedRowUuids.push(uuid);
+					break;
+				case 'fail':
+					selectedRowUuids.push(procInstId);
+					break;
+			}
 		});
 		return selectedRowUuids;
 	}
