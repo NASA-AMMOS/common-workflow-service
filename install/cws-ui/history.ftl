@@ -35,22 +35,13 @@
 		},
 		"sort": { "@timestamp": { "order": "asc" } }
 	};
-
-	function initDataTable() {
-		$("#logData").DataTable({
-			order: [[0, 'desc']]
-		});
-	}
 	
 	function renderSet(rows) {
+
+		var table = $("#logData").DataTable();
 	
 		for (var i = 0; i < rows.length; i++) {
-		
-			$('#logData').append(rows[i]);
-		}
-		if (isDataTablesInit === 0) {
-			isDataTablesInit = 1;
-			initDataTable();
+			table.row.add($(rows[i]));
 		}
 	}
 		
@@ -76,9 +67,11 @@
 
 						// Done with all rendering row sets
 						$(".ajax-spinner").hide();
-						
-						// sort table by Time Stamp (ascending)
-						$("#timeStampColumn").click();
+
+						var table = $("#logData").DataTable();
+
+						table.draw();
+					
 					}
 					
 				} // end if (data.hits)
@@ -416,6 +409,10 @@
 	}
 	
 	$( document ).ready(function() {
+
+		$("#logData").DataTable({
+			order: [[0, 'desc']],
+		});
 
 		// Get query string values
 		params = getQueryString();
