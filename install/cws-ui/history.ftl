@@ -412,6 +412,7 @@
 
 		$("#logData").DataTable({
 			order: [[0, 'desc']],
+			paging: false
 		});
 
 		// Get query string values
