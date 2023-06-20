@@ -21,3 +21,4 @@ function getQueryString(){
     
     return params;
 }
+
