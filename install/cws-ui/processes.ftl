@@ -183,6 +183,7 @@
 		$.fn.dataTable.moment( 'MMM D, YYYY, h:mm:ss A' );
 
 		$("#processes-table").DataTable({
+			"deferRender": true,
 			select: {
 				style: 'multi+shift',
 				selector: 'td:first-child'
@@ -195,10 +196,12 @@
 				},
 				{
 					orderable: false,
+					searchable: false,
 					targets: 1
 				},
 				{
 					orderable: false,
+					searchable: false,
 					targets: 2
 				}
         	],
@@ -244,7 +247,7 @@
 						_: 'Filters (%d active)'
 					},
 				}
-        	},
+        	}
 		});
 
 		var table = $("#processes-table").DataTable();
@@ -357,15 +360,6 @@
 			function(res) {
 				numProcs = res.length
 				console.log("numProcs: " + numProcs);
-				
-				if(numProcs !== 0) {
-					var pageNum;
-					if (params && params.page) {
-						pageNum = params.page;
-					}
-					else {
-						pageNum = 0;
-					}
 
 					var table = $("#processes-table").DataTable()
 					
@@ -390,7 +384,6 @@
 						);
 					}
 					table.draw();
-				}
 				
 				$("#proc-log div.ajax-spinner").hide();
 			}
