@@ -356,6 +356,7 @@
 		$.get("/${base}/rest/processes/getInstancesCamunda"+qstr,
 			function(res) {
 				numProcs = res.length
+				console.log("numProcs: " + numProcs);
 				
 				if(numProcs !== 0) {
 					var pageNum;
@@ -386,8 +387,9 @@
 							"<td>"+ (res[i].procStartTime == undefined ? '' : res[i].procStartTime) + "</td>"+
 							"<td>"+ (res[i].procEndTime == undefined ? '' : res[i].procEndTime) + "</td>"+
 						"</tr>")
-						).draw();
+						);
 					}
+					table.draw();
 				}
 				
 				$("#proc-log div.ajax-spinner").hide();
