@@ -553,9 +553,9 @@
 					<table id="logData" class="table table-striped table-bordered sortable">
 						<thead>
 							<tr>
-								<th id="timeStampColumn" style="width: 185px" class="sort">Time Stamp</th>
-								<th class="sort">Type</th>
-								<th class="sort">Source</th>
+								<th id="timeStampColumn" style="width: 185px">Time Stamp</th>
+								<th>Type</th>
+								<th>Source</th>
 								<th>Details</th>
 							</tr>
 						</thead>
