@@ -2667,6 +2667,12 @@ public class CwsInstaller {
 			}
 			dirCxt.close();
 		} catch (Exception e) {
+			print("+----------------------------------------------------------------------------------+");
+			print("CWS Installer ERROR: LDAP API failed to retrieve CWS user's " + Arrays.toString(attributeFilter));
+			print("     to set in CWS properties files and utilize for CWS services. Make sure 'ldap_plugin_bean.xml' is ");
+			print("     properly configured. Refer to the template /tomcat_conf/ldap_plugin_bean.xml");
+			print("ERROR: " + e);
+			print("+----------------------------------------------------------------------------------+");
 			// JNDI LDAP retrieval failed.
 			identityAttributes[0] = "__CWS_ADMIN_FIRSTNAME__";
 			identityAttributes[1] = "__CWS_ADMIN_LASTNAME__";
