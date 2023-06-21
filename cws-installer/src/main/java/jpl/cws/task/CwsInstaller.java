@@ -1660,6 +1660,9 @@ public class CwsInstaller {
 		print("VALIDATING CONFIGURATION...  Please wait, this may take some time...");
 
 		warningCount += validateDbConfig();
+		if (cws_auth_scheme.equals("LDAP") || cws_auth_scheme.equals("CAM")) {
+			warningCount += validateLdapConfig();
+		}
 		warningCount += validateTomcatPorts();
 		boolean timeSyncMissing = validateTimeSyncService() == 1;
 
@@ -1863,6 +1866,33 @@ public class CwsInstaller {
 		return warningCount;
 	}
 
+	private static int validateLdapConfig() {
+		int warningCount = 0;
+
+		// VALIDATE LDAP or CAM CONFIGURATION AND LDAP USER INFO RETREIVEL
+		if (cws_auth_scheme.equals("LDAP")) {
+			print("checking that user provided LDAP authentication profile is valid...");
+		}
+		if (cws_auth_scheme.equals("CAM")) {
+			print("checking that user provided CAM authentication profile is valid...");
+		}
+
+		String[] ldapAttrReturn = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
+
+		if (ldapAttrReturn[3] != null) {
+			print("   [WARNING]");
+			print("      " + ldapAttrReturn[3]);
+			print("      LDAP user information was not retrieved. The user provided first name, lastname, and email address will used in CWS Properties files.");
+			print("");
+			warningCount++;
+		}
+		else {
+			print("   [OK]");
+			print("");
+		}
+
+		return warningCount;
+	}
 
 	private static int validateTomcatPorts() {
 		int warningCount = 0;
@@ -2620,7 +2650,7 @@ public class CwsInstaller {
 		//
 		String propertyBase = "";
 		String propertySearchBase = "";
-		String[] identityAttributes = new String[3];
+		String[] identityAttributes = new String[4];
 		String[] attributeFilter = {"givenName", "sn", "mail"};
 
 		try {
@@ -2685,16 +2715,18 @@ public class CwsInstaller {
 			}
 			dirCxt.close();
 		} catch (Exception e) {
-			print("+----------------------------------------------------------------------------------+");
-			print("CWS Installer ERROR: LDAP API failed to retrieve CWS user's " + Arrays.toString(attributeFilter));
-			print("     to set in CWS properties files and utilize for CWS services. Make sure 'ldap_plugin_bean.xml' is ");
-			print("     properly configured. Refer to the template /tomcat_conf/ldap_plugin_bean.xml");
-			print("ERROR: " + e);
-			print("+----------------------------------------------------------------------------------+");
+			if (cws_user_email == null || cws_user_email.length() < 8 ||
+				cws_user_firstname == null || cws_user_firstname.equals("/") ||
+				cws_user_lastname == null || cws_user_lastname.equals("/")) {
+				print("ERROR: Must specify cws_user_firstname, cws_user_lastname, cws_user_email property. LDAP API failed to retrieve CWS user's " + Arrays.toString(attributeFilter));
+				print("       Set properties cws_user_email, cws_user_firstname, cws_user_lastname in your configuration. These properties will be used for startup notifications.");
+				exit(1);
+			}
 			// JNDI LDAP retrieval failed.
 			identityAttributes[0] = "__CWS_ADMIN_FIRSTNAME__";
 			identityAttributes[1] = "__CWS_ADMIN_LASTNAME__";
 			identityAttributes[2] = "__CWS_ADMIN_EMAIL__";
+			identityAttributes[3] = e;
 		}
 		return identityAttributes;
 	}
