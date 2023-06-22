@@ -106,11 +106,11 @@ public class SnippetsTestIT extends WebTestUtil {
 			startProcDef("test_snippets_page", "Test Snippets Page", 90000);
 
 			goToPage("processes");
-			sleep(90000);
+			sleep(30000);
 
 			waitForElementID("dtsb-add");
 			log.info("Filter for Test Snippets Page results.");
-			WebElement addFilterButton = findElById("dtsb-add");
+			WebElement addFilterButton = findElByXPath("//button[@class='dtsb-add']");
 			addFilterButton.click();
 			sleep(5000);
 			Select dataSelect = new Select(findElByXPath("//select[@class='dtsb-data']"));
