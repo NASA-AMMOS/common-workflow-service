@@ -106,6 +106,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			startProcDef("test_snippets_page", "Test Snippets Page", 90000);
 
 			goToPage("processes");
+			sleep(90000);
 
 			waitForElementID("dtsb-add");
 			log.info("Filter for Test Snippets Page results.");
