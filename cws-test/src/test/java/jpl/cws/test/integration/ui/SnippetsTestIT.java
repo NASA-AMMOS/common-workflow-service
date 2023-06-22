@@ -107,9 +107,9 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			goToPage("processes");
 
-			waitForElementID("dtsb-button");
+			waitForElementID("dtsb-add");
 			log.info("Filter for Test Snippets Page results.");
-			WebElement addFilterButton = findElById("dtsb-button");
+			WebElement addFilterButton = findElById("dtsb-add");
 			addFilterButton.click();
 			sleep(5000);
 			Select dataSelect = new Select(findElByXPath("//select[@class='dtsb-data']"));
@@ -121,7 +121,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			Select valueSelect = new Select(findElByXPath("//select[@class='dtsb-value']"));
 			valueSelect.selectByVisibleText("test_snippets_page");
 			sleep(5000);
-			
+
 			waitForElementID("processes-table");
 
 			log.info("Clicking on Test Snippets Page history.");
