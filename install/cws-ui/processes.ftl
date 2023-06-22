@@ -93,6 +93,13 @@
 
 			<h2 class="sub-header">Processes</h2>
 
+			<div id="load-more-div">
+				<b style="color: red">By default, the 5000 most recent processes are loaded.</b>
+				<button id="load-more-btn" class="btn btn-primary">Load More</button>
+				<button id="load-less-btn" class="btn btn-primary">Load Less</button>
+				<button id="load-all-btn" class="btn btn-primary">Load All</button>
+			</div>
+
   			<div id="hide-subprocs-div">
 				<label for="hide-subprocs">Hide Subprocesses</label>
 				<input name="hide-subprocs" id="hide-subprocs-btn" type="checkbox">
@@ -133,10 +140,12 @@
 
 	//STATE PERSISTANCE CONSTS
 	const username = "username"; //temporary, hardcoded value for now
-	const qstringVar = "CWS_DASH_PROC_QSTRING-" + username; 
+	const qstringVar = "CWS_DASH_PROC_QSTRING-" + username;
+	const rowsToLoadVar = "CWS_DASH_PROC_ROWS-" + username;
 
 	var params = {};
 	var rows;
+	var loadRows = 5000;
 
 	$( document ).ready(function() {
 		//get our current url
@@ -157,10 +166,14 @@
 				}
 			}
 		}
+
+		if (localStorage.getItem(rowsToLoadVar) != null) {
+			loadRows = parseInt(localStorage.getItem(rowsToLoadVar));
+		}
 		
 		displayMessage();
 
-		renderRows();
+		renderRows(loadRows);
 
 		if (!params) {
 			$("#hide-subprocs-btn").prop('checked', false);
@@ -268,6 +281,27 @@
   			+ `</ul>`).appendTo(".action-button");
 	});
 
+	$("#load-more-btn").click(function() {
+		loadRows += 5000;
+		localStorage.setItem(rowsToLoadVar, loadRows);
+		renderRows(loadRows);
+	});
+
+	$("#load-less-btn").click(function() {
+		loadRows -= 5000;
+		if (loadRows < 5000) {
+			loadRows = 5000;
+		}
+		localStorage.setItem(rowsToLoadVar, loadRows);
+		renderRows(loadRows);
+	});
+
+	$("#load-all-btn").click(function() {
+		loadRows = -1;
+		localStorage.setItem(rowsToLoadVar, loadRows);
+		renderRows(loadRows);
+	});
+
 	function getFilterQString(changeHideSubs) {
 		var params = {};
 		
@@ -342,52 +376,60 @@
 	// ----------------------------------------------------
 	// Get the process instances, and render them as rows
 	//
-	function renderRows() {
+	function renderRows(rowsToLoad) {
 
 		$("#proc-log div.ajax-spinner").show();
 
 		qstr = document.location.search;
 		//console.log("/${base}/rest/processes/getInstances"+qstr);
 		params = getQueryString();
+		var numProcs = 0;
+		var requestProc = 0;
 
-		var numProcs;
-
-		//
-		// GET THE PROCESS INSTANCE, 
-		// AND RENDER THEM...
-		//
-		$.get("/${base}/rest/processes/getInstancesCamunda"+qstr,
+		//get the number of instances
+		$.get("/${base}/rest/processes/getInstancesSize"+qstr,
 			function(res) {
-				numProcs = res.length
+				numProcs = res;
 				console.log("numProcs: " + numProcs);
-
-					var table = $("#processes-table").DataTable()
-					
-					table.clear();
-					for (i in res) {
-						var procInstId = (res[i].procInstId == undefined ? '' : res[i].procInstId);
-						var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + procInstId + "/runtime?tab=incidents-tab";
-						table.row.add(
-						$("<tr id=\""+i+"\" class=\"tr-"+ res[i].status +"\" procInstId=\"" + procInstId + "\">"+
-							"<td status=\"" + res[i].status + "\" uuid=\"" + res[i].uuid + "\" procInstId=\"" + res[i].procInstId + "\"></td>" +
-							"<td><button onclick=\"viewHistory('" + procInstId + "')\" class=\"btn btn-default btn-sm\">History</button></td>" +
-							"<td><button onclick=\"viewSubProcs('" + procInstId + "')\" class=\"btn btn-default btn-sm\">Subprocs</button></td>" +
-							"<td id=\"row-" + i + "initiationKey\">"+ (res[i].initiationKey == undefined ? '' : res[i].initiationKey) + "</td>" +
-							"<td>"+ res[i].procDefKey +"</td>"+
-							"<td>"+ (res[i].status == 'incident' ? ("<a href=\""+ incidentUrl +"\" target=\"blank_\">" + procInstId + "</a>") : procInstId) + "</td>" +
-							"<td>"+ res[i].status +"</td>"+
-							"<td>"+ (res[i].createdTimestamp == undefined ? '' : res[i].createdTimestamp) + "</td>"+
-							"<td>"+ (res[i].startedByWorker == undefined ? '' : res[i].startedByWorker) + "</td>"+
-							"<td>"+ (res[i].procStartTime == undefined ? '' : res[i].procStartTime) + "</td>"+
-							"<td>"+ (res[i].procEndTime == undefined ? '' : res[i].procEndTime) + "</td>"+
-						"</tr>")
-						);
-					}
-					table.draw();
-				
-				$("#proc-log div.ajax-spinner").hide();
-			}
-		);
+				if (rowsToLoad === -1) {
+					requestProc = numProcs;
+				} else {
+					requestProc = rowsToLoad;
+				}
+				//
+				// GET THE PROCESS INSTANCE, 
+				// AND RENDER THEM...
+				//
+				console.log("requestProc: " + requestProc);
+				$.get("/${base}/rest/processes/getInstancesCamunda"+qstr+"&page="+requestProc,
+					function(res) {
+						var table = $("#processes-table").DataTable()
+						
+						table.clear();
+						for (i in res) {
+							var procInstId = (res[i].procInstId == undefined ? '' : res[i].procInstId);
+							var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + procInstId + "/runtime?tab=incidents-tab";
+							table.row.add(
+							$("<tr id=\""+i+"\" class=\"tr-"+ res[i].status +"\" procInstId=\"" + procInstId + "\">"+
+								"<td status=\"" + res[i].status + "\" uuid=\"" + res[i].uuid + "\" procInstId=\"" + res[i].procInstId + "\"></td>" +
+								"<td><button onclick=\"viewHistory('" + procInstId + "')\" class=\"btn btn-default btn-sm\">History</button></td>" +
+								"<td><button onclick=\"viewSubProcs('" + procInstId + "')\" class=\"btn btn-default btn-sm\">Subprocs</button></td>" +
+								"<td id=\"row-" + i + "initiationKey\">"+ (res[i].initiationKey == undefined ? '' : res[i].initiationKey) + "</td>" +
+								"<td>"+ res[i].procDefKey +"</td>"+
+								"<td>"+ (res[i].status == 'incident' ? ("<a href=\""+ incidentUrl +"\" target=\"blank_\">" + procInstId + "</a>") : procInstId) + "</td>" +
+								"<td>"+ res[i].status +"</td>"+
+								"<td>"+ (res[i].createdTimestamp == undefined ? '' : res[i].createdTimestamp) + "</td>"+
+								"<td>"+ (res[i].startedByWorker == undefined ? '' : res[i].startedByWorker) + "</td>"+
+								"<td>"+ (res[i].procStartTime == undefined ? '' : res[i].procStartTime) + "</td>"+
+								"<td>"+ (res[i].procEndTime == undefined ? '' : res[i].procEndTime) + "</td>"+
+							"</tr>")
+							);
+						}
+						table.draw();
+						
+						$("#proc-log div.ajax-spinner").hide();
+					});
+			});
 
 	}
 
