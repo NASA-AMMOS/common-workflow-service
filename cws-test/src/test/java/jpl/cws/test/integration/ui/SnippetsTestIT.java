@@ -108,7 +108,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			goToPage("processes");
 			sleep(30000);
 
-			waitForElementID("dtsb-add");
+			waitForElementXPath("//button[@class='dtsb-add']");
 			log.info("Filter for Test Snippets Page results.");
 			WebElement addFilterButton = findElByXPath("//button[@class='dtsb-add']");
 			addFilterButton.click();
