@@ -196,7 +196,7 @@
 		$.fn.dataTable.moment( 'MMM D, YYYY, h:mm:ss A' );
 
 		$("#processes-table").DataTable({
-			"deferRender": true,
+			searchDelay: 250,
 			select: {
 				style: 'multi+shift',
 				selector: 'td:first-child'
