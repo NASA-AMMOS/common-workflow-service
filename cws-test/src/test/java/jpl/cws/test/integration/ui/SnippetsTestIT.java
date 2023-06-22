@@ -107,16 +107,21 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			goToPage("processes");
 
-			waitForElementID("pd-select");
+			waitForElementID("dtsb-button");
 			log.info("Filter for Test Snippets Page results.");
-			Select select = new Select(findElById("pd-select"));
-			select.selectByVisibleText("Test Snippets Page");
-
-			waitForElementID("filter-submit-btn");
-
-			WebElement filterSubmit = findElById("filter-submit-btn");
-			filterSubmit.click();
-
+			WebElement addFilterButton = findElById("dtsb-button");
+			addFilterButton.click();
+			sleep(5000);
+			Select dataSelect = new Select(findElByXPath("//select[@class='dtsb-data']"));
+			dataSelect.selectByVisibleText("Definition Key");
+			sleep(5000);
+			Select conditionSelect = new Select(findElByXPath("//select[@class='dtsb-condition']"));
+			conditionSelect.selectByVisibleText("Equals");
+			sleep(5000);
+			Select valueSelect = new Select(findElByXPath("//select[@class='dtsb-value']"));
+			valueSelect.selectByVisibleText("test_snippets_page");
+			sleep(5000);
+			
 			waitForElementID("processes-table");
 
 			log.info("Clicking on Test Snippets Page history.");
