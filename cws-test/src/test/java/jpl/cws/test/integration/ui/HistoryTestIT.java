@@ -8,6 +8,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 import org.slf4j.Logger;
@@ -63,15 +64,11 @@ public class HistoryTestIT extends WebTestUtil {
 			goToPage("processes");
 
 			log.info("Filtering Test History Page results.");
-			waitForElementID("pd-select");
-			Select select = new Select(findElById("pd-select"));
-			select.selectByVisibleText("Test History Page");
+			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
 
-			waitForElementID("filter-submit-btn");
-
-			log.info("Clicking 'Submit' button.");
-			WebElement filterSubmit = findElById("filter-submit-btn");
-			filterSubmit.click();
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_history_page");
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 
