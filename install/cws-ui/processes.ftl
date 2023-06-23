@@ -390,6 +390,7 @@
 		$.get("/${base}/rest/processes/getInstancesSize"+qstr,
 			function(res) {
 				numProcs = res;
+				console.warn("numProcs: " + numProcs);
 				console.log("numProcs: " + numProcs);
 				if (rowsToLoad === -1) {
 					requestProc = numProcs;
