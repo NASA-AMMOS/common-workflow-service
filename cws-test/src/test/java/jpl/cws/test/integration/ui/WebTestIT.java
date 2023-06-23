@@ -6,42 +6,39 @@ import java.io.IOException;
 import jpl.cws.test.WebTestUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.Select;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  * @author ghollins
  *
  */
 public class WebTestIT extends WebTestUtil {
 	private static final Logger log = LoggerFactory.getLogger(WebTestIT.class);
-	
-	
-	
+
+
+
 	@Test
 	public void testGoogleSearch() throws InterruptedException, IOException {
-	  
-	  driver.get("http://www.google.com");
-	  
-	  Thread.sleep(5000);  // Let the user actually see something!
-	  WebElement searchBox = driver.findElement(By.name("q"));
-	  searchBox.sendKeys("ChromeDriver");
-	  searchBox.submit();
-	  Thread.sleep(5000);  // Let the user actually see something!
-	  
-	  //log.info(driver.getPageSource());
-	  
-	  File scrFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+
+		driver.get("http://www.google.com");
+
+		Thread.sleep(5000);  // Let the user actually see something!
+		WebElement searchBox = driver.findElement(By.name("q"));
+		searchBox.sendKeys("ChromeDriver");
+		searchBox.submit();
+		Thread.sleep(5000);  // Let the user actually see something!
+
+		//log.info(driver.getPageSource());
+
+		File scrFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
 		// Now you can do whatever you need to do with it, for example copy somewhere
 		FileUtils.copyFile(scrFile, new File("/tmp/screenshot.png"));
 	}
-	
+
 	@Test
 	public void loginTest() {
 		log.info("------ START loginTest ------");
@@ -50,7 +47,7 @@ public class WebTestIT extends WebTestUtil {
 		logout();
 		log.info("------ END loginTest ------");
 	}
-	
+
 	@Test
 	public void deployTest() {
 		log.info("------ START deployTest ------");
@@ -62,7 +59,7 @@ public class WebTestIT extends WebTestUtil {
 		logout();
 		log.info("------ END deployTest ------");
 	}
-	
+
 	@Test
 	public void runDeployTest() {
 		log.info("------ START deployTest ------");
@@ -77,9 +74,9 @@ public class WebTestIT extends WebTestUtil {
 
 		// Start Instance
 		WebElement tasks = driver.findElement(By.xpath("//a[@href='/camunda/app/tasklist']"));
-		tasks.click();		
+		tasks.click();
 		findOnPage("Camunda Tasklist");
-		
+
 		sleep(10000);
 
 		WebElement start = driver.findElement(By.xpath("//*[contains(@class,'start-process-action')]"));
@@ -93,18 +90,18 @@ public class WebTestIT extends WebTestUtil {
 		WebElement li = driver.findElement(By.xpath("//*[contains(text(),'Test Set Variables')]"));
 		li.click();
 		sleep(5000);
-		
+
 		WebElement button = driver.findElement(By.xpath("//button[contains(text(),'Start')]"));
 		button.click();
 		sleep(5000);
 
-		
+
 		// Go back to CWS
 		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui']"));
 		cws.click();
 		findOnPage("CWS - Deployments");
 
-		
+
 		// Wait for Finish
 		sleep(90000);
 
@@ -123,15 +120,15 @@ public class WebTestIT extends WebTestUtil {
 
 		// Enable Process Def
 		enableWorkers("test_error_handling");
-		
-		
+
+
 		// Start Instance (1) through Camunda
 		WebElement tasks = driver.findElement(By.xpath("//a[@href='/camunda/app/tasklist']"));
-		tasks.click();		
+		tasks.click();
 		findOnPage("Camunda Tasklist");
-		
+
 		sleep(10000);
-		
+
 		WebElement start = driver.findElement(By.xpath("//*[contains(@class,'start-process-action')]"));
 		start.click();
 		sleep(5000);
@@ -143,12 +140,12 @@ public class WebTestIT extends WebTestUtil {
 		WebElement li = driver.findElement(By.xpath("//*[contains(text(),'Test Error Handling')]"));
 		li.click();
 		sleep(5000);
-		
+
 		WebElement button = driver.findElement(By.xpath("//button[contains(text(),'Start')]"));
 		button.click();
 		sleep(5000);
 
-		
+
 		// Go back to CWS
 		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui']"));
 		cws.click();
@@ -162,7 +159,7 @@ public class WebTestIT extends WebTestUtil {
 		logout();
 		log.info("------ END deployTest ------");
 	}
-	
+
 	@Test
 	public void runHelloWorldTest() {
 		log.info("------ START deployTest ------");
@@ -173,13 +170,13 @@ public class WebTestIT extends WebTestUtil {
 		uploadTestHelloWorld();
 
 		enableWorkers("test_hello_world");
-		
+
 		WebElement tasks = driver.findElement(By.xpath("//a[@href='/camunda/app/tasklist']"));
-		tasks.click();		
+		tasks.click();
 		findOnPage("Camunda Tasklist");
-		
+
 		sleep(10000);
-		
+
 		WebElement start = driver.findElement(By.xpath("//*[contains(@class,'start-process-action')]"));
 		start.click();
 		sleep(5000);
@@ -191,12 +188,12 @@ public class WebTestIT extends WebTestUtil {
 		WebElement li = driver.findElement(By.xpath("//*[contains(text(),'Test Hello World')]"));
 		li.click();
 		sleep(5000);
-		
+
 		WebElement button = driver.findElement(By.xpath("//button[contains(text(),'Start')]"));
 		button.click();
 		sleep(5000);
 
-		
+
 		// Go back to CWS
 		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui']"));
 		cws.click();
@@ -205,23 +202,23 @@ public class WebTestIT extends WebTestUtil {
 		// Wait for Finish
 		sleep(90000);
 
-		
+
 		if(findOnPage("completed")) {
 			goToProcesses();
 			sleep(1000);
 			log.info("Found a completed task.");
-			
+
 			WebElement completeBox = findElById("complete");
 			completeBox.click();
 			sleep(1000);
-			
-			Select select = new Select(findElById("pd-select"));
-			select.selectByVisibleText("Test Hello World");
-			sleep(1000);
-			
-			WebElement filterSubmit = findElById("filter-submit-btn");
-			filterSubmit.click();
-			sleep(1000);
+
+			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
+
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_hello_world");
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
+
+			waitForElementID("processes-table");
 
 			waitForElementXPath("//a[contains(text(),'History')]");
 			WebElement historyButton = driver.findElement(By.xpath("//a[contains(text(),'History')]"));
@@ -231,10 +228,10 @@ public class WebTestIT extends WebTestUtil {
 			findOnPage("ls");
 			findOnPage("Hello World");
 			findOnPage("Command 'ls' exit code: 0");
-			
+
 			sleep(9000);
-			
-			
+
+
 		} else {
 			log.info("Process did not complete either in time or at all");
 		}
@@ -262,13 +259,13 @@ public class WebTestIT extends WebTestUtil {
 			completeBox.click();
 			sleep(1000);
 
-			Select select = new Select(findElById("pd-select"));
-			select.selectByVisibleText("Test Groovy Script");
-			sleep(1000);
+			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
 
-			WebElement filterSubmit = findElById("filter-submit-btn");
-			filterSubmit.click();
-			sleep(1000);
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_groovy_script");
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
+
+			waitForElementID("processes-table");
 
 			waitForElementXPath("//a[contains(text(),'History')]");
 			WebElement historyButton = driver.findElement(By.xpath("//a[contains(text(),'History')]"));
@@ -310,7 +307,7 @@ public class WebTestIT extends WebTestUtil {
 			log.info("Found no completed tasks.");
 		}
 	}
-	
+
 	private void goToInitiators() {
 		log.info("Navigating to Initiators page");
 		driver.get("http://"+HOSTNAME+":"+PORT + "/cws-ui/initiators");
@@ -318,11 +315,11 @@ public class WebTestIT extends WebTestUtil {
 	private void uploadExternalPrintWorkingDirectory() {
 		deployFile("external_pwd");
 	}
-	
+
 	private void uploadTestHelloWorld() {
 		deployFile("test_hello_world");
 	}
-	
+
 	//---End Demo---
-	
+
 }
