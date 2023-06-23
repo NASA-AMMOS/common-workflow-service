@@ -106,7 +106,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			startProcDef("test_snippets_page", "Test Snippets Page", 90000);
 
 			goToPage("processes");
-			sleep(180000);
+			sleep(300000);
 
 			driver.findElement(By.cssSelector(".dtsb-add")).click();
 			// 4 | click | css=.dtsb-data |
