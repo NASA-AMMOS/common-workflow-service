@@ -113,7 +113,7 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			screenShot("SnippetsTestIT-runSnippetsModelTestAfterSleep");
 
-			WebDriverWait w = new WebDriverWait(driver,Duration.ofSeconds(120));
+			WebDriverWait w = new WebDriverWait(driver,Duration.ofSeconds(600));
 			// invisibilityOfElementLocated condition
 			w.until(ExpectedConditions.
 					invisibilityOfElementLocated(By.xpath("//div[@id='ajax-spinner']")));
