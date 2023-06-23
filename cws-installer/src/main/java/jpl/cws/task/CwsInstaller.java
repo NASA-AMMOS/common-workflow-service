@@ -61,6 +61,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.TimeZone;
+import javax.naming.AuthenticationNotSupportedException;
+import javax.naming.AuthenticationException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 
 import javax.tools.ToolProvider;
 
@@ -241,8 +245,8 @@ public class CwsInstaller {
 			if (!reconfigure && !installConsole) {
 				deleteCwsUiWebApp();
 			}
-			setIdentityPluginType();
 			setupDatabase();
+			setIdentityPluginType();
 			setupAdminUser();
 			setupNotificationEmails();
 			setupTokenExpirationHours();
@@ -1661,7 +1665,12 @@ public class CwsInstaller {
 
 		warningCount += validateDbConfig();
 		if (cws_auth_scheme.equals("LDAP") || cws_auth_scheme.equals("CAM")) {
-			warningCount += validateLdapConfig();
+			try {
+				warningCount += validateLdapUserConfig();
+			} catch(IOException e) {
+
+			}
+
 		}
 		warningCount += validateTomcatPorts();
 		boolean timeSyncMissing = validateTimeSyncService() == 1;
@@ -1866,32 +1875,127 @@ public class CwsInstaller {
 		return warningCount;
 	}
 
-	private static int validateLdapConfig() {
-		int warningCount = 0;
+	// 	private static void updateCwsUiProperties() throws IOException {
 
+	private static int validateLdapUserConfig() throws IOException {
+		int warningCount = 0;
 		// VALIDATE LDAP or CAM CONFIGURATION AND LDAP USER INFO RETREIVEL
+		print("");
 		if (cws_auth_scheme.equals("LDAP")) {
-			print("checking that user provided LDAP authentication profile is valid...");
+			print("checking that user provided LDAP authentication profile (UID: " + cws_user + ") is valid...");
 		}
 		if (cws_auth_scheme.equals("CAM")) {
-			print("checking that user provided CAM authentication profile is valid...");
+			print("checking that user provided CAM authentication profile (UID: " + cws_user + ") is valid...");
 		}
 
-		String[] ldapAttrReturn = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
+		Path pluginBeanFilePath = Paths.get(config_templates_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
+		String ldapBaseDn = getLdapBaseDnValue(pluginBeanFilePath);
+		boolean verifyLdapUserInfo = verifyLdapUserInfoRetrieval(cws_ldap_url,ldapBaseDn, cws_user);
 
-		if (ldapAttrReturn[3] != null) {
+		if (verifyLdapUserInfo == false) {
 			print("   [WARNING]");
-			print("      " + ldapAttrReturn[3]);
-			print("      LDAP user information was not retrieved. The user provided first name, lastname, and email address will used in CWS Properties files.");
+			print("       It was determined that your CWS Admin User ID '" + cws_user + "' did not return a user first name, last name, and email.");
+			print("              Satisfy these LDAP requirements before installing CWS with CWS Admin User ID '" + cws_user + "'");
+			print("                 - Verify the LDAP plugin bean has the correct properties here: " + pluginBeanFilePath.toString());
+			print("                 - Make sure your LDAP account holds the properties: givenName, sn, email");
+			print("                 - Check your host machine for proper installation of LDAP Server Certificates");
 			print("");
-			warningCount++;
+			return 1;
 		}
 		else {
 			print("   [OK]");
-			print("");
 		}
-
 		return warningCount;
+	}
+
+	private static boolean verifyLdapUserInfoRetrieval(String ldapUrl, String searchBaseDn, String ldapUid) {
+		//
+		// Verify that LDAP Admin User has properties givenName, sn, and mail
+		//
+		Hashtable env = new Hashtable();
+		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+		env.put(Context.PROVIDER_URL, ldapUrl);
+		String[] attributeFilter = {"givenName", "sn", "mail"};
+
+		try {
+			DirContext ctx = new InitialDirContext(env);
+			SearchControls ctrl = new SearchControls();
+			ctrl.setReturningAttributes(attributeFilter);
+			ctrl.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+			String filter = "(&(uid=" + ldapUid + "))";
+			NamingEnumeration results = ctx.search(searchBaseDn, filter, ctrl);
+
+			while (results.hasMore()) {
+				SearchResult result = (SearchResult) results.next();
+				Attributes attrs = result.getAttributes();
+				// First name attribute - givenName
+				Attribute attr = attrs.get("givenName");
+				// Last name attribute - sn
+				attr = attrs.get("sn");
+				// Email attribute - mail
+				attr = attrs.get("mail");
+			}
+			ctx.close();
+		} catch (AuthenticationNotSupportedException e) {
+			System.out.println("ERROR: " + e + "LDAP authentication failed with server " + ldapUrl);
+			return false;
+		} catch (AuthenticationException e) {
+			System.out.println("ERROR: Incorrect uid or password" + e);
+			return false;
+		} catch (NamingException e) {
+			System.out.println("ERROR: Error when trying to create the JNDI DirContext" + e);
+			return false;
+		}
+		return true;
+	}
+
+	private static String getLdapBaseDnValue(Path beanFilePath) throws IOException {
+		//
+		// Get and return LDAP baseDn, userSearchBase to validate LDAP user info
+		//
+		String propertyBase = "";
+		String base = "";
+		String propertySearchBase = "";
+		String[] identityAttributes = new String[3];
+		String[] attributeFilter = {"givenName", "sn", "mail"};
+
+		try {
+			String fileContent = new String(Files.readAllBytes(beanFilePath));
+			String repl = "";
+			String replContent = fileContent.substring(0, fileContent.indexOf("<bean id=\"ldapIdentityProviderPlugin\""));
+			fileContent = fileContent.replace(replContent, repl);
+
+			// Turn file content from string to document
+			String xmlContent = fileContent;
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder;
+			builder = factory.newDocumentBuilder();
+			Document docx = builder.parse(new InputSource(new StringReader(xmlContent)));
+
+			NodeList bean = docx.getElementsByTagName("property");
+			for(int i = 0; i < bean.getLength(); i++) {
+				Element beanElement = (Element) bean.item(i);
+				if (beanElement.getAttribute("name").equalsIgnoreCase("baseDn")) {
+					if (beanElement.getAttribute("value").equals("")) {
+						propertyBase = beanElement.getTextContent();
+					} else {
+						propertyBase = beanElement.getAttribute("value");
+					}
+				}
+				if (beanElement.getAttribute("name").equalsIgnoreCase("userSearchBase")) {
+					if (beanElement.getAttribute("value").equals("")) {
+						propertySearchBase = beanElement.getTextContent();
+					} else {
+						propertySearchBase = beanElement.getAttribute("value");
+					}
+				}
+			}
+			base = propertySearchBase + "," + propertyBase;
+		} catch (Exception e) {
+			print("ERROR: " + e);
+		}
+		return base;
 	}
 
 	private static int validateTomcatPorts() {
@@ -2644,13 +2748,14 @@ public class CwsInstaller {
 	}
 
 
+
 	private static String[] getIdentityPluginAttribute(Path beanFilePath, String user, String ldapURL) throws IOException {
 		//
 		// Get identity plugin properties and attributes
 		//
 		String propertyBase = "";
 		String propertySearchBase = "";
-		String[] identityAttributes = new String[4];
+		String[] identityAttributes = new String[3];
 		String[] attributeFilter = {"givenName", "sn", "mail"};
 
 		try {
@@ -2726,7 +2831,6 @@ public class CwsInstaller {
 			identityAttributes[0] = "__CWS_ADMIN_FIRSTNAME__";
 			identityAttributes[1] = "__CWS_ADMIN_LASTNAME__";
 			identityAttributes[2] = "__CWS_ADMIN_EMAIL__";
-			identityAttributes[3] = e;
 		}
 		return identityAttributes;
 	}
