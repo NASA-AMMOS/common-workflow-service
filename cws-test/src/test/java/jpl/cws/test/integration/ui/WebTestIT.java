@@ -6,10 +6,7 @@ import java.io.IOException;
 import jpl.cws.test.WebTestUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.Select;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -214,14 +211,14 @@ public class WebTestIT extends WebTestUtil {
 			WebElement completeBox = findElById("complete");
 			completeBox.click();
 			sleep(1000);
-			
-			Select select = new Select(findElById("pd-select"));
-			select.selectByVisibleText("Test Hello World");
-			sleep(1000);
-			
-			WebElement filterSubmit = findElById("filter-submit-btn");
-			filterSubmit.click();
-			sleep(1000);
+
+			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
+
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_hello_world");
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
+
+			waitForElementID("processes-table");
 
 			waitForElementXPath("//a[contains(text(),'History')]");
 			WebElement historyButton = driver.findElement(By.xpath("//a[contains(text(),'History')]"));
@@ -262,13 +259,13 @@ public class WebTestIT extends WebTestUtil {
 			completeBox.click();
 			sleep(1000);
 
-			Select select = new Select(findElById("pd-select"));
-			select.selectByVisibleText("Test Groovy Script");
-			sleep(1000);
+			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
 
-			WebElement filterSubmit = findElById("filter-submit-btn");
-			filterSubmit.click();
-			sleep(1000);
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_groovy_script");
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
+
+			waitForElementID("processes-table");
 
 			waitForElementXPath("//a[contains(text(),'History')]");
 			WebElement historyButton = driver.findElement(By.xpath("//a[contains(text(),'History')]"));
