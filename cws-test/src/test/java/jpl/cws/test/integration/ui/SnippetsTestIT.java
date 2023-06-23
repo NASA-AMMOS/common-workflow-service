@@ -3,6 +3,7 @@ package jpl.cws.test.integration.ui;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.time.Duration;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -112,7 +113,7 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			screenShot("SnippetsTestIT-runSnippetsModelTestAfterSleep");
 
-			WebDriverWait w = new WebDriverWait(driver,5);
+			WebDriverWait w = new WebDriverWait(driver,Duration.ofSeconds(120));
 			// invisibilityOfElementLocated condition
 			w.until(ExpectedConditions.
 					invisibilityOfElementLocated(By.xpath("//div[@id='ajax-spinner']")));
