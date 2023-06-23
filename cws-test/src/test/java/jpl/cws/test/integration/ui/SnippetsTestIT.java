@@ -108,19 +108,22 @@ public class SnippetsTestIT extends WebTestUtil {
 			goToPage("processes");
 			sleep(150000);
 
-			WebElement addFilterButton = findElByXPath("//button[@class='dtsb-add']");
+			screenShot("SnippetsTestIT-runSnippetsModelTestAfterSleep");
+
+			WebElement addFilterButton = findElByXPath("//div[@id='processes-table_wrapper']/div/div[2]/button");
 			log.info("Filter for Test Snippets Page results.");
 			waitForElement(addFilterButton);
 			scrollTo(addFilterButton);
+			screenShot("SnippetsTestIT-runSnippetsModelTestScrollFilterButton");
 			addFilterButton.click();
 			sleep(5000);
-			Select dataSelect = new Select(findElByXPath("//select[@class='dtsb-data']"));
+			Select dataSelect = new Select(findElByXPath("xpath=//div[@id='processes-table_wrapper']/div/div[2]/div[2]/select"));
 			dataSelect.selectByVisibleText("Definition Key");
 			sleep(5000);
-			Select conditionSelect = new Select(findElByXPath("//select[@class='dtsb-condition']"));
+			Select conditionSelect = new Select(findElByXPath("xpath=//div[@id='processes-table_wrapper']/div/div[2]/div[2]/select[2]"));
 			conditionSelect.selectByVisibleText("Equals");
 			sleep(5000);
-			Select valueSelect = new Select(findElByXPath("//select[@class='dtsb-value']"));
+			Select valueSelect = new Select(findElByXPath("xpath=//div[@id='processes-table_wrapper']/div/div[2]/div[2]/div/select"));
 			valueSelect.selectByVisibleText("test_snippets_page");
 			sleep(5000);
 
