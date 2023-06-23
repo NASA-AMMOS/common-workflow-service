@@ -9,6 +9,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -113,27 +114,11 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			screenShot("SnippetsTestIT-runSnippetsModelTestAfterSleep");
 
-			WebDriverWait w = new WebDriverWait(driver,Duration.ofSeconds(600));
-			// invisibilityOfElementLocated condition
-			w.until(ExpectedConditions.
-					invisibilityOfElementLocated(By.xpath("//div[@id='ajax-spinner']")));
+			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
 
-			WebElement addFilterButton = findElByXPath("//div[@id='processes-table_wrapper']/div/div[2]/button");
-			log.info("Filter for Test Snippets Page results.");
-			waitForElement(addFilterButton);
-			scrollTo(addFilterButton);
-			screenShot("SnippetsTestIT-runSnippetsModelTestScrollFilterButton");
-			addFilterButton.click();
-			sleep(5000);
-			Select dataSelect = new Select(findElByXPath("xpath=//div[@id='processes-table_wrapper']/div/div[2]/div[2]/select"));
-			dataSelect.selectByVisibleText("Definition Key");
-			sleep(5000);
-			Select conditionSelect = new Select(findElByXPath("xpath=//div[@id='processes-table_wrapper']/div/div[2]/div[2]/select[2]"));
-			conditionSelect.selectByVisibleText("Equals");
-			sleep(5000);
-			Select valueSelect = new Select(findElByXPath("xpath=//div[@id='processes-table_wrapper']/div/div[2]/div[2]/div/select"));
-			valueSelect.selectByVisibleText("test_snippets_page");
-			sleep(5000);
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_snippets_page");
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 
