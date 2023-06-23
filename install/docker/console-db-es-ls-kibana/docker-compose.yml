@@ -23,7 +23,7 @@ services:
     labels:
       com.example.service: "es"
       com.example.description: "For searching and indexing data"
-    image: elasticsearch:7.16.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
     container_name: cws-es
   #  networks:
   #    - frontend
@@ -35,6 +35,7 @@ services:
       - MAX_MAP_COUNT=262144
       - discovery.type=single-node
       - cluster.name=docker-cluster
+      - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     healthcheck:
         test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
@@ -53,7 +54,7 @@ services:
 #    labels:
 #      com.example.service: "kibana"
 #      com.example.description: "Data visualisation and for log aggregation"
-#    image: kibana:7.16.2
+#    image: kibana:8.8.0
 #    container_name: cws-kibana
 #    ports:
 #      - "5601:5601"
@@ -68,7 +69,7 @@ services:
 #    labels:
 #      com.example.service: "logstash"
 #      com.example.description: "For logging data"
-#    image: logstash:7.16.2
+#    image: logstash:8.8.0
 #    container_name: cws-logstash
 #    volumes:
 #      - ./cws-logstash.conf:/home/cws_user/cws-logstash.conf:ro
@@ -93,7 +94,7 @@ services:
     labels:
       com.example.service: "cws-server"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.4.0    # update this each CWS release
+    image: nasa-ammos/common-workflow-service:2.5.0    # update this each CWS release
     depends_on:
       - db
       - es
@@ -127,7 +128,7 @@ services:
     labels:
       com.example.service: "cws-worker1"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.4.0    # update this each CWS release
+    image: nasa-ammos/common-workflow-service:2.5.0    # update this each CWS release
     depends_on:
       - db
       - es

@@ -5,7 +5,7 @@ services:
 #    labels:
 #      com.example.service: "logstash"
 #      com.example.description: "For logging data"
-#    image: docker.elastic.co/logstash/logstash:7.16.2
+#    image: docker.elastic.co/logstash/logstash:8.8.0
 #    container_name: cws-worker-logstash
 #    volumes:
 #      - logs-volume:/cws_logs:ro
@@ -28,7 +28,7 @@ services:
     labels:
       com.example.service: "cws-worker2"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.4.0    # update this each CWS release
+    image: nasa-ammos/common-workflow-service:2.5.0    # update this each CWS release
     #depends_on:
     #  - logstash
     hostname: cws-worker2
