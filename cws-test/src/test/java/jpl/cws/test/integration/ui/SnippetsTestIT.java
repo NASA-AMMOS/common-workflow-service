@@ -9,7 +9,9 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,6 +111,11 @@ public class SnippetsTestIT extends WebTestUtil {
 			sleep(150000);
 
 			screenShot("SnippetsTestIT-runSnippetsModelTestAfterSleep");
+
+			WebDriverWait w = new WebDriverWait(driver,5);
+			// invisibilityOfElementLocated condition
+			w.until(ExpectedConditions.
+					invisibilityOfElementLocated(By.xpath("//div[@id='ajax-spinner']")));
 
 			WebElement addFilterButton = findElByXPath("//div[@id='processes-table_wrapper']/div/div[2]/button");
 			log.info("Filter for Test Snippets Page results.");

@@ -111,7 +111,7 @@
 			<span id="showing_num_procs"></span><span id="out_of_procs"></span>
 
 			<div id="proc-log">
-				<div class="ajax-spinner"></div>
+				<div class="ajax-spinner" id="ajax-spinner"></div>
 				<table id="processes-table" class="table table-striped table-bordered sortable">
 					<thead>
 					<tr>
@@ -219,7 +219,7 @@
 				}
         	],
 			stateSave: true,
-			dom: "Q<'row'<'col-sm-auto buttons'B><'col-sm-1 action-button'><'col-sm-auto length'l><'col-sm-auto filter'f>>" + "tip",
+			dom: "Q<'row'<'col-sm-auto buttons'B><'col-sm-1 action-button'><'col-sm-4 length'l><'col-sm-auto filter'f>>" + "tip",
 			buttons: [
 				{
 					text: "Select all on page",
