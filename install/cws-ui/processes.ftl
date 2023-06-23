@@ -401,6 +401,9 @@
 				// AND RENDER THEM...
 				//
 				console.log("requestProc: " + requestProc);
+				if (qstr === "") {
+					qstr = "?";
+				}
 				$.get("/${base}/rest/processes/getInstancesCamunda"+qstr+"&page="+requestProc,
 					function(res) {
 						var table = $("#processes-table").DataTable()
