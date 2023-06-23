@@ -116,7 +116,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			startProcDef("test_snippets_page", "Test Snippets Page", 90000);
 
 			goToPage("processes");
-			sleep(150000);
+			sleep(8000);
 
 			screenShot("SnippetsTestIT-runSnippetsModelTestAfterSleep");
 
