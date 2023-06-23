@@ -106,37 +106,22 @@ public class SnippetsTestIT extends WebTestUtil {
 			startProcDef("test_snippets_page", "Test Snippets Page", 90000);
 
 			goToPage("processes");
-			sleep(300000);
+			sleep(900000);
 
-			driver.findElement(By.cssSelector(".dtsb-add")).click();
-			// 4 | click | css=.dtsb-data |
-			sleep(10000);
-			driver.findElement(By.cssSelector(".dtsb-data")).click();
-			sleep(10000);
-			// 5 | select | css=.dtsb-data | label=Definition Key
-			{
-				WebElement dropdown = driver.findElement(By.cssSelector(".dtsb-data"));
-				dropdown.findElement(By.xpath("//option[. = 'Definition Key']")).click();
-			}
-			sleep(10000);
-			// 6 | click | css=.dtsb-condition |
-			driver.findElement(By.cssSelector(".dtsb-condition")).click();
-			sleep(10000);
-			// 7 | select | css=.dtsb-condition | label=Equals
-			{
-				WebElement dropdown = driver.findElement(By.cssSelector(".dtsb-condition"));
-				dropdown.findElement(By.xpath("//option[. = 'Equals']")).click();
-			}
-			sleep(10000);
-			// 8 | click | css=.dtsb-value |
-			driver.findElement(By.cssSelector(".dtsb-value")).click();
-			sleep(10000);
-			// 9 | select | css=.dtsb-value | label=external_pwd
-			{
-				WebElement dropdown = driver.findElement(By.cssSelector(".dtsb-value"));
-				dropdown.findElement(By.xpath("//option[. = 'external_pwd']")).click();
-			}
-			sleep(10000);
+			waitForElementXPath("//button[@class='dtsb-add']");
+			log.info("Filter for Test Snippets Page results.");
+			WebElement addFilterButton = findElByXPath("//button[@class='dtsb-add']");
+			addFilterButton.click();
+			sleep(5000);
+			Select dataSelect = new Select(findElByXPath("//select[@class='dtsb-data']"));
+			dataSelect.selectByVisibleText("Definition Key");
+			sleep(5000);
+			Select conditionSelect = new Select(findElByXPath("//select[@class='dtsb-condition']"));
+			conditionSelect.selectByVisibleText("Equals");
+			sleep(5000);
+			Select valueSelect = new Select(findElByXPath("//select[@class='dtsb-value']"));
+			valueSelect.selectByVisibleText("test_snippets_page");
+			sleep(5000);
 
 			waitForElementID("processes-table");
 
