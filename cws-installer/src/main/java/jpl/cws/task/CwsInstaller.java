@@ -738,20 +738,79 @@ public class CwsInstaller {
 
 	private static void setupAdminUser() {
 		cws_user = getPreset("admin_user");
+		String manually_provide_admin_info = "";
 
 		if (cws_installer_mode.equals("interactive")) {
 			if (cws_user == null) {
 				if (cws_auth_scheme.equalsIgnoreCase("LDAP")) {
-					cws_user = readRequiredLine("Enter name of LDAP user to be used as initial administrator: ",
-							"Must specify a LDAP username!");
+					boolean valid_ldap_user = false;
+					while (!valid_ldap_user) {
+						cws_user = readRequiredLine("Enter name of LDAP user to be used as initial administrator: ",
+							"Must specify an LDAP username!");
+						try {
+							String read_provide_admin_info = "";
+							Path pluginBeanFilePath = Paths.get(config_templates_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
+							String ldapBaseDn = getLdapBaseDnValue(pluginBeanFilePath);
+							boolean verifyLdapUserInfo = verifyLdapUserInfoRetrieval(cws_ldap_url,ldapBaseDn, cws_user);
+
+							if (verifyLdapUserInfo) {
+								valid_ldap_user = verifyLdapUserInfo;
+							} else {
+								while (!read_provide_admin_info.equalsIgnoreCase("y") &&
+									!read_provide_admin_info.equalsIgnoreCase("n")) {
+									print("WARNING: Could NOT retrieve LDAP User Info");
+									print("   ");
+
+									read_provide_admin_info =
+										readRequiredLine("Do you want to manually provide administrator first name, last name, and email? (Y/N): ",
+											"ERROR: Must specify either 'Y' or 'N'");
+								}
+								manually_provide_admin_info = read_provide_admin_info.toLowerCase();
+								if (manually_provide_admin_info.equalsIgnoreCase("y")) {
+									valid_ldap_user = true;
+								}
+							}
+						} catch(IOException e) {
+							// exception
+						}
+					}
 				} else {
 					cws_user = readRequiredLine("Enter username to be used as initial administrator: ",
 							"Must specify a username!");
 				}
 			} else {
 				if (cws_auth_scheme.equalsIgnoreCase("LDAP")) {
-					cws_user = readLine("Enter name of LDAP user to be used as initial administrator. " +
-									"Default is " + cws_user + ": ", cws_user);
+					boolean valid_ldap_user = false;
+					while (!valid_ldap_user) {
+						cws_user = readLine("Enter name of LDAP user to be used as initial administrator. " +
+													"Default is " + cws_user + ": ", cws_user);
+						try {
+							String read_provide_admin_info = "";
+							Path pluginBeanFilePath = Paths.get(config_templates_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
+							String ldapBaseDn = getLdapBaseDnValue(pluginBeanFilePath);
+							boolean verifyLdapUserInfo = verifyLdapUserInfoRetrieval(cws_ldap_url,ldapBaseDn, cws_user);
+
+							if (verifyLdapUserInfo) {
+								valid_ldap_user = verifyLdapUserInfo;
+							} else {
+								while (!read_provide_admin_info.equalsIgnoreCase("y") &&
+									!read_provide_admin_info.equalsIgnoreCase("n")) {
+									print("WARNING: Could NOT retrieve LDAP User Info");
+									print("   ");
+
+									read_provide_admin_info =
+										readRequiredLine("Do you want to manually provide administrator first name, last name, and email? (Y/N): ",
+											"ERROR: Must specify either 'Y' or 'N'");
+								}
+								manually_provide_admin_info = read_provide_admin_info.toLowerCase();
+								if (manually_provide_admin_info.equalsIgnoreCase("y")) {
+									valid_ldap_user = true;
+								}
+							}
+						} catch(IOException e) {
+							// exception
+						}
+					}
 				} else {
 					cws_user = readLine("Enter username to be used as initial administrator. " +
 									"Default is " + cws_user + ": ", cws_user);
@@ -763,8 +822,8 @@ public class CwsInstaller {
 			}
 		}
 
-		// Prompt only for CAMUNDA security scheme
-		if (cws_auth_scheme.equalsIgnoreCase("CAMUNDA")) {
+		// Prompt only for CAMUNDA security scheme OR if user wants to manually enter firstname, lastname, and email
+		if (cws_auth_scheme.equalsIgnoreCase("CAMUNDA") || manually_provide_admin_info.equalsIgnoreCase("y")) {
 			cws_user_firstname = getPreset("admin_firstname");
 
 			if (cws_installer_mode.equals("interactive")) {
@@ -1664,13 +1723,12 @@ public class CwsInstaller {
 		print("VALIDATING CONFIGURATION...  Please wait, this may take some time...");
 
 		warningCount += validateDbConfig();
-		if (cws_auth_scheme.equals("LDAP") || cws_auth_scheme.equals("CAM")) {
+		if (cws_auth_scheme.equals("LDAP")) {
 			try {
 				warningCount += validateLdapUserConfig();
 			} catch(IOException e) {
-
+				// exception
 			}
-
 		}
 		warningCount += validateTomcatPorts();
 		boolean timeSyncMissing = validateTimeSyncService() == 1;
@@ -1875,8 +1933,6 @@ public class CwsInstaller {
 		return warningCount;
 	}
 
-	// 	private static void updateCwsUiProperties() throws IOException {
-
 	private static int validateLdapUserConfig() throws IOException {
 		int warningCount = 0;
 		// VALIDATE LDAP or CAM CONFIGURATION AND LDAP USER INFO RETREIVEL
@@ -1884,25 +1940,36 @@ public class CwsInstaller {
 		if (cws_auth_scheme.equals("LDAP")) {
 			print("checking that user provided LDAP authentication profile (UID: " + cws_user + ") is valid...");
 		}
-		if (cws_auth_scheme.equals("CAM")) {
-			print("checking that user provided CAM authentication profile (UID: " + cws_user + ") is valid...");
-		}
 
 		Path pluginBeanFilePath = Paths.get(config_templates_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
 		String ldapBaseDn = getLdapBaseDnValue(pluginBeanFilePath);
 		boolean verifyLdapUserInfo = verifyLdapUserInfoRetrieval(cws_ldap_url,ldapBaseDn, cws_user);
 
+		// 		cws_user = getPreset("admin_user");
 		if (verifyLdapUserInfo == false) {
 			print("   [WARNING]");
-			print("       It was determined that your CWS Admin User ID '" + cws_user + "' did not return a user first name, last name, and email.");
-			print("              Satisfy these LDAP requirements before installing CWS with CWS Admin User ID '" + cws_user + "'");
-			print("                 - Verify the LDAP plugin bean has the correct properties here: " + pluginBeanFilePath.toString());
-			print("                 - Make sure your LDAP account holds the properties: givenName, sn, email");
-			print("                 - Check your host machine for proper installation of LDAP Server Certificates");
+			print("      It was determined that your CWS Admin User ID '" + cws_user + "' did not return a user first name, last name, and email.");
+			print("          You must satisfy these LDAP requirements before installing CWS with CWS Admin User ID '" + cws_user + "'");
+			print("             - Make sure your LDAP account holds the properties: givenName, sn, email                    ");
+			print("             - Check your host machine for proper installation of LDAP Server Certificates               ");
+			print("             - Verify the LDAP plugin bean has the correct properties                                    ");
+			print("                  Plugin bean filepath: " + pluginBeanFilePath.toString()                                                 );
 			print("");
-			return 1;
-		}
-		else {
+
+			if (getPreset("admin_firstname") == null || getPreset("admin_lastname") == null || getPreset("admin_email") == null) {
+				return 1;
+			} else {
+				print("      CWS installation will default to using presets:");
+				print("          admin_firstname=" + getPreset("admin_firstname"));
+				print("          admin_lastname=" + getPreset("admin_lastname"));
+				print("          admin_email=" + getPreset("admin_email"));
+				print("");
+			}
+
+
+		} else if (verifyLdapUserInfo == false) {
+
+		} else {
 			print("   [OK]");
 		}
 		return warningCount;
@@ -1925,26 +1992,31 @@ public class CwsInstaller {
 
 			String filter = "(&(uid=" + ldapUid + "))";
 			NamingEnumeration results = ctx.search(searchBaseDn, filter, ctrl);
-
+			if (!results.hasMore()) {
+				return false;
+			}
 			while (results.hasMore()) {
 				SearchResult result = (SearchResult) results.next();
 				Attributes attrs = result.getAttributes();
 				// First name attribute - givenName
 				Attribute attr = attrs.get("givenName");
+				if (attr == null) { return false; }
 				// Last name attribute - sn
 				attr = attrs.get("sn");
+				if (attr == null) { return false; }
 				// Email attribute - mail
 				attr = attrs.get("mail");
+				if (attr == null) { return false; }
 			}
 			ctx.close();
 		} catch (AuthenticationNotSupportedException e) {
-			System.out.println("ERROR: " + e + "LDAP authentication failed with server " + ldapUrl);
+			log.error("LDAP authentication failed with server " + ldapUrl + " (" + e.getMessage() + ")");
 			return false;
 		} catch (AuthenticationException e) {
-			System.out.println("ERROR: Incorrect uid or password" + e);
+			log.error("LDAP authentication error: " + e.getMessage());
 			return false;
 		} catch (NamingException e) {
-			System.out.println("ERROR: Error when trying to create the JNDI DirContext" + e);
+			log.error("JNDI LDAP API context error: " + e.getMessage());
 			return false;
 		}
 		return true;
@@ -1993,7 +2065,7 @@ public class CwsInstaller {
 			}
 			base = propertySearchBase + "," + propertyBase;
 		} catch (Exception e) {
-			print("ERROR: " + e);
+			log.error("LDAP plugin bean error: " + e.getMessage());
 		}
 		return base;
 	}
@@ -2159,7 +2231,7 @@ public class CwsInstaller {
 			return 0; // no warnings
 
 		} catch (Exception e) {
-			log.error("error: ", e);
+			log.error("Elasticsearch validation error: ", e.getMessage());
 			print("   [WARNING]");
 			print("       There was a problem determining if the user provided Elasticsearch is running or not.");
 			print("");
