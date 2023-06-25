@@ -756,10 +756,9 @@ public class CwsInstaller {
 							if (verifyLdapUserInfo) {
 								valid_ldap_user = verifyLdapUserInfo;
 							} else {
+								print("WARNING: CWS Installer could NOT retrieve LDAP User Information");
 								while (!read_provide_admin_info.equalsIgnoreCase("y") &&
 									!read_provide_admin_info.equalsIgnoreCase("n")) {
-									print("WARNING: Could NOT retrieve LDAP User Info");
-									print("   ");
 
 									read_provide_admin_info =
 										readRequiredLine("Do you want to manually provide administrator first name, last name, and email? (Y/N): ",
@@ -793,10 +792,9 @@ public class CwsInstaller {
 							if (verifyLdapUserInfo) {
 								valid_ldap_user = verifyLdapUserInfo;
 							} else {
+								print("WARNING: CWS Installer could NOT retrieve LDAP User Information");
 								while (!read_provide_admin_info.equalsIgnoreCase("y") &&
 									!read_provide_admin_info.equalsIgnoreCase("n")) {
-									print("WARNING: Could NOT retrieve LDAP User Info");
-									print("   ");
 
 									read_provide_admin_info =
 										readRequiredLine("Do you want to manually provide administrator first name, last name, and email? (Y/N): ",
@@ -1945,10 +1943,9 @@ public class CwsInstaller {
 		String ldapBaseDn = getLdapBaseDnValue(pluginBeanFilePath);
 		boolean verifyLdapUserInfo = verifyLdapUserInfoRetrieval(cws_ldap_url,ldapBaseDn, cws_user);
 
-		// 		cws_user = getPreset("admin_user");
 		if (verifyLdapUserInfo == false) {
 			print("   [WARNING]");
-			print("      It was determined that your CWS Admin User ID '" + cws_user + "' did not return a user first name, last name, and email.");
+			print("       It was determined that your CWS Admin User ID '" + cws_user + "' did not return a user first name, last name, and email.");
 			print("          You must satisfy these LDAP requirements before installing CWS with CWS Admin User ID '" + cws_user + "'");
 			print("             - Make sure your LDAP account holds the properties: givenName, sn, email                    ");
 			print("             - Check your host machine for proper installation of LDAP Server Certificates               ");
@@ -1956,18 +1953,25 @@ public class CwsInstaller {
 			print("                  Plugin bean filepath: " + pluginBeanFilePath.toString()                                                 );
 			print("");
 
-			if (getPreset("admin_firstname") == null || getPreset("admin_lastname") == null || getPreset("admin_email") == null) {
-				return 1;
+			if (cws_installer_mode.equals("interactive")) {
+				if (cws_user_firstname == null || cws_user_lastname == null || cws_user_email == null) {
+					return 1;
+				} else {
+					print("       CWS installation will default to using presets:");
+					print("           admin_firstname=" + cws_user_firstname);
+					print("           admin_lastname=" + cws_user_lastname);
+					print("           admin_email=" + cws_user_email);
+				}
 			} else {
-				print("      CWS installation will default to using presets:");
-				print("          admin_firstname=" + getPreset("admin_firstname"));
-				print("          admin_lastname=" + getPreset("admin_lastname"));
-				print("          admin_email=" + getPreset("admin_email"));
-				print("");
+				if (getPreset("admin_firstname") == null || getPreset("admin_lastname") == null || getPreset("admin_email") == null) {
+					return 1;
+				} else {
+					print("       CWS installation will default to using presets:");
+					print("           admin_firstname=" + getPreset("admin_firstname"));
+					print("           admin_lastname=" + getPreset("admin_lastname"));
+					print("           admin_email=" + getPreset("admin_email"));
+				}
 			}
-
-
-		} else if (verifyLdapUserInfo == false) {
 
 		} else {
 			print("   [OK]");
@@ -2010,13 +2014,19 @@ public class CwsInstaller {
 			}
 			ctx.close();
 		} catch (AuthenticationNotSupportedException e) {
-			log.error("LDAP authentication failed with server " + ldapUrl + " (" + e.getMessage() + ")");
+			print("   [WARNING]");
+			print("       LDAP authentication failed with server " + ldapUrl + " (" + e.getMessage() + ")");
+			print(" ");
 			return false;
 		} catch (AuthenticationException e) {
-			log.error("LDAP authentication error: " + e.getMessage());
+			print("   [WARNING]");
+			print("       LDAP authentication error: " + e.getMessage());
+			print(" ");
 			return false;
 		} catch (NamingException e) {
-			log.error("JNDI LDAP API context error: " + e.getMessage());
+			print("   [WARNING]");
+			print("       LDAP JNDI API context error: " + e.getMessage());
+			print(" ");
 			return false;
 		}
 		return true;
@@ -2065,7 +2075,7 @@ public class CwsInstaller {
 			}
 			base = propertySearchBase + "," + propertyBase;
 		} catch (Exception e) {
-			log.error("LDAP plugin bean error: " + e.getMessage());
+			//
 		}
 		return base;
 	}
@@ -2877,6 +2887,17 @@ public class CwsInstaller {
 
 			String filter = "(&(uid=" + user + "))";
 			NamingEnumeration results = dirCxt.search(base, filter, ctrl);
+			if (!results.hasMore()) {
+				if (cws_installer_mode.equals("interactive")) {
+					identityAttributes[0] = cws_user_firstname;
+					identityAttributes[1] = cws_user_lastname;
+					identityAttributes[2] = cws_user_email;
+				} else {
+					identityAttributes[0] = getPreset("admin_firstname");
+					identityAttributes[1] = getPreset("admin_lastname");
+					identityAttributes[2] = getPreset("admin_email");
+				}
+			}
 			while (results.hasMore()) {
 				SearchResult result = (SearchResult) results.next();
 				Attributes attrs = result.getAttributes();
@@ -2892,17 +2913,16 @@ public class CwsInstaller {
 			}
 			dirCxt.close();
 		} catch (Exception e) {
-			if (cws_user_email == null || cws_user_email.length() < 8 ||
-				cws_user_firstname == null || cws_user_firstname.equals("/") ||
-				cws_user_lastname == null || cws_user_lastname.equals("/")) {
-				print("ERROR: Must specify cws_user_firstname, cws_user_lastname, cws_user_email property. LDAP API failed to retrieve CWS user's " + Arrays.toString(attributeFilter));
-				print("       Set properties cws_user_email, cws_user_firstname, cws_user_lastname in your configuration. These properties will be used for startup notifications.");
-				exit(1);
+			// JNDI LDAP retrieval failed. This will return the alternatively set admin email and name
+			if (cws_installer_mode.equals("interactive")) {
+				identityAttributes[0] = cws_user_firstname;
+				identityAttributes[1] = cws_user_lastname;
+				identityAttributes[2] = cws_user_email;
+			} else {
+				identityAttributes[0] = getPreset("admin_firstname");
+				identityAttributes[1] = getPreset("admin_lastname");
+				identityAttributes[2] = getPreset("admin_email");
 			}
-			// JNDI LDAP retrieval failed.
-			identityAttributes[0] = "__CWS_ADMIN_FIRSTNAME__";
-			identityAttributes[1] = "__CWS_ADMIN_LASTNAME__";
-			identityAttributes[2] = "__CWS_ADMIN_EMAIL__";
 		}
 		return identityAttributes;
 	}
