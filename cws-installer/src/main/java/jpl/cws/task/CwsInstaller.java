@@ -756,7 +756,7 @@ public class CwsInstaller {
 							if (verifyLdapUserInfo) {
 								valid_ldap_user = verifyLdapUserInfo;
 							} else {
-								print("WARNING: CWS Installer could NOT retrieve LDAP User Information");
+								print("   WARNING: CWS Installer could not retrieve LDAP User Information");
 								while (!read_provide_admin_info.equalsIgnoreCase("y") &&
 									!read_provide_admin_info.equalsIgnoreCase("n")) {
 
@@ -792,7 +792,7 @@ public class CwsInstaller {
 							if (verifyLdapUserInfo) {
 								valid_ldap_user = verifyLdapUserInfo;
 							} else {
-								print("WARNING: CWS Installer could NOT retrieve LDAP User Information");
+								print("   WARNING: CWS Installer could not retrieve LDAP User Information");
 								while (!read_provide_admin_info.equalsIgnoreCase("y") &&
 									!read_provide_admin_info.equalsIgnoreCase("n")) {
 
@@ -2014,19 +2014,13 @@ public class CwsInstaller {
 			}
 			ctx.close();
 		} catch (AuthenticationNotSupportedException e) {
-			print("   [WARNING]");
-			print("       LDAP authentication failed with server " + ldapUrl + " (" + e.getMessage() + ")");
-			print(" ");
+			print("   ERROR: LDAP authentication failed with server " + ldapUrl + " (" + e.getMessage() + ")");
 			return false;
 		} catch (AuthenticationException e) {
-			print("   [WARNING]");
-			print("       LDAP authentication error: " + e.getMessage());
-			print(" ");
+			print("   ERROR: LDAP authentication error: " + e.getMessage());
 			return false;
 		} catch (NamingException e) {
-			print("   [WARNING]");
-			print("       LDAP JNDI API context error: " + e.getMessage());
-			print(" ");
+			print("   ERROR: LDAP JNDI API context error: " + e.getMessage());
 			return false;
 		}
 		return true;
