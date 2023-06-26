@@ -1947,7 +1947,7 @@ public class CwsInstaller {
 			print("   [WARNING]");
 			print("       It was determined that your CWS Admin User ID '" + cws_user + "' did not return a user first name, last name, and email.");
 			print("          You must satisfy these LDAP requirements before installing CWS with CWS Admin User ID '" + cws_user + "'");
-			print("             - Make sure your LDAP account holds the properties: givenName, sn, email                    ");
+			print("             - Make sure your LDAP account holds the properties: givenName, sn, mail                     ");
 			print("             - Check your host machine for proper installation of LDAP Server Certificates               ");
 			print("             - Verify the LDAP plugin bean has the correct properties                                    ");
 			print("                  Plugin bean filepath: " + pluginBeanFilePath.toString()                                                 );
