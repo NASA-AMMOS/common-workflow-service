@@ -30,6 +30,11 @@
     <!-- freemarker config -->
     <bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
       <property name="templateLoaderPath" value="/WEB-INF/ftl/"/>
+        <property name="freemarkerSettings">
+            <props>
+                <prop key="default_encoding">UTF-8</prop>
+            </props>
+        </property>
     </bean>
      
     <!-- 
@@ -40,6 +45,7 @@
       <property name="cache" value="true"/>
       <property name="prefix" value=""/>
       <property name="suffix" value=".ftl"/>
+      <property name="contentType" value="text/html;charset=UTF-8" />
     </bean>
     
 <!--      <bean id="viewResolver"

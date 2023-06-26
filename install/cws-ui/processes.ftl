@@ -4,13 +4,25 @@
 	<title>CWS - Processes</title>
 	<script src="/${base}/js/jquery.min.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
+	<script src="/${base}/js/moment.js"></script>
+	<script src="/${base}/js/DataTables/datatables.js"></script>
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
+	<script src="/${base}/js/DataTablesDateFilter.js"></script>
 	<!-- Custom js adaptation script; override this file from your adaptation project -->
 	<script src="/${base}/js/adaptation-process-actions.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<link href="/${base}/css/bootstrap-datepicker.min.css" rel="stylesheet">
+	<style>
+		.dataTables_wrapper .filter .dataTables_filter{float:right; margin-top: 15px; display: inline; margin-right: 15px;}
+		.dataTables_wrapper .length .dataTables_length{float:left; display: inline; margin-top: 15px;}
+		.dataTables_wrapper .buttons .dt-buttons{float:left; display: inline; margin-top: 15px; margin-left: 15px; margin-right: 15px;}
+		.dataTables_wrapper .action-button {margin-top: 15px; margin-left: -15px; margin-right: 15px;}
+		.dataTables_wrapper .dtsb-titleRow {display: none;}
+		.dataTables_wrapper .dtsb-group {margin-bottom: -15px !important; margin-top: 8px;}
+	</style>
 	<style type="text/css">
 		#processes-table {
 			font-size: 90%;
@@ -81,73 +93,13 @@
 
 			<h2 class="sub-header">Processes</h2>
 
-			<div id="filters-div">
-				<h3>Filters:</h3>
-
-					<div class="col-md-4">
-						<h4>Process Definition:</h4>
-						<select id="pd-select">
-							<option value="def">Select PD</option>
-							<#list procDefs as pd>
-							<option value="${pd.key}">${pd.name}</option>
-							</#list>
-						</select>
-					</div>
-					<div class="col-md-4">
-						<h4>Status:</h4>
-						<div id="status-select">
-							<input id="fail" type="checkbox" value="fail" />
-							<label for="fail">Failed</label><br/>
-							<input id="complete" type="checkbox" value="complete" />
-							<label for="complete">Complete</label><br/>
-                            <input id="resolved" type="checkbox" value="resolved" />
-                            <label for="resolved">Resolved</label><br/>
-							<input id="running" type="checkbox" value="running" />
-							<label for="running">Running</label><br/>
-							<input id="pending" type="checkbox" value="pending" />
-							<label for="pending">Pending</label><br/>
-							<input id="disabled" type="checkbox" value="disabled" />
-							<label for="disabled">Disabled</label><br/>
-							<input id="failedToStart" type="checkbox" value="failedToStart" />
-							<label for="failedToStart">Failed to Start</label><br/>
-							<input id="incident" type="checkbox" value="incident" />
-							<label for="incident">Incident</label><br/>
-						</div>
-					</div>
-					<div class="col-md-4" id="datepicker-div">
-						<h4>Created Date:</h4>
-						<input id="min-date" class="form-control"
-						data-date-format="yyyy-mm-dd" type="text" placeholder="From...">
-
-						<input id="max-date" class="form-control"
-						data-date-format="yyyy-mm-dd" type="text" placeholder="To...">
-
-					</div>
-				<br/>
-				<div class="col-md-12">
-					<a id="filter-submit-btn" class="btn btn-info pull-right" href="#">Filter</a>
-				</div>
+			<div id="load-more-div">
+				<b style="color: red">By default, the 5000 most recent processes are loaded.</b>
+				<button id="load-more-btn" class="btn btn-primary">Load More</button>
+				<button id="load-less-btn" class="btn btn-primary">Load Less</button>
+				<button id="load-all-btn" class="btn btn-primary">Load All</button>
 			</div>
 
-
-			<div id="filters-btn"  class="btn btn-warning"><span class="glyphicon glyphicon-filter">
-				</span>&nbsp;Filters&nbsp;<span id="filter-arrow" class="glyphicon glyphicon-chevron-up"></span>
-			</div>
-			
-
-			<div class="dropdown" style="display:inline;">
-				<button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Actions &nbsp;
-					<span class="caret"></span>
-				</button>
-				<ul id="action-list" class="dropdown-menu test" role="menu" aria-labelledby="menu3">
-    				<li id="action_disable" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_disable_rows();");">Disable selected rows (all rows selected must be 'pending')</a></li>
-    				<li id="action_enable" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_enable_rows();">Enable selected rows (all rows selected must be 'disabled')</a></li>
-    				<li id="action_retry_incident" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_retry_incident_rows();">Retry all selected incident rows (all rows selected must be 'incident')</a></li>
-    				<li id="action_retry_failed_to_start" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_retry_failed_to_start();">Retry all selected failed to start rows (all rows selected must be 'failedToStart')</a></li>
-    				<li id="action_mark_as_resolved" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_mark_as_resolved();">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>
-  				    <#include "adaptation-process-actions.ftl">
-  				</ul>
-  			</div>
   			<div id="hide-subprocs-div">
 				<label for="hide-subprocs">Hide Subprocesses</label>
 				<input name="hide-subprocs" id="hide-subprocs-btn" type="checkbox">
@@ -159,30 +111,26 @@
 			<span id="showing_num_procs"></span><span id="out_of_procs"></span>
 
 			<div id="proc-log">
-				<div class="ajax-spinner"></div>
+				<div class="ajax-spinner" id="ajax-spinner"></div>
 				<table id="processes-table" class="table table-striped table-bordered sortable">
 					<thead>
 					<tr>
-                        <th>Select&nbsp;<input id="select-all" type="checkbox" title="select all"/></th>
+                        <th>Select</th>
 						<th></th>
 						<th></th>
-						<th class='sort'>Initiator</th>
-						<th class='sort'>Definition Key</th>
-						<th class='sort'>Proc Inst ID</td>
-						<th class='sort'>Status</th>
-						<th class='sort'>Schedule Queued Time</th>
-						<th class='sort'>Started on Worker</th>
-						<th class='sort'>Process Start</th>
-						<th class='sort'>Process End</th>
+						<th>Initiator</th>
+						<th>Definition Key</th>
+						<th>Proc Inst ID</td>
+						<th>Status</th>
+						<th>Schedule Queued Time</th>
+						<th>Started on Worker</th>
+						<th>Process Start</th>
+						<th>Process End</th>
 					</tr>
 					</thead>
 					<tbody>
 					</tbody>
 				</table>
-				<div class="text-center">
-				<ul id="proc-pages" class="pagination">
-				</ul>
-				</div>
 			</div>
 		</div>
 	</div>
@@ -192,11 +140,12 @@
 
 	//STATE PERSISTANCE CONSTS
 	const username = "username"; //temporary, hardcoded value for now
-	const qstringVar = "CWS_DASH_PROC_QSTRING-" + username; 
+	const qstringVar = "CWS_DASH_PROC_QSTRING-" + username;
+	const rowsToLoadVar = "CWS_DASH_PROC_ROWS-" + username;
 
 	var params = {};
 	var rows;
-	var MAX_ROWS = 100;
+	var loadRows = 5000;
 
 	$( document ).ready(function() {
 		//get our current url
@@ -218,50 +167,13 @@
 			}
 		}
 
-		$("#filters-btn").click(function(){
-			if($("#filters-div").is(":visible"))
-				$("#filter-arrow").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
-			else
-				$("#filter-arrow").removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
-			$("#filters-div").slideToggle();
-		});
-		
-		$("#min-date").datepicker({
-			orientation:'left top',
-			todayBtn: 'true',
-			todayHighlight:true
-		});
-		
-		$("#max-date").datepicker({
-			orientation:'left top',
-			todayBtn: 'true',
-			todayHighlight:true
-		});
-		
-		$("#filter-submit-btn").click(function(e){
-			e.preventDefault();
-			updateLocation(false);
-		});
-
-		$("#filter-submit-btn").on("contextmenu", function(e){
-			$(this).attr("href", "/${base}/processes" + getFilterQString(false));
-		});
+		if (localStorage.getItem(rowsToLoadVar) != null) {
+			loadRows = parseInt(localStorage.getItem(rowsToLoadVar));
+		}
 		
 		displayMessage();
 
-		renderRows();
-
-		// Click handler for select all
-		//
-		$("#select-all").change(function() {
-			if($("#select-all:checked").length > 0) { // select all is checked
-				$("input[status]:not(:checked)").prop("checked", true); // make all row checkboxes checked
-			}
-			else {
-				$("input[status]:checked").prop("checked", false); // make all row checkboxes unchecked
-			}
-			updateActionList(); // make sure gray out/enable the appropriate actions
-		});
+		renderRows(loadRows);
 
 		if (!params) {
 			$("#hide-subprocs-btn").prop('checked', false);
@@ -280,47 +192,118 @@
 			
 			$("#super-proc-inst-id").html(params.superProcInstId);
 		}
-		
-		//
-		// Re-select the appropriate items in the filter section
-		// to correspond with current filter query
-		//
-		if(params != null){
-			$("#pd-select").val(params.procDefKey || "def");
-			if(params.status){
-				var k = params.status.split(',');
-				for(i in k){
-					$("#status-select input[value='"+k[i]+"']").prop("checked",true);
+
+		$.fn.dataTable.moment( 'MMM D, YYYY, h:mm:ss A' );
+
+		$("#processes-table").DataTable({
+			searchDelay: 250,
+			select: {
+				style: 'multi+shift',
+				selector: 'td:first-child'
+			},
+			columnDefs: [
+				{
+					orderable: false,
+					className: 'select-checkbox',
+					targets: 0
+				},
+				{
+					orderable: false,
+					searchable: false,
+					targets: 1
+				},
+				{
+					orderable: false,
+					searchable: false,
+					targets: 2
 				}
-			}
-			//$("#status-select").val(params.status);
-			$("#min-date").val(params.minDate || "");
-			$("#max-date").val(params.maxDate || "");
+        	],
+			stateSave: true,
+			dom: "Q<'row'<'col-sm-auto buttons'B><'col-sm-1 action-button'><'col-sm-4 length'l><'col-sm-auto filter'f>>" + "tip",
+			buttons: [
+				{
+					text: "Select all on page",
+					action: function () {
+						$("#processes-table").DataTable().rows( {page: "current"}).select();
+						updateActionList();
+					}
+				},
+				{
+					text: "Unselect all on page",
+					action: function () {
+						$("#processes-table").DataTable().rows( {page: "current"}).deselect();
+						updateActionList();
+					}
+				},
+				{
+					text: "Select all",
+					action: function () {
+						$("#processes-table").DataTable().rows().select();
+						updateActionList();
+					}
+				},
+				{
+					text: "Unselect all",
+					action: function () {
+						$("#processes-table").DataTable().rows().deselect();
+						updateActionList();
+					}
+				}
+			],
+			searchBuilder: {
+				columns: [3,4,5,6,7,8,9,10],
+			},
+			language: {
+				searchBuilder: {
+					title: {
+						0: 'Filters',
+						_: 'Filters (%d active)'
+					},
+				}
+        	}
+		});
+
+		var table = $("#processes-table").DataTable();
+		table.on( 'select', function ( e, dt, type, indexes ) {
+			updateActionList();
+		} );
+
+		$('<button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Actions &nbsp;' 
+			+ '<span class="caret"></span>'
+			+ '</button>'
+			+ '<ul id="action-list" class="dropdown-menu test" role="menu" aria-labelledby="menu3">'
+    		+ `<li id="action_disable" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_disable_rows();");">Disable selected rows (all rows selected must be 'pending')</a></li>`
+    		+ `<li id="action_enable" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_enable_rows();">Enable selected rows (all rows selected must be 'disabled')</a></li>`
+    		+ `<li id="action_retry_incident" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_retry_incident_rows();">Retry all selected incident rows (all rows selected must be 'incident')</a></li>`
+    		+ `<li id="action_retry_failed_to_start" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_retry_failed_to_start();">Retry all selected failed to start rows (all rows selected must be 'failedToStart')</a></li>`
+    		+ `<li id="action_mark_as_resolved" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_mark_as_resolved();">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
+  			+ `<#include "adaptation-process-actions.ftl">`
+  			+ `</ul>`).appendTo(".action-button");
+	});
+
+	$("#load-more-btn").click(function() {
+		loadRows += 5000;
+		localStorage.setItem(rowsToLoadVar, loadRows);
+		renderRows(loadRows);
+	});
+
+	$("#load-less-btn").click(function() {
+		loadRows -= 5000;
+		if (loadRows < 5000) {
+			loadRows = 5000;
 		}
+		localStorage.setItem(rowsToLoadVar, loadRows);
+		renderRows(loadRows);
+	});
+
+	$("#load-all-btn").click(function() {
+		loadRows = -1;
+		localStorage.setItem(rowsToLoadVar, loadRows);
+		renderRows(loadRows);
 	});
 
 	function getFilterQString(changeHideSubs) {
 		var params = {};
-
-		if($("#pd-select").val() != "def"){
-			params.procDefKey = $("#pd-select").val();
-		}
-
-		params.status = '';
-		$("#status-select input:checked").each(function(){
-			params.status += $(this).val()+',';
-		});
-		if(params.status != '')
-			params.status = params.status.substr(0, params.status.length - 1 );
-		else
-			delete params['status'];
-
-		if($("#min-date").val() != ""){
-			params.minDate = encodeURIComponent($("#min-date").val());
-		}
-		if($("#max-date").val() != ""){
-			params.maxDate = encodeURIComponent($("#max-date").val());
-		}
 		
 		if (changeHideSubs) {
 		
@@ -344,8 +327,6 @@
 			}
 		}
 		qstring = qstring.substring(0,qstring.length-1);
-		localStorage.setItem(qstringVar, qstring);
-		console.log(encodeURI(qstring));
 		return qstring;
 	}
 
@@ -395,155 +376,108 @@
 	// ----------------------------------------------------
 	// Get the process instances, and render them as rows
 	//
-	function renderRows() {
+	function renderRows(rowsToLoad) {
 
 		$("#proc-log div.ajax-spinner").show();
 
 		qstr = document.location.search;
 		//console.log("/${base}/rest/processes/getInstances"+qstr);
 		params = getQueryString();
+		var numProcs = 0;
+		var requestProc = 0;
 
-		var numProcs;
-
-		//
-		// GET THE PROCESS INSTANCE, 
-		// AND RENDER THEM...
-		//
-		$.get("/${base}/rest/processes/getInstancesCamunda"+qstr,
-			function(res) {
-				numProcs = res.length
-				
-				if(numProcs == 0) {
-					$("#processes-table").append("<tr class='no-results'><td colspan='11'>no results found</td></tr>");
-				}
-				else {
-					var pageNum;
-					if (params && params.page) {
-						pageNum = params.page;
-					}
-					else {
-						pageNum = 0;
-					}
-					$("#showing_num_procs").html("Showing " + ((pageNum*MAX_ROWS)+1) + " - " + ((pageNum*MAX_ROWS) + numProcs));
-					
-					// Remove all rows from the table, except the first
-					$("#processes-table").find("tr:gt(0)").remove();
-					for (i in res) {
-						var procInstId = (res[i].procInstId == undefined ? '' : res[i].procInstId);
-						var actionTd = (procInstId == '' || res[i].status == 'incident' || res[i].status == 'failedToStart' || res[i].status == 'fail' ? "<input id=\"select-row-" + i + "\" type=\"checkbox\"/>" : "");
-						var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + procInstId + "/runtime?tab=incidents-tab";
-						$("#processes-table").append(
-						"<tr id=\""+i+"\" class=\"tr-"+ res[i].status +"\" procInstId=\"" + procInstId + "\">"+
-							"<td>" + actionTd + "</td>" +
-							"<td><a onclick=\"viewHistory('" + procInstId + "')\" href=\"/${base}/history?procInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">History</a></td>" +
-							"<td><a onclick=\"viewSubProcs('" + procInstId + "')\" href=\"/${base}/processes?superProcInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">Subprocs</a></td>" +
-							"<td id=\"row-" + i + "initiationKey\">"+ (res[i].initiationKey == undefined ? '' : res[i].initiationKey) + "</td>" +
-							"<td>"+ res[i].procDefKey +"</td>"+
-							"<td>"+ (res[i].status == 'incident' ? ("<a href=\""+ incidentUrl +"\" target=\"blank_\">" + procInstId + "</a>") : procInstId) + "</td>" +
-							"<td>"+ res[i].status +"</td>"+
-							"<td>"+ (res[i].createdTimestamp == undefined ? '' : res[i].createdTimestamp) + "</td>"+
-							"<td>"+ (res[i].startedByWorker == undefined ? '' : res[i].startedByWorker) + "</td>"+
-							"<td>"+ (res[i].procStartTime == undefined ? '' : res[i].procStartTime) + "</td>"+
-							"<td>"+ (res[i].procEndTime == undefined ? '' : res[i].procEndTime) + "</td>"+
-						"</tr>"
-						);
-
-						$("#select-row-" + i).attr( "status", res[i].status );
-						$("#select-row-" + i).attr( "uuid", res[i].uuid );
-						$("#select-row-" + i).attr( "procInstId", res[i].procInstId );
-
-						// Click handler for row selection
-						//
-						$("#select-row-" + i).change(function() {
-							toggleRow(this);
-						});
-					}
-				}
-				
-				$("#proc-log div.ajax-spinner").hide();
-			}
-		);
-
-		//
-		// Get total number of rows, and apply pagination
-		//
+		//get the number of instances
 		$.get("/${base}/rest/processes/getInstancesSize"+qstr,
-			function(totalProcs){
-				if(totalProcs > 0){
-					$("#out_of_procs").html(" (out of " + totalProcs + ")");
+			function(res) {
+				numProcs = res;
+				console.warn("numProcs: " + numProcs);
+				console.log("numProcs: " + numProcs);
+				if (rowsToLoad === -1) {
+					requestProc = numProcs;
+				} else {
+					requestProc = rowsToLoad;
 				}
-				pagination(totalProcs);
-			}
-		);
+				//
+				// GET THE PROCESS INSTANCE, 
+				// AND RENDER THEM...
+				//
+				console.log("requestProc: " + requestProc);
+				if (qstr === "") {
+					qstr = "?";
+				}
+				$.get("/${base}/rest/processes/getInstancesCamunda"+qstr+"&page="+requestProc,
+					function(res) {
+						var table = $("#processes-table").DataTable()
+						
+						table.clear();
+						for (i in res) {
+							var procInstId = (res[i].procInstId == undefined ? '' : res[i].procInstId);
+							var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + procInstId + "/runtime?tab=incidents-tab";
+							table.row.add(
+							$("<tr id=\""+i+"\" class=\"tr-"+ res[i].status +"\" procInstId=\"" + procInstId + "\">"+
+								"<td status=\"" + res[i].status + "\" uuid=\"" + res[i].uuid + "\" procInstId=\"" + res[i].procInstId + "\"></td>" +
+								"<td><a onclick=\"viewHistory('" + procInstId + "')\" href=\"/${base}/history?procInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">History</a></td>" +
+								"<td><a onclick=\"viewSubProcs('" + procInstId + "')\" href=\"/${base}/processes?superProcInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">Subprocs</a></td>" +
+								"<td id=\"row-" + i + "initiationKey\">"+ (res[i].initiationKey == undefined ? '' : res[i].initiationKey) + "</td>" +
+								"<td>"+ res[i].procDefKey +"</td>"+
+								"<td>"+ (res[i].status == 'incident' ? ("<a href=\""+ incidentUrl +"\" target=\"blank_\">" + procInstId + "</a>") : procInstId) + "</td>" +
+								"<td>"+ res[i].status +"</td>"+
+								"<td>"+ (res[i].createdTimestamp == undefined ? '' : res[i].createdTimestamp) + "</td>"+
+								"<td>"+ (res[i].startedByWorker == undefined ? '' : res[i].startedByWorker) + "</td>"+
+								"<td>"+ (res[i].procStartTime == undefined ? '' : res[i].procStartTime) + "</td>"+
+								"<td>"+ (res[i].procEndTime == undefined ? '' : res[i].procEndTime) + "</td>"+
+							"</tr>")
+							);
+						}
+						table.draw();
+						
+						$("#proc-log div.ajax-spinner").hide();
+					});
+			});
 
 	}
-
-
-
-	//
-	//
-	//
-	function pagination(numProcs) {
-		var pages = Math.ceil(numProcs/MAX_ROWS);
-		var url = '';
-		var hasPage = false;
-		if(location.search.indexOf('page') > 0){
-			url = location.search.substring(0, location.search.indexOf('page') - 1);
-			hasPage = true;
-		}
-		else {
-			url = location.search;
-		}
-
-		var link = '';
-		for(i = 0; i < pages; i++){
-			if(i > 0 && url != ''){
-				link = url + '&page=' + i;
-			}
-			else if(i > 0 && url == ''){
-				link = '?page='+ i;
-			}
-			else {
-				link = url;
-			}
-			$("#proc-pages").append(
-				"<li"+
-				(
-					(!params && i == 0) || (params && !params.page && i == 0) || (params && params.page && params.page == i)
-						? " class='active'" : ''
-				)+
-				">"+
-				"<a href='processes"+link+"'>"+(i+1)+"</a></li>"
-			);
-		}
-	}
-
-	//
-	//
-	//
-	function toggleRow(row, rowStatus) {
-		if($(row).is(":checked")) {
-			console.log(row);
-			//alert('row ' + row.id + ' is checked ' + JSON.stringify( $(row).data() )  );
-		}
-		else {
-			console.log(row);
-			//alert('row ' + row.id + ' is un-checked ' + JSON.stringify( $(row).data() ) );
-		}
-		updateActionList();
-	}
-
 
 	// ---------------------------------------------------------------
 	// Updates the list of active items in the Actions drop-down list
 	//
 	function updateActionList() {
-		var numSelected = $("input[status]:checked").length;
-		var numDisabledSelected = $("input[status='disabled']:checked").length;
-		var numPendingSelected = $("input[status='pending']:checked").length;
-		var numIncidentSelected = $("input[status='incident']:checked").length;
-		var numFailedToStartSelected = $("input[status='failedToStart']:checked").length;
-		var numFailedSelected = $("input[status='fail']:checked").length;
+		console.log("updateActionList called");
+
+		var table = $("#processes-table").DataTable();
+		
+		var selectedRows = table.rows( { selected: true } );
+
+		var numSelected = selectedRows.count();
+		var numDisabledSelected = 0;
+		var numPendingSelected = 0;
+		var numIncidentSelected = 0;
+		var numFailedToStartSelected = 0;
+		var numFailedSelected = 0;
+		var numComplete = 0;
+
+		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
+			var data = this.data();
+			switch (data[6]) {
+				case 'disabled':
+					numDisabledSelected++;
+					break;
+				case 'pending':
+					numPendingSelected++;
+					break;
+				case 'incident':
+					numIncidentSelected++;
+					break;
+				case 'failed_to_start':
+					numFailedToStartSelected++;
+					break;
+				case 'failed':
+					numFailedSelected++;
+					break;
+				case 'complete':
+					numComplete++;
+					break;
+			}
+		} );
 
 		if (numSelected > 0) {
 			var disabled      = numDisabledSelected      == numSelected;
@@ -718,20 +652,33 @@
 		//
 		// For each selected row...
 		//
-		$("input[status='disabled']:checked").each(function(el){
-			selectedRowUuids.push($( this ).attr('uuid'));
-		});
-		$("input[status='pending']:checked").each(function(el){
-			selectedRowUuids.push($( this ).attr('uuid'));
-		});
-		$("input[status='incident']:checked").each(function(el){
-			selectedRowUuids.push($( this ).attr('procInstId'));
-		});
-		$("input[status='failedToStart']:checked").each(function(el){
-			selectedRowUuids.push($( this ).attr('uuid'));
-		});
-		$("input[status='fail']:checked").each(function(el){
-			selectedRowUuids.push($( this ).attr('procInstId'));
+		var table = $('#processes-table').DataTable();
+		var selectedRows = table.rows( { selected: true } );
+		console.log(selectedRows.count());
+
+		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
+			var html = this.node();
+			var status = $(html).children("td:first").attr("status");
+			var uuid = $(html).children("td:first").attr("uuid");
+			var procInstId = $(html).children("td:first").attr("procInstId");
+			var data = this.data();
+			switch (status) {
+				case 'disabled':
+					selectedRowUuids.push(uuid);
+					break;
+				case 'pending':
+					selectedRowUuids.push(uuid);
+					break;
+				case 'incident':
+					selectedRowUuids.push(procInstId);
+					break;
+				case 'failedToStart':
+					selectedRowUuids.push(uuid);
+					break;
+				case 'fail':
+					selectedRowUuids.push(procInstId);
+					break;
+			}
 		});
 		return selectedRowUuids;
 	}
