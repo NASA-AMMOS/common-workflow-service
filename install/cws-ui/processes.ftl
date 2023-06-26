@@ -140,7 +140,6 @@
 
 	//STATE PERSISTANCE CONSTS
 	const username = "username"; //temporary, hardcoded value for now
-	const qstringVar = "CWS_DASH_PROC_QSTRING-" + username;
 	const rowsToLoadVar = "CWS_DASH_PROC_ROWS-" + username;
 
 	var params = {};
@@ -148,32 +147,15 @@
 	var loadRows = 5000;
 
 	$( document ).ready(function() {
+		
 		//get our current url
 		var currentUrl = window.location.href;
-		//get our local storage url
-		var localStorageUrl = localStorage.getItem(qstringVar);
-		//check if a cookie has been stored (indicating we can restore state)
-		if(localStorageUrl != null) {
-			//remove everything before ?
-			currentUrl = currentUrl.substring(currentUrl.indexOf("?"));
-			//compare against what is in local storage
-			if (currentUrl != localStorageUrl) {
-				//check if we are viewing subprocs (if we are, we don't want to restore state)
-				var subprocs = currentUrl.indexOf("superProcInstId") + 16;
-				if(subprocs === "null") {
-					//if they are different, go to the one in local storage (essentially restoring from last time used)
-					window.location="/${base}/processes" + localStorageUrl;
-				}
-			}
-		}
 
 		if (localStorage.getItem(rowsToLoadVar) != null) {
 			loadRows = parseInt(localStorage.getItem(rowsToLoadVar));
 		}
 		
 		displayMessage();
-
-		renderRows(loadRows);
 
 		if (!params) {
 			$("#hide-subprocs-btn").prop('checked', false);
@@ -219,7 +201,7 @@
 				}
         	],
 			stateSave: true,
-			dom: "Q<'row'<'col-sm-auto buttons'B><'col-sm-1 action-button'><'col-sm-4 length'l><'col-sm-auto filter'f>>" + "tip",
+			dom: "Q<'row'<'col-sm-auto buttons'B><'col-sm-1 action-button'><'col-sm-3 length'l><'col-sm-auto filter'f>>" + "tip",
 			buttons: [
 				{
 					text: "Select all on page",
@@ -238,7 +220,7 @@
 				{
 					text: "Select all",
 					action: function () {
-						$("#processes-table").DataTable().rows().select();
+						$("#processes-table").DataTable().rows( { search: 'applied' } ).select();
 						updateActionList();
 					}
 				},
@@ -263,8 +245,14 @@
         	}
 		});
 
+		renderRows(loadRows);
+
 		var table = $("#processes-table").DataTable();
 		table.on( 'select', function ( e, dt, type, indexes ) {
+			updateActionList();
+		} );
+
+		table.on( 'deselect', function ( e, dt, type, indexes ) {
 			updateActionList();
 		} );
 
@@ -272,11 +260,13 @@
 			+ '<span class="caret"></span>'
 			+ '</button>'
 			+ '<ul id="action-list" class="dropdown-menu test" role="menu" aria-labelledby="menu3">'
-    		+ `<li id="action_disable" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_disable_rows();");">Disable selected rows (all rows selected must be 'pending')</a></li>`
-    		+ `<li id="action_enable" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_enable_rows();">Enable selected rows (all rows selected must be 'disabled')</a></li>`
-    		+ `<li id="action_retry_incident" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_retry_incident_rows();">Retry all selected incident rows (all rows selected must be 'incident')</a></li>`
-    		+ `<li id="action_retry_failed_to_start" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_retry_failed_to_start();">Retry all selected failed to start rows (all rows selected must be 'failedToStart')</a></li>`
-    		+ `<li id="action_mark_as_resolved" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_mark_as_resolved();">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
+			+ `<li id="action_open_selected_new_tabs" class="disabled" role="presentation"><a id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs</a></li>`
+			+ `<li id="action_copy_all_selected_history_links" class="disabled" role="presentation"><a id="action_copy_all_selected_history_links_atag" role="menuitem">Copy all selected history links</a></li>`
+    		+ `<li id="action_disable" class="disabled" role="presentation"><a id="action_disable_atag" role="menuitem">Disable selected rows (all rows selected must be 'pending')</a></li>`
+    		+ `<li id="action_enable" class="disabled" role="presentation"><a id="action_enable_atag" role="menuitem">Enable selected rows (all rows selected must be 'disabled')</a></li>`
+    		+ `<li id="action_retry_incident" class="disabled" role="presentation"><a id="action_retry_incident_atag" role="menuitem">Retry all selected incident rows (all rows selected must be 'incident')</a></li>`
+    		+ `<li id="action_retry_failed_to_start" class="disabled" role="presentation"><a id="action_retry_failed_to_start_atag" role="menuitem">Retry all selected failed to start rows (all rows selected must be 'failedToStart')</a></li>`
+    		+ `<li id="action_mark_as_resolved" class="disabled" role="presentation"><a id="action_mark_as_resolved_atag" role="menuitem">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
   			+ `<#include "adaptation-process-actions.ftl">`
   			+ `</ul>`).appendTo(".action-button");
 	});
@@ -381,6 +371,16 @@
 		$("#proc-log div.ajax-spinner").show();
 
 		qstr = document.location.search;
+		//we only care about the superProcInstId part of query string
+		if (qstr.indexOf("superProcInstId") > -1) {
+			//get everything after ? and before first &
+			qstr = qstr.substring(qstr.indexOf("?"));
+			if (qstr.indexOf("&") > -1) {
+				qstr = qstr.substring(0, qstr.indexOf("&"));
+			}
+		} else {
+			qstr = "";
+		}
 		//console.log("/${base}/rest/processes/getInstances"+qstr);
 		params = getQueryString();
 		var numProcs = 0;
@@ -433,7 +433,7 @@
 						
 						$("#proc-log div.ajax-spinner").hide();
 					});
-			});
+		});
 
 	}
 
@@ -498,32 +498,80 @@
 		$("#action_retry_failed_to_start").removeClass("enabled");
 		$("#action_mark_as_resolved").addClass("disabled");
 		$("#action_mark_as_resolved").removeClass("enabled");
+		$("#action_open_selected_new_tabs").addClass("disabled");
+		$("#action_open_selected_new_tabs").removeClass("enabled");
+		$("#action_copy_all_selected_history_links").addClass("disabled");
+		$("#action_copy_all_selected_history_links").removeClass("enabled");
+
+		// Remove hrefs from the anchor tags
+		$("#action_disable_atag").removeAttr("href");
+		$("#action_enable_atag").removeAttr("href");
+		$("#action_retry_incident_atag").removeAttr("href");
+		$("#action_retry_failed_to_start_atag").removeAttr("href");
+		$("#action_mark_as_resolved_atag").removeAttr("href");
+		$("#action_open_selected_new_tabs_atag").removeAttr("href");
+		$("#action_copy_all_selected_history_links_atag").removeAttr("href");
+
 
 		// Enable the right one
 
 		// only disabled rows are selected
 		if (disabled) {
 			$("#action_enable").removeClass("disabled");
+			$("#action_enable_atag").attr("href", "javascript:action_enable_rows();");
 		}
 		// only pending rows are selected
 		else if (pending) {
 			$("#action_disable").removeClass("disabled");
+			$("#action_disable_atag").attr("href", "javascript:action_disable_rows();");
 		}
 		// only incident rows are selected
 		else if (incident) {
 			$("#action_retry_incident").removeClass("disabled");
+			$("#action_retry_incident_atag").attr("href", "javascript:action_retry_incident_rows()");
 		}
 		// only failedToStart rows are selected
 		else if (failedToStart) {
 			$("#action_retry_failed_to_start").removeClass("disabled");
+			$("#action_retry_failed_to_start_atag").attr("href", "javascript:action_retry_failed_to_start();");
 		}
 		// only failed rows are selected
 		else if (failed) {
 			$("#action_mark_as_resolved").removeClass("disabled");
+			$("#action_mark_as_resolved_atag").attr("href", "javascript:action_mark_as_resolved();");
+		}
+
+		if ((numSelected > 0 && numPendingSelected === 0)) {
+			$("#action_open_selected_new_tabs").removeClass("disabled");
+			$("#action_open_selected_new_tabs_atag").attr("href", "javascript:action_open_selected_new_tabs();");
+			$("#action_copy_all_selected_history_links").removeClass("disabled");
+			$("#action_copy_all_selected_history_links_atag").attr("href", "javascript:action_copy_all_selected_history_links();");
 		}
 		
 		// Execute adaptation actions if any
 		updateAdaptationActionList();
+	}
+
+	function action_open_selected_new_tabs() {
+		var table = $("#processes-table").DataTable();
+		var selectedRows = table.rows( { selected: true } );
+		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
+			var data = this.data();
+			window.open("/${base}/history?procInstId=" + data[5], "_blank");
+		} );
+	}
+
+	function action_copy_all_selected_history_links() {
+		var table = $("#processes-table").DataTable();
+		const protocol = window.location.protocol;
+		const host = window.location.host;
+		var selectedRows = table.rows( { selected: true } );
+		var links = "";
+		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
+			var data = this.data();
+			links += protocol + "://" + host + "/${base}/history?procInstId=" + data[5] + "\n";
+		} );
+		navigator.clipboard.writeText(links);
 	}
 
 
