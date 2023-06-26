@@ -202,6 +202,11 @@ public class WebTestIT extends WebTestUtil {
 		// Wait for Finish
 		sleep(90000);
 
+		try {
+			screenShot("WebTestIT-runHelloWorldTest");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 
 		if(findOnPage("completed")) {
 			goToProcesses();
@@ -253,6 +258,12 @@ public class WebTestIT extends WebTestUtil {
 			goToProcesses();
 			sleep(1000);
 			log.info("Found a completed task.");
+
+			try {
+				screenShot("WebTestIT-runGroovyTest");
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 
 			driver.findElement(By.cssSelector("#stat-bar-cws-reserved-total > .progress-bar-success")).click();
 			sleep(1000);
