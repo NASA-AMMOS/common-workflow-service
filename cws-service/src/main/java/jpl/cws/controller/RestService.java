@@ -1139,9 +1139,10 @@ public class RestService extends MvcCore {
 			) {
 		
 		List<CwsProcessInstance> instances = null;
+		int recordsToReturn = 0;
+		Integer pageNum = Integer.parseInt(page);
 		try {
-			Integer pageNum = Integer.parseInt(page);
-			
+
 			dateOrderBy = dateOrderBy.toUpperCase();
 			if (!dateOrderBy.equals("DESC") && !dateOrderBy.equals("ASC")) {
 				log.error("Invalid dateOrderBy of " + dateOrderBy + "!  Forcing to be 'DESC'");
@@ -1156,13 +1157,18 @@ public class RestService extends MvcCore {
 
 			instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
 					superProcInstId, procInstId, procDefKey, status, minDate, maxDate, dateOrderBy, pageNum);
+			if (pageNum > instances.size()) {
+				recordsToReturn = instances.size();
+			} else {
+				recordsToReturn = pageNum;
+			}
 		}
 		catch (Exception e) {
 			log.error("Problem getting process instance information!", e);
 			// return an empty set
 			return new GsonBuilder().setPrettyPrinting().create().toJson(new ArrayList<CwsProcessInstance>());
 		}
-		return new GsonBuilder().setPrettyPrinting().create().toJson(instances);
+		return new GsonBuilder().setPrettyPrinting().create().toJson(instances.subList(0,recordsToReturn));
 	}
 	
 	
