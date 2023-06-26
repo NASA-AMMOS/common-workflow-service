@@ -208,8 +208,7 @@ public class WebTestIT extends WebTestUtil {
 			sleep(1000);
 			log.info("Found a completed task.");
 
-			WebElement completeBox = findElById("bar-completed");
-			completeBox.click();
+			driver.findElement(By.cssSelector("#stat-bar-cws-reserved-total > .progress-bar-success")).click();
 			sleep(1000);
 
 			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
@@ -255,8 +254,7 @@ public class WebTestIT extends WebTestUtil {
 			sleep(1000);
 			log.info("Found a completed task.");
 
-			WebElement completeBox = findElById("bar-completed");
-			completeBox.click();
+			driver.findElement(By.cssSelector("#stat-bar-cws-reserved-total > .progress-bar-success")).click();
 			sleep(1000);
 
 			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
