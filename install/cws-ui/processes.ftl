@@ -7,6 +7,9 @@
 	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
 	<script src="/${base}/js/moment.js"></script>
 	<script src="/${base}/js/DataTables/datatables.js"></script>
+	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
+	<script src="/${base}/js/moment.js"></script>
+	<script src="/${base}/js/DataTables/datatables.js"></script>
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
 	<script src="/${base}/js/DataTablesDateFilter.js"></script>
 	<!-- Custom js adaptation script; override this file from your adaptation project -->
@@ -154,6 +157,10 @@
 		if (localStorage.getItem(rowsToLoadVar) != null) {
 			loadRows = parseInt(localStorage.getItem(rowsToLoadVar));
 		}
+
+		if (localStorage.getItem(rowsToLoadVar) != null) {
+			loadRows = parseInt(localStorage.getItem(rowsToLoadVar));
+		}
 		
 		displayMessage();
 
@@ -201,7 +208,7 @@
 				}
         	],
 			stateSave: true,
-			dom: "Q<'row'<'col-sm-auto buttons'B><'col-sm-1 action-button'><'col-sm-3 length'l><'col-sm-auto filter'f>>" + "tip",
+			dom: "Q<'row'<'col-sm-auto buttons'B><'col-sm-1 action-button'><'col-sm-4 length'l><'col-sm-auto filter'f>>" + "tip",
 			buttons: [
 				{
 					text: "Select all on page",
@@ -220,7 +227,7 @@
 				{
 					text: "Select all",
 					action: function () {
-						$("#processes-table").DataTable().rows( { search: 'applied' } ).select();
+						$("#processes-table").DataTable().rows().select();
 						updateActionList();
 					}
 				},
@@ -433,7 +440,7 @@
 						
 						$("#proc-log div.ajax-spinner").hide();
 					});
-		});
+			});
 
 	}
 
