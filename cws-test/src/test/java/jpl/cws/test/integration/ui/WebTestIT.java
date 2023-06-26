@@ -208,7 +208,7 @@ public class WebTestIT extends WebTestUtil {
 			sleep(1000);
 			log.info("Found a completed task.");
 
-			WebElement completeBox = findElById("complete");
+			WebElement completeBox = findElById("bar-completed");
 			completeBox.click();
 			sleep(1000);
 
@@ -255,7 +255,7 @@ public class WebTestIT extends WebTestUtil {
 			sleep(1000);
 			log.info("Found a completed task.");
 
-			WebElement completeBox = findElById("complete");
+			WebElement completeBox = findElById("bar-completed");
 			completeBox.click();
 			sleep(1000);
 
