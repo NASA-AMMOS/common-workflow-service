@@ -425,6 +425,7 @@
 						for (i in res) {
 							var procInstId = (res[i].procInstId == undefined ? '' : res[i].procInstId);
 							var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + procInstId + "/runtime?tab=incidents-tab";
+							var workerIP = "<br><b>Worker IP: </b>" + res[i].startedByWorker.split("_").slice(0, -2).join(".");
 							var procStartTime = (res[i].procStartTime == undefined ? '' : res[i].procStartTime);
 							var procEndTime = (res[i].procEndTime == undefined ? '' : res[i].procEndTime);
 							if (procStartTime !== '' && procEndTime !== '') {
@@ -444,7 +445,7 @@
 								"<td>"+ (res[i].status == 'incident' ? ("<a href=\""+ incidentUrl +"\" target=\"blank_\">" + procInstId + "</a>") : procInstId) + "</td>" +
 								"<td>"+ res[i].status +"</td>"+
 								"<td>"+ (res[i].createdTimestamp == undefined ? '' : res[i].createdTimestamp) + "</td>"+
-								"<td>"+ (res[i].startedByWorker == undefined ? '' : res[i].startedByWorker) + "</td>"+
+								"<td>"+ (res[i].startedByWorker == undefined ? '' : res[i].startedByWorker + workerIP) + "</td>"+
 								"<td>"+ procStartTime + "</td>"+
 								"<td>"+ procEndTime + procDuration + "</td>"+
 							"</tr>")
