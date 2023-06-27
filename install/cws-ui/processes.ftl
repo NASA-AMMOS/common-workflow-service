@@ -164,15 +164,22 @@
 		
 		displayMessage();
 
+		//get our params from the url
+		params = getQueryString();
+
 		if (!params) {
+			console.log("No params found");
 			$("#hide-subprocs-btn").prop('checked', false);
 			$("#display-subprocs-div").css('display', 'none');
 		}
 		else if (!params.superProcInstId) {
+			console.log(params);
+			console.log("No superProcInstId found");
 			$("#hide-subprocs-btn").prop('checked', false);
 			$("#display-subprocs-div").css('display', 'none');
 		}
 		else if (params.superProcInstId.toLowerCase() === 'null') {
+			console.log("superProcInstId is null");
 			$("#hide-subprocs-btn").prop('checked', true);
 			$("#display-subprocs-div").css('display', 'none');
 		}
@@ -303,15 +310,17 @@
 		var params = {};
 		
 		if (changeHideSubs) {
-		
 			if ($("#hide-subprocs-btn").prop("checked")) {
 				params.superProcInstId = "null";
+				console.log("button is checked");
 			}
 		}
 		else {
 			var qs = getQueryString();
+			console.log("querystring: " + qs);
 			
 			if (qs && qs.superProcInstId) {
+				console.log("inside here");
 				params.superProcInstId = qs.superProcInstId;
 			}
 		}
@@ -320,10 +329,12 @@
 
 		if(params != null){
 			for(p in params){
+				console.log("p: " + p + ", params[p]: " + params[p]);
 				qstring += encodeURI(p)+"="+encodeURI(params[p])+"&";
 			}
 		}
 		qstring = qstring.substring(0,qstring.length-1);
+		console.log("encoded qstring: " + qstring);
 		return qstring;
 	}
 
