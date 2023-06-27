@@ -756,7 +756,9 @@ public class CwsInstaller {
 							if (verifyLdapUserInfo) {
 								valid_ldap_user = verifyLdapUserInfo;
 							} else {
-								print("   WARNING: CWS Installer could not retrieve LDAP User Information");
+								print("   WARNING: CWS Installer could not retrieve LDAP User Information.");
+								print("            Make sure to set up your LDAP Admin account with the following");
+								print("            LDAP attributes: givenName, sn, mail");
 								while (!read_provide_admin_info.equalsIgnoreCase("y") &&
 									!read_provide_admin_info.equalsIgnoreCase("n")) {
 
@@ -792,7 +794,9 @@ public class CwsInstaller {
 							if (verifyLdapUserInfo) {
 								valid_ldap_user = verifyLdapUserInfo;
 							} else {
-								print("   WARNING: CWS Installer could not retrieve LDAP User Information");
+								print("   WARNING: CWS Installer could not retrieve LDAP User Information.");
+								print("            Make sure to set up your LDAP Admin account with the following");
+								print("            LDAP attributes: givenName, sn, mail");
 								while (!read_provide_admin_info.equalsIgnoreCase("y") &&
 									!read_provide_admin_info.equalsIgnoreCase("n")) {
 
