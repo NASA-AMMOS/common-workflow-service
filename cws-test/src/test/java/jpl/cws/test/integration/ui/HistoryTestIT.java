@@ -3,6 +3,8 @@ package jpl.cws.test.integration.ui;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -10,6 +12,9 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.support.ui.Select;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,6 +98,15 @@ public class HistoryTestIT extends WebTestUtil {
 		catch (Throwable e) {
 			System.out.println(e.toString());
 			scriptPass = false;
+		}
+		Set<String> logtyp = driver.manage().logs().getAvailableLogTypes();
+		for (String s : logtyp) {
+			log.info("BROWSER: " + logtyp);
+		}
+		LogEntries logEntries = driver.manage().logs().get(LogType.BROWSER);
+		List<LogEntry> lg = logEntries.getAll();
+		for(LogEntry logEntry : lg) {
+			log.info("BROWSER: " + logEntry);
 		}
 		screenShot("HistoryTestIT-runResultsTest");
 		assertTrue("Deployments Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
