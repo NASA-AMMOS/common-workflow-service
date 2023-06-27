@@ -420,6 +420,15 @@
 						for (i in res) {
 							var procInstId = (res[i].procInstId == undefined ? '' : res[i].procInstId);
 							var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + procInstId + "/runtime?tab=incidents-tab";
+							var procStartTime = (res[i].procStartTime == undefined ? '' : res[i].procStartTime);
+							var procEndTime = (res[i].procEndTime == undefined ? '' : res[i].procEndTime);
+							if (procStartTime !== '' && procEndTime !== '') {
+								var start = moment(procStartTime);
+								var end = moment(procEndTime);
+								var procDuration = "<br><i>(~" + moment.duration(end.diff(start)).humanize() + ")</i>";
+							} else {
+								var procDuration = '';
+							}
 							table.row.add(
 							$("<tr id=\""+i+"\" class=\"tr-"+ res[i].status +"\" procInstId=\"" + procInstId + "\">"+
 								"<td status=\"" + res[i].status + "\" uuid=\"" + res[i].uuid + "\" procInstId=\"" + res[i].procInstId + "\"></td>" +
@@ -431,8 +440,8 @@
 								"<td>"+ res[i].status +"</td>"+
 								"<td>"+ (res[i].createdTimestamp == undefined ? '' : res[i].createdTimestamp) + "</td>"+
 								"<td>"+ (res[i].startedByWorker == undefined ? '' : res[i].startedByWorker) + "</td>"+
-								"<td>"+ (res[i].procStartTime == undefined ? '' : res[i].procStartTime) + "</td>"+
-								"<td>"+ (res[i].procEndTime == undefined ? '' : res[i].procEndTime) + "</td>"+
+								"<td>"+ procStartTime + "</td>"+
+								"<td>"+ procEndTime + procDuration + "</td>"+
 							"</tr>")
 							);
 						}
