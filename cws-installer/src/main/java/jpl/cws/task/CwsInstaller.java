@@ -757,8 +757,7 @@ public class CwsInstaller {
 								valid_ldap_user = verifyLdapUserInfo;
 							} else {
 								print("   WARNING: CWS Installer could not retrieve LDAP User Information.");
-								print("            Make sure to set up your LDAP Admin account with the following");
-								print("            LDAP attributes: givenName, sn, mail");
+								print("            Make sure to set up your LDAP Admin account with the following LDAP attributes: givenName, sn, mail");
 								while (!read_provide_admin_info.equalsIgnoreCase("y") &&
 									!read_provide_admin_info.equalsIgnoreCase("n")) {
 
@@ -795,8 +794,7 @@ public class CwsInstaller {
 								valid_ldap_user = verifyLdapUserInfo;
 							} else {
 								print("   WARNING: CWS Installer could not retrieve LDAP User Information.");
-								print("            Make sure to set up your LDAP Admin account with the following");
-								print("            LDAP attributes: givenName, sn, mail");
+								print("            Make sure to set up your LDAP Admin account with the following LDAP attributes: givenName, sn, mail");
 								while (!read_provide_admin_info.equalsIgnoreCase("y") &&
 									!read_provide_admin_info.equalsIgnoreCase("n")) {
 
@@ -2008,13 +2006,22 @@ public class CwsInstaller {
 				Attributes attrs = result.getAttributes();
 				// First name attribute - givenName
 				Attribute attr = attrs.get("givenName");
-				if (attr == null) { return false; }
+				if (attr == null) {
+					print("   ERROR: LDAP Admin ID '" + ldapUid + "' is missing attribute - 'givenName'");
+					return false;
+				}
 				// Last name attribute - sn
 				attr = attrs.get("sn");
-				if (attr == null) { return false; }
+				if (attr == null) {
+					print("   ERROR: LDAP Admin ID '" + ldapUid + "' is missing attribute - 'sn'");
+					return false;
+				}
 				// Email attribute - mail
 				attr = attrs.get("mail");
-				if (attr == null) { return false; }
+				if (attr == null) {
+					print("   ERROR: LDAP Admin ID '" + ldapUid + "' is missing attribute - 'mail'");
+					return false;
+				}
 			}
 			ctx.close();
 		} catch (AuthenticationNotSupportedException e) {
