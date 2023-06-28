@@ -99,15 +99,7 @@ public class HistoryTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		Set<String> logtyp = driver.manage().logs().getAvailableLogTypes();
-		for (String s : logtyp) {
-			log.info("BROWSER: " + logtyp);
-		}
-		LogEntries logEntries = driver.manage().logs().get(LogType.BROWSER);
-		List<LogEntry> lg = logEntries.getAll();
-		for(LogEntry logEntry : lg) {
-			log.info("BROWSER: " + logEntry);
-		}
+		
 		screenShot("HistoryTestIT-runResultsTest");
 		assertTrue("Deployments Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}

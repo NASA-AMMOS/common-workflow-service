@@ -426,7 +426,11 @@
 						for (i in res) {
 							var procInstId = (res[i].procInstId == undefined ? '' : res[i].procInstId);
 							var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + procInstId + "/runtime?tab=incidents-tab";
-							var workerIP = "<br><b>Worker IP: </b>" + res[i].startedByWorker.split("_").slice(0, -2).join(".");
+							if (res[i].startedByWorker !== undefined) {
+								var workerIP = "<br><b>Worker IP: </b>" + res[i].startedByWorker.split("_").slice(0, -2).join(".");
+							} else {
+								var workerIP = "<br><b>Worker IP: </b>";
+							}
 							var procStartTime = (res[i].procStartTime == undefined ? '' : res[i].procStartTime);
 							var procEndTime = (res[i].procEndTime == undefined ? '' : res[i].procEndTime);
 							if (procStartTime !== '' && procEndTime !== '') {
