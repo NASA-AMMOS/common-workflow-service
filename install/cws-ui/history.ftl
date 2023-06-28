@@ -13,6 +13,11 @@
 	<script src="/${base}/js/DataTables/datatables.js"></script>
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
+	<style>
+		.dataTables_wrapper .filter .dataTables_filter{float:right; margin-top: 15px; display: inline; margin-right: 15px;}
+		.dataTables_wrapper .button {float:left; display: inline; margin-top: 15px; margin-right: 15px;}
+		.dataTables_wrapper {margin-left: 5px; margin-right: -10px;}
+	</style>
 	<script>
 
 	//STATE PERSISTANCE VARS
@@ -186,6 +191,7 @@
 	function buildHistoryRows(data) {
 	
 		let tableRows = [];
+		let inputVarRows = [];
 		
 		if (data.details) {
 					
@@ -195,6 +201,10 @@
 				
 				if (entry["message"].startsWith("Ended ")) {
 					date += " ";
+				}
+
+				if(entry["activity"] === data.procInstId) {
+					inputVarRows.push(entry);
 				}
 				
 				const row = "<tr><td>"+ date + "</td>" +
@@ -225,6 +235,8 @@
 			
 			$('#procStatus').html(status);
 		}
+
+		setInputVariableTable(inputVarRows);
 		
 		return tableRows;
 	}
@@ -411,9 +423,20 @@
 	$( document ).ready(function() {
 
 		$("#logData").DataTable({
-			order: [[0, 'desc']],
-			paging: false
+			order: [[0, 'asc']],
+			paging: false,
+			dom: "<'row'<'col-sm-2 button'><'col-sm-auto filter'f>>" + "ti",
 		});
+
+		$(`<div class="dropdown" style="display:inline;">`
+			+ `<button id="downloadButton" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Download &nbsp;`
+			+ `<span class="caret"></span>`
+			+ `</button>`
+			+ `<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">`
+			+ `<li id="action_download_json" class="enabled" role="presentation"><a id="json-bttn" role="menuitem" href="#">Download as JSON</a></li>`
+			+ `<li id="action_download_csv" class="enabled" role="presentation"><a id="csv-bttn" role="menuitem" href="#">Download as CSV</a></li>`
+			+ `</ul>`
+			+ `</div>`).appendTo("div.button");
 
 		// Get query string values
 		params = getQueryString();
@@ -445,8 +468,34 @@
 			e.preventDefault();
 			downloadLogCSV();
 		});
+
+
 	}); //END OF DOCUMENT.READY
 
+	function setInputVariableTable(historyRows) {
+		for (var i = 0; i < historyRows.length; i++) {
+			var message = historyRows[i].message;
+			var varType = message.substring(message.indexOf("("), message.indexOf(")")+1);
+			console.log(varType);
+			var varName = message.substring(message.indexOf(")")+2);
+			varName = varName.substring(0, varName.indexOf("=")-1) + " " + varType;
+			var varValue = message.substring(message.indexOf("=")+2);
+			var htmlToAppend = "<tr><td>" 
+							+ varName 
+							+ "</td><td>" 
+							+ varValue 
+							+ `<button class="copy" onClick='copyInput("` + varValue + `")'>`
+							+ `<span data-text-end="Copied!" data-text-initial="Copy to clipboard" class="tooltip"></span>`
+							+ `<img src="images/copy.svg" class="copy-icon clipboard"`
+							+ `</button>`
+							+ "</td></tr>";
+			$("#inputVariableTable").append(htmlToAppend);
+		}
+	}
+
+	function copyInput(varValue) {
+		navigator.clipboard.writeText(varValue);
+	}
 	</script>
 	
 
@@ -491,11 +540,12 @@
 <body>
 	<#include "navbar.ftl">
 
-	<div class="container-fluid">
+	<div class="container-fluid" style="margin-left: 20px;">
 		
 		<h2 class="sub-header">History</h2>
 		<div class="row">
-				<table align="center" class="table table-bordered " style="width: 50%; font-size:95%">
+			<div class="col-md-6">
+				<table align="center" class="table table-bordered " style="width: 90%; font-size:95%">
 					<tr>
 						<td style="font-weight:bold;">Process Definition</td><td id="procDefKey">Unknown</td>
 					</tr>
@@ -515,18 +565,17 @@
 						<td style="font-weight:bold;">Status</td><td id="procStatus">Unknown</td>
 					</tr>
 				</table>
-		</div>
-
-		<div class="col-md-12">
-				<div class="dropdown" style="display:inline;">
-				<button id="downloadButton" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Download &nbsp;
-					<span class="caret"></span>
-				</button>
-				<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">
-					<li id="action_download_json" class="enabled" role="presentation"><a id="json-bttn" role="menuitem" href="#">Download as JSON</a></li>
-					<li id="action_download_csv" class="enabled" role="presentation"><a id="csv-bttn" role="menuitem" href="#">Download as CSV</a></li>
-  				</ul>
-  			</div>
+			</div>
+			<div class="col-md-6">
+				<table align="center" class="table table-bordered " style="width: 90%; font-size:95%" id="inputVariableTable">
+					<tr>
+						<th>Input Variable</th>
+						<th>Value</th>
+					</tr>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
 		</div>
 		<!--
 			<div class="col-sm-12 main">
@@ -543,7 +592,7 @@
 			</div>
 		-->
 		</div>
-		
+	
 		<div class="row">
 			<div class="ajax-spinner"></div>
 		</div>
@@ -565,7 +614,6 @@
 		</div>
 		<a id="downloadAnchorElement" style="display:none"></a>
 	</div>
-
 <script type="text/javascript" src="/${base}/js/cws.js"></script>
 </body>
 </html>
