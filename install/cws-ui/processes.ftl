@@ -19,12 +19,13 @@
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<link href="/${base}/css/bootstrap-datepicker.min.css" rel="stylesheet">
 	<style>
-		.dataTables_wrapper .filter .dataTables_filter{float:right; margin-top: 15px; display: inline; margin-right: 15px;}
-		.dataTables_wrapper .length .dataTables_length{float:left; display: inline; margin-top: 15px;}
-		.dataTables_wrapper .buttons .dt-buttons{float:left; display: inline; margin-top: 15px; margin-left: 15px; margin-right: 15px;}
-		.dataTables_wrapper .action-button {margin-top: 15px; margin-left: -15px; margin-right: 15px;}
+		.dataTables_wrapper .filter .dataTables_filter{float:right; padding-top: 15px; display: inline;}
+		.dataTables_wrapper .length .dataTables_length{float:left; display: inline; padding-top: 15px; padding-left: 15px; padding-right: 15px;}
+		.dataTables_wrapper .buttons .dt-buttons{float:left; display: inline; padding-top: 15px; padding-left: 15px; padding-right: 15px;}
+		.dataTables_wrapper .action-button {padding-top: 15px; padding-right: 15px;}
+		.dataTables_wrapper .download-button {padding-top: 15px; padding-left: -15px; padding-right: 15px;}
 		.dataTables_wrapper .dtsb-titleRow {display: none;}
-		.dataTables_wrapper .dtsb-group {margin-bottom: -15px !important; margin-top: 8px;}
+		.dataTables_wrapper .dtsb-group {padding-bottom: -15px !important; padding-top: 8px;}
 	</style>
 	<style type="text/css">
 		#processes-table {
@@ -148,6 +149,7 @@
 	var params = {};
 	var rows;
 	var loadRows = 5000;
+	var rowsTotal = 0;
 
 	$( document ).ready(function() {
 		
@@ -211,7 +213,7 @@
 				}
         	],
 			stateSave: true,
-			dom: "Q<'row'<'col-sm-auto buttons'B><'col-sm-1 action-button'><'col-sm-4 length'l><'col-sm-auto filter'f>>" + "tip",
+			dom: "Q<'row'<'col-sm-auto buttons'B>><'row'<'col-sm-1 action-button'><'col-sm-1 download-button'><'col-sm-5 length'l><'col-sm-5 filter'f>>" + "tip",
 			buttons: [
 				{
 					text: "Select all on page",
@@ -230,7 +232,7 @@
 				{
 					text: "Select all",
 					action: function () {
-						$("#processes-table").DataTable().rows().select();
+						$("#processes-table").DataTable().rows({filter: "applied"}).select();
 						updateActionList();
 					}
 				},
@@ -281,6 +283,15 @@
     		+ `<li id="action_mark_as_resolved" class="disabled" role="presentation"><a id="action_mark_as_resolved_atag" role="menuitem">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
   			+ `<#include "adaptation-process-actions.ftl">`
   			+ `</ul>`).appendTo(".action-button");
+
+		$(`<div class="dropdown" style="display:inline;">`
+			+ `<button id="downloadButton" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Download &nbsp;`
+			+ `<span class="caret"></span>`
+			+ `</button>`
+			+ `<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">`
+			+ `<li id="action_download_json" class="enabled" role="presentation"><a id="json-bttn" role="menuitem" href="javascript:downloadListJSON();">Download as JSON</a></li>`
+			+ `</ul>`
+			+ `</div>)`).appendTo(".download-button");
 	});
 
 	$("#load-more-btn").click(function() {
@@ -401,6 +412,7 @@
 		$.get("/${base}/rest/processes/getInstancesSize"+qstr,
 			function(res) {
 				numProcs = res;
+				rowsTotal = res;
 				if (numProcs < 5000) {
 					$("#load-more-div").hide();
 				} else {
@@ -1244,6 +1256,110 @@
 			return millis / 1000 + " sec";
 
 		return minutes + " min " + seconds + " sec"
+	}
+
+	$("#json-bttn").click(function(e) {
+		e.preventDefault();
+		downloadListJSON();
+	});
+
+	function downloadListJSON() {
+		var dt = $('#processes-table').DataTable();
+		//number of rows
+		var numRows = dt.rows({selected:true}).count();
+		var jsonFile = {};
+		var processes = {};
+		jsonFile["num_rows_loaded"] = rowsTotal;
+
+		if (numRows === 0) {
+			dt.rows({search:'applied'}).every( function ( rowIdx, tableLoop, rowLoop ) {
+				var data = this.data();
+				var thisProcJSON = {};
+				var startedOnWorker = "";
+				var workerIP = "";
+				var duration = "";
+
+				if (data[8] !== "") {
+					startedOnWorker = data[8];
+					startedOnWorker = startedOnWorker.substring(0, startedOnWorker.indexOf("<br><b>"));
+
+					workerIP = data[8];
+					//get everything after </b>
+					workerIP = workerIP.substring(workerIP.indexOf("</b>") + 4, workerIP.length);
+				} else {
+					startedOnWorker = data[8];
+					workerIP = "";
+				}
+
+				if (data[10] !== "") {
+					duration = data[10];
+					//get everything after <br><i> but before </i>
+					duration = duration.substring(duration.indexOf("<br><i>") + 7, duration.indexOf("</i>"));
+				} else {
+					duration = "";
+				}
+
+				thisProcJSON["definition_key"] = data[4];
+				thisProcJSON["process_instance_id"] = data[5];
+				thisProcJSON["status"] = data[6];
+				thisProcJSON["initiator"] = data[3];
+				thisProcJSON["schedule_queued_time"] = data[7];
+				thisProcJSON["started_on_worker"] = startedOnWorker;
+				thisProcJSON["worker_ip"] = workerIP;
+				thisProcJSON["process_start"] = data[9];
+				thisProcJSON["process_end"] = data[10];
+				thisProcJSON["duration"] = duration;
+
+				processes[data[5]] = thisProcJSON;
+			} );
+		} else {
+			dt.rows({selected:true, search:'applied'}).every( function ( rowIdx, tableLoop, rowLoop ) {
+				var data = this.data();
+				var thisProcJSON = {};
+				var startedOnWorker = "";
+				var workerIP = "";
+				var duration = "";
+
+				if (data[8] !== "") {
+					startedOnWorker = data[8];
+					startedOnWorker = startedOnWorker.substring(0, startedOnWorker.indexOf("<br><b>"));
+
+					workerIP = data[8];
+					//get everything after </b>
+					workerIP = workerIP.substring(workerIP.indexOf("</b>") + 4, workerIP.length);
+				} else {
+					startedOnWorker = data[8];
+					workerIP = "";
+				}
+
+				if (data[10] !== "") {
+					duration = data[10];
+					//get everything after <br><i> but before </i>
+					duration = duration.substring(duration.indexOf("<br><i>") + 7, duration.indexOf("</i>"));
+				} else {
+					duration = "";
+				}
+
+				thisProcJSON["definition_key"] = data[4];
+				thisProcJSON["process_instance_id"] = data[5];
+				thisProcJSON["status"] = data[6];
+				thisProcJSON["initiator"] = data[3];
+				thisProcJSON["schedule_queued_time"] = data[7];
+				thisProcJSON["started_on_worker"] = startedOnWorker;
+				thisProcJSON["worker_ip"] = workerIP;
+				thisProcJSON["process_start"] = data[9];
+				thisProcJSON["process_end"] = data[10];
+				thisProcJSON["duration"] = duration;
+
+				processes[data[5]] = thisProcJSON;
+			} );
+		}
+		jsonFile["processes"] = processes;
+		console.log(jsonFile);
+		$.fn.dataTable.fileSave(
+			new Blob( [ JSON.stringify(jsonFile) ] ),
+			'processes_export.json'
+		);
 	}
 </script>
 <script src="/${base}/js/cws.js"></script>
