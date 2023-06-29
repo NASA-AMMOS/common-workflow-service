@@ -759,8 +759,9 @@ public class CwsInstaller {
 								valid_ldap_user = verifyLdapUserInfo;
 							} else {
 								print("   WARNING: CWS Installer could not retrieve LDAP User Information.");
-								print("            **RECOMMENDATION**: Set up your LDAP Admin account with the following");
-								print("            LDAP attributes: givenName, sn, mail. And restart the CWS installation process.");
+								print("            **RECOMMENDATION**: Set up your LDAP Admin account with the");
+								print("                                following LDAP attributes: givenName, sn, mail.");
+								print("                                And restart the CWS installation process.");
 								while (!read_provide_admin_info.equalsIgnoreCase("y") &&
 									!read_provide_admin_info.equalsIgnoreCase("n")) {
 
@@ -797,8 +798,9 @@ public class CwsInstaller {
 								valid_ldap_user = verifyLdapUserInfo;
 							} else {
 								print("   WARNING: CWS Installer could not retrieve LDAP User Information.");
-								print("            **RECOMMENDATION**: Set up your LDAP Admin account with the following");
-								print("            LDAP attributes: givenName, sn, mail. And restart the CWS installation process.");
+								print("            **RECOMMENDATION**: Set up your LDAP Admin account with the");
+								print("                                following LDAP attributes: givenName, sn, mail.");
+								print("                                And restart the CWS installation process.");
 								while (!read_provide_admin_info.equalsIgnoreCase("y") &&
 									!read_provide_admin_info.equalsIgnoreCase("n")) {
 
@@ -1953,17 +1955,18 @@ public class CwsInstaller {
 			print("   [WARNING]");
 			print("       It was determined that your CWS Admin User ID '" + cws_user + "' did not return a user first name, last name, and email.");
 			print("          You must satisfy these LDAP requirements before installing CWS with CWS Admin User ID '" + cws_user + "'");
-			print("             - Make sure your LDAP account holds the properties: givenName, sn, mail                     ");
-			print("             - Check your host machine for proper installation of LDAP Server Certificates               ");
-			print("             - Verify the LDAP plugin bean has the correct properties                                    ");
+			print("             (1) Make sure your LDAP account holds the properties: givenName, sn, mail                     ");
+			print("             (2) Check your host machine for proper installation of LDAP Server Certificates               ");
+			print("             (3) Verify the LDAP plugin bean has the correct properties                                    ");
 			print("                  Plugin bean filepath: " + pluginBeanFilePath.toString()                                                 );
 			print(" ");
+
 
 			if (cws_installer_mode.equals("interactive")) {
 				if (cws_user_firstname == null || cws_user_lastname == null || cws_user_email == null) {
 					return 1;
 				} else {
-					print("       CWS installation will default to using presets:");
+					print("       CWS installation will default to using the following presets:");
 					print("           admin_firstname=" + cws_user_firstname);
 					print("           admin_lastname=" + cws_user_lastname);
 					print("           admin_email=" + cws_user_email);
@@ -1971,26 +1974,28 @@ public class CwsInstaller {
 				}
 			} else {
 				if (getPreset("admin_firstname") == null || getPreset("admin_lastname") == null || getPreset("admin_email") == null) {
+					print("       POSSIBLE FIXES:  ");
+					print("             - Option #1: (RECOMMENDED) Update your LDAP Admin account '" + cws_user + "' with the following");
+					print("                                        LDAP attributes: givenName, sn, mail. And restart the CWS installation process.");
+					print("             - Option #2: Include these 3 settings with assigned values in your configuration.properties file:");
+					print("                                        - admin_firstname=[VALUE]");
+					print("                                        - admin_lastname=[VALUE]");
+					print("                                        - admin_email=[VALUE]");
+					print(" ");
 					return 1;
 				} else {
-					print("       CWS installation will default to using presets:");
+					print("       CWS installation will default to using the following presets:");
 					print("           admin_firstname=" + getPreset("admin_firstname"));
 					print("           admin_lastname=" + getPreset("admin_lastname"));
 					print("           admin_email=" + getPreset("admin_email"));
-					print("   ");
+					print(" ");
 				}
 			}
 
-			print("   **RECOMMENDATION**: Update your LDAP Admin account '" + cws_user + "' with the following ");
-			print("                       LDAP attributes: givenName, sn, mail. And restart the CWS installation process.");
-			print(" ");
-
 			print("   [OK]");
-			print("       ");
 
 		} else {
 			print("   [OK]");
-			print("       ");
 		}
 		return warningCount;
 	}
@@ -2104,6 +2109,7 @@ public class CwsInstaller {
 	private static int validateTomcatPorts() {
 		int warningCount = 0;
 		// VALIDATE CWS_TOMCAT_CONNECTOR_PORT
+		print("");
 		print("checking availability of tomcat connector port (" + cws_tomcat_connector_port + ")...");
 		if (!isLocalPortAvailable(Integer.valueOf(cws_tomcat_connector_port))) {
 			print("   [WARNING]");
