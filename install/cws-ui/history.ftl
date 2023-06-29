@@ -352,6 +352,16 @@
 		}
 		jsonFile["process_info"] = logInfo;
 
+		//go through each row of inputVariableTable and add to jsonFile
+		var inputVariables = {};
+		$("#inputVariableTable tr").each(function() {
+			var key = $(this).find("td").eq(0).text();
+			var value = $(this).find("td").eq(1).text();
+			inputVariables[key] = value;
+		});
+		delete inputVariables[""];
+		jsonFile["input_variables"] = inputVariables;
+
 		var logs = {};
 
 		dt.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
