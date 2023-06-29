@@ -70,6 +70,11 @@ public class CwsCamundaSecurityFilter extends CwsSecurityFilter {
 
 		log.trace("doFilter path " + req.getContextPath());
 
+		// Simple override of http return for redirect code when http request is valid
+		if (resp.getStatus() == 200){
+			resp.setStatus(301);
+		}
+
 		if (log.isTraceEnabled()) {
 			log.trace("PATH = " + path);
 			Enumeration<String> reqHeaderNames = req.getHeaderNames();
