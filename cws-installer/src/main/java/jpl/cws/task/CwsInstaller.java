@@ -58,6 +58,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.TimeZone;
@@ -757,7 +759,8 @@ public class CwsInstaller {
 								valid_ldap_user = verifyLdapUserInfo;
 							} else {
 								print("   WARNING: CWS Installer could not retrieve LDAP User Information.");
-								print("            Make sure to set up your LDAP Admin account with the following LDAP attributes: givenName, sn, mail");
+								print("            **RECOMMENDATION**: Set up your LDAP Admin account with the following");
+								print("            LDAP attributes: givenName, sn, mail. And restart the CWS installation process.");
 								while (!read_provide_admin_info.equalsIgnoreCase("y") &&
 									!read_provide_admin_info.equalsIgnoreCase("n")) {
 
@@ -794,7 +797,8 @@ public class CwsInstaller {
 								valid_ldap_user = verifyLdapUserInfo;
 							} else {
 								print("   WARNING: CWS Installer could not retrieve LDAP User Information.");
-								print("            Make sure to set up your LDAP Admin account with the following LDAP attributes: givenName, sn, mail");
+								print("            **RECOMMENDATION**: Set up your LDAP Admin account with the following");
+								print("            LDAP attributes: givenName, sn, mail. And restart the CWS installation process.");
 								while (!read_provide_admin_info.equalsIgnoreCase("y") &&
 									!read_provide_admin_info.equalsIgnoreCase("n")) {
 
@@ -1953,7 +1957,7 @@ public class CwsInstaller {
 			print("             - Check your host machine for proper installation of LDAP Server Certificates               ");
 			print("             - Verify the LDAP plugin bean has the correct properties                                    ");
 			print("                  Plugin bean filepath: " + pluginBeanFilePath.toString()                                                 );
-			print("");
+			print(" ");
 
 			if (cws_installer_mode.equals("interactive")) {
 				if (cws_user_firstname == null || cws_user_lastname == null || cws_user_email == null) {
@@ -1963,6 +1967,7 @@ public class CwsInstaller {
 					print("           admin_firstname=" + cws_user_firstname);
 					print("           admin_lastname=" + cws_user_lastname);
 					print("           admin_email=" + cws_user_email);
+					print("   ");
 				}
 			} else {
 				if (getPreset("admin_firstname") == null || getPreset("admin_lastname") == null || getPreset("admin_email") == null) {
@@ -1972,11 +1977,20 @@ public class CwsInstaller {
 					print("           admin_firstname=" + getPreset("admin_firstname"));
 					print("           admin_lastname=" + getPreset("admin_lastname"));
 					print("           admin_email=" + getPreset("admin_email"));
+					print("   ");
 				}
 			}
 
+			print("   **RECOMMENDATION**: Update your LDAP Admin account '" + cws_user + "' with the following ");
+			print("                       LDAP attributes: givenName, sn, mail. And restart the CWS installation process.");
+			print(" ");
+
+			print("   [OK]");
+			print("       ");
+
 		} else {
 			print("   [OK]");
+			print("       ");
 		}
 		return warningCount;
 	}
@@ -1989,6 +2003,7 @@ public class CwsInstaller {
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.PROVIDER_URL, ldapUrl);
 		String[] attributeFilter = {"givenName", "sn", "mail"};
+		List<String> attributesNotFound = new ArrayList<>();
 
 		try {
 			DirContext ctx = new InitialDirContext(env);
@@ -2005,21 +2020,22 @@ public class CwsInstaller {
 				SearchResult result = (SearchResult) results.next();
 				Attributes attrs = result.getAttributes();
 				// First name attribute - givenName
-				Attribute attr = attrs.get("givenName");
-				if (attr == null) {
-					print("   ERROR: LDAP Admin ID '" + ldapUid + "' is missing attribute - 'givenName'");
-					return false;
-				}
+				Attribute givenNameAttr = attrs.get("givenName");
 				// Last name attribute - sn
-				attr = attrs.get("sn");
-				if (attr == null) {
-					print("   ERROR: LDAP Admin ID '" + ldapUid + "' is missing attribute - 'sn'");
-					return false;
-				}
+				Attribute snAttr = attrs.get("sn");
 				// Email attribute - mail
-				attr = attrs.get("mail");
-				if (attr == null) {
-					print("   ERROR: LDAP Admin ID '" + ldapUid + "' is missing attribute - 'mail'");
+				Attribute mailAttr = attrs.get("mail");
+				if (givenNameAttr == null || snAttr == null || mailAttr == null) {
+					if (givenNameAttr == null) {
+						attributesNotFound.add("givenName");
+					}
+					if (snAttr == null) {
+						attributesNotFound.add("sn");
+					}
+					if (mailAttr == null) {
+						attributesNotFound.add("mail");
+					}
+					print("   ERROR: LDAP Admin ID '" + ldapUid + "' is missing attribute(s) - " + attributesNotFound);
 					return false;
 				}
 			}
@@ -2088,7 +2104,6 @@ public class CwsInstaller {
 	private static int validateTomcatPorts() {
 		int warningCount = 0;
 		// VALIDATE CWS_TOMCAT_CONNECTOR_PORT
-		print("");
 		print("checking availability of tomcat connector port (" + cws_tomcat_connector_port + ")...");
 		if (!isLocalPortAvailable(Integer.valueOf(cws_tomcat_connector_port))) {
 			print("   [WARNING]");
