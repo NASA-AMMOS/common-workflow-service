@@ -7,6 +7,9 @@
 	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
 	<script src="/${base}/js/moment.js"></script>
 	<script src="/${base}/js/DataTables/datatables.js"></script>
+	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
+	<script src="/${base}/js/moment.js"></script>
+	<script src="/${base}/js/DataTables/datatables.js"></script>
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
 	<script src="/${base}/js/DataTablesDateFilter.js"></script>
 	<!-- Custom js adaptation script; override this file from your adaptation project -->
@@ -16,12 +19,13 @@
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<link href="/${base}/css/bootstrap-datepicker.min.css" rel="stylesheet">
 	<style>
-		.dataTables_wrapper .filter .dataTables_filter{float:right; margin-top: 15px; display: inline; margin-right: 15px;}
-		.dataTables_wrapper .length .dataTables_length{float:left; display: inline; margin-top: 15px;}
-		.dataTables_wrapper .buttons .dt-buttons{float:left; display: inline; margin-top: 15px; margin-left: 15px; margin-right: 15px;}
-		.dataTables_wrapper .action-button {margin-top: 15px; margin-left: -15px; margin-right: 15px;}
+		.dataTables_wrapper .filter .dataTables_filter{float:right; padding-top: 15px; display: inline;}
+		.dataTables_wrapper .length .dataTables_length{float:left; display: inline; padding-top: 15px; padding-left: 15px; padding-right: 15px;}
+		.dataTables_wrapper .buttons .dt-buttons{float:left; display: inline; padding-top: 15px; padding-left: 15px; padding-right: 15px;}
+		.dataTables_wrapper .action-button {padding-top: 15px; padding-right: 15px;}
+		.dataTables_wrapper .download-button {padding-top: 15px; padding-left: -15px; padding-right: 15px;}
 		.dataTables_wrapper .dtsb-titleRow {display: none;}
-		.dataTables_wrapper .dtsb-group {margin-bottom: -15px !important; margin-top: 8px;}
+		.dataTables_wrapper .dtsb-group {padding-bottom: -15px !important; padding-top: 8px;}
 	</style>
 	<style type="text/css">
 		#processes-table {
@@ -140,31 +144,20 @@
 
 	//STATE PERSISTANCE CONSTS
 	const username = "username"; //temporary, hardcoded value for now
-	const qstringVar = "CWS_DASH_PROC_QSTRING-" + username;
 	const rowsToLoadVar = "CWS_DASH_PROC_ROWS-" + username;
 
 	var params = {};
 	var rows;
 	var loadRows = 5000;
+	var rowsTotal = 0;
 
 	$( document ).ready(function() {
+		
 		//get our current url
 		var currentUrl = window.location.href;
-		//get our local storage url
-		var localStorageUrl = localStorage.getItem(qstringVar);
-		//check if a cookie has been stored (indicating we can restore state)
-		if(localStorageUrl != null) {
-			//remove everything before ?
-			currentUrl = currentUrl.substring(currentUrl.indexOf("?"));
-			//compare against what is in local storage
-			if (currentUrl != localStorageUrl) {
-				//check if we are viewing subprocs (if we are, we don't want to restore state)
-				var subprocs = currentUrl.indexOf("superProcInstId") + 16;
-				if(subprocs === "null") {
-					//if they are different, go to the one in local storage (essentially restoring from last time used)
-					window.location="/${base}/processes" + localStorageUrl;
-				}
-			}
+
+		if (localStorage.getItem(rowsToLoadVar) != null) {
+			loadRows = parseInt(localStorage.getItem(rowsToLoadVar));
 		}
 
 		if (localStorage.getItem(rowsToLoadVar) != null) {
@@ -173,7 +166,8 @@
 		
 		displayMessage();
 
-		renderRows(loadRows);
+		//get our params from the url
+		params = getQueryString();
 
 		if (!params) {
 			$("#hide-subprocs-btn").prop('checked', false);
@@ -219,7 +213,7 @@
 				}
         	],
 			stateSave: true,
-			dom: "Q<'row'<'col-sm-auto buttons'B><'col-sm-1 action-button'><'col-sm-4 length'l><'col-sm-auto filter'f>>" + "tip",
+			dom: "Q<'row'<'col-sm-auto buttons'B>><'row'<'col-sm-1 action-button'><'col-sm-1 download-button'><'col-sm-5 length'l><'col-sm-5 filter'f>>" + "tip",
 			buttons: [
 				{
 					text: "Select all on page",
@@ -238,7 +232,7 @@
 				{
 					text: "Select all",
 					action: function () {
-						$("#processes-table").DataTable().rows().select();
+						$("#processes-table").DataTable().rows({filter: "applied"}).select();
 						updateActionList();
 					}
 				},
@@ -263,8 +257,14 @@
         	}
 		});
 
+		renderRows(loadRows);
+
 		var table = $("#processes-table").DataTable();
 		table.on( 'select', function ( e, dt, type, indexes ) {
+			updateActionList();
+		} );
+
+		table.on( 'deselect', function ( e, dt, type, indexes ) {
 			updateActionList();
 		} );
 
@@ -272,13 +272,26 @@
 			+ '<span class="caret"></span>'
 			+ '</button>'
 			+ '<ul id="action-list" class="dropdown-menu test" role="menu" aria-labelledby="menu3">'
-    		+ `<li id="action_disable" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_disable_rows();");">Disable selected rows (all rows selected must be 'pending')</a></li>`
-    		+ `<li id="action_enable" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_enable_rows();">Enable selected rows (all rows selected must be 'disabled')</a></li>`
-    		+ `<li id="action_retry_incident" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_retry_incident_rows();">Retry all selected incident rows (all rows selected must be 'incident')</a></li>`
-    		+ `<li id="action_retry_failed_to_start" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_retry_failed_to_start();">Retry all selected failed to start rows (all rows selected must be 'failedToStart')</a></li>`
-    		+ `<li id="action_mark_as_resolved" class="disabled" role="presentation"><a role="menuitem" href="javascript:action_mark_as_resolved();">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
+			+ `<li id="action_open_selected_new_tabs" class="disabled" role="presentation"><a id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)</a></li>`
+			+ `<li id="action_copy_all_selected_history_links" class="disabled" role="presentation"><a id="action_copy_all_selected_history_links_atag" role="menuitem">Copy all selected history links (must not be pending)</a></li>`
+			+ `<li id="action_download_selected_json" class="disabled" role="presentation"><a id="action_download_selected_json_atag" role="menuitem">Download logs of selected processes (JSON) (all rows selected must not be pending)</a></li>`
+			+ `<li id="action_download_selected_csv" class="disabled" role="presentation"><a id="action_download_selected_csv_atag" role="menuitem">Download logs of selected processes (CSV) (all rows selected must not be pending)</a></li>`
+			+ `<li id="action_disable" class="disabled" role="presentation"><a id="action_disable_atag" role="menuitem">Disable selected rows (all rows selected must be 'pending')</a></li>`
+    		+ `<li id="action_enable" class="disabled" role="presentation"><a id="action_enable_atag" role="menuitem">Enable selected rows (all rows selected must be 'disabled')</a></li>`
+    		+ `<li id="action_retry_incident" class="disabled" role="presentation"><a id="action_retry_incident_atag" role="menuitem">Retry all selected incident rows (all rows selected must be 'incident')</a></li>`
+    		+ `<li id="action_retry_failed_to_start" class="disabled" role="presentation"><a id="action_retry_failed_to_start_atag" role="menuitem">Retry all selected failed to start rows (all rows selected must be 'failedToStart')</a></li>`
+    		+ `<li id="action_mark_as_resolved" class="disabled" role="presentation"><a id="action_mark_as_resolved_atag" role="menuitem">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
   			+ `<#include "adaptation-process-actions.ftl">`
   			+ `</ul>`).appendTo(".action-button");
+
+		$(`<div class="dropdown" style="display:inline;">`
+			+ `<button id="downloadButton" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Download &nbsp;`
+			+ `<span class="caret"></span>`
+			+ `</button>`
+			+ `<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">`
+			+ `<li id="action_download_json" class="enabled" role="presentation"><a id="json-bttn" role="menuitem" href="javascript:downloadListJSON();">Download as JSON</a></li>`
+			+ `</ul>`
+			+ `</div>)`).appendTo(".download-button");
 	});
 
 	$("#load-more-btn").click(function() {
@@ -306,7 +319,6 @@
 		var params = {};
 		
 		if (changeHideSubs) {
-		
 			if ($("#hide-subprocs-btn").prop("checked")) {
 				params.superProcInstId = "null";
 			}
@@ -381,6 +393,16 @@
 		$("#proc-log div.ajax-spinner").show();
 
 		qstr = document.location.search;
+		//we only care about the superProcInstId part of query string
+		if (qstr.indexOf("superProcInstId") > -1) {
+			//get everything after ? and before first &
+			qstr = qstr.substring(qstr.indexOf("?"));
+			if (qstr.indexOf("&") > -1) {
+				qstr = qstr.substring(0, qstr.indexOf("&"));
+			}
+		} else {
+			qstr = "";
+		}
 		//console.log("/${base}/rest/processes/getInstances"+qstr);
 		params = getQueryString();
 		var numProcs = 0;
@@ -390,8 +412,12 @@
 		$.get("/${base}/rest/processes/getInstancesSize"+qstr,
 			function(res) {
 				numProcs = res;
-				console.warn("numProcs: " + numProcs);
-				console.log("numProcs: " + numProcs);
+				rowsTotal = res;
+				if (numProcs < 5000) {
+					$("#load-more-div").hide();
+				} else {
+					$("#load-more-div").show();
+				}
 				if (rowsToLoad === -1) {
 					requestProc = numProcs;
 				} else {
@@ -401,7 +427,6 @@
 				// GET THE PROCESS INSTANCE, 
 				// AND RENDER THEM...
 				//
-				console.log("requestProc: " + requestProc);
 				if (qstr === "") {
 					qstr = "?";
 				}
@@ -413,6 +438,20 @@
 						for (i in res) {
 							var procInstId = (res[i].procInstId == undefined ? '' : res[i].procInstId);
 							var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + procInstId + "/runtime?tab=incidents-tab";
+							if (res[i].startedByWorker !== undefined) {
+								var workerIP = "<br><b>Worker IP: </b>" + res[i].startedByWorker.split("_").slice(0, -2).join(".");
+							} else {
+								var workerIP = "<br><b>Worker IP: </b>";
+							}
+							var procStartTime = (res[i].procStartTime == undefined ? '' : res[i].procStartTime);
+							var procEndTime = (res[i].procEndTime == undefined ? '' : res[i].procEndTime);
+							if (procStartTime !== '' && procEndTime !== '') {
+								var start = moment(procStartTime);
+								var end = moment(procEndTime);
+								var procDuration = "<br><i>(~" + moment.duration(end.diff(start)).humanize() + ")</i>";
+							} else {
+								var procDuration = '';
+							}
 							table.row.add(
 							$("<tr id=\""+i+"\" class=\"tr-"+ res[i].status +"\" procInstId=\"" + procInstId + "\">"+
 								"<td status=\"" + res[i].status + "\" uuid=\"" + res[i].uuid + "\" procInstId=\"" + res[i].procInstId + "\"></td>" +
@@ -423,9 +462,9 @@
 								"<td>"+ (res[i].status == 'incident' ? ("<a href=\""+ incidentUrl +"\" target=\"blank_\">" + procInstId + "</a>") : procInstId) + "</td>" +
 								"<td>"+ res[i].status +"</td>"+
 								"<td>"+ (res[i].createdTimestamp == undefined ? '' : res[i].createdTimestamp) + "</td>"+
-								"<td>"+ (res[i].startedByWorker == undefined ? '' : res[i].startedByWorker) + "</td>"+
-								"<td>"+ (res[i].procStartTime == undefined ? '' : res[i].procStartTime) + "</td>"+
-								"<td>"+ (res[i].procEndTime == undefined ? '' : res[i].procEndTime) + "</td>"+
+								"<td>"+ (res[i].startedByWorker == undefined ? '' : res[i].startedByWorker + workerIP) + "</td>"+
+								"<td>"+ procStartTime + "</td>"+
+								"<td>"+ procEndTime + procDuration + "</td>"+
 							"</tr>")
 							);
 						}
@@ -498,32 +537,89 @@
 		$("#action_retry_failed_to_start").removeClass("enabled");
 		$("#action_mark_as_resolved").addClass("disabled");
 		$("#action_mark_as_resolved").removeClass("enabled");
+		$("#action_open_selected_new_tabs").addClass("disabled");
+		$("#action_open_selected_new_tabs").removeClass("enabled");
+		$("#action_copy_all_selected_history_links").addClass("disabled");
+		$("#action_copy_all_selected_history_links").removeClass("enabled");
+		$("#action_download_selected_json").addClass("disabled");
+		$("#action_download_selected_json").removeClass("enabled");
+		$("#action_download_selected_csv").addClass("disabled");
+		$("#action_download_selected_csv").removeClass("enabled");
+
+		// Remove hrefs from the anchor tags
+		$("#action_disable_atag").removeAttr("href");
+		$("#action_enable_atag").removeAttr("href");
+		$("#action_retry_incident_atag").removeAttr("href");
+		$("#action_retry_failed_to_start_atag").removeAttr("href");
+		$("#action_mark_as_resolved_atag").removeAttr("href");
+		$("#action_open_selected_new_tabs_atag").removeAttr("href");
+		$("#action_copy_all_selected_history_links_atag").removeAttr("href");
+		$("#action_download_selected_json_atag").removeAttr("href");
+		$("#action_download_selected_csv_atag").removeAttr("href");
 
 		// Enable the right one
 
 		// only disabled rows are selected
 		if (disabled) {
 			$("#action_enable").removeClass("disabled");
+			$("#action_enable_atag").attr("href", "javascript:action_enable_rows();");
 		}
 		// only pending rows are selected
 		else if (pending) {
 			$("#action_disable").removeClass("disabled");
+			$("#action_disable_atag").attr("href", "javascript:action_disable_rows();");
 		}
 		// only incident rows are selected
 		else if (incident) {
 			$("#action_retry_incident").removeClass("disabled");
+			$("#action_retry_incident_atag").attr("href", "javascript:action_retry_incident_rows()");
 		}
 		// only failedToStart rows are selected
 		else if (failedToStart) {
 			$("#action_retry_failed_to_start").removeClass("disabled");
+			$("#action_retry_failed_to_start_atag").attr("href", "javascript:action_retry_failed_to_start();");
 		}
 		// only failed rows are selected
 		else if (failed) {
 			$("#action_mark_as_resolved").removeClass("disabled");
+			$("#action_mark_as_resolved_atag").attr("href", "javascript:action_mark_as_resolved();");
+		}
+
+		if ((numSelected > 0 && numPendingSelected === 0)) {
+			$("#action_open_selected_new_tabs").removeClass("disabled");
+			$("#action_open_selected_new_tabs_atag").attr("href", "javascript:action_open_selected_new_tabs();");
+			$("#action_copy_all_selected_history_links").removeClass("disabled");
+			$("#action_copy_all_selected_history_links_atag").attr("href", "javascript:action_copy_all_selected_history_links();");
+			$("#action_download_selected_json").removeClass("disabled");
+			$("#action_download_selected_json_atag").attr("href", "javascript:downloadSelectedJSON();");
+			$("#action_download_selected_csv").removeClass("disabled");
+			$("#action_download_selected_csv_atag").attr("href", "javascript:downloadSelectedCSV();");
 		}
 		
 		// Execute adaptation actions if any
 		updateAdaptationActionList();
+	}
+
+	function action_open_selected_new_tabs() {
+		var table = $("#processes-table").DataTable();
+		var selectedRows = table.rows( { selected: true } );
+		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
+			var data = this.data();
+			window.open("/${base}/history?procInstId=" + data[5], "_blank");
+		} );
+	}
+
+	function action_copy_all_selected_history_links() {
+		var table = $("#processes-table").DataTable();
+		const protocol = window.location.protocol;
+		const host = window.location.host;
+		var selectedRows = table.rows( { selected: true } );
+		var links = "";
+		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
+			var data = this.data();
+			links += protocol + "://" + host + "/${base}/history?procInstId=" + data[5] + "\n";
+		} );
+		navigator.clipboard.writeText(links);
 	}
 
 
@@ -654,7 +750,6 @@
 		//
 		var table = $('#processes-table').DataTable();
 		var selectedRows = table.rows( { selected: true } );
-		console.log(selectedRows.count());
 
 		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
 			var html = this.node();
@@ -681,6 +776,590 @@
 			}
 		});
 		return selectedRowUuids;
+	}
+
+	function downloadSelectedJSON() {
+		var mainJSON = {};
+		//get selected rows
+		var table = $('#processes-table').DataTable();
+		var selectedRows = table.rows( { selected: true } );
+		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
+			var data = this.data();
+			var procInstId = data[5];
+			var json = getInstanceJSON(procInstId);
+			mainJSON[procInstId] = json;
+		});
+		$.fn.dataTable.fileSave(
+			new Blob( [ JSON.stringify(mainJSON) ] ),
+			'processes-' + moment().format('MMM-DD-YYYY-hh-mm-a') + '.json'
+		);
+	}
+
+	function downloadSelectedCSV() {
+		var mainCSV = `"process_definition","process_instance","time stamp","type","source","details"\r\n`;
+		//get selected rows
+		var table = $('#processes-table').DataTable();
+		var selectedRows = table.rows( { selected: true } );
+		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
+			var data = this.data();
+			var procInstId = data[5];
+			var csv = getInstanceCSV(procInstId);
+			mainCSV += csv;
+		});
+		$.fn.dataTable.fileSave(
+			new Blob( [ mainCSV ] ),
+			'processes-' + moment().format('MMM-DD-YYYY-hh-mm-a') + '.csv'
+		);
+	}
+
+	function getInstanceCSV(procInstId) {
+		var outputCSV = "";
+		var logLines = [];
+		var scrollId = "";
+		var proc_info = {};
+		var baseEsReq = {
+			"from": 0,
+			"size": 20,
+			"query": { 
+				"bool": {
+					"must" :[]
+				}
+			},
+			"sort": { "@timestamp": { "order": "asc" } }
+		};
+		baseEsReq.query.bool.must.push({"query_string":{"fields":["procInstId"],"query" : "\"" + decodeURIComponent(procInstId) + "\""}});
+
+		//get process history
+		$.ajax({
+			type: "GET",
+			url: "/${base}/rest/history/" + procInstId,
+			Accept : "application/json",
+			contentType: "application/json",
+			dataType: "json",
+			async: false
+		}).success(function(data) {
+			var status = data.state;
+			if (data.state === "COMPLETED") {
+				status = "Complete";
+			}
+			else if (data.state === "ACTIVE") {
+				status = "Running";
+			}
+			proc_info["process_definition"] = data.procDefKey;
+			proc_info["process_instance"] = data.procInstId;
+			proc_info["start_time"] = data.startTime;
+			proc_info["end_time"] = data.endTime;
+			proc_info["duration"] = convertMillis(data.duration);
+			proc_info["status"] = status;
+			for (const entry of data.details) {
+				let date = entry["date"];
+				if (entry["message"].startsWith("Ended ")) {
+					date += " ";
+				}
+				const row = [date, entry["type"], entry["activity"], outputMessage(entry["message"])];
+				logLines.push(row);
+			}
+		}).fail(function(xhr, err) {
+			console.error("Error getting instance JSON: " + xhr.responseText);
+		});
+
+		$.ajax({
+			type: "GET",
+			url: "/${base}/rest/logs/get?source=" + encodeURIComponent(JSON.stringify(baseEsReq)),
+			Accept : "application/json",
+			contentType: "application/json",
+			dataType: "json",
+			async: false
+		}).success(function(data) {
+			var finished = false;
+			scrollId = data._scroll_id;
+			if (data.hits) {
+				for (const hit of data.hits.hits) {
+					const source = hit._source;
+					const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
+					logLines.push(row);
+					
+				}
+			}
+			while (!finished) {
+				$.ajax({
+					type: "POST",
+					url: "/${base}/rest/logs/get/scroll",
+					data: "scrollId=" + scrollId,
+					async: false,
+					success: function(data) {
+						if (data.hits) {
+							
+							if (data.hits.hits.length > 0) {
+								for (const hit of data.hits.hits) {
+									const source = hit._source;
+									const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
+									logLines.push(row);
+								}
+								scrollId = data._scroll_id;
+							}
+							else {
+								finished = true;
+							}
+						}
+					},
+					error: function(e) {
+						alert("Error retrieving history data.");
+					}
+				});
+			}
+		}).fail(function(xhr, err) {
+			console.error("Error getting instance JSON: " + xhr.responseText);
+		});
+		logLines.sort(function(a, b) {
+			var aTemp = a[0];
+			//if there is a space in the last char, remove it
+			if (aTemp.charAt(aTemp.length - 1) == " ") {
+				aTemp = aTemp.substring(0, aTemp.length - 1);
+			}
+			var bTemp = b[0];
+			//if there is a space in the last char, remove it
+			if (bTemp.charAt(bTemp.length - 1) == " ") {
+				bTemp = bTemp.substring(0, bTemp.length - 1);
+			}
+			var aDate = moment(aTemp);
+			var bDate = moment(bTemp);
+			if (aDate.isBefore(bDate)) return -1;
+			if (bDate.isBefore(aDate)) return 1;
+			return 0;
+		});
+
+		logLines.forEach(function(row) {
+			var data = row;
+			var details = data[3];
+			var tmpDetails = "";
+			var lineString = "";
+			if (data[3].indexOf("Setting (json)") === -1) {
+				details = details.replaceAll('<br>', "\n");
+				details = details.replaceAll("<p>", "");
+				details = details.replaceAll("</p>", "");
+				details = details.replaceAll('"' , '""');
+				details = details.replaceAll('\n' , ' ');
+				//add first and last char as double quotes
+				details = '"' + details + '"';
+				lineString = proc_info["process_definition"] + "," + proc_info["process_instance"] + "," + data[0] + "," + data[1] + "," + data[2] + "," + details + "\r\n";
+			} else {
+				lineString = proc_info["process_definition"] + "," + proc_info["process_instance"] + "," + data[0] + "," + data[1] + "," + data[2] + ",";
+				//remove last char
+				if (data[3].indexOf("_in =") !== -1) {
+					lineString += '"' + details.substring(0, details.indexOf("_in =")+3) + " ";
+					details = details.substring(details.indexOf("_in =")+3);
+				} else {
+					lineString += '"' + details.substring(0, details.indexOf("_out =")+4) + " ";
+					details = details.substring(details.indexOf("_out =")+4);
+				}
+				//now we need to go through and get details from json string
+				//note: key is always after <tr><td ...> and value is the following td
+				while (details.indexOf("<tr><td") !== -1) {
+					details = details.substring(details.indexOf("<tr><td")+8);
+					details = details.substring(details.indexOf(">")+1);
+					var key = details.substring(0, details.indexOf("</td>"));
+					details = details.substring(details.indexOf("<td>")+4);
+					var value = details.substring(0, details.indexOf("</td>"));
+					tmpDetails += key + ": " + value + "; ";
+				}
+				//check/clean tmpDetails
+				if (tmpDetails !== "") {
+					//replace all break points with new line
+					tmpDetails = tmpDetails.replaceAll(/<br>/g, " ");
+					//find and remove everything between <summary>  and  </summary>
+					tmpDetails = tmpDetails.replace(/<summary>.*<\/summary>/g, "");
+					//find and remove <details>  and  </details>
+					tmpDetails = tmpDetails.replace(/<details>/g, "");
+					tmpDetails = tmpDetails.replace(/<\/details>/g, "");
+					//CSV quirk: replace all " with ""
+					tmpDetails = tmpDetails.replaceAll('"' , '""');
+				}
+				//remove last char
+				tmpDetails = tmpDetails.substring(0, tmpDetails.length-1);
+				tmpDetails = tmpDetails + '"';
+				lineString += tmpDetails + "\r\n";
+			}
+			lineString = lineString.replaceAll("<table><tr>", "");
+			outputCSV = outputCSV + lineString;
+		} );
+		return outputCSV;
+	};
+
+	function getInstanceJSON(procInstId) {
+		var outputJSON = {};
+		var logLinesJSON = {};
+		var logLines = [];
+		var scrollId = "";
+		var baseEsReq = {
+			"from": 0,
+			"size": 20,
+			"query": { 
+				"bool": {
+					"must" :[]
+				}
+			},
+			"sort": { "@timestamp": { "order": "asc" } }
+		};
+		baseEsReq.query.bool.must.push({"query_string":{"fields":["procInstId"],"query" : "\"" + decodeURIComponent(procInstId) + "\""}});
+
+		//get process history
+		$.ajax({
+			type: "GET",
+			url: "/${base}/rest/history/" + procInstId,
+			Accept : "application/json",
+			contentType: "application/json",
+			dataType: "json",
+			async: false
+		}).success(function(data) {
+			var status = data.state;
+			if (data.state === "COMPLETED") {
+				status = "Complete";
+			}
+			else if (data.state === "ACTIVE") {
+				status = "Running";
+			}
+			var proc_info = {
+				"process_definition": data.procDefKey,
+				"process_instance": data.procInstId,
+				"start_time": data.startTime,
+				"end_time": data.endTime,
+				"duration": convertMillis(data.duration),
+				"status": status
+			};
+			outputJSON["process_info"] = proc_info;
+			for (const entry of data.details) {
+				let date = entry["date"];
+				if (entry["message"].startsWith("Ended ")) {
+					date += " ";
+				}
+				const row = [date, entry["type"], entry["activity"], outputMessage(entry["message"])];
+				logLines.push(row);
+			}
+		}).fail(function(xhr, err) {
+			console.error("Error getting instance JSON: " + xhr.responseText);
+		});
+
+		$.ajax({
+			type: "GET",
+			url: "/${base}/rest/logs/get?source=" + encodeURIComponent(JSON.stringify(baseEsReq)),
+			Accept : "application/json",
+			contentType: "application/json",
+			dataType: "json",
+			async: false
+		}).success(function(data) {
+			var finished = false;
+			scrollId = data._scroll_id;
+			if (data.hits) {
+				for (const hit of data.hits.hits) {
+					const source = hit._source;
+					const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
+					logLines.push(row);
+					
+				}
+			}
+			while (!finished) {
+				$.ajax({
+					type: "POST",
+					url: "/${base}/rest/logs/get/scroll",
+					data: "scrollId=" + scrollId,
+					async: false,
+					success: function(data) {
+						if (data.hits) {
+							
+							if (data.hits.hits.length > 0) {
+								for (const hit of data.hits.hits) {
+									const source = hit._source;
+									const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
+									logLines.push(row);
+								}
+								scrollId = data._scroll_id;
+							}
+							else {
+								finished = true;
+							}
+						}
+					},
+					error: function(e) {
+						alert("Error retrieving history data.");
+					}
+				});
+			}
+		}).fail(function(xhr, err) {
+			console.error("Error getting instance JSON: " + xhr.responseText);
+		});
+		logLines.sort(function(a, b) {
+			var aTemp = a[0];
+			//if there is a space in the last char, remove it
+			if (aTemp.charAt(aTemp.length - 1) == " ") {
+				aTemp = aTemp.substring(0, aTemp.length - 1);
+			}
+			var bTemp = b[0];
+			//if there is a space in the last char, remove it
+			if (bTemp.charAt(bTemp.length - 1) == " ") {
+				bTemp = bTemp.substring(0, bTemp.length - 1);
+			}
+			var aDate = moment(aTemp);
+			var bDate = moment(bTemp);
+			if (aDate.isBefore(bDate)) return -1;
+			if (bDate.isBefore(aDate)) return 1;
+			return 0;
+		});
+
+		var i = 0;
+		logLines.forEach(function(row) {
+			var data = row;
+			var tmpDetails = data[3];
+			var details = "";
+			var lineJson = {};
+			var nestedJson = {};
+			//go through data[0] and if there is a space at the end, remove it
+			if (data[0].charAt(data[0].length - 1) == " ") {
+				data[0] = data[0].substring(0, data[0].length - 1);
+			}
+			if (data[3].indexOf("Setting (json)") === -1) {
+				//check if data[3] starts with "<table><tr>". If it does, remove it.
+				if (data[3].startsWith("<table><tr>")) {
+					tmpDetails = data[3].substring(11);
+				}
+				details = data[3];
+				lineJson = {
+					"time-stamp": data[0],
+					"type": data[1],
+					"source": data[2],
+					"details": details
+				};
+			} else {
+				var fixedDetails = "";
+				if (data[3].startsWith("<table><tr>")) {
+					data[3] = data[3].substring(11);
+				}
+				//we need to first separate the string from the rest of the HTML
+				if (data[3].indexOf("_in =") !== -1) {
+					details = data[3].substring(0, data[3].indexOf("_in =")+3);
+					tmpDetails = data[3].substring(data[3].indexOf("_in =")+3);
+				} else {
+					details = data[3].substring(0, data[3].indexOf("_out =")+4);
+					tmpDetails = data[3].substring(data[3].indexOf("_out =")+4);
+				}
+				//now we need to go through and get details from json string
+				//note: key is always after <tr><td ...> and value is the following td
+				while (tmpDetails.indexOf("<tr><td") !== -1) {
+					tmpDetails = tmpDetails.substring(tmpDetails.indexOf("<tr><td")+8);
+					tmpDetails = tmpDetails.substring(tmpDetails.indexOf(">")+1);
+					var key = tmpDetails.substring(0, tmpDetails.indexOf("</td>"));
+					tmpDetails = tmpDetails.substring(tmpDetails.indexOf("<td>")+4);
+					var value = tmpDetails.substring(0, tmpDetails.indexOf("</td>"));
+					nestedJson[key] = value;
+				}
+				//check/clean nested json object
+				if (nestedJson["stdout"] !== undefined) {
+					//replace all break points with new line
+					nestedJson["stdout"] = nestedJson["stdout"].replaceAll(/<br>/g, "\n");
+					//find and remove everything between <summary>  and  </summary>
+					nestedJson["stdout"] = nestedJson["stdout"].replace(/<summary>.*<\/summary>/g, "");
+				}
+				lineJson = {
+					"time-stamp": data[0],
+					"type": data[1],
+					"source": data[2],
+					"details": details,
+					"json": nestedJson
+				};
+			}
+			//check/clean details
+			if (lineJson["details"] !== "") {
+				//replace all break points with new line
+				details = details.replaceAll('<br>', "\n");
+				details = details.replaceAll('<br/>', "\n");
+				details = details.replaceAll("<p>", "");
+				details = details.replaceAll("</p>", "");
+				lineJson["details"] = details;
+			}
+			logLinesJSON[i] = lineJson;
+			i++;
+		} );
+		outputJSON["logs"] = logLinesJSON;
+		return outputJSON;
+	};
+
+	function outputMessage(msg) {
+
+		if (msg.startsWith("Setting (json) ")) {
+
+			var i2 = msg.indexOf("= ")
+
+			if (i2 != -1) {
+				var cmd = msg.substring(0, i2 + 1)
+				var jsonObj = JSON.parse(msg.substring(i2 + 2))
+				var output = '<table><tr>' + cmd + '<br/><br/><table id=\"logDataNest\" class=\"table table-striped table-bordered\">'
+
+				Object.keys(jsonObj).forEach(function(key) {
+					var value = jsonObj[key];
+					output += makeRow(key, value, cmd)
+				});
+
+				output += '</table>'
+
+				return output
+			}
+		}
+
+		return msg.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
+	}
+
+	function makeRow(key, value, cmd) {
+
+		var style = 'width: 210px;'
+
+		if (cmd.endsWith('_out =')) {
+			style = 'width: 120px;'
+		}
+
+		if (key == 'stdout' || key == 'stderr') {
+			return '<tr><td style="' + style + ';font-weight:bold;">' + key + '</td><td>' + formatMsg(value) + '</td></tr>'
+		}
+		return '<tr><td style="' + style + ';font-weight:bold;">' + key + '</td><td>' + value + '</td></tr>'
+	}
+
+	function formatMsg(msg) {
+
+		var index = 0, count = 0, maxCount = 30
+
+		for ( ; count < maxCount && i2 != -1; count++) {
+
+			var i2 = msg.indexOf('\n', index)
+
+			if (i2 != -1) {
+				index = i2 + 1
+			}
+		}
+
+		if (count < maxCount - 1 || index > msg.length / 2) {
+			return msg.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
+		}
+
+		var first = msg.substring(0, index).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
+		var rest = msg.substring(index).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
+
+		return first + '<details><summary>Show All</summary>' + rest + '</details>'
+	}
+
+	function convertMillis(millis) {
+
+ 	    var x = millis / 1000
+	    var seconds = Math.floor(x % 60)
+	    x /= 60
+	    var minutes = Math.floor(x)
+		
+		if (minutes === 0)
+			return millis / 1000 + " sec";
+
+		return minutes + " min " + seconds + " sec"
+	}
+
+	$("#json-bttn").click(function(e) {
+		e.preventDefault();
+		downloadListJSON();
+	});
+
+	function downloadListJSON() {
+		var dt = $('#processes-table').DataTable();
+		//number of rows
+		var numRows = dt.rows({selected:true}).count();
+		var jsonFile = {};
+		var processes = {};
+		jsonFile["num_rows_loaded"] = rowsTotal;
+
+		if (numRows === 0) {
+			dt.rows({search:'applied'}).every( function ( rowIdx, tableLoop, rowLoop ) {
+				var data = this.data();
+				var thisProcJSON = {};
+				var startedOnWorker = "";
+				var workerIP = "";
+				var duration = "";
+
+				if (data[8] !== "") {
+					startedOnWorker = data[8];
+					startedOnWorker = startedOnWorker.substring(0, startedOnWorker.indexOf("<br><b>"));
+
+					workerIP = data[8];
+					//get everything after </b>
+					workerIP = workerIP.substring(workerIP.indexOf("</b>") + 4, workerIP.length);
+				} else {
+					startedOnWorker = data[8];
+					workerIP = "";
+				}
+
+				if (data[10] !== "") {
+					duration = data[10];
+					//get everything after <br><i> but before </i>
+					duration = duration.substring(duration.indexOf("<br><i>") + 7, duration.indexOf("</i>"));
+				} else {
+					duration = "";
+				}
+
+				thisProcJSON["definition_key"] = data[4];
+				thisProcJSON["process_instance_id"] = data[5];
+				thisProcJSON["status"] = data[6];
+				thisProcJSON["initiator"] = data[3];
+				thisProcJSON["schedule_queued_time"] = data[7];
+				thisProcJSON["started_on_worker"] = startedOnWorker;
+				thisProcJSON["worker_ip"] = workerIP;
+				thisProcJSON["process_start"] = data[9];
+				thisProcJSON["process_end"] = data[10];
+				thisProcJSON["duration"] = duration;
+
+				processes[data[5]] = thisProcJSON;
+			} );
+		} else {
+			dt.rows({selected:true, search:'applied'}).every( function ( rowIdx, tableLoop, rowLoop ) {
+				var data = this.data();
+				var thisProcJSON = {};
+				var startedOnWorker = "";
+				var workerIP = "";
+				var duration = "";
+
+				if (data[8] !== "") {
+					startedOnWorker = data[8];
+					startedOnWorker = startedOnWorker.substring(0, startedOnWorker.indexOf("<br><b>"));
+
+					workerIP = data[8];
+					//get everything after </b>
+					workerIP = workerIP.substring(workerIP.indexOf("</b>") + 4, workerIP.length);
+				} else {
+					startedOnWorker = data[8];
+					workerIP = "";
+				}
+
+				if (data[10] !== "") {
+					duration = data[10];
+					//get everything after <br><i> but before </i>
+					duration = duration.substring(duration.indexOf("<br><i>") + 7, duration.indexOf("</i>"));
+				} else {
+					duration = "";
+				}
+
+				thisProcJSON["definition_key"] = data[4];
+				thisProcJSON["process_instance_id"] = data[5];
+				thisProcJSON["status"] = data[6];
+				thisProcJSON["initiator"] = data[3];
+				thisProcJSON["schedule_queued_time"] = data[7];
+				thisProcJSON["started_on_worker"] = startedOnWorker;
+				thisProcJSON["worker_ip"] = workerIP;
+				thisProcJSON["process_start"] = data[9];
+				thisProcJSON["process_end"] = data[10];
+				thisProcJSON["duration"] = duration;
+
+				processes[data[5]] = thisProcJSON;
+			} );
+		}
+		jsonFile["processes"] = processes;
+		console.log(jsonFile);
+		$.fn.dataTable.fileSave(
+			new Blob( [ JSON.stringify(jsonFile) ] ),
+			'processes_export.json'
+		);
 	}
 </script>
 <script src="/${base}/js/cws.js"></script>
