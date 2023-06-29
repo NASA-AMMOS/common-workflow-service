@@ -80,7 +80,7 @@ public class ProcessesTestIT extends WebTestUtil {
 					
 					wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("id('processes-table')/tbody/tr[\"+i+\"]")));
 					//Looking at row index for test_proccesses_page and checking for a complete status
-					String status = driver.findElement(By.xpath("id('processes-table')/tbody/tr["+i+"]")).getText();
+					String status = driver.findElement(By.xpath("id('processes-table')/tbody/tr["+i-2+"]")).getText();
 					
 					if (status.contains("complete")) {
 						log.info("Found status complete for procDef");
