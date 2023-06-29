@@ -3,6 +3,7 @@ package jpl.cws.service;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.Console;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
@@ -72,6 +73,7 @@ import jpl.cws.process.initiation.CwsProcessInitiator;
 import jpl.cws.scheduler.CwsProcessInstance;
 import jpl.cws.scheduler.ExternalWorker;
 import jpl.cws.scheduler.HistoryDetail;
+import jpl.cws.scheduler.InputVariableDetail;
 import jpl.cws.scheduler.LogHistory;
 import jpl.cws.scheduler.SchedulerQueueUtils;
 import jpl.cws.scheduler.Worker;
@@ -610,6 +612,46 @@ public class CwsConsoleService {
 		return history;
 	}
 
+	public String getInputVariablesForProcess(String processInstanceId) {
+		List<HistoryDetail> historyDetails = new ArrayList<HistoryDetail>();
+		getHistoryVarDetails(historyDetails, processInstanceId);
+
+		String output = "";
+
+		//go through each history detail and get the input variables
+		for (HistoryDetail historyDetail : historyDetails) {
+			if (historyDetail.type.equals("VarUpdate") && historyDetail.activity.equals(processInstanceId)) {
+				String message = historyDetail.message;
+				String varType = message.substring(message.indexOf("("), message.indexOf(")")+1);
+				String varName = message.substring(message.indexOf(")")+2);
+				varName = varName.substring(0, varName.indexOf("=")-1) + " " + varType;
+				String varValue = message.substring(message.indexOf("=")+2);
+				String temp = varName + ": " + varValue + "<br>";
+				output = output + temp;
+
+				if (varName.startsWith("input_")) {
+					output += varName.substring(6) + "=" + varValue + "\n";
+				}
+			}
+		}
+
+		/*for (HistoryDetail detail : historyDetails) {
+			String message = detail.message;
+			//get everything between ( and )
+			String varType = message.substring(message.indexOf("("), message.indexOf(")")+1);
+			String varName = message.substring(message.indexOf(")")+2);
+			varName = varName.substring(0, varName.indexOf("=")-1) + " " + varType;
+			String varValue = message.substring(message.indexOf("=")+2);
+			output = output + varName + ": " + varValue + "<br>";
+		}
+
+		if (output != "") {
+			output = output.substring(0, output.indexOf("<br>"));
+		}*/
+		
+		return output;
+	}
+
 	public List<ExternalWorker> getExternalWorkersUiDTO() {
 		List<ExternalWorker> workers = new ArrayList<ExternalWorker>();
 
@@ -1033,6 +1075,10 @@ public class CwsConsoleService {
 			String startedByWorker = (String) row.get("started_by_worker");
 			Timestamp procStartTime = (Timestamp) row.get("proc_start_time");
 			Timestamp procEndTime = (Timestamp) row.get("proc_end_time");
+			String inputVars = "";
+			if (procInstIdObj != null) {
+				inputVars = getInputVariablesForProcess(procInstIdObj.toString());
+			}
 			CwsProcessInstance instance = new CwsProcessInstance(uuidObj == null ? null : uuidObj.toString(),
 					procDefKeyObj == null ? null : procDefKeyObj.toString(),
 					procInstIdObj == null ? null : procInstIdObj.toString(),
@@ -1042,7 +1088,8 @@ public class CwsConsoleService {
 					createdTimestampObj == null ? null : createdTimestampObj,
 					updatedTimestampObj == null ? null : updatedTimestampObj,
 					claimedByWorker == null ? null : claimedByWorker, startedByWorker == null ? null : startedByWorker,
-					procStartTime == null ? null : procStartTime, procEndTime == null ? null : procEndTime);
+					procStartTime == null ? null : procStartTime, procEndTime == null ? null : procEndTime,
+					inputVars);
 			instances.add(instance);
 		}
 

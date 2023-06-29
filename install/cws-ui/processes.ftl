@@ -117,8 +117,6 @@
 					<tr>
                         <th>Select</th>
 						<th></th>
-						<th></th>
-						<th>Initiator</th>
 						<th>Definition Key</th>
 						<th>Proc Inst ID</td>
 						<th>Status</th>
@@ -126,6 +124,7 @@
 						<th>Started on Worker</th>
 						<th>Process Start</th>
 						<th>Process End</th>
+						<th style="word-wrap: break-word; max-width: 150px;">Input Variables</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -353,6 +352,7 @@
 			}
 		}
 	}
+	
 
 
 	function viewHistory(procInstId) {
@@ -416,9 +416,8 @@
 							table.row.add(
 							$("<tr id=\""+i+"\" class=\"tr-"+ res[i].status +"\" procInstId=\"" + procInstId + "\">"+
 								"<td status=\"" + res[i].status + "\" uuid=\"" + res[i].uuid + "\" procInstId=\"" + res[i].procInstId + "\"></td>" +
-								"<td><a onclick=\"viewHistory('" + procInstId + "')\" href=\"/${base}/history?procInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">History</a></td>" +
-								"<td><a onclick=\"viewSubProcs('" + procInstId + "')\" href=\"/${base}/processes?superProcInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">Subprocs</a></td>" +
-								"<td id=\"row-" + i + "initiationKey\">"+ (res[i].initiationKey == undefined ? '' : res[i].initiationKey) + "</td>" +
+								"<td><a onclick=\"viewHistory('" + procInstId + "')\" href=\"/${base}/history?procInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">History</a>" +
+								"<a style=\"margin-top: 5px;\" onclick=\"viewSubProcs('" + procInstId + "')\" href=\"/${base}/processes?superProcInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">Subprocs</a></td>" +
 								"<td>"+ res[i].procDefKey +"</td>"+
 								"<td>"+ (res[i].status == 'incident' ? ("<a href=\""+ incidentUrl +"\" target=\"blank_\">" + procInstId + "</a>") : procInstId) + "</td>" +
 								"<td>"+ res[i].status +"</td>"+
@@ -426,6 +425,7 @@
 								"<td>"+ (res[i].startedByWorker == undefined ? '' : res[i].startedByWorker) + "</td>"+
 								"<td>"+ (res[i].procStartTime == undefined ? '' : res[i].procStartTime) + "</td>"+
 								"<td>"+ (res[i].procEndTime == undefined ? '' : res[i].procEndTime) + "</td>"+
+								"<td>"+ (res[i].inputVariables == undefined ? '' : res[i].inputVariables) + "</td>"+
 							"</tr>")
 							);
 						}
