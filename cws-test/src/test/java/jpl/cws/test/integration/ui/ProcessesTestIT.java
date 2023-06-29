@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -69,30 +70,27 @@ public class ProcessesTestIT extends WebTestUtil {
 			WebElement myTable = driver.findElement(By.tagName("table"));
 			wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.tagName("tr")));
 			List<WebElement> myRows = myTable.findElements(By.tagName("tr"));
+
+			sleep(8000);
 			
 			log.info("Locating Test Processes Page from table rows and verifying that it completed.");
-			for (int i = 0; i < myRows.size(); i++) {
-				String row  = myRows.get(i).getText();
-				log.info(row);
-				
-				if (row.contains("test_processes_page")) {
-					log.info("Success, found proc def!");
-					
-					wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("id('processes-table')/tbody/tr[\"+i+\"]")));
-					//Looking at row index for test_proccesses_page and checking for a complete status
-					String status = driver.findElement(By.xpath("id('processes-table')/tbody/tr["+i-2+"]")).getText();
-					
-					if (status.contains("complete")) {
-						log.info("Found status complete for procDef");
-						scriptPass = true;
-						testCasesCompleted++;
-						break;
-					} else {
-						log.info("Fail.");
-						scriptPass = false;
-					}
-				}
-			}	
+			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
+
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_snippets_page");
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
+
+			waitForElementID("processes-table");
+			//selenium: check if "test_processes_page" is on the page
+			if (findOnPage("test_processes_page") && findOnPage("complete")) {
+				log.info("Success, found proc def!");
+				log.info("Found status complete for procDef");
+				scriptPass = true;
+				testCasesCompleted++;
+			} else {
+				log.info("Fail.");
+				scriptPass = false;
+			}
 			log.info("------ END ProcessesTestIT:runStatusCompleteTest:runStatusCompleteTest ------");
 		} 
 		catch (Throwable e) {
