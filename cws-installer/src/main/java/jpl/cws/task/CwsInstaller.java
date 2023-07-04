@@ -1989,6 +1989,7 @@ public class CwsInstaller {
 				print("          elasticsearch_host=" + elasticsearch_host_init + "  ");
 				print("");
 				print("       CWS Installation will default to using given elasticsearch_protocol value: " + elasticsearch_protocol_init + " ");
+
 				print("");
 			}
 
