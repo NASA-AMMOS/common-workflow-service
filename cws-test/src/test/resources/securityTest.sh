@@ -125,10 +125,10 @@ echo "AUTH_RESP = $AUTH_RESP"
 run_test "cws-ui/configuration" 301
 must_contain "CWS Version"
 
-run_test "engine-rest/execution/count" 301
+run_test "engine-rest/execution/count" 200
 must_contain "\"count\":"
 
-run_test "camunda/app/cockpit/default/" 301
+run_test "camunda/app/cockpit/default/" 200
 must_contain "<title>Camunda Cockpit</title>"
 
 # Remove cookies.txt file
