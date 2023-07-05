@@ -214,16 +214,63 @@
 				$('#procDuration').html(convertMillis(data.duration));
 			}
 			
-			var status = data.state;
-			
-			if (data.state === "COMPLETED") {
-				status = "Complete";
+			$.ajax({
+			type: "GET",
+			url: "/${base}/rest/history/getStatus/" + data.procInstId,
+			success: function(data) {
+				var status = data;
+				switch (data) {
+					case "pending":
+						status = "Pending";
+						$("#procStatus").css("color", "blue");
+						break;
+					case "disabled":
+						status = "<b>Disabled</b>";
+						$("#procStatus").css("color", "red");
+						break;
+					case "failedToSchedule":
+						status = "<b>Failed to schedule</b>";
+						$("#procStatus").css("color", "red");
+						break;
+					case "claimedByWorker":
+						status = "Claimed by Worker";
+						$("#procStatus").css("color", "blue");
+						break;
+					case "failedToStart":
+						status = "<b>Failed to start</b>";
+						$("#procStatus").css("color", "red");
+						break;
+					case "running":
+						status = "Running";
+						$("#procStatus").css("color", "blue");
+						break;
+					case "complete":
+						status = "Complete";
+						$("#procStatus").css("color", "green");
+						break;
+					case "resolved":
+						status = "Resolved";
+						$("#procStatus").css("color", "green");
+						break;
+					case "fail":
+						status = "<b>Failed</b>";
+						$("#procStatus").css("color", "red");
+						break;
+					case "incident":
+						status = "<b>Incident</b>";
+						$("#procStatus").css("color", "red");
+						break;
+					default:
+						status = "<b>Unknown</b>";
+						$("#procStatus").css("color", "red");
+						break;
+				}
+				$('#procStatus').html(status);
+			},
+			error: function(e) {
+				$("procStatus").html("Error fetching status - please try again later.");
 			}
-			else if (data.state === "ACTIVE") {
-				status = "Running";
-			}
-			
-			$('#procStatus').html(status);
+			});
 		}
 		
 		return tableRows;
@@ -512,7 +559,7 @@
 						<td style="font-weight:bold;">Duration</td><td id="procDuration">N/A</td>
 					</tr>
 					<tr>
-						<td style="font-weight:bold;">Status</td><td id="procStatus">Unknown</td>
+						<td style="font-weight:bold;">Status</td><td id="procStatus"></td>
 					</tr>
 				</table>
 		</div>

@@ -1120,7 +1120,20 @@ public class RestService extends MvcCore {
 		}
 		return size;
 	}
-	
+
+	@RequestMapping(value="/history/getStatus/{procInstId}", method = GET)
+	public @ResponseBody String getStatusByProcInstId(
+			@PathVariable String procInstId) {
+		List<CwsProcessInstance> instances = null;
+		instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
+				null, procInstId, null, null, null, null, "DESC", 1);
+		if (instances.size() == 0) {
+			return null;
+		} else {
+			return instances.get(0).getStatus();
+		}
+	}
+
 	
 	/**
 	 * REST method used to get Processes table JSON
