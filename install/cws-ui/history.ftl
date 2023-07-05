@@ -13,6 +13,10 @@
 	<script src="/${base}/js/DataTables/datatables.js"></script>
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
+	<style>
+		.dataTables_wrapper .filter .dataTables_filter{float:right; padding-top: 15px; display: inline;}
+		.dataTables_wrapper .download-button {padding-top: 15px;}
+	</style>
 	<script>
 
 	//STATE PERSISTANCE VARS
@@ -266,6 +270,11 @@
 						break;
 				}
 				$('#procStatus').html(status);
+				if ($("#procStatus").text() !== "Failed" && $("#procStatus").text() !== "Failed to start" && $("#procStatus").text() !== "Failed to schedule") {
+					$("#resolveButtonDiv").hide();
+				} else {
+					$("#resolveButtonDiv").show();
+				}
 			},
 			error: function(e) {
 				$("procStatus").html("Error fetching status - please try again later.");
@@ -454,13 +463,38 @@
 			$("#procInstId").text() + '.json'
 		);
 	}
+
+	function markAsResolved(procInstId) {
+		$.ajax({
+			type: "POST",
+			url: "/${base}/rest/process/markResolved/" + procInstId,
+		})
+		.done(function(msg) {
+			$("#action_msg").html(msg.message);
+			location.reload();
+		})
+		.fail(function(xhr, err) {
+			$("#action_msg").html(xhr.responseTextmsg.message);
+		});
+	}
 	
 	$( document ).ready(function() {
 
 		$("#logData").DataTable({
 			order: [[0, 'desc']],
-			paging: false
+			paging: false,
+			dom: "<'row'<'col-sm-2 download-button'><'col-sm-10 filter'f>>" + "tip",
 		});
+
+		$('<div class="dropdown" style="display:inline;">'
+			+ '<button id="downloadButton" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Download &nbsp;'
+			+ '<span class="caret"></span>'
+			+ '</button>'
+			+ '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
+			+ '<li id="action_download_json" class="enabled" role="presentation"><a id="json-bttn" role="menuitem" href="#">Download as JSON</a></li>'
+			+ '<li id="action_download_csv" class="enabled" role="presentation"><a id="csv-bttn" role="menuitem" href="#">Download as CSV</a></li>'
+  			+ '</ul>'
+  			+ '</div>').appendTo(".download-button");
 
 		// Get query string values
 		params = getQueryString();
@@ -563,17 +597,8 @@
 					</tr>
 				</table>
 		</div>
-
-		<div class="col-md-12">
-				<div class="dropdown" style="display:inline;">
-				<button id="downloadButton" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Download &nbsp;
-					<span class="caret"></span>
-				</button>
-				<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">
-					<li id="action_download_json" class="enabled" role="presentation"><a id="json-bttn" role="menuitem" href="#">Download as JSON</a></li>
-					<li id="action_download_csv" class="enabled" role="presentation"><a id="csv-bttn" role="menuitem" href="#">Download as CSV</a></li>
-  				</ul>
-  			</div>
+		<div id="resolveButtonDiv" class="row" style="text-align: center; display: none;">
+			<button id="resolveButton" class="btn btn-primary" type="button" onclick="markAsResolved($('#procInstId').text())">Mark as Resolved</button>
 		</div>
 		<!--
 			<div class="col-sm-12 main">

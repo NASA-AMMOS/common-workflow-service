@@ -1318,6 +1318,21 @@ public class RestService extends MvcCore {
 		log.debug("*** REST CALL *** returning " + numRowsUpdated);
 		return ResponseEntity.ok("{ \"status\" : \"success\", \"message\" : \"Updated " + numRowsUpdated + " rows.\"}");
 	}
+
+	@RequestMapping(value = "/process/markResolved/{procInstId}", method = POST)
+	public @ResponseBody ResponseEntity<String> markIndividualResolved(
+			final HttpSession session,
+			@PathVariable String procInstId) {
+		log.info("*** REST CALL *** /process/MarkResolved ... 1");
+
+		try {
+			schedulerDbService.makeResolved(procInstId);
+		} catch (Exception e) {
+			log.error("Problem while marking procInstId as resolved in DB", e);
+		}
+		log.debug("*** REST CALL *** returning");
+		return ResponseEntity.ok("{ \"status\" : \"success\", \"message\" : \"Updated " + procInstId + ".\"}");
+	}
 	
 	
 	/**
