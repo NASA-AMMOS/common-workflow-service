@@ -496,7 +496,7 @@
 							+ varValue 
 							+ `<button class="copy" onClick='copyInput("` + varValue + `")'>`
 							+ `<span data-text-end="Copied!" data-text-initial="Copy to clipboard" class="tooltip"></span>`
-							+ `<img src="images/copy.svg" class="copy-icon clipboard"`
+							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
 							+ `</button>`
 							+ "</td></tr>";
 			$("#inputVariableTable").append(htmlToAppend);
