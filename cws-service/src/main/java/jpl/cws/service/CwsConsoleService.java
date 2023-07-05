@@ -620,9 +620,13 @@ public class CwsConsoleService {
 		String before = "";
 		String after = "";
 		int putAllAfter = 0;
+		int count = 0;
 
 		for (HistoryDetail historyDetail : historyDetails) {
 			if (historyDetail.type.equals("VarUpdate") && historyDetail.activity.equals(processInstanceId)) {
+				if (count > 3) {
+					putAllAfter = 1;
+				}
 				String message = historyDetail.message;
 				String varType = message.substring(message.indexOf("("), message.indexOf(")")+1);
 				String varName = message.substring(message.indexOf(")")+2);
@@ -643,10 +647,14 @@ public class CwsConsoleService {
 				} else {
 					after = after + temp;
 				}
+				count++;
 			}
 		}
-		output = before + "<details><summary><b>Show All</b></summary>" + after + "</details>";
-		
+		if (after.isEmpty()) {
+			output = before;
+		} else {
+			output = before + "<details><summary><b>Show All</b></summary>" + after + "</details>";
+		}
 		return output;
 	}
 

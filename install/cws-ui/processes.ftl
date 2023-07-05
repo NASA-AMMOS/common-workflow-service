@@ -1293,10 +1293,11 @@
 				var duration = "";
 				var process_end = "";
 				var inputVars = "";
+				var inputVarsTemp = "";
 
 				if (data[8] !== "") {
-					startedOnWorker = data[6].substring(0, startedOnWorker.indexOf("<br><b>"));
-					workerIP = data[6].substring(workerIP.indexOf("</b>") + 4, workerIP.length);
+					startedOnWorker = data[6].substring(0, data[6].indexOf("<br>"));
+					workerIP = data[6].substring(data[6].indexOf("</b>")+4, data[6].length);
 				} else {
 					startedOnWorker = data[6];
 				}
@@ -1309,10 +1310,15 @@
 				}
 
 				if (data[9] !== "") {
-					inputVars = data[9].replaceAll("<br>", ", ");
+					inputVarsTemp = data[9].replaceAll("<br>", ", ");
+					inputVarsTemp = inputVarsTemp.replaceAll("<details><summary><b>Show All</b></summary>", "");
+					while (inputVarsTemp.indexOf("</b>") !== -1) {
+						inputVarsTemp = inputVarsTemp.substring(inputVarsTemp.indexOf("<b>") + 3, inputVarsTemp.length);
+						inputVarsTemp = inputVarsTemp.replace("</b>", "")
+						inputVars += inputVarsTemp.substring(0, inputVarsTemp.indexOf("</div>")) + ", ";
+					}
+					inputVars = inputVars.substring(0, inputVars.length - 2);
 				}
-
-
 
 				thisProcJSON["definition_key"] = data[2];
 				thisProcJSON["process_instance_id"] = data[3];
@@ -1336,10 +1342,11 @@
 				var duration = "";
 				var process_end = "";
 				var inputVars = "";
+				var inputVarsTemp = "";
 
 				if (data[8] !== "") {
-					startedOnWorker = data[6].substring(0, startedOnWorker.indexOf("<br><b>"));
-					workerIP = data[6].substring(workerIP.indexOf("</b>") + 4, workerIP.length);
+					startedOnWorker = data[6].substring(0, data[6].indexOf("<br>"));
+					workerIP = data[6].substring(data[6].indexOf("</b>")+4, data[6].length);
 				} else {
 					startedOnWorker = data[6];
 				}
@@ -1353,7 +1360,14 @@
 				}
 
 				if (data[9] !== "") {
-					inputVars = data[9].replaceAll("<br>", ", ");
+					inputVarsTemp = data[9].replaceAll("<br>", ", ");
+					inputVarsTemp = inputVarsTemp.replaceAll("<details><summary><b>Show All</b></summary>", "");
+					while (inputVarsTemp.indexOf("</b>") !== -1) {
+						inputVarsTemp = inputVarsTemp.substring(inputVarsTemp.indexOf("<b>") + 3, inputVarsTemp.length);
+						inputVarsTemp = inputVarsTemp.replace("</b>", "")
+						inputVars += inputVarsTemp.substring(0, inputVarsTemp.indexOf("</div>")) + ", ";
+					}
+					inputVars = inputVars.substring(0, inputVars.length - 2);
 				}
 
 				thisProcJSON["definition_key"] = data[2];
