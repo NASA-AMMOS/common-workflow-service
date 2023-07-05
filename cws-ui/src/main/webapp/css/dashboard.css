@@ -291,10 +291,10 @@ div[class*="bar-"]{
 
 .copy {
   /* button */
-  --button-bg: #ffffff;
-  --button-hover-bg: #ffffff;
-  --button-text-color: #ffffff;
-  --button-hover-text-color: #ffffff;
+  --button-bg: #ffffff00;
+  --button-hover-bg: #ffffff00;
+  --button-text-color: #ffffff00;
+  --button-hover-text-color: #ffffff00;
   --button-border-radius: px;
   --button-diameter: 25px;
   --button-outline-width: 1px;

@@ -626,7 +626,11 @@ public class CwsConsoleService {
 				String varName = message.substring(message.indexOf(")")+2);
 				varName = varName.substring(0, varName.indexOf("=")-1) + " " + varType;
 				String varValue = message.substring(message.indexOf("=")+2);
-				String temp = "<b>" + varName + ":</b> " + varValue + "<br>";
+				String temp = "<div><div style=\"width: 90%; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + varName + ":</b> " + varValue + "</div><div style=\"width: 10%; float:right\">"
+					+ "<button class=\"copy\" onClick='copyInput(\"" + varValue + "\")'>"
+					+ "<span data-text-end=\"Copied!\" data-text-initial=\"Copy to clipboard\" class=\"tooltip\"></span>"
+					+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+					+ "</button></div></div><br>";
 				if (iter == 5) {
 					output = output + "<details><summary><b>Show All</b></summary>" + temp;
 				} else {

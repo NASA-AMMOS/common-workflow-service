@@ -32,8 +32,7 @@
 			font-size: 90%;
 		}
 		summary::before {
-			margin-right: 1ch;
-			display: inline-block;
+			margin-right: .5ch;
 			content: '▶️';
 			transition: 0.2s;
 		}
@@ -129,7 +128,7 @@
 				<table id="processes-table" class="table table-striped table-bordered sortable">
 					<thead>
 					<tr>
-                        <th>Select</th>
+                        <th style="max-width: 25px;"></th>
 						<th></th>
 						<th>Definition Key</th>
 						<th>Proc Inst ID</td>
@@ -138,7 +137,7 @@
 						<th>Started on Worker</th>
 						<th>Process Start</th>
 						<th>Process End</th>
-						<th style="word-wrap: break-word; max-width: 150px;">Input Variables</th>
+						<th style="word-wrap: break-word; max-width: 200px;">Input Variables</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -698,6 +697,10 @@
 		.fail(function(xhr, err) {
 			$("#action_msg").html(xhr.responseTextmsg.message);
 		});
+	}
+
+	function copyInput(varValue) {
+		navigator.clipboard.writeText(varValue);
 	}
 
 	// --------------------------------------------------------------------------------
