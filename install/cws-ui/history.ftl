@@ -554,38 +554,36 @@
 		
 		<h2 class="sub-header">History</h2>
 		<div class="row">
-			<div class="col-md-6">
-				<table align="center" class="table table-bordered " style="width: 90%; font-size:95%">
-					<tr>
-						<td style="font-weight:bold;">Process Definition</td><td id="procDefKey">Unknown</td>
-					</tr>
-					<tr>
-						<td style="font-weight:bold;">Process Instance ID</td><td id="procInstId">Unknown</td>
-					</tr>
-					<tr>
-						<td style="font-weight:bold;">Start Time</td><td id="procStartTime">N/A</td>
-					</tr>
-					<tr>
-						<td style="font-weight:bold;">End Time</td><td id="procEndTime">N/A</td>
-					</tr>
-					<tr>
-						<td style="font-weight:bold;">Duration</td><td id="procDuration">N/A</td>
-					</tr>
-					<tr>
-						<td style="font-weight:bold;">Status</td><td id="procStatus">Unknown</td>
-					</tr>
-				</table>
-			</div>
-			<div class="col-md-6">
-				<table align="center" class="table table-bordered " style="width: 90%; font-size:95%" id="inputVariableTable">
-					<tr>
-						<th>Input Variable</th>
-						<th>Value</th>
-					</tr>
-					<tbody>
-					</tbody>
-				</table>
-			</div>
+			<table align="center" class="table table-bordered " style="width: 95%; font-size:95%">
+				<tr>
+					<td style="font-weight:bold;">Process Definition</td><td id="procDefKey">Unknown</td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold;">Process Instance ID</td><td id="procInstId">Unknown</td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold;">Start Time</td><td id="procStartTime">N/A</td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold;">End Time</td><td id="procEndTime">N/A</td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold;">Duration</td><td id="procDuration">N/A</td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold;">Status</td><td id="procStatus">Unknown</td>
+				</tr>
+			</table>
+		</div>
+		<div class="row">
+			<table align="center" class="table table-bordered " style="width: 95%; font-size:95%" id="inputVariableTable">
+				<tr>
+					<th>Input Variable</th>
+					<th>Value</th>
+				</tr>
+				<tbody>
+				</tbody>
+			</table>
 		</div>
 		<!--
 			<div class="col-sm-12 main">
