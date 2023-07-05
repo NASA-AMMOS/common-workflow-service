@@ -31,6 +31,16 @@
 		#processes-table {
 			font-size: 90%;
 		}
+		summary::before {
+			margin-right: 1ch;
+			display: inline-block;
+			content: '▶️';
+			transition: 0.2s;
+		}
+
+		details[open] summary::before {
+			transform: rotate(90deg);
+		}
 	</style>
 
 	<!-- Just for debugging purposes. Don't actually copy this line! -->

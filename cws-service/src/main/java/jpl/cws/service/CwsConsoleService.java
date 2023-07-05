@@ -617,8 +617,8 @@ public class CwsConsoleService {
 		getHistoryVarDetails(historyDetails, processInstanceId);
 
 		String output = "";
+		int iter = 0;
 
-		//go through each history detail and get the input variables
 		for (HistoryDetail historyDetail : historyDetails) {
 			if (historyDetail.type.equals("VarUpdate") && historyDetail.activity.equals(processInstanceId)) {
 				String message = historyDetail.message;
@@ -626,28 +626,18 @@ public class CwsConsoleService {
 				String varName = message.substring(message.indexOf(")")+2);
 				varName = varName.substring(0, varName.indexOf("=")-1) + " " + varType;
 				String varValue = message.substring(message.indexOf("=")+2);
-				String temp = varName + ": " + varValue + "<br>";
-				output = output + temp;
-
-				if (varName.startsWith("input_")) {
-					output += varName.substring(6) + "=" + varValue + "\n";
+				String temp = "<b>" + varName + ":</b> " + varValue + "<br>";
+				if (iter == 5) {
+					output = output + "<details><summary><b>Show All</b></summary>" + temp;
+				} else {
+					output = output + temp;
 				}
+				iter++;
 			}
 		}
-
-		/*for (HistoryDetail detail : historyDetails) {
-			String message = detail.message;
-			//get everything between ( and )
-			String varType = message.substring(message.indexOf("("), message.indexOf(")")+1);
-			String varName = message.substring(message.indexOf(")")+2);
-			varName = varName.substring(0, varName.indexOf("=")-1) + " " + varType;
-			String varValue = message.substring(message.indexOf("=")+2);
-			output = output + varName + ": " + varValue + "<br>";
-		}
-
-		if (output != "") {
-			output = output.substring(0, output.indexOf("<br>"));
-		}*/
+		 if( iter >= 5) {
+			 output = output + "</details>";
+		 }
 		
 		return output;
 	}
