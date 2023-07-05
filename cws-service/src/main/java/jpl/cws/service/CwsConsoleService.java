@@ -617,7 +617,9 @@ public class CwsConsoleService {
 		getHistoryVarDetails(historyDetails, processInstanceId);
 
 		String output = "";
-		int iter = 0;
+		String before = "";
+		String after = "";
+		int putAllAfter = 0;
 
 		for (HistoryDetail historyDetail : historyDetails) {
 			if (historyDetail.type.equals("VarUpdate") && historyDetail.activity.equals(processInstanceId)) {
@@ -626,22 +628,24 @@ public class CwsConsoleService {
 				String varName = message.substring(message.indexOf(")")+2);
 				varName = varName.substring(0, varName.indexOf("=")-1) + " " + varType;
 				String varValue = message.substring(message.indexOf("=")+2);
-				String temp = "<div><div style=\"width: 90%; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + varName + ":</b> " + varValue + "</div><div style=\"width: 10%; float:right\">"
+				String temp = "<div><div style=\"width: 85%; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + varName + ":</b> " + varValue + "</div><div style=\"width: 15%; float:right\">"
 					+ "<button class=\"copy\" onClick='copyInput(\"" + varValue + "\")'>"
 					+ "<span data-text-end=\"Copied!\" data-text-initial=\"Copy to clipboard\" class=\"tooltip\"></span>"
 					+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
 					+ "</button></div></div><br>";
-				if (iter == 5) {
-					output = output + "<details><summary><b>Show All</b></summary>" + temp;
+				if (varName.contains("workerId")) {
+					after = after + temp;
+				} else if (varName.contains("startedOnWorkerId")) {
+					after = after + temp;
+					putAllAfter = 1;
+				} else if (putAllAfter == 0) {
+					before = before + temp;
 				} else {
-					output = output + temp;
+					after = after + temp;
 				}
-				iter++;
 			}
 		}
-		 if( iter >= 5) {
-			 output = output + "</details>";
-		 }
+		output = before + "<details><summary><b>Show All</b></summary>" + after + "</details>";
 		
 		return output;
 	}
