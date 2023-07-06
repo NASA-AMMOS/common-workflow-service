@@ -3,6 +3,7 @@ package jpl.cws.service;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.Console;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
@@ -72,6 +73,7 @@ import jpl.cws.process.initiation.CwsProcessInitiator;
 import jpl.cws.scheduler.CwsProcessInstance;
 import jpl.cws.scheduler.ExternalWorker;
 import jpl.cws.scheduler.HistoryDetail;
+import jpl.cws.scheduler.InputVariableDetail;
 import jpl.cws.scheduler.LogHistory;
 import jpl.cws.scheduler.SchedulerQueueUtils;
 import jpl.cws.scheduler.Worker;
@@ -610,6 +612,52 @@ public class CwsConsoleService {
 		return history;
 	}
 
+	public String getInputVariablesForProcess(String processInstanceId) {
+		List<HistoryDetail> historyDetails = new ArrayList<HistoryDetail>();
+		getHistoryVarDetails(historyDetails, processInstanceId);
+
+		String output = "";
+		String before = "";
+		String after = "";
+		int putAllAfter = 0;
+		int count = 0;
+
+		for (HistoryDetail historyDetail : historyDetails) {
+			if (historyDetail.type.equals("VarUpdate") && historyDetail.activity.equals(processInstanceId)) {
+				if (count > 3) {
+					putAllAfter = 1;
+				}
+				String message = historyDetail.message;
+				String varType = message.substring(message.indexOf("("), message.indexOf(")")+1);
+				String varName = message.substring(message.indexOf(")")+2);
+				varName = varName.substring(0, varName.indexOf("=")-1) + " " + varType;
+				String varValue = message.substring(message.indexOf("=")+2);
+				String temp = "<div><div style=\"width: 85%; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + varName + ":</b> " + varValue + "</div><div style=\"width: 15%; float:right\">"
+					+ "<button class=\"copy\" onClick='copyInput(\"" + varValue + "\")'>"
+					+ "<span data-text-end=\"Copied!\" data-text-initial=\"Copy to clipboard\" class=\"tooltip\"></span>"
+					+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+					+ "</button></div></div><br>";
+				if (varName.contains("workerId")) {
+					after = after + temp;
+				} else if (varName.contains("startedOnWorkerId")) {
+					after = after + temp;
+					putAllAfter = 1;
+				} else if (putAllAfter == 0) {
+					before = before + temp;
+				} else {
+					after = after + temp;
+				}
+				count++;
+			}
+		}
+		if (after.isEmpty()) {
+			output = before;
+		} else {
+			output = before + "<details><summary><b>Show All</b></summary>" + after + "</details>";
+		}
+		return output;
+	}
+
 	public List<ExternalWorker> getExternalWorkersUiDTO() {
 		List<ExternalWorker> workers = new ArrayList<ExternalWorker>();
 
@@ -1033,6 +1081,10 @@ public class CwsConsoleService {
 			String startedByWorker = (String) row.get("started_by_worker");
 			Timestamp procStartTime = (Timestamp) row.get("proc_start_time");
 			Timestamp procEndTime = (Timestamp) row.get("proc_end_time");
+			String inputVars = "";
+			if (procInstIdObj != null) {
+				inputVars = getInputVariablesForProcess(procInstIdObj.toString());
+			}
 			CwsProcessInstance instance = new CwsProcessInstance(uuidObj == null ? null : uuidObj.toString(),
 					procDefKeyObj == null ? null : procDefKeyObj.toString(),
 					procInstIdObj == null ? null : procInstIdObj.toString(),
@@ -1042,7 +1094,8 @@ public class CwsConsoleService {
 					createdTimestampObj == null ? null : createdTimestampObj,
 					updatedTimestampObj == null ? null : updatedTimestampObj,
 					claimedByWorker == null ? null : claimedByWorker, startedByWorker == null ? null : startedByWorker,
-					procStartTime == null ? null : procStartTime, procEndTime == null ? null : procEndTime);
+					procStartTime == null ? null : procStartTime, procEndTime == null ? null : procEndTime,
+					inputVars);
 			instances.add(instance);
 		}
 

@@ -31,6 +31,15 @@
 		#processes-table {
 			font-size: 90%;
 		}
+		summary::before {
+			margin-right: .5ch;
+			content: '▶️';
+			transition: 0.2s;
+		}
+
+		details[open] summary::before {
+			transform: rotate(90deg);
+		}
 	</style>
 
 	<!-- Just for debugging purposes. Don't actually copy this line! -->
@@ -119,10 +128,8 @@
 				<table id="processes-table" class="table table-striped table-bordered sortable">
 					<thead>
 					<tr>
-                        <th>Select</th>
+                        <th style="max-width: 25px;"></th>
 						<th></th>
-						<th></th>
-						<th>Initiator</th>
 						<th>Definition Key</th>
 						<th>Proc Inst ID</td>
 						<th>Status</th>
@@ -130,6 +137,7 @@
 						<th>Started on Worker</th>
 						<th>Process Start</th>
 						<th>Process End</th>
+						<th style="word-wrap: break-word; max-width: 200px;">Input Variables</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -365,6 +373,7 @@
 			}
 		}
 	}
+	
 
 
 	function viewHistory(procInstId) {
@@ -455,9 +464,8 @@
 							table.row.add(
 							$("<tr id=\""+i+"\" class=\"tr-"+ res[i].status +"\" procInstId=\"" + procInstId + "\">"+
 								"<td status=\"" + res[i].status + "\" uuid=\"" + res[i].uuid + "\" procInstId=\"" + res[i].procInstId + "\"></td>" +
-								"<td><a onclick=\"viewHistory('" + procInstId + "')\" href=\"/${base}/history?procInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">History</a></td>" +
-								"<td><a onclick=\"viewSubProcs('" + procInstId + "')\" href=\"/${base}/processes?superProcInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">Subprocs</a></td>" +
-								"<td id=\"row-" + i + "initiationKey\">"+ (res[i].initiationKey == undefined ? '' : res[i].initiationKey) + "</td>" +
+								"<td><a onclick=\"viewHistory('" + procInstId + "')\" href=\"/${base}/history?procInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">History</a>" +
+								"<a style=\"margin-top: 5px;\" onclick=\"viewSubProcs('" + procInstId + "')\" href=\"/${base}/processes?superProcInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">Subprocs</a></td>" +
 								"<td>"+ res[i].procDefKey +"</td>"+
 								"<td>"+ (res[i].status == 'incident' ? ("<a href=\""+ incidentUrl +"\" target=\"blank_\">" + procInstId + "</a>") : procInstId) + "</td>" +
 								"<td>"+ res[i].status +"</td>"+
@@ -465,6 +473,7 @@
 								"<td>"+ (res[i].startedByWorker == undefined ? '' : res[i].startedByWorker + workerIP) + "</td>"+
 								"<td>"+ procStartTime + "</td>"+
 								"<td>"+ procEndTime + procDuration + "</td>"+
+								"<td>"+ (res[i].inputVariables == undefined ? '' : res[i].inputVariables) + "</td>"+
 							"</tr>")
 							);
 						}
@@ -688,6 +697,10 @@
 		.fail(function(xhr, err) {
 			$("#action_msg").html(xhr.responseTextmsg.message);
 		});
+	}
+
+	function copyInput(varValue) {
+		navigator.clipboard.writeText(varValue);
 	}
 
 	// --------------------------------------------------------------------------------
@@ -1278,80 +1291,97 @@
 				var startedOnWorker = "";
 				var workerIP = "";
 				var duration = "";
+				var process_end = "";
+				var inputVars = "";
+				var inputVarsTemp = "";
 
 				if (data[8] !== "") {
-					startedOnWorker = data[8];
-					startedOnWorker = startedOnWorker.substring(0, startedOnWorker.indexOf("<br><b>"));
-
-					workerIP = data[8];
-					//get everything after </b>
-					workerIP = workerIP.substring(workerIP.indexOf("</b>") + 4, workerIP.length);
+					startedOnWorker = data[6].substring(0, data[6].indexOf("<br>"));
+					workerIP = data[6].substring(data[6].indexOf("</b>")+4, data[6].length);
 				} else {
-					startedOnWorker = data[8];
-					workerIP = "";
+					startedOnWorker = data[6];
 				}
 
-				if (data[10] !== "") {
-					duration = data[10];
+				if (data[8] !== "") {
+					duration = data[8];
 					//get everything after <br><i> but before </i>
 					duration = duration.substring(duration.indexOf("<br><i>") + 7, duration.indexOf("</i>"));
-				} else {
-					duration = "";
+					process_end = data[8].substring(0, data[8].indexOf("<br><i>")-1);
 				}
 
-				thisProcJSON["definition_key"] = data[4];
-				thisProcJSON["process_instance_id"] = data[5];
-				thisProcJSON["status"] = data[6];
-				thisProcJSON["initiator"] = data[3];
-				thisProcJSON["schedule_queued_time"] = data[7];
+				if (data[9] !== "") {
+					inputVarsTemp = data[9].replaceAll("<br>", ", ");
+					inputVarsTemp = inputVarsTemp.replaceAll("<details><summary><b>Show All</b></summary>", "");
+					while (inputVarsTemp.indexOf("</b>") !== -1) {
+						inputVarsTemp = inputVarsTemp.substring(inputVarsTemp.indexOf("<b>") + 3, inputVarsTemp.length);
+						inputVarsTemp = inputVarsTemp.replace("</b>", "")
+						inputVars += inputVarsTemp.substring(0, inputVarsTemp.indexOf("</div>")) + ", ";
+					}
+					inputVars = inputVars.substring(0, inputVars.length - 2);
+				}
+
+				thisProcJSON["definition_key"] = data[2];
+				thisProcJSON["process_instance_id"] = data[3];
+				thisProcJSON["status"] = data[4];
+				thisProcJSON["schedule_queued_time"] = data[5];
 				thisProcJSON["started_on_worker"] = startedOnWorker;
 				thisProcJSON["worker_ip"] = workerIP;
-				thisProcJSON["process_start"] = data[9];
-				thisProcJSON["process_end"] = data[10];
+				thisProcJSON["process_start"] = data[7];
+				thisProcJSON["process_end"] = process_end;
 				thisProcJSON["duration"] = duration;
+				thisProcJSON["input_variables"] = inputVars;
 
-				processes[data[5]] = thisProcJSON;
+				processes[data[3]] = thisProcJSON;
 			} );
 		} else {
-			dt.rows({selected:true, search:'applied'}).every( function ( rowIdx, tableLoop, rowLoop ) {
+			dt.rows({selected: true, search:'applied'}).every( function ( rowIdx, tableLoop, rowLoop ) {
 				var data = this.data();
 				var thisProcJSON = {};
 				var startedOnWorker = "";
 				var workerIP = "";
 				var duration = "";
+				var process_end = "";
+				var inputVars = "";
+				var inputVarsTemp = "";
 
 				if (data[8] !== "") {
-					startedOnWorker = data[8];
-					startedOnWorker = startedOnWorker.substring(0, startedOnWorker.indexOf("<br><b>"));
-
-					workerIP = data[8];
-					//get everything after </b>
-					workerIP = workerIP.substring(workerIP.indexOf("</b>") + 4, workerIP.length);
+					startedOnWorker = data[6].substring(0, data[6].indexOf("<br>"));
+					workerIP = data[6].substring(data[6].indexOf("</b>")+4, data[6].length);
 				} else {
-					startedOnWorker = data[8];
-					workerIP = "";
+					startedOnWorker = data[6];
 				}
 
-				if (data[10] !== "") {
-					duration = data[10];
+				if (data[8] !== "") {
+					duration = data[8];
 					//get everything after <br><i> but before </i>
 					duration = duration.substring(duration.indexOf("<br><i>") + 7, duration.indexOf("</i>"));
-				} else {
-					duration = "";
+					process_end = data[8].substring(0, data[8].indexOf("<br><i>")-1);
+					
 				}
 
-				thisProcJSON["definition_key"] = data[4];
-				thisProcJSON["process_instance_id"] = data[5];
-				thisProcJSON["status"] = data[6];
-				thisProcJSON["initiator"] = data[3];
-				thisProcJSON["schedule_queued_time"] = data[7];
+				if (data[9] !== "") {
+					inputVarsTemp = data[9].replaceAll("<br>", ", ");
+					inputVarsTemp = inputVarsTemp.replaceAll("<details><summary><b>Show All</b></summary>", "");
+					while (inputVarsTemp.indexOf("</b>") !== -1) {
+						inputVarsTemp = inputVarsTemp.substring(inputVarsTemp.indexOf("<b>") + 3, inputVarsTemp.length);
+						inputVarsTemp = inputVarsTemp.replace("</b>", "")
+						inputVars += inputVarsTemp.substring(0, inputVarsTemp.indexOf("</div>")) + ", ";
+					}
+					inputVars = inputVars.substring(0, inputVars.length - 2);
+				}
+
+				thisProcJSON["definition_key"] = data[2];
+				thisProcJSON["process_instance_id"] = data[3];
+				thisProcJSON["status"] = data[4];
+				thisProcJSON["schedule_queued_time"] = data[5];
 				thisProcJSON["started_on_worker"] = startedOnWorker;
 				thisProcJSON["worker_ip"] = workerIP;
-				thisProcJSON["process_start"] = data[9];
-				thisProcJSON["process_end"] = data[10];
+				thisProcJSON["process_start"] = data[7];
+				thisProcJSON["process_end"] = process_end;
 				thisProcJSON["duration"] = duration;
+				thisProcJSON["input_variables"] = inputVars;
 
-				processes[data[5]] = thisProcJSON;
+				processes[data[3]] = thisProcJSON;
 			} );
 		}
 		jsonFile["processes"] = processes;

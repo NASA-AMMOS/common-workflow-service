@@ -21,6 +21,8 @@ public class CwsProcessInstance {
 	
 	private Timestamp procStartTime;  // from Camunda ACT_HI_PROCINST_ table
 	private Timestamp procEndTime;    // from Camunda ACT_HI_PROCINST_ table
+
+	private String inputVariables;
 	
 	public CwsProcessInstance(
 			String uuid,
@@ -34,7 +36,8 @@ public class CwsProcessInstance {
 			String claimedByWorker,
 			String startedByWorker,
 			Timestamp procStartTime,
-			Timestamp procEndTime) {
+			Timestamp procEndTime,
+			String inputVariables) {
 		super();
 		this.uuid = uuid;
 		this.procDefKey = procDefKey;
@@ -48,6 +51,7 @@ public class CwsProcessInstance {
 		this.startedByWorker = startedByWorker;
 		this.procStartTime = procStartTime;
 		this.procEndTime = procEndTime;
+		this.inputVariables = inputVariables;
 	}
 	
 	public String getUuid() {
@@ -81,6 +85,13 @@ public class CwsProcessInstance {
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	public void setInputVariables(String input) {
+		this.inputVariables = input;
+	}
+
+	public String getInputVariables() {
+		return inputVariables;
 	}
 	
 	public String getInitiationKey() {
