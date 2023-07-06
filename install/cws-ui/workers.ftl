@@ -5,6 +5,8 @@
 	<script src="/${base}/js/jquery.min.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<script src="/${base}/js/adaptation-workers.js"></script>
+	<script src="/${base}/js/DataTables/datatables.js"></script>
+	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
 	<script src="/${base}/js/cws.js"></script>
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
@@ -196,6 +198,30 @@
 			
 			refreshStats();
 			pageRefId  = setInterval(pageRefresh, refreshRate);
+
+			$("#workers-table").DataTable({
+				columnDefs: [
+					{ orderable: false, targets: 3 },
+					{ orderable: false, targets: 4 }
+				],
+				order: [[0, 'asc']]
+			});
+			$("#ext-workers-table").DataTable({
+				order: [[0, 'asc']]
+			});
+			$("#amq-clients-table").DataTable({
+				order: [[0, 'asc']]
+			});
+			
+			if(localStorage.getItem(hideDownWorkersVar) === "1") {
+				$("#hide-down-btn").prop("checked", true);
+				var table = $('#workers-table').DataTable();
+				table.columns(1).search("up").draw();
+			} else {
+				$("#hide-down-btn").prop("checked", false);
+				var table = $('#workers-table').DataTable();
+				table.columns(1).search("").draw();
+			}
 		});
 	
 		function pageRefresh(){
@@ -376,7 +402,7 @@
 			
 			<h3 class="sub-header">AMQ Clients</h3>
 			<div class="table-responsive">
-				<table class="table table-striped table-bordered">
+				<table id="amq-clients-table" class="table table-striped table-bordered">
 					<thead>
 						<tr>
 							<th>Remote Address</th>
@@ -413,30 +439,16 @@
 <script type="text/javascript">
 	$("#hide-down-btn").click(function() {
 		if ($(this).prop("checked")) {
-			$('#workers-table tbody tr').filter(function () {
-		        return $.trim($(this).find('td').eq(1).text()) === "down"
-		    }).hide();
+			var table = $('#workers-table').DataTable();
+			table.columns(1).search("up").draw();
 			localStorage.setItem(hideDownWorkersVar, "1");
 		}
 		else {
-			$('#workers-table tbody tr').filter(function () {
-		        return $.trim($(this).find('td').eq(1).text()) === "down"
-		    }).show();
+			var table = $('#workers-table').DataTable();
+			table.columns(1).search("").draw();
 			localStorage.setItem(hideDownWorkersVar, "0");
 		}
 	});
-
-	if(localStorage.getItem(hideDownWorkersVar) === "1") {
-		$("#hide-down-btn").prop("checked", true);
-		$('#workers-table tbody tr').filter(function () {
-	        return $.trim($(this).find('td').eq(1).text()) === "down"
-	    }).hide();
-	} else {
-		$("#hide-down-btn").prop("checked", false);
-		$('#workers-table tbody tr').filter(function () {
-	        return $.trim($(this).find('td').eq(1).text()) === "down"
-	    }).show();
-	}
 </script>
 </body>
 </html>
