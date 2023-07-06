@@ -277,10 +277,18 @@
 						break;
 				}
 				$('#procStatus').html(status);
-				if ($("#procStatus").text() !== "Failed" && $("#procStatus").text() !== "Failed to start" && $("#procStatus").text() !== "Failed to schedule") {
-					$("#resolveButtonDiv").hide();
-				} else {
+				if ($("#procStatus").text() == "Failed") {
 					$("#resolveButtonDiv").show();
+					$("#resolveButton").show();
+					$("#retryIncidentButton").hide();
+				} else if ($("#procStatus").text() == "Incident") {
+					$("#resolveButtonDiv").show();
+					$("#retryIncidentButton").show();
+					$("#resolveButton").hide();
+				} else {
+					$("#resolveButtonDiv").hide();
+					$("#resolveButton").hide();
+					$("#retryIncidentButton").hide();
 				}
 			},
 			error: function(e) {
@@ -483,17 +491,41 @@
 		);
 	}
 
-	function markAsResolved(procInstId) {
+	function retryIncident(procInstId) {
+		var idArr = [procInstId];
 		$.ajax({
 			type: "POST",
-			url: "/${base}/rest/process/markResolved/" + procInstId,
+			url: "/${base}/rest/processes/retryIncidentRows",
+			Accept : "application/json",
+			contentType: "application/json",
+			dataType: "json",
+			data: JSON.stringify(idArr),
 		})
 		.done(function(msg) {
-			$("#action_msg").html(msg.message);
+			console.log(msg);
 			location.reload();
 		})
 		.fail(function(xhr, err) {
-			$("#action_msg").html(xhr.responseTextmsg.message);
+			console.err(msg);
+		});
+	}
+
+	function markAsResolved(procInstId) {
+		var idArr = [procInstId];
+		$.ajax({
+			type: "POST",
+			url: "/${base}/rest/processes/markResolved",
+			Accept : "application/json",
+			contentType: "application/json",
+			dataType: "json",
+			data: JSON.stringify(idArr),
+		})
+		.done(function(msg) {
+			console.log(msg);
+			location.reload();
+		})
+		.fail(function(xhr, err) {
+			console.err(xhr.responseTextmsg.message);
 		});
 	}
 	
@@ -654,6 +686,7 @@
 		</div>
       <div id="resolveButtonDiv" class="row" style="text-align: center; display: none;">
         <button id="resolveButton" class="btn btn-primary" type="button" onclick="markAsResolved($('#procInstId').text())">Mark as Resolved</button>
+		<button id="retryIncidentButton" class="btn btn-primary" type="button" onclick="retryIncident($('#procInstId').text())">Retry Incident</button>
       </div>
 		</div>
 	
