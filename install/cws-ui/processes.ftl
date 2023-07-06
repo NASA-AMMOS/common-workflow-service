@@ -221,7 +221,7 @@
 				}
         	],
 			stateSave: true,
-			dom: "Q<'row'<'col-sm-auto buttons'B>><'row'<'col-sm-1 action-button'><'col-sm-1 download-button'><'col-sm-5 length'l><'col-sm-5 filter'f>>" + "tip",
+			dom: "Q<'row'<'col-sm-auto buttons'B>><'row'<'col-sm-1 action-button'><'col-sm-5 length'l><'col-sm-6 filter'f>>" + "tip",
 			buttons: [
 				{
 					text: "Select all on page",
@@ -282,6 +282,7 @@
 			+ '<ul id="action-list" class="dropdown-menu test" role="menu" aria-labelledby="menu3">'
 			+ `<li id="action_open_selected_new_tabs" class="disabled" role="presentation"><a id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)</a></li>`
 			+ `<li id="action_copy_all_selected_history_links" class="disabled" role="presentation"><a id="action_copy_all_selected_history_links_atag" role="menuitem">Copy all selected history links (must not be pending)</a></li>`
+			+ `<li id="action_download_selected_list" class="disabled" role="presentation"><a id="action_download_selected_list_atag" role="menuitem">Download list of selected processes (JSON) (must select at least one row)</a></li>`
 			+ `<li id="action_download_selected_json" class="disabled" role="presentation"><a id="action_download_selected_json_atag" role="menuitem">Download logs of selected processes (JSON) (all rows selected must not be pending)</a></li>`
 			+ `<li id="action_download_selected_csv" class="disabled" role="presentation"><a id="action_download_selected_csv_atag" role="menuitem">Download logs of selected processes (CSV) (all rows selected must not be pending)</a></li>`
 			+ `<li id="action_disable" class="disabled" role="presentation"><a id="action_disable_atag" role="menuitem">Disable selected rows (all rows selected must be 'pending')</a></li>`
@@ -291,15 +292,6 @@
     		+ `<li id="action_mark_as_resolved" class="disabled" role="presentation"><a id="action_mark_as_resolved_atag" role="menuitem">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
   			+ `<#include "adaptation-process-actions.ftl">`
   			+ `</ul>`).appendTo(".action-button");
-
-		$(`<div class="dropdown" style="display:inline;">`
-			+ `<button id="downloadButton" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Download &nbsp;`
-			+ `<span class="caret"></span>`
-			+ `</button>`
-			+ `<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">`
-			+ `<li id="action_download_json" class="enabled" role="presentation"><a id="json-bttn" role="menuitem" href="javascript:downloadListJSON();">Download as JSON</a></li>`
-			+ `</ul>`
-			+ `</div>)`).appendTo(".download-button");
 	});
 
 	$("#load-more-btn").click(function() {
@@ -554,6 +546,8 @@
 		$("#action_download_selected_json").removeClass("enabled");
 		$("#action_download_selected_csv").addClass("disabled");
 		$("#action_download_selected_csv").removeClass("enabled");
+		$("#action_download_selected_list").addClass("disabled");
+		$("#action_download_selected_list").removeClass("enabled");
 
 		// Remove hrefs from the anchor tags
 		$("#action_disable_atag").removeAttr("href");
@@ -565,6 +559,7 @@
 		$("#action_copy_all_selected_history_links_atag").removeAttr("href");
 		$("#action_download_selected_json_atag").removeAttr("href");
 		$("#action_download_selected_csv_atag").removeAttr("href");
+		$("#action_download_selected_list_atag").removeAttr("href");
 
 		// Enable the right one
 
@@ -595,14 +590,18 @@
 		}
 
 		if ((numSelected > 0 && numPendingSelected === 0)) {
-			$("#action_open_selected_new_tabs").removeClass("disabled");
-			$("#action_open_selected_new_tabs_atag").attr("href", "javascript:action_open_selected_new_tabs();");
-			$("#action_copy_all_selected_history_links").removeClass("disabled");
-			$("#action_copy_all_selected_history_links_atag").attr("href", "javascript:action_copy_all_selected_history_links();");
-			$("#action_download_selected_json").removeClass("disabled");
-			$("#action_download_selected_json_atag").attr("href", "javascript:downloadSelectedJSON();");
-			$("#action_download_selected_csv").removeClass("disabled");
-			$("#action_download_selected_csv_atag").attr("href", "javascript:downloadSelectedCSV();");
+			$("#action_download_selected_list").removeClass("disabled");
+			$("#action_download_selected_list_atag").attr("href", "javascript:downloadListJSON();");
+			if (numPendingSelected === 0) {
+				$("#action_open_selected_new_tabs").removeClass("disabled");
+				$("#action_open_selected_new_tabs_atag").attr("href", "javascript:action_open_selected_new_tabs();");
+				$("#action_copy_all_selected_history_links").removeClass("disabled");
+				$("#action_copy_all_selected_history_links_atag").attr("href", "javascript:action_copy_all_selected_history_links();");
+				$("#action_download_selected_json").removeClass("disabled");
+				$("#action_download_selected_json_atag").attr("href", "javascript:downloadSelectedJSON();");
+				$("#action_download_selected_csv").removeClass("disabled");
+				$("#action_download_selected_csv_atag").attr("href", "javascript:downloadSelectedCSV();");
+			}
 		}
 		
 		// Execute adaptation actions if any
