@@ -64,7 +64,7 @@ public class ProcessesTestIT extends WebTestUtil {
 			log.info("------ START ProcessesTestIT:runStatusCompleteTest ------");
 
 			goToPage("processes");
-			
+
 			log.info("Getting info from table...");
 			wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.tagName("table")));
 			WebElement myTable = driver.findElement(By.tagName("table"));
@@ -72,7 +72,7 @@ public class ProcessesTestIT extends WebTestUtil {
 			List<WebElement> myRows = myTable.findElements(By.tagName("tr"));
 
 			sleep(8000);
-			
+      
 			log.info("Locating Test Processes Page from table rows and verifying that it completed.");
 			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
 
@@ -92,7 +92,7 @@ public class ProcessesTestIT extends WebTestUtil {
 				scriptPass = false;
 			}
 			log.info("------ END ProcessesTestIT:runStatusCompleteTest:runStatusCompleteTest ------");
-		} 
+		}
 		catch (Throwable e) {
 			System.out.println(e.toString());
 			scriptPass = false;

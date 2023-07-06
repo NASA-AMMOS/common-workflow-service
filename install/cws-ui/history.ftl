@@ -14,7 +14,8 @@
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<style>
-		.dataTables_wrapper .filter .dataTables_filter{float:right; margin-top: 15px; display: inline; margin-right: 15px;}
+		.dataTables_wrapper .filter .dataTables_filter{float:right; padding-top: 15px; display: inline; margin-right: 15px;}
+		.dataTables_wrapper .download-button {padding-top: 15px;}
 		.dataTables_wrapper .button {float:left; display: inline; margin-top: 15px; margin-right: 15px;}
 		.dataTables_wrapper {margin-left: 5px; margin-right: -10px;}
 	</style>
@@ -224,16 +225,76 @@
 				$('#procDuration').html(convertMillis(data.duration));
 			}
 			
-			var status = data.state;
-			
-			if (data.state === "COMPLETED") {
-				status = "Complete";
+			$.ajax({
+			type: "GET",
+			url: "/${base}/rest/history/getStatus/" + data.procInstId,
+			success: function(data) {
+				var status = data;
+				switch (data) {
+					case "pending":
+						status = "Pending";
+						$("#procStatus").css("color", "blue");
+						break;
+					case "disabled":
+						status = "<b>Disabled</b>";
+						$("#procStatus").css("color", "red");
+						break;
+					case "failedToSchedule":
+						status = "<b>Failed to schedule</b>";
+						$("#procStatus").css("color", "red");
+						break;
+					case "claimedByWorker":
+						status = "Claimed by Worker";
+						$("#procStatus").css("color", "blue");
+						break;
+					case "failedToStart":
+						status = "<b>Failed to start</b>";
+						$("#procStatus").css("color", "red");
+						break;
+					case "running":
+						status = "Running";
+						$("#procStatus").css("color", "blue");
+						break;
+					case "complete":
+						status = "Complete";
+						$("#procStatus").css("color", "green");
+						break;
+					case "resolved":
+						status = "Resolved";
+						$("#procStatus").css("color", "green");
+						break;
+					case "fail":
+						status = "<b>Failed</b>";
+						$("#procStatus").css("color", "red");
+						break;
+					case "incident":
+						status = "<b>Incident</b>";
+						$("#procStatus").css("color", "red");
+						break;
+					default:
+						status = "<b>Unknown</b>";
+						$("#procStatus").css("color", "red");
+						break;
+				}
+				$('#procStatus').html(status);
+				if ($("#procStatus").text() == "Failed") {
+					$("#resolveButtonDiv").show();
+					$("#resolveButton").show();
+					$("#retryIncidentButton").hide();
+				} else if ($("#procStatus").text() == "Incident") {
+					$("#resolveButtonDiv").show();
+					$("#retryIncidentButton").show();
+					$("#resolveButton").hide();
+				} else {
+					$("#resolveButtonDiv").hide();
+					$("#resolveButton").hide();
+					$("#retryIncidentButton").hide();
+				}
+			},
+			error: function(e) {
+				$("procStatus").html("Error fetching status - please try again later.");
 			}
-			else if (data.state === "ACTIVE") {
-				status = "Running";
-			}
-			
-			$('#procStatus').html(status);
+			});
 		}
 
 		setInputVariableTable(inputVarRows);
@@ -429,24 +490,62 @@
 			$("#procInstId").text() + '.json'
 		);
 	}
+
+	function retryIncident(procInstId) {
+		var idArr = [procInstId];
+		$.ajax({
+			type: "POST",
+			url: "/${base}/rest/processes/retryIncidentRows",
+			Accept : "application/json",
+			contentType: "application/json",
+			dataType: "json",
+			data: JSON.stringify(idArr),
+		})
+		.done(function(msg) {
+			console.log(msg);
+			location.reload();
+		})
+		.fail(function(xhr, err) {
+			console.err(msg);
+		});
+	}
+
+	function markAsResolved(procInstId) {
+		var idArr = [procInstId];
+		$.ajax({
+			type: "POST",
+			url: "/${base}/rest/processes/markResolved",
+			Accept : "application/json",
+			contentType: "application/json",
+			dataType: "json",
+			data: JSON.stringify(idArr),
+		})
+		.done(function(msg) {
+			console.log(msg);
+			location.reload();
+		})
+		.fail(function(xhr, err) {
+			console.err(xhr.responseTextmsg.message);
+		});
+	}
 	
 	$( document ).ready(function() {
 
 		$("#logData").DataTable({
-			order: [[0, 'asc']],
+			order: [[0, 'desc']],
 			paging: false,
-			dom: "<'row'<'col-sm-2 button'><'col-sm-auto filter'f>>" + "ti",
+			dom: "<'row'<'col-sm-2 download-button'><'col-sm-10 filter'f>>" + "tip",
 		});
 
-		$(`<div class="dropdown" style="display:inline;">`
-			+ `<button id="downloadButton" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Download &nbsp;`
-			+ `<span class="caret"></span>`
-			+ `</button>`
-			+ `<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">`
-			+ `<li id="action_download_json" class="enabled" role="presentation"><a id="json-bttn" role="menuitem" href="#">Download as JSON</a></li>`
-			+ `<li id="action_download_csv" class="enabled" role="presentation"><a id="csv-bttn" role="menuitem" href="#">Download as CSV</a></li>`
-			+ `</ul>`
-			+ `</div>`).appendTo("div.button");
+		$('<div class="dropdown" style="display:inline;">'
+			+ '<button id="downloadButton" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Download &nbsp;'
+			+ '<span class="caret"></span>'
+			+ '</button>'
+			+ '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
+			+ '<li id="action_download_json" class="enabled" role="presentation"><a id="json-bttn" role="menuitem" href="#">Download as JSON</a></li>'
+			+ '<li id="action_download_csv" class="enabled" role="presentation"><a id="csv-bttn" role="menuitem" href="#">Download as CSV</a></li>'
+  			+ '</ul>'
+  			+ '</div>').appendTo(".download-button");
 
 		// Get query string values
 		params = getQueryString();
@@ -554,26 +653,26 @@
 		
 		<h2 class="sub-header">History</h2>
 		<div class="row">
-			<table align="center" class="table table-bordered " style="width: 95%; font-size:95%">
-				<tr>
-					<td style="font-weight:bold;">Process Definition</td><td id="procDefKey">Unknown</td>
-				</tr>
-				<tr>
-					<td style="font-weight:bold;">Process Instance ID</td><td id="procInstId">Unknown</td>
-				</tr>
-				<tr>
-					<td style="font-weight:bold;">Start Time</td><td id="procStartTime">N/A</td>
-				</tr>
-				<tr>
-					<td style="font-weight:bold;">End Time</td><td id="procEndTime">N/A</td>
-				</tr>
-				<tr>
-					<td style="font-weight:bold;">Duration</td><td id="procDuration">N/A</td>
-				</tr>
-				<tr>
-					<td style="font-weight:bold;">Status</td><td id="procStatus">Unknown</td>
-				</tr>
-			</table>
+				<table align="center" class="table table-bordered " style="width: 50%; font-size:95%">
+					<tr>
+						<td style="font-weight:bold;">Process Definition</td><td id="procDefKey">Unknown</td>
+					</tr>
+					<tr>
+						<td style="font-weight:bold;">Process Instance ID</td><td id="procInstId">Unknown</td>
+					</tr>
+					<tr>
+						<td style="font-weight:bold;">Start Time</td><td id="procStartTime">N/A</td>
+					</tr>
+					<tr>
+						<td style="font-weight:bold;">End Time</td><td id="procEndTime">N/A</td>
+					</tr>
+					<tr>
+						<td style="font-weight:bold;">Duration</td><td id="procDuration">N/A</td>
+					</tr>
+					<tr>
+						<td style="font-weight:bold;">Status</td><td id="procStatus"></td>
+					</tr>
+				</table>
 		</div>
 		<div class="row">
 			<table align="center" class="table table-bordered " style="width: 95%; font-size:95%" id="inputVariableTable">
@@ -585,20 +684,10 @@
 				</tbody>
 			</table>
 		</div>
-		<!--
-			<div class="col-sm-12 main">
-				<p>Select file type:</p>
-				<div id="downloadRadios">
-					<form class="fileType">
-						<input type="radio" name="fileType" value="json" checked>
-						<label for="json">JSON</label><br>
-						<input type="radio" name="fileType" value="csv">
-						<label for="csv">CSV</label><br>
-					</form>
-				</div>
-				<button class="btn btn-primary" role="button" onclick="downloadLog()">Download Log</button>
-			</div>
-		-->
+      <div id="resolveButtonDiv" class="row" style="text-align: center; display: none;">
+        <button id="resolveButton" class="btn btn-primary" type="button" onclick="markAsResolved($('#procInstId').text())">Mark as Resolved</button>
+		<button id="retryIncidentButton" class="btn btn-primary" type="button" onclick="retryIncident($('#procInstId').text())">Retry Incident</button>
+      </div>
 		</div>
 	
 		<div class="row">
