@@ -202,7 +202,6 @@ public class WebTestIT extends WebTestUtil {
 		// Wait for Finish
 		sleep(90000);
 
-
 		if(findOnPage("completed")) {
 			goToProcesses();
 			sleep(1000);
