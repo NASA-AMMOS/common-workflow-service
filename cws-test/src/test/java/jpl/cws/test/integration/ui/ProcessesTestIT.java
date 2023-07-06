@@ -72,7 +72,7 @@ public class ProcessesTestIT extends WebTestUtil {
 			List<WebElement> myRows = myTable.findElements(By.tagName("tr"));
 
 			sleep(8000);
-
+      
 			log.info("Locating Test Processes Page from table rows and verifying that it completed.");
 			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
 

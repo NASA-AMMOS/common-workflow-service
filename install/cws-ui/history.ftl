@@ -14,8 +14,10 @@
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<style>
-		.dataTables_wrapper .filter .dataTables_filter{float:right; padding-top: 15px; display: inline;}
+		.dataTables_wrapper .filter .dataTables_filter{float:right; padding-top: 15px; display: inline; margin-right: 15px;}
 		.dataTables_wrapper .download-button {padding-top: 15px;}
+		.dataTables_wrapper .button {float:left; display: inline; margin-top: 15px; margin-right: 15px;}
+		.dataTables_wrapper {margin-left: 5px; margin-right: -10px;}
 	</style>
 	<script>
 
@@ -190,6 +192,7 @@
 	function buildHistoryRows(data) {
 	
 		let tableRows = [];
+		let inputVarRows = [];
 		
 		if (data.details) {
 					
@@ -199,6 +202,10 @@
 				
 				if (entry["message"].startsWith("Ended ")) {
 					date += " ";
+				}
+
+				if(entry["activity"] === data.procInstId) {
+					inputVarRows.push(entry);
 				}
 				
 				const row = "<tr><td>"+ date + "</td>" +
@@ -281,6 +288,8 @@
 			}
 			});
 		}
+
+		setInputVariableTable(inputVarRows);
 		
 		return tableRows;
 	}
@@ -395,6 +404,16 @@
 			"status": $("#procStatus").text()
 		}
 		jsonFile["process_info"] = logInfo;
+
+		//go through each row of inputVariableTable and add to jsonFile
+		var inputVariables = {};
+		$("#inputVariableTable tr").each(function() {
+			var key = $(this).find("td").eq(0).text();
+			var value = $(this).find("td").eq(1).text();
+			inputVariables[key] = value;
+		});
+		delete inputVariables[""];
+		jsonFile["input_variables"] = inputVariables;
 
 		var logs = {};
 
@@ -526,8 +545,34 @@
 			e.preventDefault();
 			downloadLogCSV();
 		});
+
+
 	}); //END OF DOCUMENT.READY
 
+	function setInputVariableTable(historyRows) {
+		for (var i = 0; i < historyRows.length; i++) {
+			var message = historyRows[i].message;
+			var varType = message.substring(message.indexOf("("), message.indexOf(")")+1);
+			console.log(varType);
+			var varName = message.substring(message.indexOf(")")+2);
+			varName = varName.substring(0, varName.indexOf("=")-1) + " " + varType;
+			var varValue = message.substring(message.indexOf("=")+2);
+			var htmlToAppend = "<tr><td>" 
+							+ varName 
+							+ "</td><td>" 
+							+ varValue 
+							+ `<button class="copy" onClick='copyInput("` + varValue + `")'>`
+							+ `<span data-text-end="Copied!" data-text-initial="Copy to clipboard" class="tooltip"></span>`
+							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
+							+ `</button>`
+							+ "</td></tr>";
+			$("#inputVariableTable").append(htmlToAppend);
+		}
+	}
+
+	function copyInput(varValue) {
+		navigator.clipboard.writeText(varValue);
+	}
 	</script>
 	
 
@@ -572,7 +617,7 @@
 <body>
 	<#include "navbar.ftl">
 
-	<div class="container-fluid">
+	<div class="container-fluid" style="margin-left: 20px;">
 		
 		<h2 class="sub-header">History</h2>
 		<div class="row">
@@ -597,25 +642,21 @@
 					</tr>
 				</table>
 		</div>
-		<div id="resolveButtonDiv" class="row" style="text-align: center; display: none;">
-			<button id="resolveButton" class="btn btn-primary" type="button" onclick="markAsResolved($('#procInstId').text())">Mark as Resolved</button>
+		<div class="row">
+			<table align="center" class="table table-bordered " style="width: 95%; font-size:95%" id="inputVariableTable">
+				<tr>
+					<th>Input Variable</th>
+					<th>Value</th>
+				</tr>
+				<tbody>
+				</tbody>
+			</table>
 		</div>
-		<!--
-			<div class="col-sm-12 main">
-				<p>Select file type:</p>
-				<div id="downloadRadios">
-					<form class="fileType">
-						<input type="radio" name="fileType" value="json" checked>
-						<label for="json">JSON</label><br>
-						<input type="radio" name="fileType" value="csv">
-						<label for="csv">CSV</label><br>
-					</form>
-				</div>
-				<button class="btn btn-primary" role="button" onclick="downloadLog()">Download Log</button>
-			</div>
-		-->
+      <div id="resolveButtonDiv" class="row" style="text-align: center; display: none;">
+        <button id="resolveButton" class="btn btn-primary" type="button" onclick="markAsResolved($('#procInstId').text())">Mark as Resolved</button>
+      </div>
 		</div>
-		
+	
 		<div class="row">
 			<div class="ajax-spinner"></div>
 		</div>
@@ -637,7 +678,6 @@
 		</div>
 		<a id="downloadAnchorElement" style="display:none"></a>
 	</div>
-
 <script type="text/javascript" src="/${base}/js/cws.js"></script>
 </body>
 </html>
