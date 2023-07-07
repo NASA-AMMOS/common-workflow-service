@@ -203,11 +203,12 @@
 			columnDefs: [
 				{
 					orderable: false,
-					className: 'select-checkbox',
+					className: 'select-checkbox noVis',
 					targets: 0
 				},
 				{
 					orderable: false,
+					className: 'noVis',
 					searchable: false,
 					targets: 1
 				},
@@ -215,11 +216,19 @@
 					orderable: false,
 					searchable: false,
 					targets: 2
+				},
+				{
+					targets: [ 6 ],
+					visible: false 
 				}
         	],
 			stateSave: true,
 			dom: "Q<'row'<'col-sm-auto buttons'B>><'row'<'col-sm-1 action-button'><'col-sm-5 length'l><'col-sm-6 filter'f>>" + "tip",
 			buttons: [
+				{
+					extend: 'colvis',
+					columns: ':not(.noVis)'
+				},
 				{
 					text: "Select all on page",
 					action: function () {
@@ -247,7 +256,7 @@
 						$("#processes-table").DataTable().rows().deselect();
 						updateActionList();
 					}
-				}
+				},
 			],
 			searchBuilder: {
 				columns: [3,4,5,6,7,8,9,10],
