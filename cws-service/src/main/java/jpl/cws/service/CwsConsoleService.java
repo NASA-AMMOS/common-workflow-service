@@ -632,7 +632,7 @@ public class CwsConsoleService {
 				String varName = message.substring(message.indexOf(")")+2);
 				varName = varName.substring(0, varName.indexOf("=")-1) + " " + varType;
 				String varValue = message.substring(message.indexOf("=")+2);
-				String temp = "<div><div style=\"width: 85%; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + varName + ":</b> " + varValue + "</div><div style=\"width: 15%; float:right\">"
+				String temp = "<div><div style=\"width: 90%; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + varName + ":</b> " + varValue + "</div><div style=\"width: 10%; float:right\">"
 					+ "<button class=\"copy\" onClick='copyInput(\"" + varValue + "\")'>"
 					+ "<span data-text-end=\"Copied!\" data-text-initial=\"Copy to clipboard\" class=\"tooltip\"></span>"
 					+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"

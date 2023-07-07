@@ -200,6 +200,7 @@
 				style: 'multi+shift',
 				selector: 'td:first-child'
 			},
+			autoWidth: false,
 			columnDefs: [
 				{
 					orderable: false,
@@ -220,7 +221,8 @@
 				{
 					targets: [ 6 ],
 					visible: false 
-				}
+				},
+				{ "width": "30%", "targets": 9 }
         	],
 			stateSave: true,
 			dom: "Q<'row'<'col-sm-auto buttons'B>><'row'<'col-sm-1 action-button'><'col-sm-5 length'l><'col-sm-6 filter'f>>" + "tip",
