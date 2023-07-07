@@ -638,7 +638,7 @@ public class CwsConsoleService {
 					+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
 					+ "</button></div></div><br>";
 				if (varName.contains("workerId")) {
-					after = after + temp;
+
 				} else if (varName.contains("startedOnWorkerId")) {
 					after = after + temp;
 					putAllAfter = 1;
