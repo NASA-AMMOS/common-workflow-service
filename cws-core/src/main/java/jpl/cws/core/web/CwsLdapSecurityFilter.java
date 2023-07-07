@@ -58,6 +58,8 @@ public class CwsLdapSecurityFilter extends CwsSecurityFilter {
 			return;
 		}
 
+		statusOverride(resp);
+
 		// If skipping resource...
 		//
 		if (isSecurityExemptResource(path)) {
