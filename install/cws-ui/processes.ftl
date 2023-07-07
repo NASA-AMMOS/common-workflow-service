@@ -134,7 +134,7 @@
 						<th>Started on Worker</th>
 						<th>Process Start</th>
 						<th>Process End</th>
-						<th style="word-wrap: break-word; max-width: 200px;">Input Variables</th>
+						<th style="word-wrap: break-word; min-width: 200px;">Input Variables</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -200,7 +200,6 @@
 				style: 'multi+shift',
 				selector: 'td:first-child'
 			},
-			autoWidth: false,
 			columnDefs: [
 				{
 					orderable: false,
@@ -222,7 +221,7 @@
 					targets: [ 6 ],
 					visible: false 
 				},
-				{ "width": "30%", "targets": 9 }
+				{ "width": "300px", "targets": 9 }
         	],
 			stateSave: true,
 			dom: "Q<'row'<'col-sm-auto buttons'B>><'row'<'col-sm-1 action-button'><'col-sm-5 length'l><'col-sm-6 filter'f>>" + "tip",
