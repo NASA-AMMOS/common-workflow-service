@@ -7,9 +7,6 @@
 	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
 	<script src="/${base}/js/moment.js"></script>
 	<script src="/${base}/js/DataTables/datatables.js"></script>
-	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
-	<script src="/${base}/js/moment.js"></script>
-	<script src="/${base}/js/DataTables/datatables.js"></script>
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
 	<script src="/${base}/js/DataTablesDateFilter.js"></script>
 	<!-- Custom js adaptation script; override this file from your adaptation project -->
@@ -497,7 +494,7 @@
 
 		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
 			var data = this.data();
-			switch (data[6]) {
+			switch (data[4]) {
 				case 'disabled':
 					numDisabledSelected++;
 					break;
@@ -589,7 +586,7 @@
 			$("#action_mark_as_resolved_atag").attr("href", "javascript:action_mark_as_resolved();");
 		}
 
-		if ((numSelected > 0 && numPendingSelected === 0)) {
+		if ((numSelected > 0)) {
 			$("#action_download_selected_list").removeClass("disabled");
 			$("#action_download_selected_list_atag").attr("href", "javascript:downloadListJSON();");
 			if (numPendingSelected === 0) {
@@ -613,7 +610,7 @@
 		var selectedRows = table.rows( { selected: true } );
 		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
 			var data = this.data();
-			window.open("/${base}/history?procInstId=" + data[5], "_blank");
+			window.open("/${base}/history?procInstId=" + data[3], "_blank");
 		} );
 	}
 
@@ -625,7 +622,7 @@
 		var links = "";
 		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
 			var data = this.data();
-			links += protocol + "://" + host + "/${base}/history?procInstId=" + data[5] + "\n";
+			links += protocol + "://" + host + "/${base}/history?procInstId=" + data[3] + "\n";
 		} );
 		navigator.clipboard.writeText(links);
 	}
