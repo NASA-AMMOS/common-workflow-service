@@ -37,18 +37,6 @@
 		details[open] summary::before {
 			transform: rotate(90deg);
 		}
-	</style>
-
-	<!-- Just for debugging purposes. Don't actually copy this line! -->
-	<!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-
-	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-	<!--[if lt IE 9]>
-		<script src="/${base}/js/html5shiv.js"></script>
-		<script src="/${base}/js/respond.min.js"></script>
-	<![endif]-->
-
-	<style type="text/css">
 		#pd-select{
 			width:90%;
 		}
@@ -85,10 +73,19 @@
 			padding: 5px;
 		}
 	</style>
+
+	<!-- Just for debugging purposes. Don't actually copy this line! -->
+	<!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+		<script src="/${base}/js/html5shiv.js"></script>
+		<script src="/${base}/js/respond.min.js"></script>
+	<![endif]-->
+
 </head>
 
 <body>
-
 
 <#include "navbar.ftl">
 
@@ -102,13 +99,6 @@
 			</span>
 
 			<h2 class="sub-header">Processes</h2>
-
-			<div id="load-more-div">
-				<b style="color: red">By default, the 5000 most recent processes are loaded.</b>
-				<button id="load-more-btn" class="btn btn-primary">Load More</button>
-				<button id="load-less-btn" class="btn btn-primary">Load Less</button>
-				<button id="load-all-btn" class="btn btn-primary">Load All</button>
-			</div>
 
   			<div id="hide-subprocs-div">
 				<label for="hide-subprocs">Hide Subprocesses</label>
@@ -135,6 +125,8 @@
 						<th>Process Start</th>
 						<th>Process End</th>
 						<th style="word-wrap: break-word; min-width: 200px;">Input Variables</th>
+						<th>Superprocess ID</th>
+						<th>UUID</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -147,32 +139,23 @@
 
 <script type="text/javascript">
 
-	//STATE PERSISTANCE CONSTS
-	const username = "username"; //temporary, hardcoded value for now
-	const rowsToLoadVar = "CWS_DASH_PROC_ROWS-" + username;
-
 	var params = {};
-	var rows;
-	var loadRows = 5000;
-	var rowsTotal = 0;
 
 	$( document ).ready(function() {
-		
-		//get our current url
-		var currentUrl = window.location.href;
-
-		if (localStorage.getItem(rowsToLoadVar) != null) {
-			loadRows = parseInt(localStorage.getItem(rowsToLoadVar));
-		}
-
-		if (localStorage.getItem(rowsToLoadVar) != null) {
-			loadRows = parseInt(localStorage.getItem(rowsToLoadVar));
-		}
-		
-		displayMessage();
 
 		//get our params from the url
 		params = getQueryString();
+
+		var searchBuilderOutput = "";
+		if (params !== {}) {
+			if (params["procDefKey"] !== null && params["procDefKey"] !== null) {
+				procDefKeyObj.push({ "condition": "=", "data": "procDefKey", "value": params["procDefKey"] });
+		}
+		
+		//get our current url
+		var currentUrl = window.location.href;
+		
+		displayMessage();
 
 		if (!params) {
 			$("#hide-subprocs-btn").prop('checked', false);
@@ -188,13 +171,190 @@
 		}
 		else {
 			$("#hide-subprocs-div").css('display', 'none');
-			
 			$("#super-proc-inst-id").html(params.superProcInstId);
 		}
 
 		$.fn.dataTable.moment( 'MMM D, YYYY, h:mm:ss A' );
 
 		$("#processes-table").DataTable({
+			"ajax": function (data, callback, settings) {
+				var numProcs = 0;
+				$.ajax({
+					url: "/${base}/rest/processes/getInstancesSize",
+					type: "GET",
+					data: params,
+					async: false,
+					success: function (data) {
+						numProcs = data;
+					},
+					error: function (xhr, ajaxOptions, thrownError) {
+						console.log("Error getting number of processes: " + thrownError);
+					}
+				});
+				var numCalls = Math.ceil(numProcs / 100);
+				var returnedData = [];
+				var doneArr = [];
+				for (var i = 0; i < numCalls; i++) {
+					$.ajax({
+						url: "/${base}/rest/processes/getInstancesCamunda",
+						type: "GET",
+						data: {"page": i},
+						async: true,
+						success: function (data) {
+							returnedData = returnedData.concat(data);
+							doneArr.push(true);
+						},
+						error: function (xhr, ajaxOptions, thrownError) {
+							console.log("Error getting processes: " + thrownError);
+						}
+					});
+				}
+				var interval = setInterval(function () {
+					if (doneArr.length === numCalls) {
+						console.log(returnedData);
+						clearInterval(interval);
+						callback({data: returnedData});
+					}
+				}, 250);
+
+			},
+			searchBuilder: {
+				preDefined: {
+					criteria: output["criteria"],
+					logic: output["logic"]
+				}
+			},
+			columns: [
+				{
+					data: null,
+					defaultContent: '',
+					className: 'select-checkbox',
+					orderable: false
+				},
+				{
+					data: "procInstId",
+					defaultContent: '',
+					className: 'details-control',
+					orderable: false,
+					render: function (data, type) {
+						if (type === 'display') {
+							if (data == null) {
+								return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" class="btn btn-default btn-sm disabled">History</a>' +
+								"<a style=\"margin-top: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" class=\"btn btn-default btn-sm disabled\">Subprocs</a>";
+							}
+							return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" class="btn btn-default btn-sm">History</a>' +
+								"<a style=\"margin-top: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" class=\"btn btn-default btn-sm\">Subprocs</a>";
+						}
+						return data;
+					}
+				},
+				{ 
+					data: "procDefKey",
+				},
+				{ 
+					data: {procInstId : "procInstId", status : "status"},
+					render: function (data, type) {
+						if (type === 'display') {
+							if (data.status === "incident") {
+								var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + data.procInstId + "/runtime?tab=incidents-tab";
+								return "<a href=\""+ incidentUrl +"\" target=\"blank_\">" + data.procInstId + "</a>";
+							} else {
+								return data.procInstId;
+							}
+						} else {
+							return data;
+						}
+					}
+				},
+				{ data: "status" },
+				{ data: "createdTimestamp" },
+				{ 
+					data: "startedByWorker",
+					render: function (data, type) {
+						if (type === 'display') {
+							if (data !== null) {
+								return data + "<br><b>Worker IP: </b>" + data.split("_").slice(0, -2).join(".");
+							}
+						}
+						return data;
+					}
+				},
+				{ data: "procStartTime" },
+				{ 
+					data: {procEndTime : "procEndTime", procStartTime : "procStartTime"},
+					render: function (data, type) {
+						if (type === 'display') {
+							if (data.procEndTime == null) {
+								return "";
+							}
+							if (data.procStartTime !== '' && data.procEndTime !== '') {
+								var start = moment(data.procStartTime);
+								var end = moment(data.procEndTime);
+								var procDuration = "<br><i>(~" + moment.duration(end.diff(start)).humanize() + ")</i>";
+							} else {
+								var procDuration = '';
+							}
+							return data.procEndTime + procDuration;
+						} else {
+							return data.procEndTime;
+						}
+					}
+				},
+				{ 
+					data: "inputVariables",
+					render: function (data, type) {
+						if (jQuery.isEmptyObject(data)) {
+							return "";
+						}
+						if (type === 'display') {
+							var output = "";
+							var before = "";
+							var after = "";
+							var putAllAfter = 0;
+							var count = 0;
+							for (const [key, value] of Object.entries(data)) {
+								if (key === "workerId") {
+									continue;
+								}
+								if (count > 3) {
+									putAllAfter = 1;
+								}
+								var temp = "<div><div style=\"width: 85%; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + key + ":</b> " + value + "</div><div style=\"width: 15%; float:right\">"
+									+ "<button class=\"copy\" onClick='copyInput(\"" + value + "\")'>"
+									+ "<span data-text-end=\"Copied!\" data-text-initial=\"Copy to clipboard\" class=\"tooltip\"></span>"
+									+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+									+ "</button></div></div><br>";
+								if (key === "startedOnWorkerId") {
+									after = after + temp;
+									putAllAfter = 1;
+								} else if (putAllAfter === 0) {
+									before = before + temp;
+								} else {
+									after = after + temp;
+								}
+								count++;
+							}
+							if (after.length < 0) {
+								output = before;
+							} else {
+								output = before + "<details><summary><b>Show All</b></summary>" + after + "</details>";
+							}
+							return output;
+						} else {
+							var outputToString = "";
+							for (const [key, value] of Object.entries(data)) {
+								if (key === "workerId") {
+									continue;
+								}
+								outputToString += outputToString + key + ": " + value + ",";
+							}
+							return outputToString;
+						}
+					}
+				},
+				{ data: "superProcInstId" },
+				{ data: "uuid" }
+			],
 			searchDelay: 250,
 			select: {
 				style: 'multi+shift',
@@ -213,12 +373,7 @@
 					targets: 1
 				},
 				{
-					orderable: false,
-					searchable: false,
-					targets: 2
-				},
-				{
-					targets: [ 6 ],
+					targets: [ 6,10,11 ],
 					visible: false 
 				},
 				{ "width": "300px", "targets": 9 }
@@ -260,7 +415,7 @@
 				},
 			],
 			searchBuilder: {
-				columns: [3,4,5,6,7,8,9,10],
+				columns: [2,3,4,5,6,7,8,9,10,11],
 			},
 			language: {
 				searchBuilder: {
@@ -271,8 +426,6 @@
 				}
         	}
 		});
-
-		renderRows(loadRows);
 
 		var table = $("#processes-table").DataTable();
 		table.on( 'select', function ( e, dt, type, indexes ) {
@@ -299,27 +452,6 @@
     		+ `<li id="action_mark_as_resolved" class="disabled" role="presentation"><a id="action_mark_as_resolved_atag" role="menuitem">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
   			+ `<#include "adaptation-process-actions.ftl">`
   			+ `</ul>`).appendTo(".action-button");
-	});
-
-	$("#load-more-btn").click(function() {
-		loadRows += 5000;
-		localStorage.setItem(rowsToLoadVar, loadRows);
-		renderRows(loadRows);
-	});
-
-	$("#load-less-btn").click(function() {
-		loadRows -= 5000;
-		if (loadRows < 5000) {
-			loadRows = 5000;
-		}
-		localStorage.setItem(rowsToLoadVar, loadRows);
-		renderRows(loadRows);
-	});
-
-	$("#load-all-btn").click(function() {
-		loadRows = -1;
-		localStorage.setItem(rowsToLoadVar, loadRows);
-		renderRows(loadRows);
 	});
 
 	function getFilterQString(changeHideSubs) {
@@ -373,8 +505,6 @@
 		}
 	}
 	
-
-
 	function viewHistory(procInstId) {
 	
 		if (procInstId !== '') {
@@ -391,97 +521,6 @@
 		} else {
 			return false;
 		}
-	}
-	
-	// ----------------------------------------------------
-	// Get the process instances, and render them as rows
-	//
-	function renderRows(rowsToLoad) {
-
-		$("#proc-log div.ajax-spinner").show();
-
-		qstr = document.location.search;
-		//we only care about the superProcInstId part of query string
-		if (qstr.indexOf("superProcInstId") > -1) {
-			//get everything after ? and before first &
-			qstr = qstr.substring(qstr.indexOf("?"));
-			if (qstr.indexOf("&") > -1) {
-				qstr = qstr.substring(0, qstr.indexOf("&"));
-			}
-		} else {
-			qstr = "";
-		}
-		//console.log("/${base}/rest/processes/getInstances"+qstr);
-		params = getQueryString();
-		var numProcs = 0;
-		var requestProc = 0;
-
-		//get the number of instances
-		$.get("/${base}/rest/processes/getInstancesSize"+qstr,
-			function(res) {
-				numProcs = res;
-				rowsTotal = res;
-				if (numProcs < 5000) {
-					$("#load-more-div").hide();
-				} else {
-					$("#load-more-div").show();
-				}
-				if (rowsToLoad === -1) {
-					requestProc = numProcs;
-				} else {
-					requestProc = rowsToLoad;
-				}
-				//
-				// GET THE PROCESS INSTANCE, 
-				// AND RENDER THEM...
-				//
-				if (qstr === "") {
-					qstr = "?";
-				}
-				$.get("/${base}/rest/processes/getInstancesCamunda"+qstr+"&page="+requestProc,
-					function(res) {
-						var table = $("#processes-table").DataTable()
-						
-						table.clear();
-						for (i in res) {
-							var procInstId = (res[i].procInstId == undefined ? '' : res[i].procInstId);
-							var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + procInstId + "/runtime?tab=incidents-tab";
-							if (res[i].startedByWorker !== undefined) {
-								var workerIP = "<br><b>Worker IP: </b>" + res[i].startedByWorker.split("_").slice(0, -2).join(".");
-							} else {
-								var workerIP = "<br><b>Worker IP: </b>";
-							}
-							var procStartTime = (res[i].procStartTime == undefined ? '' : res[i].procStartTime);
-							var procEndTime = (res[i].procEndTime == undefined ? '' : res[i].procEndTime);
-							if (procStartTime !== '' && procEndTime !== '') {
-								var start = moment(procStartTime);
-								var end = moment(procEndTime);
-								var procDuration = "<br><i>(~" + moment.duration(end.diff(start)).humanize() + ")</i>";
-							} else {
-								var procDuration = '';
-							}
-							table.row.add(
-							$("<tr id=\""+i+"\" class=\"tr-"+ res[i].status +"\" procInstId=\"" + procInstId + "\">"+
-								"<td status=\"" + res[i].status + "\" uuid=\"" + res[i].uuid + "\" procInstId=\"" + res[i].procInstId + "\"></td>" +
-								"<td><a onclick=\"viewHistory('" + procInstId + "')\" href=\"/${base}/history?procInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">History</a>" +
-								"<a style=\"margin-top: 5px;\" onclick=\"viewSubProcs('" + procInstId + "')\" href=\"/${base}/processes?superProcInstId=" + procInstId + "\" class=\"btn btn-default btn-sm\">Subprocs</a></td>" +
-								"<td>"+ res[i].procDefKey +"</td>"+
-								"<td>"+ (res[i].status == 'incident' ? ("<a href=\""+ incidentUrl +"\" target=\"blank_\">" + procInstId + "</a>") : procInstId) + "</td>" +
-								"<td>"+ res[i].status +"</td>"+
-								"<td>"+ (res[i].createdTimestamp == undefined ? '' : res[i].createdTimestamp) + "</td>"+
-								"<td>"+ (res[i].startedByWorker == undefined ? '' : res[i].startedByWorker + workerIP) + "</td>"+
-								"<td>"+ procStartTime + "</td>"+
-								"<td>"+ procEndTime + procDuration + "</td>"+
-								"<td>"+ (res[i].inputVariables == undefined ? '' : res[i].inputVariables) + "</td>"+
-							"</tr>")
-							);
-						}
-						table.draw();
-						
-						$("#proc-log div.ajax-spinner").hide();
-					});
-			});
-
 	}
 
 	// ---------------------------------------------------------------
@@ -620,7 +659,7 @@
 		var selectedRows = table.rows( { selected: true } );
 		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
 			var data = this.data();
-			window.open("/${base}/history?procInstId=" + data[3], "_blank");
+			window.open("/${base}/history?procInstId=" + data["procInstId"], "_blank");
 		} );
 	}
 
@@ -632,16 +671,16 @@
 		var links = "";
 		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
 			var data = this.data();
-			links += protocol + "://" + host + "/${base}/history?procInstId=" + data[3] + "\n";
+			links += protocol + "://" + host + "/${base}/history?procInstId=" + data["procInstId"] + "\n";
 		} );
 		navigator.clipboard.writeText(links);
 	}
-
 
 	// -------------------------------------------------------------------------------
 	// Function fired when user clicks on "Enable Selected Rows..." in drop-down list
 	// 
 	function action_enable_rows() {
+		var table = $("#processes-table").DataTable();
 		$.ajax({
 			type: "POST",
 			url: "/${base}/rest/processes/makeDisabledRowsPending",
@@ -652,19 +691,18 @@
 		})
 		.done(function(msg) {
 			$("#action_msg").html(msg.message);
-			renderRows();
-			resetCheckboxes();
+			table.ajax.reload();
 		})
 		.fail(function(xhr, err) { 
 			$("#action_msg").html(xhr.responseTextmsg.message);
 		});
 	}
 
-
 	// --------------------------------------------------------------------------------
 	// Function fired when user clicks on "Disable Selected Rows..." in drop-down list
 	// 
 	function action_disable_rows() {
+		var table = $("#processes-table").DataTable();
 		$.ajax({
 			type: "POST",
 			url: "/${base}/rest/processes/makePendingRowsDisabled",
@@ -675,19 +713,18 @@
 		})
 		.done(function(msg) {
 			$("#action_msg").html(msg.message);
-			renderRows();
-			resetCheckboxes();
+			table.ajax.reload();
 		})
 		.fail(function(xhr, err) { 
 			$("#action_msg").html(xhr.responseTextmsg.message);
 		});
 	}
 
-
 	// --------------------------------------------------------------------------------
 	// Function fired when user clicks on "Retry Selected Incident Rows..." in drop-down list
 	//
 	function action_retry_incident_rows() {
+		var table = $("#processes-table").DataTable();
 		$.ajax({
 			type: "POST",
 			url: "/${base}/rest/processes/retryIncidentRows",
@@ -698,7 +735,7 @@
 		})
 		.done(function(msg) {
 			$("#action_msg").html(msg.message);
-			location.reload();
+			table.ajax.reload();
 		})
 		.fail(function(xhr, err) {
 			$("#action_msg").html(xhr.responseTextmsg.message);
@@ -713,6 +750,7 @@
 	// Function fired when user clicks on "Retry Selected Failed to Start Rows..." in drop-down list
 	//
 	function action_retry_failed_to_start() {
+		var table = $("#processes-table").DataTable();
 		$.ajax({
 			type: "POST",
 			url: "/${base}/rest/processes/retryFailedToStart",
@@ -723,7 +761,7 @@
 		})
 		.done(function(msg) {
 			$("#action_msg").html(msg.message);
-			location.reload();
+			table.ajax.reload();
 		})
 		.fail(function(xhr, err) {
 			$("#action_msg").html(xhr.responseTextmsg.message);
@@ -734,6 +772,7 @@
 	// Function fired when user clicks on "Mark Selected Failed Rows As Resolved..." in drop-down list
 	//
 	function action_mark_as_resolved() {
+		var table = $("#processes-table").DataTable();
 		$.ajax({
 			type: "POST",
 			url: "/${base}/rest/processes/markResolved",
@@ -744,19 +783,11 @@
 		})
 		.done(function(msg) {
 			$("#action_msg").html(msg.message);
-			location.reload();
+			table.ajax.reload();
 		})
 		.fail(function(xhr, err) {
 			$("#action_msg").html(xhr.responseTextmsg.message);
 		});
-	}
-
-	// ------------------------------------
-	// Clear checked selections (resolves timing issues after an action is chosen)
-	//
-	function resetCheckboxes() {
-		$("input[status]:checked").attr("checked", false)
-		updateActionList();
 	}
 	
 	// ------------------------------------
@@ -771,11 +802,10 @@
 		var selectedRows = table.rows( { selected: true } );
 
 		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
-			var html = this.node();
-			var status = $(html).children("td:first").attr("status");
-			var uuid = $(html).children("td:first").attr("uuid");
-			var procInstId = $(html).children("td:first").attr("procInstId");
 			var data = this.data();
+			var status = data["status"];
+			var uuid = data["uuid"];
+			var procInstId = data["procInstId"];
 			switch (status) {
 				case 'disabled':
 					selectedRowUuids.push(uuid);
@@ -804,7 +834,7 @@
 		var selectedRows = table.rows( { selected: true } );
 		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
 			var data = this.data();
-			var procInstId = data[5];
+			var procInstId = data["procInstId"];
 			var json = getInstanceJSON(procInstId);
 			mainJSON[procInstId] = json;
 		});
@@ -821,7 +851,7 @@
 		var selectedRows = table.rows( { selected: true } );
 		selectedRows.every( function ( rowIdx, tableLoop, rowLoop ) {
 			var data = this.data();
-			var procInstId = data[5];
+			var procInstId = data["procInstId"];
 			var csv = getInstanceCSV(procInstId);
 			mainCSV += csv;
 		});
@@ -1288,108 +1318,58 @@
 		var numRows = dt.rows({selected:true}).count();
 		var jsonFile = {};
 		var processes = {};
-		jsonFile["num_rows_loaded"] = rowsTotal;
 
-		if (numRows === 0) {
-			dt.rows({search:'applied'}).every( function ( rowIdx, tableLoop, rowLoop ) {
-				var data = this.data();
-				var thisProcJSON = {};
-				var startedOnWorker = "";
-				var workerIP = "";
-				var duration = "";
-				var process_end = "";
-				var inputVars = "";
-				var inputVarsTemp = "";
+		dt.rows({selected: true, search:'applied'}).every( function ( rowIdx, tableLoop, rowLoop ) {
+			var data = this.data();
+			console.log(data);
+			var thisProcJSON = {};
+			var startedOnWorker = "";
+			var workerIP = "";
+			var duration = "";
+			var process_end = "";
+			var inputVars = "";
+			var inputVarsTemp = "";
 
-				if (data[8] !== "") {
-					startedOnWorker = data[6].substring(0, data[6].indexOf("<br>"));
-					workerIP = data[6].substring(data[6].indexOf("</b>")+4, data[6].length);
+			if (data["startedByWorker"] !== "") {
+				startedOnWorker = data["startedByWorker"];
+				workerIP = data["startedByWorker"].split("_").slice(0, -2).join(".");
+			} else {
+				startedOnWorker = data["startedByWorker"];
+			}
+
+			if (data["procEndTime"] !== "") {
+				process_end = data["procEndTime"];
+				if (data["procStartTime"] !== '' && data["procEndTime"] !== '') {
+					var start = moment(data["procStartTime"]);
+					var end = moment(data["procEndTime"]);
+					duration = moment.duration(end.diff(start)).humanize();
 				} else {
-					startedOnWorker = data[6];
+					duration = '';
 				}
+			}
 
-				if (data[8] !== "") {
-					duration = data[8];
-					//get everything after <br><i> but before </i>
-					duration = duration.substring(duration.indexOf("<br><i>") + 7, duration.indexOf("</i>"));
-					process_end = data[8].substring(0, data[8].indexOf("<br><i>")-1);
+			if (data["inputVariables"] !== {}) {
+				for (var key in data["inputVariables"]) {
+					inputVarsTemp += key + ": " + data["inputVariables"][key] + ", ";
 				}
-
-				if (data[9] !== "") {
-					inputVarsTemp = data[9].replaceAll("<br>", ", ");
-					inputVarsTemp = inputVarsTemp.replaceAll("<details><summary><b>Show All</b></summary>", "");
-					while (inputVarsTemp.indexOf("</b>") !== -1) {
-						inputVarsTemp = inputVarsTemp.substring(inputVarsTemp.indexOf("<b>") + 3, inputVarsTemp.length);
-						inputVarsTemp = inputVarsTemp.replace("</b>", "")
-						inputVars += inputVarsTemp.substring(0, inputVarsTemp.indexOf("</div>")) + ", ";
-					}
-					inputVars = inputVars.substring(0, inputVars.length - 2);
+				if (inputVarsTemp.length > 2) {
+					inputVars = inputVarsTemp.substring(0, inputVarsTemp.length-2);
 				}
+			}
 
-				thisProcJSON["definition_key"] = data[2];
-				thisProcJSON["process_instance_id"] = data[3];
-				thisProcJSON["status"] = data[4];
-				thisProcJSON["schedule_queued_time"] = data[5];
-				thisProcJSON["started_on_worker"] = startedOnWorker;
-				thisProcJSON["worker_ip"] = workerIP;
-				thisProcJSON["process_start"] = data[7];
-				thisProcJSON["process_end"] = process_end;
-				thisProcJSON["duration"] = duration;
-				thisProcJSON["input_variables"] = inputVars;
+			thisProcJSON["definition_key"] = data["procDefKey"];
+			thisProcJSON["process_instance_id"] = data["procInstId"];
+			thisProcJSON["status"] = data["status"];
+			thisProcJSON["schedule_queued_time"] = data["createdTimestamp"];
+			thisProcJSON["started_on_worker"] = startedOnWorker;
+			thisProcJSON["worker_ip"] = workerIP;
+			thisProcJSON["process_start"] = data["procStartTime"];
+			thisProcJSON["process_end"] = process_end;
+			thisProcJSON["duration"] = duration;
+			thisProcJSON["input_variables"] = inputVars;
 
-				processes[data[3]] = thisProcJSON;
-			} );
-		} else {
-			dt.rows({selected: true, search:'applied'}).every( function ( rowIdx, tableLoop, rowLoop ) {
-				var data = this.data();
-				var thisProcJSON = {};
-				var startedOnWorker = "";
-				var workerIP = "";
-				var duration = "";
-				var process_end = "";
-				var inputVars = "";
-				var inputVarsTemp = "";
-
-				if (data[8] !== "") {
-					startedOnWorker = data[6].substring(0, data[6].indexOf("<br>"));
-					workerIP = data[6].substring(data[6].indexOf("</b>")+4, data[6].length);
-				} else {
-					startedOnWorker = data[6];
-				}
-
-				if (data[8] !== "") {
-					duration = data[8];
-					//get everything after <br><i> but before </i>
-					duration = duration.substring(duration.indexOf("<br><i>") + 7, duration.indexOf("</i>"));
-					process_end = data[8].substring(0, data[8].indexOf("<br><i>")-1);
-					
-				}
-
-				if (data[9] !== "") {
-					inputVarsTemp = data[9].replaceAll("<br>", ", ");
-					inputVarsTemp = inputVarsTemp.replaceAll("<details><summary><b>Show All</b></summary>", "");
-					while (inputVarsTemp.indexOf("</b>") !== -1) {
-						inputVarsTemp = inputVarsTemp.substring(inputVarsTemp.indexOf("<b>") + 3, inputVarsTemp.length);
-						inputVarsTemp = inputVarsTemp.replace("</b>", "")
-						inputVars += inputVarsTemp.substring(0, inputVarsTemp.indexOf("</div>")) + ", ";
-					}
-					inputVars = inputVars.substring(0, inputVars.length - 2);
-				}
-
-				thisProcJSON["definition_key"] = data[2];
-				thisProcJSON["process_instance_id"] = data[3];
-				thisProcJSON["status"] = data[4];
-				thisProcJSON["schedule_queued_time"] = data[5];
-				thisProcJSON["started_on_worker"] = startedOnWorker;
-				thisProcJSON["worker_ip"] = workerIP;
-				thisProcJSON["process_start"] = data[7];
-				thisProcJSON["process_end"] = process_end;
-				thisProcJSON["duration"] = duration;
-				thisProcJSON["input_variables"] = inputVars;
-
-				processes[data[3]] = thisProcJSON;
-			} );
-		}
+			processes[data["procInstId"]] = thisProcJSON;
+		} );
 		jsonFile["processes"] = processes;
 		console.log(jsonFile);
 		$.fn.dataTable.fileSave(

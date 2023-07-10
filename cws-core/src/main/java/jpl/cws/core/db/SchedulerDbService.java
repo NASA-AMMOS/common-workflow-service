@@ -908,12 +908,19 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			String dateOrderBy,
 			int page
 			)
-	{	
+	{
 		List<Object> whereObjs = new ArrayList<Object>();
+
+		Integer offset = page*PROCESSES_PAGE_SIZE;
+		Integer size = PROCESSES_PAGE_SIZE;
+
 		if (procInstId != null) { whereObjs.add(procInstId); }
 		if (procDefKey != null) { whereObjs.add(procDefKey); }
 		if (minDate    != null) { whereObjs.add(minDate);    }
 		if (maxDate    != null) { whereObjs.add(maxDate);    }
+
+		whereObjs.add(offset);
+		whereObjs.add(size);
 
 		String pattern = PENDING + "|" + DISABLED + "|" + FAILED_TO_START + "|" + FAILED_TO_SCHEDULE + "|"
 				+ CLAIMED_BY_WORKER + "|" + RUNNING + "|" + COMPLETE + "|" + RESOLVED + "|" + FAIL + "|" + INCIDENT;
@@ -936,7 +943,8 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 					(maxDate    != null ? "created_time <= ? AND " : "") +
 					(statusList != null ? "status IN "+statusClause+" AND " : "") +
 					"  proc_inst_id IS NULL " + // don't get any started processes
-				"ORDER BY created_time " + dateOrderBy + " ";
+				"ORDER BY created_time " + dateOrderBy + " " +
+						"LIMIT ?,?";
 
 		List<Map<String,Object>> cwsRows = jdbcTemplate.queryForList(cwsQuery, whereObjs.toArray());
 
@@ -968,7 +976,8 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 				(minDate    != null ? "PI.start_time >= ? AND " : "") +
 				(maxDate    != null ? "PI.start_time <= ? AND " : "") +
 				" 1=1 " +
-				"ORDER BY PI.start_time " + dateOrderBy + " ";
+				"ORDER BY PI.start_time " + dateOrderBy + " " +
+						"LIMIT ?,?";
 
 		List<Map<String,Object>> camundaRows = jdbcTemplate.queryForList(camundaQuery, whereObjs.toArray());
 		

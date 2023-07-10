@@ -1,6 +1,7 @@
 package jpl.cws.scheduler;
 
 import java.sql.Timestamp;
+import java.util.Map;
 
 public class CwsProcessInstance {
 
@@ -22,7 +23,7 @@ public class CwsProcessInstance {
 	private Timestamp procStartTime;  // from Camunda ACT_HI_PROCINST_ table
 	private Timestamp procEndTime;    // from Camunda ACT_HI_PROCINST_ table
 
-	private String inputVariables;
+	private Map<String, String> inputVariables;
 	
 	public CwsProcessInstance(
 			String uuid,
@@ -37,7 +38,7 @@ public class CwsProcessInstance {
 			String startedByWorker,
 			Timestamp procStartTime,
 			Timestamp procEndTime,
-			String inputVariables) {
+			Map<String, String> inputVariables) {
 		super();
 		this.uuid = uuid;
 		this.procDefKey = procDefKey;
@@ -86,11 +87,11 @@ public class CwsProcessInstance {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	public void setInputVariables(String input) {
+	public void setInputVariables(Map<String, String> input) {
 		this.inputVariables = input;
 	}
 
-	public String getInputVariables() {
+	public Map<String, String> getInputVariables() {
 		return inputVariables;
 	}
 	
