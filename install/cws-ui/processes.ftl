@@ -143,14 +143,46 @@
 
 	$( document ).ready(function() {
 
-		//get our params from the url
 		params = getQueryString();
 
-		var searchBuilderOutput = "";
+		//show ajax spinner
+		$("#ajax-spinner").show();
+
+		//get our params from the url
+		var statusArr = [];
+		var procDefKeyObj = [];
+
+		var output = {};
+
 		if (params !== {}) {
-			if (params["procDefKey"] !== null && params["procDefKey"] !== null) {
-				procDefKeyObj.push({ "condition": "=", "data": "procDefKey", "value": params["procDefKey"] });
+			if (params["procDefKey"]) {
+				procDefKeyObj.push({ "condition": "=", "data": "Definition Key", "value": [params["procDefKey"]] });
+			}
+			if (params["status"]) {
+				var paramsArr = params["status"].split(",");
+				for (var i = 0; i < paramsArr.length; i++) {
+					statusArr.push({ "condition": "=", "data": "Status", "value": [paramsArr[i]] });
+				}
+			}
+			if (params["procDefKey"]) {
+				output["criteria"] = procDefKeyObj;
+				output["logic"] = "AND"
+				if (params["status"]) {
+					var temp = {};
+					temp["criteria"] = statusArr;
+					temp["logic"] = "OR";
+					output["criteria"].push(temp);
+				}
+			} else {
+				output["criteria"] = statusArr;
+				output["logic"] = "OR";
+			}
+		} else {
+			output["criteria"] = [];
+			output["logic"] = "AND";
 		}
+		console.log("criteria: " + output["criteria"]);
+		console.log("logic: " + output["logic"]);
 		
 		//get our current url
 		var currentUrl = window.location.href;
@@ -182,7 +214,6 @@
 				$.ajax({
 					url: "/${base}/rest/processes/getInstancesSize",
 					type: "GET",
-					data: params,
 					async: false,
 					success: function (data) {
 						numProcs = data;
@@ -218,11 +249,9 @@
 				}, 250);
 
 			},
-			searchBuilder: {
-				preDefined: {
-					criteria: output["criteria"],
-					logic: output["logic"]
-				}
+			"initComplete": function (settings, json) {
+				//hide ajax spinner
+				$("#ajax-spinner").hide();
 			},
 			columns: [
 				{
@@ -378,7 +407,17 @@
 				},
 				{ "width": "300px", "targets": 9 }
         	],
-			stateSave: true,
+			stateRestore: {
+				searchBuilder: false,
+				order: true,
+				paging: true,
+				search: true,
+				columns: {
+					search: false,
+					visible: true
+				},
+				select: true,
+			},
 			dom: "Q<'row'<'col-sm-auto buttons'B>><'row'<'col-sm-1 action-button'><'col-sm-5 length'l><'col-sm-6 filter'f>>" + "tip",
 			buttons: [
 				{
@@ -416,15 +455,11 @@
 			],
 			searchBuilder: {
 				columns: [2,3,4,5,6,7,8,9,10,11],
-			},
-			language: {
-				searchBuilder: {
-					title: {
-						0: 'Filters',
-						_: 'Filters (%d active)'
-					},
+				preDefined: {
+					criteria: output["criteria"],
+					logic: output["logic"]
 				}
-        	}
+			}
 		});
 
 		var table = $("#processes-table").DataTable();
