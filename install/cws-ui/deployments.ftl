@@ -352,11 +352,13 @@
 			if (localStorage.getItem(refreshRateVar) !== null) {
 				$("#refresh-rate").val(localStorage.getItem(refreshRateVar)/1000);
 			} else {
+				localStorage.setItem(refreshRateVar, 5000);
 				$("#refresh-rate").val("5");
 			}
 			if (localStorage.getItem(lastNumHoursVar) !== null) {
 				$("#stats-last-num-hours").val(localStorage.getItem(lastNumHoursVar));
 			} else {
+				localStorage.setItem(lastNumHoursVar, 24);
 				$("#stats-last-num-hours").val(24);
 			}
 
