@@ -596,49 +596,53 @@
 	}); //END OF DOCUMENT.READY
 
 	function setInputVariableTable(historyRows) {
-		//declare new map of <string, string>
-		var inputVarObj = {};
-		for (var i = 0; i < historyRows.length; i++) {
-			var message = historyRows[i].message;
-			var varType = message.substring(message.indexOf("("), message.indexOf(")")+1);
-			console.log(varType);
-			var varName = message.substring(message.indexOf(")")+2);
-			varName = varName.substring(0, varName.indexOf("=")-1) + " " + varType;
-			var varValue = message.substring(message.indexOf("=")+2);
-			inputVarObj[varName] = varValue;
-		}
-		var output = "";
-		var before = "";
-		var after = "";
-		var putAllAfter = 0;
-		var count = 0;
-		for (const [key, value] of Object.entries(inputVarObj)) {
-			if (key === "workerId") {
-				continue;
-			}
-			if (count > 3) {
-				putAllAfter = 1;
-			}
-			var temp = "<div><div style=\"width: 85%; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + key + ":</b> " + value + "</div><div class=\"copySpan\" style=\"width: 15%; float:right\">"
-				+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + value + "\" onClick=''>"
-				+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-				+ "</span></div></div><br>";
-			if (key === "startedOnWorkerId") {
-				after = after + temp;
-				putAllAfter = 1;
-			} else if (putAllAfter === 0) {
-				before = before + temp;
-			} else {
-				after = after + temp;
-			}
-			count++;
-		}
-		if (after.length < 0) {
-			output = before;
+		if (historyRows.length == 0) {
+			$("#inputVariables").html("None");
 		} else {
-			output = before + "<details><summary><b>Show All</b></summary>" + after + "</details>";
+			//declare new map of <string, string>
+			var inputVarObj = {};
+			for (var i = 0; i < historyRows.length; i++) {
+				var message = historyRows[i].message;
+				var varType = message.substring(message.indexOf("("), message.indexOf(")")+1);
+				console.log(varType);
+				var varName = message.substring(message.indexOf(")")+2);
+				varName = varName.substring(0, varName.indexOf("=")-1) + " " + varType;
+				var varValue = message.substring(message.indexOf("=")+2);
+				inputVarObj[varName] = varValue;
+			}
+			var output = "";
+			var before = "";
+			var after = "";
+			var putAllAfter = 0;
+			var count = 0;
+			for (const [key, value] of Object.entries(inputVarObj)) {
+				if (key === "workerId") {
+					continue;
+				}
+				if (count > 3) {
+					putAllAfter = 1;
+				}
+				var temp = "<div><div style=\"width: 85%; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + key + ":</b> " + value + "</div><div class=\"copySpan\" style=\"width: 15%; float:right\">"
+					+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + value + "\" onClick=''>"
+					+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+					+ "</span></div></div><br>";
+				if (key === "startedOnWorkerId") {
+					after = after + temp;
+					putAllAfter = 1;
+				} else if (putAllAfter === 0) {
+					before = before + temp;
+				} else {
+					after = after + temp;
+				}
+				count++;
+			}
+			if (after.length < 0) {
+				output = before;
+			} else {
+				output = before + "<details><summary><b>Show All</b></summary>" + after + "</details>";
+			}
+			$("#inputVariables").html(output);
 		}
-		$("#inputVariables").html(output);
 	}
 
 	function copyInput(varValue) {
