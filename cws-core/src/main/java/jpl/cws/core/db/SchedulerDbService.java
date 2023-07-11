@@ -46,7 +46,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 	public static final String INCIDENT			  = "incident";
 	
 	public static final int DEFAULT_WORKER_PROC_DEF_MAX_INSTANCES = 1;
-	public static final int PROCESSES_PAGE_SIZE = 100;
+	public static final int PROCESSES_PAGE_SIZE = 200;
 
 	public static final String FIND_CLAIMABLE_ROWS_SQL = 
 			"SELECT uuid FROM cws_sched_worker_proc_inst " +
