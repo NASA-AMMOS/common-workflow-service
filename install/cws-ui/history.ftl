@@ -532,7 +532,7 @@
 	$( document ).ready(function() {
 
 		$("#logData").DataTable({
-			order: [[0, 'desc']],
+			order: [[0, 'asc']],
 			paging: false,
 			dom: "<'row'<'col-sm-2 download-button'><'col-sm-10 filter'f>>" + "tip",
 		});
