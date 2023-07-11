@@ -24,19 +24,14 @@
 		.dataTables_wrapper .download-button {padding-top: 15px; padding-left: -15px; padding-right: 15px;}
 		.dataTables_wrapper .dtsb-titleRow {display: none;}
 		.dataTables_wrapper .dtsb-group {padding-bottom: -15px !important; padding-top: 8px;}
+		summary {
+			width: 100px;
+			display: list-item;
+		}
 	</style>
 	<style type="text/css">
 		#processes-table {
 			font-size: 90%;
-		}
-		summary::before {
-			margin-right: .5ch;
-			content: '▶️';
-			transition: 0.2s;
-		}
-
-		details[open] summary::before {
-			transform: rotate(90deg);
 		}
 		#pd-select{
 			width:90%;
@@ -372,7 +367,7 @@
 							if (after.length < 0) {
 								output = before;
 							} else {
-								output = before + "<details><summary><b>Show All</b></summary>" + after + "</details>";
+								output = before + "<details><summary><b> Show All</b></summary>" + after + "</details>";
 							}
 							return output;
 						} else {
