@@ -1006,7 +1006,8 @@ public class RestService extends MvcCore {
 	/**
 	 * Inserts or updates worker tag with name and value
 	 *
-	 */	@RequestMapping(value = "/worker/{workerId}/updateTag/{name}", method = POST, produces="application/json")
+	 */
+	@RequestMapping(value = "/worker/{workerId}/updateTag/{name}", method = POST, produces="application/json")
 	public @ResponseBody String updateWorkerTag(
 			HttpServletResponse response,
 			@PathVariable String workerId,
