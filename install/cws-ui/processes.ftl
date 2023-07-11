@@ -139,72 +139,34 @@
 
 <script type="text/javascript">
 
+	//STATE PERSISTANCE CONSTS
+	const username = "username"; //temporary, hardcoded value for now
+	const hideSubProcsVar = "CWS_DASH_PROCS_HIDE_SUBPROCS-" + username;
+
+	if (localStorage.getItem(hideSubProcsVar) === null) {
+		localStorage.setItem(hideSubProcsVar, true);
+		$("#hide-subprocs-btn").prop("checked", true);
+	} else if (localStorage.getItem(hideSubProcsVar) === "true") {
+		$("#hide-subprocs-btn").prop("checked", true);
+	} else {
+		$("#hide-subprocs-btn").prop("checked", false);
+	}
+
 	var params = {};
 
 	$( document ).ready(function() {
+		$("#display-subprocs-div").css('display', 'none');
 
+		//get our params from the url
 		params = getQueryString();
 
 		//show ajax spinner
 		$("#ajax-spinner").show();
-
-		//get our params from the url
-		var statusArr = [];
-		var procDefKeyObj = [];
-
-		var output = {};
-
-		if (params !== {}) {
-			if (params["procDefKey"]) {
-				procDefKeyObj.push({ "condition": "=", "data": "Definition Key", "value": [params["procDefKey"]] });
-			}
-			if (params["status"]) {
-				var paramsArr = params["status"].split(",");
-				for (var i = 0; i < paramsArr.length; i++) {
-					statusArr.push({ "condition": "=", "data": "Status", "value": [paramsArr[i]] });
-				}
-			}
-			if (params["procDefKey"]) {
-				output["criteria"] = procDefKeyObj;
-				output["logic"] = "AND"
-				if (params["status"]) {
-					var temp = {};
-					temp["criteria"] = statusArr;
-					temp["logic"] = "OR";
-					output["criteria"].push(temp);
-				}
-			} else {
-				output["criteria"] = statusArr;
-				output["logic"] = "OR";
-			}
-		} else {
-			output["criteria"] = [];
-			output["logic"] = "AND";
-		}
-		console.log("criteria: " + output["criteria"]);
-		console.log("logic: " + output["logic"]);
 		
 		//get our current url
 		var currentUrl = window.location.href;
 		
 		displayMessage();
-
-		if (!params) {
-			$("#hide-subprocs-btn").prop('checked', false);
-			$("#display-subprocs-div").css('display', 'none');
-		}
-		else if (!params.superProcInstId) {
-			$("#hide-subprocs-btn").prop('checked', false);
-			$("#display-subprocs-div").css('display', 'none');
-		}
-		else if (params.superProcInstId.toLowerCase() === 'null') {
-			$("#hide-subprocs-btn").prop('checked', true);
-			$("#display-subprocs-div").css('display', 'none');
-		}
-		else {
-			$("#hide-subprocs-div").css('display', 'none');
-			$("#super-proc-inst-id").html(params.superProcInstId);
-		}
 
 		$.fn.dataTable.moment( 'MMM D, YYYY, h:mm:ss A' );
 
@@ -242,7 +204,6 @@
 				}
 				var interval = setInterval(function () {
 					if (doneArr.length === numCalls) {
-						console.log(returnedData);
 						clearInterval(interval);
 						callback({data: returnedData});
 					}
@@ -250,6 +211,51 @@
 
 			},
 			"initComplete": function (settings, json) {
+				//check our URL params and apply the column filters
+				if (params !== undefined) {
+					if (params["procDefKey"] !== undefined) {
+						this.api().column(2).search("(" + params["procDefKey"] + ")", true, false);
+					}
+					if (params["status"] !== undefined) {
+						//comes in a comma separated list
+						var statusArr = params["status"].split(",");
+						var statusStr = "";
+						for (var i = 0; i < statusArr.length; i++) {
+							statusStr += "(" + statusArr[i] + ")|";
+						}
+						if (statusStr.length > 0) {
+							statusStr = statusStr.substring(0, statusStr.length - 1);
+						}
+						this.api().column(4).search(statusStr, true, false).draw();
+					}
+					if (params["superProcInstId"] !== null && params["superProcInstId"] !== undefined) {
+						this.api().column(10).search("(" + params["superProcInstId"] + ")", true, false);
+					}
+				}
+				if (!params) {
+					$("#hide-subprocs-btn").prop('checked', false);
+					this.api().column(10).search("", true, false);
+					$("#display-subprocs-div").css('display', 'none');
+				}
+				else if (!params.superProcInstId) {
+					$("#hide-subprocs-btn").prop('checked', false);
+					this.api().column(10).search("", true, false);
+					$("#display-subprocs-div").css('display', 'none');
+				}
+				else if (params.superProcInstId.toLowerCase() === 'null') {
+					$("#hide-subprocs-btn").prop('checked', true);
+					this.api().column(10).search("^$", true, false);
+					$("#display-subprocs-div").css('display', 'none');
+				}
+				else {
+					$("#hide-subprocs-div").css('display', 'none');
+					$("#super-proc-inst-id").html(params.superProcInstId);
+				}
+				if ($("#hide-subprocs-btn").prop('checked', true)) {
+					this.api().column(10).search("^$", true, false);
+					$("#display-subprocs-div").css('display', 'none');
+				}
+				this.api().draw();
 				//hide ajax spinner
 				$("#ajax-spinner").hide();
 			},
@@ -407,16 +413,11 @@
 				},
 				{ "width": "300px", "targets": 9 }
         	],
-			stateRestore: {
-				searchBuilder: false,
-				order: true,
-				paging: true,
-				search: true,
-				columns: {
-					search: false,
-					visible: true
-				},
-				select: true,
+			"stateSave": true,
+			"stateLoadParams": function (settings, data) {
+				data.columns.forEach(function (column) {
+					column.search.search = "";
+				});
 			},
 			dom: "Q<'row'<'col-sm-auto buttons'B>><'row'<'col-sm-1 action-button'><'col-sm-5 length'l><'col-sm-6 filter'f>>" + "tip",
 			buttons: [
@@ -454,11 +455,7 @@
 				},
 			],
 			searchBuilder: {
-				columns: [2,3,4,5,6,7,8,9,10,11],
-				preDefined: {
-					criteria: output["criteria"],
-					logic: output["logic"]
-				}
+				columns: [2,3,4,5,6,7,8,9,10,11]
 			}
 		});
 
@@ -488,40 +485,19 @@
   			+ `<#include "adaptation-process-actions.ftl">`
   			+ `</ul>`).appendTo(".action-button");
 	});
-
-	function getFilterQString(changeHideSubs) {
-		var params = {};
-		
-		if (changeHideSubs) {
-			if ($("#hide-subprocs-btn").prop("checked")) {
-				params.superProcInstId = "null";
-			}
-		}
-		else {
-			var qs = getQueryString();
-			
-			if (qs && qs.superProcInstId) {
-				params.superProcInstId = qs.superProcInstId;
-			}
-		}
-		
-		var qstring = "?";
-
-		if(params != null){
-			for(p in params){
-				qstring += encodeURI(p)+"="+encodeURI(params[p])+"&";
-			}
-		}
-		qstring = qstring.substring(0,qstring.length-1);
-		return qstring;
-	}
-
-	function updateLocation(changeHideSubs) {
-		window.location="/${base}/processes" + getFilterQString(changeHideSubs);
-	}
 	
 	$("#hide-subprocs-btn").click(function(){
-		updateLocation(true);
+		var table = $("#processes-table").DataTable();
+		//check if button is checked
+		if ($("#hide-subprocs-btn").is(':checked')) {
+			//hide subprocs
+			table.column(10).search("^$", true, false).draw();
+			localStorage.setItem(hideSubProcsVar, "true")
+		} else {
+			//show subprocs
+			table.column(10).search("", true, false).draw();
+			localStorage.setItem(hideSubProcsVar, "false")
+		}
 	});
 	
 	// ---------------------------------
