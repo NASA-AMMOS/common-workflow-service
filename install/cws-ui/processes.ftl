@@ -15,6 +15,7 @@
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<link href="/${base}/css/bootstrap-datepicker.min.css" rel="stylesheet">
+	<link href="/${base}/css/microtip.css" rel="stylesheet">
 	<style>
 		.dataTables_wrapper .filter .dataTables_filter{float:right; padding-top: 15px; display: inline;}
 		.dataTables_wrapper .length .dataTables_length{float:left; display: inline; padding-top: 15px; padding-left: 15px; padding-right: 15px;}
@@ -354,11 +355,10 @@
 								if (count > 3) {
 									putAllAfter = 1;
 								}
-								var temp = "<div><div style=\"width: 85%; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + key + ":</b> " + value + "</div><div style=\"width: 15%; float:right\">"
-									+ "<button class=\"copy\" onClick='copyInput(\"" + value + "\")'>"
-									+ "<span data-text-end=\"Copied!\" data-text-initial=\"Copy to clipboard\" class=\"tooltip\"></span>"
+								var temp = "<div><div style=\"width: 85%; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + key + ":</b> " + value + "</div><div class=\"copySpan\" style=\"width: 15%; float:right\">"
+									+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + value + "\" onClick=''>"
 									+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-									+ "</button></div></div><br>";
+									+ "</span></div></div><br>";
 								if (key === "startedOnWorkerId") {
 									after = after + temp;
 									putAllAfter = 1;
@@ -468,6 +468,16 @@
 			updateActionList();
 		} );
 
+		$(document).on('click', '.copy', function (e) {
+			e.preventDefault();
+			var copyValue = $(this).attr('data-copyValue');
+			copyInput(copyValue);
+			$(this).attr('aria-label', 'Copied!');
+			setTimeout(function () {
+				$('.copy').attr('aria-label', 'Copy');
+			}, 2000);
+		});
+
 		$('<button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Actions &nbsp;' 
 			+ '<span class="caret"></span>'
 			+ '</button>'
@@ -499,6 +509,7 @@
 			localStorage.setItem(hideSubProcsVar, "false")
 		}
 	});
+
 	
 	// ---------------------------------
 	// DISPLAY STATUS MESSAGE (IF ANY)
