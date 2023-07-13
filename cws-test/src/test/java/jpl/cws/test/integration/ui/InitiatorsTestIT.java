@@ -4,6 +4,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
 
 import org.junit.Test;
 import org.openqa.selenium.By;
@@ -15,6 +18,9 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.logging.LogType;
 
 import jpl.cws.test.WebTestUtil;
 
@@ -190,6 +196,16 @@ public class InitiatorsTestIT extends WebTestUtil {
 
 			log.info("Filtering results for Test Initiators Page test.");
 			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
+
+			Set<String> logtyp = driver.manage().logs().getAvailableLogTypes();
+			for (String s : logtyp) {
+				log.info("BROWSER: " + logtyp);
+			}
+			LogEntries logEntries = driver.manage().logs().get(LogType.BROWSER);
+			List<LogEntry> lg = logEntries.getAll();
+			for(LogEntry logEntry : lg) {
+				log.info("BROWSER: " + logEntry);
+			}
 
 			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
 			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_initiators_page");

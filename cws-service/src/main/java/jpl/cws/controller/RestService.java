@@ -1130,8 +1130,12 @@ public class RestService extends MvcCore {
 			@RequestParam(value = "procDefKey", required=false) String procDefKey,
 			@RequestParam(value = "status", required=false) String status,
 			@RequestParam(value = "minDate", required=false) String minDate,
-			@RequestParam(value = "maxDate", required=false) String maxDate
+			@RequestParam(value = "maxDate", required=false) String maxDate,
+			@RequestParam(value = "maxReturn", required=false, defaultValue="5000") String maxReturn
 			) {
+
+		Integer intMaxReturn = Integer.parseInt(maxReturn);
+
 		log.debug("REST:  getProcessInstancesSize (superProcInstId='" + superProcInstId +
 				"', procInstId='" + procInstId +
 				"', procDefKey='"+procDefKey+
@@ -1141,6 +1145,9 @@ public class RestService extends MvcCore {
 		try {
 			size = dbService.getFilteredProcessInstancesSize(
 					superProcInstId, procInstId, procDefKey, status, minDate, maxDate);
+			if (intMaxReturn > 0 && intMaxReturn < size) {
+				size = intMaxReturn;
+			}
 		}
 		catch (Exception e) {
 			log.error("Problem while getFilteredProcessInstancesSize", e);
@@ -1153,14 +1160,13 @@ public class RestService extends MvcCore {
 			@PathVariable String procInstId) {
 		List<CwsProcessInstance> instances = null;
 		instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
-				null, procInstId, null, null, null, null, "DESC", 1);
+				null, procInstId, null, null, null, null, "DESC", 0);
 		if (instances.size() == 0) {
 			return null;
 		} else {
 			return instances.get(0).getStatus();
 		}
 	}
-
 	
 	/**
 	 * REST method used to get Processes table JSON
@@ -1175,13 +1181,15 @@ public class RestService extends MvcCore {
 			@RequestParam(value = "minDate",     required=false) String minDate,
 			@RequestParam(value = "maxDate",     required=false) String maxDate,
 			@RequestParam(value = "dateOrderBy", required=false, defaultValue="DESC") String dateOrderBy,
-			@RequestParam(value = "page",        required=false, defaultValue="0") String page
+			@RequestParam(value = "page", required=false, defaultValue="0") String page,
+			@RequestParam(value = "maxReturn", required=false, defaultValue="5000") String maxReturn
 			) {
 		
 		List<CwsProcessInstance> instances = null;
-		int recordsToReturn = 0;
-		Integer pageNum = Integer.parseInt(page);
 		try {
+
+			Integer pageNum = Integer.parseInt(page);
+			Integer intMaxReturn = Integer.parseInt(maxReturn);
 
 			dateOrderBy = dateOrderBy.toUpperCase();
 			if (!dateOrderBy.equals("DESC") && !dateOrderBy.equals("ASC")) {
@@ -1193,22 +1201,22 @@ public class RestService extends MvcCore {
 					"', procInstId='" + procInstId +
 					"', procDefKey='"+procDefKey+
 					"', status='"+status+"', minDate="+minDate+", maxDate="+maxDate+
-					", dateOrderBy="+dateOrderBy+", page="+page+")");
+					", dateOrderBy="+dateOrderBy+")");
 
 			instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
 					superProcInstId, procInstId, procDefKey, status, minDate, maxDate, dateOrderBy, pageNum);
-			if (pageNum > instances.size()) {
-				recordsToReturn = instances.size();
-			} else {
-				recordsToReturn = pageNum;
+
+			if ((intMaxReturn != -1) && (instances.size() > intMaxReturn)) {
+				instances = instances.subList(0, intMaxReturn);
 			}
+
 		}
 		catch (Exception e) {
 			log.error("Problem getting process instance information!", e);
 			// return an empty set
 			return new GsonBuilder().setPrettyPrinting().create().toJson(new ArrayList<CwsProcessInstance>());
 		}
-		return new GsonBuilder().setPrettyPrinting().create().toJson(instances.subList(0,recordsToReturn));
+		return new GsonBuilder().serializeNulls().create().toJson(instances);
 	}
 	
 	
