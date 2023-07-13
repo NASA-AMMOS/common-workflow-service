@@ -1,6 +1,7 @@
 package jpl.cws.core.web;
 
 import com.google.gson.GsonBuilder;
+import org.apache.commons.lang.StringEscapeUtils;
 
 public class JsonResponse {
 	public enum Status {
@@ -25,6 +26,8 @@ public class JsonResponse {
 	}
 
 	public String toString() {
-		return new GsonBuilder().setPrettyPrinting().create().toJson(this);
+		String json = new GsonBuilder().setPrettyPrinting().create().toJson(this);
+
+		return StringEscapeUtils.unescapeJava(json);
 	}
 }

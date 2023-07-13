@@ -1001,8 +1001,35 @@ public class RestService extends MvcCore {
 		
 		return "success";
 	}
-	
-	
+
+
+	/**
+	 * Inserts or updates worker tag with name and value
+	 *
+	 */
+	@RequestMapping(value = "/worker/{workerId}/updateTag/{name}", method = POST, produces="application/json")
+	public @ResponseBody String updateWorkerTag(
+			HttpServletResponse response,
+			@PathVariable String workerId,
+			@PathVariable String name,
+			@RequestParam(value = "value") String value) {
+
+		try {
+			dbService.updateWorkerTag(workerId, name, value);
+		} catch (Exception e) {
+			log.error("Unexpected error", e);
+
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
+			return new JsonResponse(JsonResponse.Status.FAIL, e.getMessage()).toString();
+		}
+
+		response.setStatus(HttpServletResponse.SC_OK);
+
+		return new JsonResponse(JsonResponse.Status.SUCCESS, "Updated worker '" + workerId + "' tag: " + name + "='" + value + "'").toString();
+	}
+
+
 	/**
 	 * Checks if procDefKey is deployed (exists)
 	 * 

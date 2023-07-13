@@ -1257,6 +1257,39 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 	/**
 	 *
 	 */
+	public void updateWorkerTag(String workerId, String name, String value) throws Exception {
+
+		// If we are adding a tag, then first try inserting a new row.
+		// If the insert actually inserted a new row, then we are done.
+		// If the row already existed, then update the row.
+		//
+		int numUpdated = jdbcTemplate.update(
+				"INSERT IGNORE INTO cws_worker_tags " +
+						"(worker_id, name, value) " +
+						"VALUES (?, ?, ?)",
+				new Object[] {workerId, name, value});
+		if (numUpdated == 0) {
+			// row was already there, so just update it
+			numUpdated = jdbcTemplate.update(
+					"UPDATE cws_worker_tags " +
+							"SET value=?, updated_time=? " +
+							"WHERE worker_id=? AND name=?",
+					new Object[] {
+							value,
+							new Timestamp(DateTime.now().getMillis()),
+							workerId,
+							name});
+			log.debug("Updated " + numUpdated + " row(s) in the cws_worker_tags table...");
+		}
+		else {
+			log.debug("Inserted " + numUpdated + " row(s) into the cws_worker_tags table...");
+		}
+	}
+
+
+	/**
+	 *
+	 */
 	public void updateWorkerProcDefEnabled(String workerId, String procDefKey, String deploymentId, boolean isEnabled) throws Exception {
 		int numUpdated = 0;
 		if (isEnabled) {
