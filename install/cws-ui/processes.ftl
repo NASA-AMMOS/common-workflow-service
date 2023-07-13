@@ -28,8 +28,6 @@
 			width: 100px;
 			display: list-item;
 		}
-	</style>
-	<style type="text/css">
 		#processes-table {
 			font-size: 90%;
 		}
@@ -96,15 +94,80 @@
 
 			<h2 class="sub-header">Processes</h2>
 
-  			<div id="hide-subprocs-div">
-				<label for="hide-subprocs">Hide Subprocesses</label>
-				<input name="hide-subprocs" id="hide-subprocs-btn" type="checkbox">
+			<div id="filters-div">
+				<h3 style="margin-top: 10px;">Filters:</h3>
+				<p>Select filters before retrieving data to reduce loading time.</p>
+					<div class="col-md-4">
+						<h4>Process Definition:</h4>
+						<select id="pd-select">
+							<option value="def">Select PD</option>
+							<#list procDefs as pd>
+							<option value="${pd.key}">${pd.name}</option>
+							</#list>
+						</select>
+						<div>
+							<h4 style="margin-top: 15px;">Subprocess & Superprocess:</h4>
+							<input id="super-proc-inst-id-in" style="width: 90%" type="text"class="form-control" placeholder="Superprocess Instance ID" />
+						</div>
+						<div style="margin-top: 15px" id="hide-subprocs-div">
+							<label for="hide-subprocs">Hide Subprocesses</label>
+							<input name="hide-subprocs" id="hide-subprocs-btn" type="checkbox">
+						</div>
+					</div>
+					<div class="col-md-4">
+						<h4>Status:</h4>
+						<div id="status-select">
+							<input id="fail" type="checkbox" value="fail" />
+							<label for="fail">Failed</label><br/>
+							<input id="complete" type="checkbox" value="complete" />
+							<label for="complete">Complete</label><br/>
+                            <input id="resolved" type="checkbox" value="resolved" />
+                            <label for="resolved">Resolved</label><br/>
+							<input id="running" type="checkbox" value="running" />
+							<label for="running">Running</label><br/>
+							<input id="pending" type="checkbox" value="pending" />
+							<label for="pending">Pending</label><br/>
+							<input id="disabled" type="checkbox" value="disabled" />
+							<label for="disabled">Disabled</label><br/>
+							<input id="failedToStart" type="checkbox" value="failedToStart" />
+							<label for="failedToStart">Failed to Start</label><br/>
+							<input id="incident" type="checkbox" value="incident" />
+							<label for="incident">Incident</label><br/>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div id="datepicker-div">
+							<h4>Created Date:</h4>
+							<input id="min-date" class="form-control"
+							data-date-format="yyyy-mm-dd" type="text" placeholder="From...">
+
+							<input id="max-date" class="form-control"
+							data-date-format="yyyy-mm-dd" type="text" placeholder="To...">
+						</div>
+						<div id="max-return-div">
+							<h4>Max Results:</h4>
+							<input id="max-return-num" class="form-control" type="number" min="1" value="5000">
+							<input id="max-return-all" type="checkbox" value="-1" />
+							<label style="margin-top: 5px;" for="max-return-all">Return all</label><br/>
+						</div>
+					</div>
+				<br/>
+				<div class="col-md-12">
+					<input type="button" id="filter-submit-btn" class="btn btn-info pull-right" value="Filter"/>
+					<h5 class="pull-right" style="margin-right: 8px;">Matched Processes: <span id="numMatchProcesses"></span></h5>
+					<h5 class="pull-right" id="procCountWarning" style="color: red; margin-right: 8px;"></h5>
+				</div>
 			</div>
+
+
+			<div id="filters-btn"  class="btn btn-warning"><span class="glyphicon glyphicon-filter">
+				</span>&nbsp;Filters&nbsp;<span id="filter-arrow" class="glyphicon glyphicon-chevron-up"></span>
+			</div>
+
 			<div id="display-subprocs-div">
 				<h3>Displaying Subprocesses for Process Instance ID: <span id="super-proc-inst-id">34374-349083748</span></h3>
 			</div>
   			<div id="action_msg"></div>
-			<span id="showing_num_procs"></span><span id="out_of_procs"></span>
 
 			<div id="proc-log">
 				<div class="ajax-spinner" id="ajax-spinner"></div>
@@ -139,122 +202,104 @@
 	const username = "username"; //temporary, hardcoded value for now
 	const hideSubProcsVar = "CWS_DASH_PROCS_HIDE_SUBPROCS-" + username;
 
-	if (localStorage.getItem(hideSubProcsVar) === null) {
-		localStorage.setItem(hideSubProcsVar, true);
-		$("#hide-subprocs-btn").prop("checked", true);
-	} else if (localStorage.getItem(hideSubProcsVar) === "true") {
-		$("#hide-subprocs-btn").prop("checked", true);
-	} else {
-		$("#hide-subprocs-btn").prop("checked", false);
-	}
-
+	//GLOBAL VARS
 	var params = {};
 
+	//DOCUMENT.READY START
 	$( document ).ready(function() {
+		//try to load hideSubProcsVar from local storage. If it doesn't exist, set it to true
+		//(automatically hides subprocs if never visited this page before)
+		if (localStorage.getItem(hideSubProcsVar) === null) {
+			localStorage.setItem(hideSubProcsVar, true);
+		}
+
+		//initialize our datepicker elements
+		$("#min-date").datepicker({
+			orientation:'left top',
+			todayBtn: 'true',
+			todayHighlight:true
+		});
+		
+		$("#max-date").datepicker({
+			orientation:'left top',
+			todayBtn: 'true',
+			todayHighlight:true
+		});
+
+		$("#filters-btn").click(function(){
+			if($("#filters-div").is(":visible"))
+				$("#filter-arrow").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
+			else
+				$("#filter-arrow").removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
+			$("#filters-div").slideToggle();
+		});
+		
+		$("#filter-submit-btn").click(function(){
+			updateLocation(false);
+		});
+
 		$("#display-subprocs-div").css('display', 'none');
 
 		//get our params from the url
 		params = getQueryString();
 
-		//show ajax spinner
-		$("#ajax-spinner").show();
-		
 		//get our current url
 		var currentUrl = window.location.href;
+
+		//apply our params to the filter section of the page
+		applyParamsToFilters(params);
+		getNumMatchingProcesses();
+
+		//when we edit a filter in the filters table, get the new number of matching processes
+		$("#pd-select").change(function(){
+			getNumMatchingProcesses();
+		});
+		$("#status-select").change(function(){
+			getNumMatchingProcesses();
+		});
+		$("#min-date").change(function(){
+			getNumMatchingProcesses();
+		});
+		$("#max-date").change(function(){
+			getNumMatchingProcesses();
+		});
+		$("#super-proc-inst-id-in").change(function(){
+			getNumMatchingProcesses();
+		});
+		$("#filter-submit-btn").click(function(){
+			updateLocation(false);
+		});
+		$("#hide-subprocs-btn").click(function(){
+			updateLocation(true);
+			if (!($("#hide-subprocs-btn")).is(":checked")) {
+				$("#super-proc-inst-id-in").hide();
+			} else {
+				$("#super-proc-inst-id-in").show();
+			}
+		});
+		$("#max-return-num").change(function(){
+			getNumMatchingProcesses();
+		});
+		$("#max-return-all").change(function(){
+			getNumMatchingProcesses();
+			if ($("#max-return-all").is(":checked")) {
+				$("#max-return-num").prop('disabled', true);
+			} else {
+				$("#max-return-num").prop('disabled', false);
+			}
+		});
 		
 		displayMessage();
 
 		$.fn.dataTable.moment( 'MMM D, YYYY, h:mm:ss A' );
 
 		$("#processes-table").DataTable({
-			"ajax": function (data, callback, settings) {
-				var numProcs = 0;
-				$.ajax({
-					url: "/${base}/rest/processes/getInstancesSize",
-					type: "GET",
-					async: false,
-					success: function (data) {
-						numProcs = data;
-					},
-					error: function (xhr, ajaxOptions, thrownError) {
-						console.log("Error getting number of processes: " + thrownError);
-					}
-				});
-				var numCalls = Math.ceil(numProcs / 200);
-				var returnedData = [];
-				var doneArr = [];
-				for (var i = 0; i < numCalls; i++) {
-					$.ajax({
-						url: "/${base}/rest/processes/getInstancesCamunda",
-						type: "GET",
-						data: {"page": i},
-						async: true,
-						success: function (data) {
-							returnedData = returnedData.concat(data);
-							doneArr.push(true);
-						},
-						error: function (xhr, ajaxOptions, thrownError) {
-							console.log("Error getting processes: " + thrownError);
-						}
-					});
+			language: {
+				searchBuilder: {
+					add: "Add Criteria"
 				}
-				var interval = setInterval(function () {
-					if (doneArr.length === numCalls) {
-						clearInterval(interval);
-						callback({data: returnedData});
-					}
-				}, 250);
-
-			},
-			"initComplete": function (settings, json) {
-				//check our URL params and apply the column filters
-				if (params !== undefined) {
-					if (params["procDefKey"] !== undefined) {
-						this.api().column(2).search("(" + params["procDefKey"] + ")", true, false);
-					}
-					if (params["status"] !== undefined) {
-						//comes in a comma separated list
-						var statusArr = params["status"].split(",");
-						var statusStr = "";
-						for (var i = 0; i < statusArr.length; i++) {
-							statusStr += "(" + statusArr[i] + ")|";
-						}
-						if (statusStr.length > 0) {
-							statusStr = statusStr.substring(0, statusStr.length - 1);
-						}
-						this.api().column(4).search(statusStr, true, false).draw();
-					}
-					if (params["superProcInstId"] !== null && params["superProcInstId"] !== undefined) {
-						this.api().column(10).search("(" + params["superProcInstId"] + ")", true, false);
-					}
-				}
-				if (!params) {
-					$("#hide-subprocs-btn").prop('checked', false);
-					this.api().column(10).search("", true, false);
-					$("#display-subprocs-div").css('display', 'none');
-				}
-				else if (!params.superProcInstId) {
-					$("#hide-subprocs-btn").prop('checked', false);
-					this.api().column(10).search("", true, false);
-					$("#display-subprocs-div").css('display', 'none');
-				}
-				else if (params.superProcInstId.toLowerCase() === 'null') {
-					$("#hide-subprocs-btn").prop('checked', true);
-					this.api().column(10).search("^$", true, false);
-					$("#display-subprocs-div").css('display', 'none');
-				}
-				else {
-					$("#hide-subprocs-div").css('display', 'none');
-					$("#super-proc-inst-id").html(params.superProcInstId);
-				}
-				if ($("#hide-subprocs-btn").prop('checked', true)) {
-					this.api().column(10).search("^$", true, false);
-					$("#display-subprocs-div").css('display', 'none');
-				}
-				this.api().draw();
-				//hide ajax spinner
-				$("#ajax-spinner").hide();
-			},
+        	},
+			deferRender: true,
 			columns: [
 				{
 					data: null,
@@ -489,23 +534,215 @@
     		+ `<li id="action_mark_as_resolved" class="disabled" role="presentation"><a id="action_mark_as_resolved_atag" role="menuitem">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
   			+ `<#include "adaptation-process-actions.ftl">`
   			+ `</ul>`).appendTo(".action-button");
-	});
-	
-	$("#hide-subprocs-btn").click(function(){
-		var table = $("#processes-table").DataTable();
-		//check if button is checked
-		if ($("#hide-subprocs-btn").is(':checked')) {
-			//hide subprocs
-			table.column(10).search("^$", true, false).draw();
-			localStorage.setItem(hideSubProcsVar, "true")
-		} else {
-			//show subprocs
-			table.column(10).search("", true, false).draw();
-			localStorage.setItem(hideSubProcsVar, "false")
-		}
-	});
 
-	
+			fetchAndDisplayProcesses();
+	});
+	//DOCUMENT.READY END
+
+	function fetchAndDisplayProcesses() {
+		//create our qstring
+		var qstring = "?";
+		if(params != null){
+			for(p in params){
+				qstring += encodeURI(p)+"="+encodeURI(params[p])+"&";
+			}
+		}
+		qstring = qstring.substring(0,qstring.length-1);
+		//fetch number of processes
+		var numProcs = 0;
+		//show ajax spinner
+		$(".ajax-spinner").show();
+		$.ajax({
+			url: "/${base}/rest/processes/getInstancesSize" + qstring,
+			type: "GET",
+			async: false,
+			success: function (data) {
+				numProcs = data;
+			},
+			error: function (xhr, ajaxOptions, thrownError) {
+				console.log("Error getting number of processes: " + thrownError);
+			}
+		});
+		//fetch processes
+		var numCalls = Math.ceil(numProcs / 50);
+		var returnedData = [];
+		var doneArr = [];
+		var urlPageAddition = "";
+		if (qstring === "") {
+			urlPageAddition = "?page=";
+		} else {
+			urlPageAddition = "&page=";
+		}
+		for (var i = 0; i < numCalls; i++) {
+			$.ajax({
+				url: "/${base}/rest/processes/getInstancesCamunda" + qstring + urlPageAddition + i,
+				type: "GET",
+				async: true,
+				success: function (data) {
+					returnedData = returnedData.concat(data);
+					doneArr.push(true);
+				},
+				error: function (xhr, ajaxOptions, thrownError) {
+					console.log("Error getting processes: " + thrownError);
+				}
+			});
+		}
+		var interval = setInterval(function () {
+			if (doneArr.length === numCalls) {
+				clearInterval(interval);
+				$("#processes-table").DataTable().clear();
+				$("#processes-table").DataTable().rows.add(returnedData).draw();
+				//hide ajax spinner
+				$(".ajax-spinner").hide();
+			}
+		}, 250);
+	}
+
+	function updateLocation(changeHideSubs) {
+		var localParams = {};
+
+		if($("#pd-select").val() != "def"){
+			localParams["procDefKey"] = $("#pd-select").val();
+		}
+		localParams["status"] = '';
+		$("#status-select input:checked").each(function(){
+			localParams["status"] += $(this).val()+',';
+		});
+		if(localParams["status"] != '')
+			localParams["status"] = localParams["status"].substr(0, localParams["status"].length - 1 );
+		else
+			delete localParams['status'];
+		if($("#super-proc-inst-id-in").val() != ""){
+			localParams["superProcInstId"] = $("#super-proc-inst-id-in").val();
+		}
+		if($("#min-date").val() != ""){
+			localParams["minDate"] = encodeURIComponent($("#min-date").val());
+		}
+		if($("#max-date").val() != ""){
+			localParams["maxDate"] = encodeURIComponent($("#max-date").val());
+		}
+		if($("#max-return-all").prop("checked")){
+			localParams["maxReturn"] = -1;
+		}
+		else{
+			localParams["maxReturn"] = $("#max-return-num").val();
+		}
+		if ($("#hide-subprocs-btn").prop("checked")) {
+			localParams["superProcInstId"] = "null";
+		} else if (!($("#hide-subprocs-btn").prop("checked"))) {
+			delete localParams["superProcInstId"];
+		}
+		var qstring = "?";
+		if(localParams != null){
+			for(p in localParams){
+				qstring += encodeURI(p)+"="+encodeURI(localParams[p])+"&";
+			}
+		}
+		qstring = qstring.substring(0,qstring.length-1);
+		console.log(encodeURI(qstring));
+		window.location="/${base}/processes" + qstring;
+	}
+
+	function getNumMatchingProcesses() {
+		var localParams = {};
+
+		if($("#pd-select").val() != "def"){
+			localParams["procDefKey"] = $("#pd-select").val();
+		}
+		localParams["status"] = '';
+		$("#status-select input:checked").each(function(){
+			localParams["status"] += $(this).val()+',';
+		});
+		if(localParams["status"] != '')
+			localParams["status"] = localParams["status"].substr(0, localParams["status"].length - 1 );
+		else
+			delete localParams['status'];
+		if($("#super-proc-inst-id-in").val() != ""){
+			localParams["superProcInstId"] = $("#super-proc-inst-id-in").val();
+		}
+		if($("#min-date").val() != ""){
+			localParams["minDate"] = encodeURIComponent($("#min-date").val());
+		}
+		if($("#max-date").val() != ""){
+			localParams["maxDate"] = encodeURIComponent($("#max-date").val());
+		}
+		if($("#max-return-all").prop("checked")){
+			localParams["maxReturn"] = -1;
+		}
+		else{
+			localParams["maxReturn"] = $("#max-return-num").val();
+		}
+		if ($("#hide-subprocs-btn").prop("checked")) {
+			localParams["superProcInstId"] = "null";
+		} else {
+			delete localParams["superProcInstId"];
+
+		}
+		var qstring = "?";
+		if(localParams != null){
+			for(p in localParams){
+				qstring += encodeURI(p)+"="+encodeURI(localParams[p])+"&";
+			}
+		}
+		qstring = qstring.substring(0,qstring.length-1);
+		var numMatching = 0;
+		$.ajax({
+			url: "/${base}/rest/processes/getInstancesSize" + qstring,
+			type: "GET",
+			async: false,
+			success: function (data) {
+				numMatching = data;
+			},
+			error: function (xhr, ajaxOptions, thrownError) {
+				console.log("Error getting number of processes: " + thrownError);
+				numMatching = "Error";
+			}
+		});
+		$("#numMatchProcesses").text(numMatching);
+		if (numMatching > 5000) {
+			$("#procCountWarning").text("Warning: Large number of processes may increase load time.");
+		} else {
+			$("#procCountWarning").text("");
+		}
+	}
+
+	function applyParamsToFilters(params) {
+		if(params != null){
+			$("#pd-select").val(params.procDefKey || "def");
+			if(params.status){
+				var k = params.status.split(',');
+				for(i in k){
+					$("#status-select input[value='"+k[i]+"']").prop("checked",true);
+				}
+			}
+			if (!params) {
+				$("#super-proc-inst-id-in").show();
+				$("#hide-subprocs-btn").prop('checked', false);
+				$("#display-subprocs-div").css('display', 'none');
+			}
+			else if (params.superProcInstId == undefined) {
+				$("#super-proc-inst-id-in").show();
+				$("#hide-subprocs-btn").prop('checked', false);
+				$("#display-subprocs-div").css('display', 'none');
+			}
+			else if (params.superProcInstId.toLowerCase() === 'null') {
+				$("#super-proc-inst-id-in").hide();
+				$("#hide-subprocs-btn").prop('checked', true);
+				$("#display-subprocs-div").css('display', 'none');
+			}
+			else {
+				$("#super-proc-inst-id-in").show();
+				$("#hide-subprocs-div").css('display', 'none');
+				$("#super-proc-inst-id").html(params.superProcInstId);
+			}
+			//$("#status-select").val(params.status);
+			$("#min-date").val(params.minDate || "");
+			$("#max-date").val(params.maxDate || "");
+			$("#max-return").val(params.maxReturn || 5000);
+			$("#super-proc-inst-id-in").val(params.superProcInstId || "");
+		}
+	}
+
 	// ---------------------------------
 	// DISPLAY STATUS MESSAGE (IF ANY)
 	//

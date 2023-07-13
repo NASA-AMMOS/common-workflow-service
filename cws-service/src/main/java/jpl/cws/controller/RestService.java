@@ -1103,8 +1103,12 @@ public class RestService extends MvcCore {
 			@RequestParam(value = "procDefKey", required=false) String procDefKey,
 			@RequestParam(value = "status", required=false) String status,
 			@RequestParam(value = "minDate", required=false) String minDate,
-			@RequestParam(value = "maxDate", required=false) String maxDate
+			@RequestParam(value = "maxDate", required=false) String maxDate,
+			@RequestParam(value = "maxReturn", required=false, defaultValue="5000") String maxReturn
 			) {
+
+		Integer intMaxReturn = Integer.parseInt(maxReturn);
+
 		log.debug("REST:  getProcessInstancesSize (superProcInstId='" + superProcInstId +
 				"', procInstId='" + procInstId +
 				"', procDefKey='"+procDefKey+
@@ -1114,6 +1118,9 @@ public class RestService extends MvcCore {
 		try {
 			size = dbService.getFilteredProcessInstancesSize(
 					superProcInstId, procInstId, procDefKey, status, minDate, maxDate);
+			if (intMaxReturn > 0 && intMaxReturn < size) {
+				size = intMaxReturn;
+			}
 		}
 		catch (Exception e) {
 			log.error("Problem while getFilteredProcessInstancesSize", e);
@@ -1147,13 +1154,15 @@ public class RestService extends MvcCore {
 			@RequestParam(value = "minDate",     required=false) String minDate,
 			@RequestParam(value = "maxDate",     required=false) String maxDate,
 			@RequestParam(value = "dateOrderBy", required=false, defaultValue="DESC") String dateOrderBy,
-			@RequestParam(value = "page", required=false, defaultValue="0") String page
+			@RequestParam(value = "page", required=false, defaultValue="0") String page,
+			@RequestParam(value = "maxReturn", required=false, defaultValue="5000") String maxReturn
 			) {
 		
 		List<CwsProcessInstance> instances = null;
 		try {
 
 			Integer pageNum = Integer.parseInt(page);
+			Integer intMaxReturn = Integer.parseInt(maxReturn);
 
 			dateOrderBy = dateOrderBy.toUpperCase();
 			if (!dateOrderBy.equals("DESC") && !dateOrderBy.equals("ASC")) {
@@ -1169,6 +1178,11 @@ public class RestService extends MvcCore {
 
 			instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
 					superProcInstId, procInstId, procDefKey, status, minDate, maxDate, dateOrderBy, pageNum);
+
+			if ((intMaxReturn != -1) && (instances.size() > intMaxReturn)) {
+				instances = instances.subList(0, intMaxReturn);
+			}
+
 		}
 		catch (Exception e) {
 			log.error("Problem getting process instance information!", e);
