@@ -13,11 +13,15 @@
 	<script src="/${base}/js/DataTables/datatables.js"></script>
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
+	<link href="/${base}/css/microtip.css" rel="stylesheet">
 	<style>
 		.dataTables_wrapper .filter .dataTables_filter{float:right; padding-top: 15px; display: inline; margin-right: 15px;}
 		.dataTables_wrapper .download-button {padding-top: 15px;}
 		.dataTables_wrapper .button {float:left; display: inline; margin-top: 15px; margin-right: 15px;}
 		.dataTables_wrapper {margin-left: 5px; margin-right: -10px;}
+		summary {
+			width: 100px;
+		}
 	</style>
 	<script>
 
@@ -50,6 +54,16 @@
 			table.row.add($(rows[i]));
 		}
 	}
+
+	$(document).on('click', '.copy', function (e) {
+			e.preventDefault();
+			var copyValue = $(this).attr('data-copyValue');
+			copyInput(copyValue);
+			$(this).attr('aria-label', 'Copied!');
+			setTimeout(function () {
+				$('.copy').attr('aria-label', 'Copy');
+			}, 2000);
+		});
 		
 	function getMoreLogData(scrollId) {
 
@@ -147,7 +161,7 @@
 		var first = msg.substring(0, index).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
 		var rest = msg.substring(index).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
 
-		return first + '<details><summary>Show All</summary>' + rest + '</details>'
+		return first + '<details><summary> Show All</summary>' + rest + '</details>'
 	}
 
 	function makeRow(key, value, cmd) {
@@ -532,7 +546,7 @@
 	$( document ).ready(function() {
 
 		$("#logData").DataTable({
-			order: [[0, 'desc']],
+			order: [[0, 'asc']],
 			paging: false,
 			dom: "<'row'<'col-sm-2 download-button'><'col-sm-10 filter'f>>" + "tip",
 		});
@@ -582,23 +596,52 @@
 	}); //END OF DOCUMENT.READY
 
 	function setInputVariableTable(historyRows) {
-		for (var i = 0; i < historyRows.length; i++) {
-			var message = historyRows[i].message;
-			var varType = message.substring(message.indexOf("("), message.indexOf(")")+1);
-			console.log(varType);
-			var varName = message.substring(message.indexOf(")")+2);
-			varName = varName.substring(0, varName.indexOf("=")-1) + " " + varType;
-			var varValue = message.substring(message.indexOf("=")+2);
-			var htmlToAppend = "<tr><td>" 
-							+ varName 
-							+ "</td><td>" 
-							+ varValue 
-							+ `<button class="copy" onClick='copyInput("` + varValue + `")'>`
-							+ `<span data-text-end="Copied!" data-text-initial="Copy to clipboard" class="tooltip"></span>`
-							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
-							+ `</button>`
-							+ "</td></tr>";
-			$("#inputVariableTable").append(htmlToAppend);
+		if (historyRows.length == 0) {
+			$("#inputVariables").html("None");
+		} else {
+			//declare new map of <string, string>
+			var inputVarObj = {};
+			for (var i = 0; i < historyRows.length; i++) {
+				var message = historyRows[i].message;
+				var varType = message.substring(message.indexOf("("), message.indexOf(")")+1);
+				console.log(varType);
+				var varName = message.substring(message.indexOf(")")+2);
+				varName = varName.substring(0, varName.indexOf("=")-1) + " " + varType;
+				var varValue = message.substring(message.indexOf("=")+2);
+				inputVarObj[varName] = varValue;
+			}
+			var output = "";
+			var before = "";
+			var after = "";
+			var putAllAfter = 0;
+			var count = 0;
+			for (const [key, value] of Object.entries(inputVarObj)) {
+				if (key === "workerId") {
+					continue;
+				}
+				if (count > 3) {
+					putAllAfter = 1;
+				}
+				var temp = "<div><div style=\"width: 85%; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + key + ":</b> " + value + "</div><div class=\"copySpan\" style=\"width: 15%; float:right\">"
+					+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + value + "\" onClick=''>"
+					+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+					+ "</span></div></div><br>";
+				if (key === "startedOnWorkerId") {
+					after = after + temp;
+					putAllAfter = 1;
+				} else if (putAllAfter === 0) {
+					before = before + temp;
+				} else {
+					after = after + temp;
+				}
+				count++;
+			}
+			if (after.length < 0) {
+				output = before;
+			} else {
+				output = before + "<details><summary><b>Show All</b></summary>" + after + "</details>";
+			}
+			$("#inputVariables").html(output);
 		}
 	}
 
@@ -672,17 +715,10 @@
 					<tr>
 						<td style="font-weight:bold;">Status</td><td id="procStatus"></td>
 					</tr>
+					<tr>
+						<td style="font-weight:bold;">Input Variables</td><td id="inputVariables"></td>
+					</tr>
 				</table>
-		</div>
-		<div class="row">
-			<table align="center" class="table table-bordered " style="width: 95%; font-size:95%" id="inputVariableTable">
-				<tr>
-					<th>Input Variable</th>
-					<th>Value</th>
-				</tr>
-				<tbody>
-				</tbody>
-			</table>
 		</div>
       <div id="resolveButtonDiv" class="row" style="text-align: center; display: none;">
         <button id="resolveButton" class="btn btn-primary" type="button" onclick="markAsResolved($('#procInstId').text())">Mark as Resolved</button>

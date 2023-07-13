@@ -11,8 +11,9 @@
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<style>
-		.dataTables_wrapper .myfilter .dataTables_filter{float:left; margin-top: 15px;}
+		.dataTables_wrapper .filter .dataTables_filter{float:right; padding-top: 15px; display: inline; margin-right: 15px;}
 		.dataTables_wrapper .mylength .dataTables_length{float:right}
+		.dataTables_wrapper .download-button {padding-top: 15px;}
 	</style>
 	<script>
 
@@ -351,11 +352,13 @@
 			if (localStorage.getItem(refreshRateVar) !== null) {
 				$("#refresh-rate").val(localStorage.getItem(refreshRateVar)/1000);
 			} else {
+				localStorage.setItem(refreshRateVar, 5000);
 				$("#refresh-rate").val("5");
 			}
 			if (localStorage.getItem(lastNumHoursVar) !== null) {
 				$("#stats-last-num-hours").val(localStorage.getItem(lastNumHoursVar));
 			} else {
+				localStorage.setItem(lastNumHoursVar, 24);
 				$("#stats-last-num-hours").val(24);
 			}
 
@@ -366,9 +369,10 @@
 				],
 				"paging": false,
 				//filter is top left, length is top right, info is bottom left, pagination is bottom right
-				"dom": "<'row'<'col-sm-6 myfilter'f><'col-sm-6 mylength'l>>" +
-					   "<'row'<'col-sm-12'tr>>"
+				dom: "<'row'<'col-sm-2 download-button'><'col-sm-10 filter'f>>" + "tip",
 			});
+
+			$('<button id="download-btn" class="btn btn-primary" onclick="downloadJSON()">Download (JSON)</button>').appendTo(".download-button");
 			
 			refreshStats();
 			pageRefId  = setInterval(pageRefresh, parseInt(localStorage.getItem(refreshRateVar)));
@@ -592,18 +596,6 @@
 					<option value="null">Show stats for All Time</option>
 				</select>
 			</div>
-			<br>
-			<div>
-				<div class="dropdown" style="display:inline;">
-					<button id="downloadButton" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Download &nbsp;
-						<span class="caret"></span>
-					</button>
-					<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">
-						<li id="action_download_json" class="enabled" role="presentation"><a id="json-bttn" role="menuitem" href="#">Download as JSON</a></li>
-					</ul>
-  				</div>
-			</div>
-			<br>
 			</div>
 
 			<div class="status-div col-md-7 col-md-offset-1">
@@ -1066,11 +1058,6 @@
 			}
 		});
 	}
-
-	$("#json-bttn").click(function(e) {
-		e.preventDefault();
-		downloadJSON();
-	});
 
 	function downloadJSON() {
 		var dt = $('#process-table').DataTable();

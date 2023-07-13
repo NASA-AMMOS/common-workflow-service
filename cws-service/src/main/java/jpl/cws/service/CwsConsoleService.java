@@ -612,50 +612,31 @@ public class CwsConsoleService {
 		return history;
 	}
 
-	public String getInputVariablesForProcess(String processInstanceId) {
+	public Map<String, String> getInputVariablesForProcess(String processInstanceId) {
+		Map<String, String> inputVarMap = new HashMap<String, String>();
 		List<HistoryDetail> historyDetails = new ArrayList<HistoryDetail>();
 		getHistoryVarDetails(historyDetails, processInstanceId);
-
-		String output = "";
-		String before = "";
-		String after = "";
-		int putAllAfter = 0;
-		int count = 0;
+		
+		if (processInstanceId == null) {
+			return inputVarMap;
+		}
 
 		for (HistoryDetail historyDetail : historyDetails) {
 			if (historyDetail.type.equals("VarUpdate") && historyDetail.activity.equals(processInstanceId)) {
-				if (count > 3) {
-					putAllAfter = 1;
-				}
 				String message = historyDetail.message;
 				String varType = message.substring(message.indexOf("("), message.indexOf(")")+1);
 				String varName = message.substring(message.indexOf(")")+2);
 				varName = varName.substring(0, varName.indexOf("=")-1) + " " + varType;
 				String varValue = message.substring(message.indexOf("=")+2);
-				String temp = "<div><div style=\"width: 85%; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + varName + ":</b> " + varValue + "</div><div style=\"width: 15%; float:right\">"
-					+ "<button class=\"copy\" onClick='copyInput(\"" + varValue + "\")'>"
-					+ "<span data-text-end=\"Copied!\" data-text-initial=\"Copy to clipboard\" class=\"tooltip\"></span>"
-					+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-					+ "</button></div></div><br>";
-				if (varName.contains("workerId")) {
-					after = after + temp;
-				} else if (varName.contains("startedOnWorkerId")) {
-					after = after + temp;
-					putAllAfter = 1;
-				} else if (putAllAfter == 0) {
-					before = before + temp;
+
+				if (inputVarMap.containsKey(varName)) {
 				} else {
-					after = after + temp;
+					inputVarMap.put(varName, varValue);
 				}
-				count++;
+				
 			}
 		}
-		if (after.isEmpty()) {
-			output = before;
-		} else {
-			output = before + "<details><summary><b>Show All</b></summary>" + after + "</details>";
-		}
-		return output;
+		return inputVarMap;
 	}
 
 	public List<ExternalWorker> getExternalWorkersUiDTO() {
@@ -1081,9 +1062,11 @@ public class CwsConsoleService {
 			String startedByWorker = (String) row.get("started_by_worker");
 			Timestamp procStartTime = (Timestamp) row.get("proc_start_time");
 			Timestamp procEndTime = (Timestamp) row.get("proc_end_time");
-			String inputVars = "";
+			Map<String, String> inputVars;
 			if (procInstIdObj != null) {
-				inputVars = getInputVariablesForProcess(procInstIdObj.toString());
+				 inputVars = getInputVariablesForProcess(procInstIdObj.toString());
+			} else {
+				inputVars = new HashMap<String, String>();
 			}
 			CwsProcessInstance instance = new CwsProcessInstance(uuidObj == null ? null : uuidObj.toString(),
 					procDefKeyObj == null ? null : procDefKeyObj.toString(),

@@ -63,8 +63,9 @@ public class HistoryTestIT extends WebTestUtil {
 
 			goToPage("processes");
 
-			log.info("Filtering Test History Page results.");
 			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
+
+			sleep(5000);
 
 			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
 			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_history_page");
