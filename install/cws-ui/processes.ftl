@@ -11,6 +11,7 @@
     <script src="/${base}/js/DataTablesDateFilter.js"></script>
     <!-- Custom js adaptation script; override this file from your adaptation project -->
     <script src="/${base}/js/adaptation-process-actions.js"></script>
+	<script src="/${base}/js/cws.js"></script>
     <link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom styles for this template -->
     <link href="/${base}/css/dashboard.css" rel="stylesheet">
@@ -461,23 +462,29 @@
                             var putAllAfter = 0;
                             var count = 0;
                             for (const [key, value] of Object.entries(data)) {
+								var temp = "";
 								var tempVal = value;
-                                if (key === "workerId") {
+								var tempKey = key.substring(7);
+                                if (tempKey === "workerId") {
                                     continue;
                                 }
                                 if (count > 3) {
                                     putAllAfter = 1;
                                 }
-								if (key.includes("(file, image)")) {
-									tempVal = '<a class="thumbnail">'
+								if (tempKey.includes("(file, image)")) {
+									temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + '<a class="thumbnail">'
 										+ '<img src="' + tempVal + '">'
-										+ '</a>'
-								}
-                                var temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + key + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 15%; float:right\">"
-                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + key + "\" onClick=''>"
+										+ '</a>' + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+										+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+										+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+										+ "</span></div></div><br>";
+								} else {
+									temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                     + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                     + "</span></div></div><br>";
-                                if (key === "startedOnWorkerId") {
+								}
+                                if (tempKey === "startedOnWorkerId") {
                                     after = after + temp;
                                     putAllAfter = 1;
                                 } else if (putAllAfter === 0) {
@@ -533,12 +540,12 @@
 									temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + '<a class="thumbnail">'
 										+ '<img src="' + tempVal + '">'
 										+ '</a>' + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-										+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+										+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
 										+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
 										+ "</span></div></div><br>";
 								} else {
 									temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + tempKey + "\" onClick=''>"
+                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                     + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                     + "</span></div></div><br>";
 								}
@@ -652,7 +659,8 @@
         $(document).on('click', '.copy', function (e) {
             e.preventDefault();
             var copyValue = $(this).attr('data-copyValue');
-            copyInput(copyValue);
+			var isImage = $(this).attr('data-isImage');
+            copyInput(copyValue, isImage);
             $(this).attr('aria-label', 'Copied!');
             setTimeout(function () {
                 $('.copy').attr('aria-label', 'Copy');
@@ -1132,10 +1140,6 @@
             });
     }
 
-    function copyInput(varValue) {
-        navigator.clipboard.writeText(varValue);
-    }
-
     // --------------------------------------------------------------------------------
     // Function fired when user clicks on "Retry Selected Failed to Start Rows..." in drop-down list
     //
@@ -1322,7 +1326,6 @@
         );
     }
 </script>
-<script src="/${base}/js/cws.js"></script>
 
 </body>
 </html>
