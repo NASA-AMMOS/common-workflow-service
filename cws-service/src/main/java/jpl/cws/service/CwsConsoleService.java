@@ -643,7 +643,7 @@ public class CwsConsoleService {
         for (HistoricVariableInstance historicVariableInstance : historicVariableInstances) {
             String varName = historicVariableInstance.getName();
             String varActivity = historicVariableInstance.getActivityInstanceId().split(":")[0];
-            if(varName.toUpperCase().startsWith("OUTPUT_")) {
+            if(!(varName.toUpperCase().startsWith("TASK_") && (varName.toUpperCase().endsWith("_IN") || varName.toUpperCase().endsWith("_OUT"))) && (varName.toUpperCase().startsWith("OUTPUT_"))) {
                 String varType = historicVariableInstance.getTypeName();
                 //if varType is not a file, then get the value as a string and put it in the outputVarMap
                 if (varType == null || !varType.equals("file")) {
