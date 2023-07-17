@@ -128,6 +128,11 @@
             margin-left: 8px;
             padding: 5px;
         }
+
+		.thumbnail {
+			margin-top: 5px !important;
+			margin-bottom: 0px !important;
+		}
     </style>
 
     <!-- Just for debugging purposes. Don't actually copy this line! -->
@@ -515,23 +520,29 @@
                             var putAllAfter = 0;
                             var count = 0;
                             for (const [key, value] of Object.entries(data)) {
+								var temp = "";
 								var tempVal = value;
-                                if (key === "workerId") {
+								var tempKey = key.substring(7);
+                                if (tempKey === "workerId") {
                                     continue;
                                 }
                                 if (count > 3) {
                                     putAllAfter = 1;
                                 }
-								if (key.includes("(file, image)")) {
-									tempVal = '<a class="thumbnail">'
+								if (tempKey.includes("(file, image)")) {
+									temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + '<a class="thumbnail">'
 										+ '<img src="' + tempVal + '">'
-										+ '</a>'
-								}
-                                var temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + key + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 15%; float:right\">"
-                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + key + "\" onClick=''>"
+										+ '</a>' + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+										+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+										+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+										+ "</span></div></div><br>";
+								} else {
+									temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + tempKey + "\" onClick=''>"
                                     + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                     + "</span></div></div><br>";
-                                if (key === "startedOnWorkerId") {
+								}
+                                if (tempKey === "startedOnWorkerId") {
                                     after = after + temp;
                                     putAllAfter = 1;
                                 } else if (putAllAfter === 0) {

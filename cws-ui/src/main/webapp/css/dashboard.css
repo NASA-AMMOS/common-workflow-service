@@ -313,6 +313,7 @@ div[class*="bar-"]{
   position: relative;
   outline: none;
   float: right;
+  text-align: end;;
 }
 
 .copy svg {
