@@ -252,7 +252,7 @@
                         <th style="word-wrap: break-word; min-width: 200px;">Input Variables</th>
                         <th>Superprocess ID</th>
                         <th>UUID</th>
-                        <th>Output Variables</th>
+                        <th style="word-wrap: break-word; min-width: 200px;">Output Variables</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -515,11 +515,20 @@
                             var putAllAfter = 0;
                             var count = 0;
                             for (const [key, value] of Object.entries(data)) {
+								var tempVal = value;
+                                if (key === "workerId") {
+                                    continue;
+                                }
                                 if (count > 3) {
                                     putAllAfter = 1;
                                 }
-                                var temp = "<div><div style=\"width: 85%; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + key + ":</b> " + value + "</div><div class=\"copySpan\" style=\"width: 15%; float:right\">"
-                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + value + "\" onClick=''>"
+								if (key.includes("(file, image)")) {
+									tempVal = '<a class="thumbnail">'
+										+ '<img src="' + tempVal + '">'
+										+ '</a>'
+								}
+                                var temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + key + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 15%; float:right\">"
+                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + key + "\" onClick=''>"
                                     + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                     + "</span></div></div><br>";
                                 if (key === "startedOnWorkerId") {
@@ -572,7 +581,7 @@
                     targets: [5, 6, 10, 11],
                     visible: false
                 },
-                {"max-width": "300px", "targets": 9},
+                {"max-width": "300px", "targets": [9,12]},
             ],
             "stateSave": true,
             "stateLoadParams": function (settings, data) {
