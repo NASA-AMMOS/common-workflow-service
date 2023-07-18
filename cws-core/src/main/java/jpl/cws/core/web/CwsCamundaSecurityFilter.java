@@ -70,7 +70,7 @@ public class CwsCamundaSecurityFilter extends CwsSecurityFilter {
 
 		log.trace("doFilter path " + req.getContextPath());
 
-		statusOverride(resp);
+
 
 		if (log.isTraceEnabled()) {
 			log.trace("PATH = " + path);
@@ -93,6 +93,8 @@ public class CwsCamundaSecurityFilter extends CwsSecurityFilter {
 			}
 		}
 
+
+
 		// If skipping resource...
 		//
 		if (isSecurityExemptResource(path)) {
@@ -110,6 +112,7 @@ public class CwsCamundaSecurityFilter extends CwsSecurityFilter {
 			// FIXME:  add similar logic as above to redirect Camunda login pages..
 
 			chain.doFilter(request, resp); // continue onwards with chain
+			statusOverride(resp);
 			return;
 		}
 		else {
