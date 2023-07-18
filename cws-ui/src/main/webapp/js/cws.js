@@ -502,6 +502,11 @@ function copyInput(varValue, isImage) {
 }
 
 function checkForURL(potentialURL) {
+    if (potentialURL === undefined || potentialURL === null || potentialURL === "") {
+        return false;
+    } else if (potentialURL.startsWith("www.") || potentialURL.startsWith("http://") || potentialURL.startsWith("https://") || potentialURL.startsWith("s3://")) {
+        return true;
+    }
     try {
         new URL(potentialURL);
         return true;
