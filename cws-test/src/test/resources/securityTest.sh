@@ -122,7 +122,7 @@ AUTH_RESP=`curl -k -1 -c ./cookies.txt -s https://${CWS_CONSOLE_HOST}:${CWS_CONS
 echo "AUTH_RESP = $AUTH_RESP"
 
 #AUTH tests
-run_test "cws-ui/configuration" 301
+run_test "cws-ui/configuration" 200
 must_contain "CWS Version"
 
 run_test "engine-rest/execution/count" 200
