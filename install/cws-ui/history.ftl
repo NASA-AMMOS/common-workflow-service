@@ -316,6 +316,7 @@
 		}
 
 		setInputVariableTable(data.inputVariables);
+		setOutputVariableTable(data.outputVariables);
 		
 		return tableRows;
 	}
@@ -644,8 +645,49 @@
 		$("#inputVariables").html(output);
 	}
 
-	function copyInput(varValue) {
-		navigator.clipboard.writeText(varValue);
+	function setOutputVariableTable(data) {
+		if (jQuery.isEmptyObject(data)) {
+			$("#outputVariables").html("None");
+		} else {
+			var output = "";
+		var before = "";
+		var after = "";
+		var putAllAfter = 0;
+		var count = 0;
+		for (const [key, value] of Object.entries(data)) {
+			var temp = "";
+			var tempVal = value;
+			var tempKey = key.substring(7);
+			if (tempKey === "workerId") {
+				continue;
+			}
+			if (count > 3) {
+				putAllAfter = 1;
+			}
+			if (key.includes("(file, image")) {
+				temp = `<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 10px;"><div style="flex-grow: 1; align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div><br>`;
+			} else if (checkForURL(tempVal)) {
+				temp = `<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 10px;"><div style="flex-grow: 1; align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div><br>`;
+			} else {
+				temp = `<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 10px;"><div style="flex-grow: 1; align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div><br>`;
+			}
+			if (tempKey === "startedOnWorkerId") {
+				after = after + temp;
+				putAllAfter = 1;
+			} else if (putAllAfter === 0) {
+				before = before + temp;
+			} else {
+				after = after + temp;
+			}
+			count++;
+		}
+		if (after.length == 0) {
+			output = before;
+		} else {
+			output = before + "<details><summary><b> Show All</b></summary>" + after + "</details>";
+		}
+		}
+		$("#outputVariables").html(output);
 	}
 	</script>
 	
@@ -721,6 +763,12 @@
 		</div>
 		<div class="row">
 			<table align="center" class="table table-bordered" style="width: 50%; font-size: 95%">
+				<tr>
+					<th>Output Variables</th>
+				</tr>
+				<tr>
+					<td id="outputVariables"></td>
+				</tr>
 			</table>
 		</div>
       <div id="resolveButtonDiv" class="row" style="text-align: center; display: none;">
