@@ -500,3 +500,13 @@ function copyInput(varValue, isImage) {
     }
     navigator.clipboard.writeText(varValue);
 }
+
+function checkForURL(potentialURL) {
+    try {
+        new URL(potentialURL);
+        return true;
+    }
+    catch (e) {
+        return false;
+    }
+}

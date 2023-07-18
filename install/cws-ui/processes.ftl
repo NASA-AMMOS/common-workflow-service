@@ -478,11 +478,16 @@
 										+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
 										+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
 										+ "</span></div></div><br>";
+								} else if (checkForURL(tempVal)) {
+									temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + "<a href=\"" + tempVal + "\">" + tempVal + "</a>" + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+										+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+										+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+										+ "</span></div></div><br>";
 								} else {
 									temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                    + "</span></div></div><br>";
+										+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+										+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+										+ "</span></div></div><br>";
 								}
                                 if (tempKey === "startedOnWorkerId") {
                                     after = after + temp;
@@ -536,18 +541,23 @@
                                 if (count > 3) {
                                     putAllAfter = 1;
                                 }
-								if (tempKey.includes("(file, image/")) {
+								if (key.includes("(file, image/")) {
 									temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + '<a class="thumbnail">'
 										+ '<img class="grow" src="' + tempVal + '">'
 										+ '</a>' + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
 										+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
 										+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
 										+ "</span></div></div><br>";
+								} else if (checkForURL(tempVal)) {
+									temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + "<a href=\"" + tempVal + "\">" + tempVal + "</a>" + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+										+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+										+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+										+ "</span></div></div><br>";
 								} else {
 									temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                    + "</span></div></div><br>";
+										+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+										+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+										+ "</span></div></div><br>";
 								}
                                 if (tempKey === "startedOnWorkerId") {
                                     after = after + temp;
