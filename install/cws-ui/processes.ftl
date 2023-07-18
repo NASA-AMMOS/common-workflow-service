@@ -471,7 +471,7 @@
                                 if (count > 3) {
                                     putAllAfter = 1;
                                 }
-								if (key.includes("(file, image/")) {
+								if (key.includes("(file, image")) {
 									temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + '<a class="thumbnail">'
 										+ '<img class="grow" src="' + tempVal + '">'
 										+ '</a>' + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
@@ -541,7 +541,7 @@
                                 if (count > 3) {
                                     putAllAfter = 1;
                                 }
-								if (key.includes("(file, image/")) {
+								if (key.includes("(file, image")) {
 									temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + '<a class="thumbnail">'
 										+ '<img class="grow" src="' + tempVal + '">'
 										+ '</a>' + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
