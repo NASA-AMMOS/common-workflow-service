@@ -327,8 +327,10 @@ div[class*="bar-"]{
   transition: all 0.3s ease-in-out;
   position: relative;
   z-index: 5;
+  height:inherit;
 }
 
 .grow:hover {
   transform: scale(2.0);
+  z-index: 6;
 }

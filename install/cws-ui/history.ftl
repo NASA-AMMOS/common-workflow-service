@@ -7,6 +7,7 @@
 	<script src="/${base}/js/docs.min.js"></script>
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/${base}/js/cws.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/${base}/css/bootstrap-datepicker.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
@@ -21,6 +22,13 @@
 		.dataTables_wrapper {margin-left: 5px; margin-right: -10px;}
 		summary {
 			width: 100px;
+		}
+		.historyLimitSize {
+			max-height: 150px;
+		}
+		.thumbnail {
+			margin-top: 5px !important;
+			margin-bottom: 0px !important;
 		}
 	</style>
 	<script>
@@ -217,10 +225,6 @@
 				if (entry["message"].startsWith("Ended ")) {
 					date += " ";
 				}
-
-				if(entry["activity"] === data.procInstId) {
-					inputVarRows.push(entry);
-				}
 				
 				const row = "<tr><td>"+ date + "</td>" +
 							"<td>"+ entry["type"] + "</td>"+
@@ -311,7 +315,7 @@
 			});
 		}
 
-		setInputVariableTable(inputVarRows);
+		setInputVariableTable(data.inputVariables);
 		
 		return tableRows;
 	}
@@ -428,14 +432,14 @@
 		jsonFile["process_info"] = logInfo;
 
 		//go through each row of inputVariableTable and add to jsonFile
-		var inputVariables = {};
+		/*var inputVariables = {};
 		$("#inputVariableTable tr").each(function() {
 			var key = $(this).find("td").eq(0).text();
 			var value = $(this).find("td").eq(1).text();
 			inputVariables[key] = value;
 		});
 		delete inputVariables[""];
-		jsonFile["input_variables"] = inputVariables;
+		jsonFile["input_variables"] = inputVariables;*/
 
 		var logs = {};
 
@@ -595,54 +599,49 @@
 
 	}); //END OF DOCUMENT.READY
 
-	function setInputVariableTable(historyRows) {
-		if (historyRows.length == 0) {
+	function setInputVariableTable(data) {
+		if (jQuery.isEmptyObject(data)) {
 			$("#inputVariables").html("None");
 		} else {
-			//declare new map of <string, string>
-			var inputVarObj = {};
-			for (var i = 0; i < historyRows.length; i++) {
-				var message = historyRows[i].message;
-				var varType = message.substring(message.indexOf("("), message.indexOf(")")+1);
-				console.log(varType);
-				var varName = message.substring(message.indexOf(")")+2);
-				varName = varName.substring(0, varName.indexOf("=")-1) + " " + varType;
-				var varValue = message.substring(message.indexOf("=")+2);
-				inputVarObj[varName] = varValue;
-			}
 			var output = "";
-			var before = "";
-			var after = "";
-			var putAllAfter = 0;
-			var count = 0;
-			for (const [key, value] of Object.entries(inputVarObj)) {
-				if (key === "workerId") {
-					continue;
-				}
-				if (count > 3) {
-					putAllAfter = 1;
-				}
-				var temp = "<div><div style=\"width: 85%; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + key + ":</b> " + value + "</div><div class=\"copySpan\" style=\"width: 15%; float:right\">"
-					+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + value + "\" onClick=''>"
-					+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-					+ "</span></div></div><br>";
-				if (key === "startedOnWorkerId") {
-					after = after + temp;
-					putAllAfter = 1;
-				} else if (putAllAfter === 0) {
-					before = before + temp;
-				} else {
-					after = after + temp;
-				}
-				count++;
+		var before = "";
+		var after = "";
+		var putAllAfter = 0;
+		var count = 0;
+		for (const [key, value] of Object.entries(data)) {
+			var temp = "";
+			var tempVal = value;
+			var tempKey = key;
+			if (tempKey === "workerId") {
+				continue;
 			}
-			if (after.length < 0) {
-				output = before;
+			if (count > 3) {
+				putAllAfter = 1;
+			}
+			if (key.includes("(file, image")) {
+				temp = `<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 10px;"><div style="flex-grow: 1; align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div><br>`;
+			} else if (checkForURL(tempVal)) {
+				temp = `<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 10px;"><div style="flex-grow: 1; align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div><br>`;
 			} else {
-				output = before + "<details><summary><b>Show All</b></summary>" + after + "</details>";
+				temp = `<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 10px;"><div style="flex-grow: 1; align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div><br>`;
 			}
-			$("#inputVariables").html(output);
+			if (tempKey === "startedOnWorkerId") {
+				after = after + temp;
+				putAllAfter = 1;
+			} else if (putAllAfter === 0) {
+				before = before + temp;
+			} else {
+				after = after + temp;
+			}
+			count++;
 		}
+		if (after.length == 0) {
+			output = before;
+		} else {
+			output = before + "<details><summary><b> Show All</b></summary>" + after + "</details>";
+		}
+		}
+		$("#inputVariables").html(output);
 	}
 
 	function copyInput(varValue) {
@@ -696,29 +695,33 @@
 		
 		<h2 class="sub-header">History</h2>
 		<div class="row">
-				<table align="center" class="table table-bordered " style="width: 50%; font-size:95%">
-					<tr>
-						<td style="font-weight:bold;">Process Definition</td><td id="procDefKey">Unknown</td>
-					</tr>
-					<tr>
-						<td style="font-weight:bold;">Process Instance ID</td><td id="procInstId">Unknown</td>
-					</tr>
-					<tr>
-						<td style="font-weight:bold;">Start Time</td><td id="procStartTime">N/A</td>
-					</tr>
-					<tr>
-						<td style="font-weight:bold;">End Time</td><td id="procEndTime">N/A</td>
-					</tr>
-					<tr>
-						<td style="font-weight:bold;">Duration</td><td id="procDuration">N/A</td>
-					</tr>
-					<tr>
-						<td style="font-weight:bold;">Status</td><td id="procStatus"></td>
-					</tr>
-					<tr>
-						<td style="font-weight:bold;">Input Variables</td><td id="inputVariables"></td>
-					</tr>
-				</table>
+			<table align="center" class="table table-bordered " style="width: 50%; font-size:95%">
+				<tr>
+					<td style="font-weight:bold;">Process Definition</td><td id="procDefKey">Unknown</td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold;">Process Instance ID</td><td id="procInstId">Unknown</td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold;">Start Time</td><td id="procStartTime">N/A</td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold;">End Time</td><td id="procEndTime">N/A</td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold;">Duration</td><td id="procDuration">N/A</td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold;">Status</td><td id="procStatus"></td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold;">Input Variables</td><td id="inputVariables"></td>
+				</tr>
+			</table>
+		</div>
+		<div class="row">
+			<table align="center" class="table table-bordered" style="width: 50%; font-size: 95%">
+			</table>
 		</div>
       <div id="resolveButtonDiv" class="row" style="text-align: center; display: none;">
         <button id="resolveButton" class="btn btn-primary" type="button" onclick="markAsResolved($('#procInstId').text())">Mark as Resolved</button>
@@ -747,6 +750,5 @@
 		</div>
 		<a id="downloadAnchorElement" style="display:none"></a>
 	</div>
-<script type="text/javascript" src="/${base}/js/cws.js"></script>
 </body>
 </html>

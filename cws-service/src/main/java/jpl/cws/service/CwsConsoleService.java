@@ -573,6 +573,9 @@ public class CwsConsoleService {
             history.duration = instance.getDurationInMillis();
         }
 
+        history.inputVariables = getInputVariablesForProcess(processInstanceId);
+        history.outputVariables = getOutputVariablesForProcess(processInstanceId);
+
         getHistoryIncidentDetails(history.details, processInstanceId);
         getHistoryActivityDetails(history.details, processInstanceId);
         getHistoryVarDetails(history.details, processInstanceId);
