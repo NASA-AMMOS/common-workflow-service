@@ -671,7 +671,7 @@ public class CwsConsoleService {
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
-                            outputVarMap.put(varName + " (" + varType + ", image)", encodedString);
+                            outputVarMap.put(varName + " (" + varType + ", " + mimeType + ")", encodedString);
                         } else {
                             outputVarMap.put(varName + " (" + varType + ")", fileName);
                         }

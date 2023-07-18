@@ -464,16 +464,16 @@
                             for (const [key, value] of Object.entries(data)) {
 								var temp = "";
 								var tempVal = value;
-								var tempKey = key.substring(7);
+								var tempKey = key;
                                 if (tempKey === "workerId") {
                                     continue;
                                 }
                                 if (count > 3) {
                                     putAllAfter = 1;
                                 }
-								if (tempKey.includes("(file, image)")) {
+								if (key.includes("(file, image/")) {
 									temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + '<a class="thumbnail">'
-										+ '<img src="' + tempVal + '">'
+										+ '<img class="grow" src="' + tempVal + '">'
 										+ '</a>' + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
 										+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
 										+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
@@ -536,9 +536,9 @@
                                 if (count > 3) {
                                     putAllAfter = 1;
                                 }
-								if (tempKey.includes("(file, image)")) {
+								if (tempKey.includes("(file, image/")) {
 									temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + '<a class="thumbnail">'
-										+ '<img src="' + tempVal + '">'
+										+ '<img class="grow" src="' + tempVal + '">'
 										+ '</a>' + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
 										+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
 										+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"

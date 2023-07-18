@@ -313,7 +313,7 @@ div[class*="bar-"]{
   position: relative;
   outline: none;
   float: right;
-  text-align: end;;
+  text-align: end;
 }
 
 .copy svg {
@@ -321,4 +321,14 @@ div[class*="bar-"]{
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.grow {
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  z-index: 5;
+}
+
+.grow:hover {
+  transform: scale(2.0);
 }
