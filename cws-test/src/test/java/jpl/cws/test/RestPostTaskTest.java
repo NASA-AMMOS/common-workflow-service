@@ -72,7 +72,7 @@ public class RestPostTaskTest extends CwsTestBase {
 		Map<String, Object> vars = runtimeService().getVariables(processInstance.getProcessInstanceId());
 		log.info("VARIABLES: " + vars);
 		Assert.assertTrue(vars.containsKey("Task_1ozy984_httpStatusCode"));
-		Assert.assertTrue(vars.get("Task_1ozy984_httpStatusCode").equals("200")); // "OK"
+		Assert.assertTrue(vars.get("Task_1ozy984_httpStatusCode").equals("301")); // "OK"
 
 		claimAndCompleteUserTask(processInstance, "UserTask_2");
 	}
