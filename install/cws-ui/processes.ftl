@@ -6,10 +6,13 @@
     <script src="/${base}/js/jquery.min.js"></script>
     <script src="/${base}/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
+    <link rel="stylesheet" href="/${base}/js/DataTables/responsive.bootstrap.min.css">
     <script src="/${base}/js/moment.js"></script>
     <script src="/${base}/js/DataTables/datatables.js"></script>
     <script src="/${base}/js/bootstrap-datepicker.min.js"></script>
     <script src="/${base}/js/DataTablesDateFilter.js"></script>
+    <script src="/${base}/js/DataTables/dataTables.responsive.min.js"></script>
+    <script src="/${base}/js/DataTables/responsive.bootstrap.min.js"></script>
     <!-- Custom js adaptation script; override this file from your adaptation project -->
     <script src="/${base}/js/adaptation-process-actions.js"></script>
     <script src="/${base}/js/cws.js"></script>
@@ -102,7 +105,7 @@
 
         .thumbnail {
             margin-top: 5px !important;
-            margin-bottom: 0px !important;
+            margin-bottom: 5px !important;
         }
 
         .above-table-div {
@@ -239,10 +242,10 @@
 
                         <div id="proc-log">
                             <div class="ajax-spinner" id="ajax-spinner"></div>
-                            <table id="processes-table" class="table table-striped table-bordered sortable">
+                            <table id="processes-table" class="table table-striped table-responsive table-bordered sortable" style="width: 100% !important; overflow: hidden;">
                                 <thead>
                                     <tr>
-                                        <th style="max-width: 30px; min-width: 30px;">
+                                        <th data-priority="1">
                                             <div class="btn-group">
                                                 <button id="selectDropdownBtn" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-label="Select Options" style="background-color: transparent; border-color: transparent; box-shadow: none; display: flex; justify-content: center; width: 14px; border: 0px solid transparent; padding-left: 15px; padding-right: 15px">
                                                     <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
@@ -270,8 +273,7 @@
                                         <th style="word-wrap: break-word; min-width: 200px;">Input Variables</th>
                                         <th>Superprocess ID</th>
                                         <th>UUID</th>
-                                        <th style="word-wrap: break-word; min-width: 200px;">Output Variables</th>
-                                    </tr>
+                                        <th style="word-wrap: break-word; min-width: 200px;">Output Variables</
                                 </thead>
                                 <tbody>
                                 </tbody>
@@ -481,7 +483,7 @@
                                         if (tempKey === "workerId") {
                                             continue;
                                         }
-                                        if (count > 3) {
+                                        if (count > 2) {
                                             putAllAfter = 1;
                                         }
                                         if (key.includes("(file, image")) {
@@ -491,6 +493,13 @@
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div></div><br>";
+                                            if (putAllAfter === 0) {
+                                                putAllAfter = 1;
+                                                after = before + after;
+                                                before = temp;
+                                                count++;
+                                                continue;
+                                            }
                                         } else if (checkForURL(tempVal)) {
                                             temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + "<a href=\"" + tempVal + "\">" + tempVal + "</a>" + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
@@ -561,6 +570,19 @@
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div></div><br>";
+                                            if (key.toUpperCase().includes("THUMBNAIL")) {
+                                                putAllAfter = 1;
+                                                after = before + after;
+                                                before = temp;
+                                                count++;
+                                                continue;
+                                            } else if (putAllAfter === 0) {
+                                                putAllAfter = 1;
+                                                after = before + after;
+                                                before = temp;
+                                                count++;
+                                                continue;
+                                            }   
                                         } else if (checkForURL(tempVal)) {
                                             temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + "<a href=\"" + tempVal + "\">" + tempVal + "</a>" + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
@@ -585,7 +607,7 @@
                                     if (after.length == 0) {
                                         output = before;
                                     } else {
-                                        output = before + "<details><summary><b> Show All</b></summary>" + after + "</details>";
+                                        output = before + '<details><summary style="margin-top: 5px;"><b> Show All</b></summary>' + after + "</details>";
                                     }
                                     return output;
                                 } else {
@@ -624,8 +646,44 @@
                         },
                         {
                             targets: [1],
-                            "width": "50px"
-                        }
+                            "width": "75px"
+                        },
+                        {
+                            targets: [0],
+                            "width": "30px"
+                        },
+                        {
+                            targets: [2],
+                            responsivePriority: 1
+                        },
+                        {
+                            targets: [3,9,12],
+                            responsivePriority: 2
+                        },
+                        {
+                            targets: [4],
+                            responsivePriority: 3
+                        },
+                        {
+                            targets: [8],
+                            responsivePriority: 4
+                        },
+                        {
+                            targets: [5,7],
+                            responsivePriority: 5
+                        },
+                        {
+                            targets: [6],
+                            responsivePriority: 6
+                        },
+                        {
+                            targets: [10],
+                            responsivePriority: 7
+                        },
+                        {
+                            targets: [11],
+                            responsivePriority: 8
+                        },
                     ],
                     "stateSave": true,
                     "stateLoadParams": function (settings, data) {
@@ -644,6 +702,9 @@
                     ],
                     searchBuilder: {
                         columns: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+                    },
+                    responsive: {
+                        details: false
                     }
                 });
 
@@ -750,6 +811,7 @@
                         clearInterval(interval);
                         $("#processes-table").DataTable().clear();
                         $("#processes-table").DataTable().rows.add(returnedData).draw();
+                        $("#processes-table").DataTable().responsive.recalc();
                         updateSelectDropDown();
                         //hide ajax spinner
                         $(".ajax-spinner").hide();
