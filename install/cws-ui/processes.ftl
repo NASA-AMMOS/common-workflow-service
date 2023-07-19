@@ -379,10 +379,10 @@
                 $.fn.dataTable.moment('MMM D, YYYY, h:mm:ss A');
 
                 $("#processes-table").DataTable({
-                    "autoWidth": true,
+                    "autoWidth": false,
                     language: {
                         searchBuilder: {
-                            add: "Add Criteria"
+                            add: "Filter loaded data",
                         }
                     },
                     deferRender: true,
@@ -622,6 +622,10 @@
                             targets: [5, 6, 10, 11],
                             visible: false
                         },
+                        {
+                            targets: [1],
+                            "width": "50px"
+                        }
                     ],
                     "stateSave": true,
                     "stateLoadParams": function (settings, data) {
@@ -663,22 +667,30 @@
                     }, 2000);
                 });
 
-                $('<button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Actions &nbsp;'
+                $('<div class="btn-group"><button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Actions &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
-                    + '<ul id="action-list" class="dropdown-menu test" role="menu" aria-labelledby="menu3">'
+                    + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
                     + `<li id="action_open_selected_new_tabs" class="disabled" role="presentation"><a id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)</a></li>`
                     + `<li id="action_copy_all_selected_history_links" class="disabled" role="presentation"><a id="action_copy_all_selected_history_links_atag" role="menuitem">Copy all selected history links (must not be pending)</a></li>`
-                    + `<li id="action_download_selected_list" class="disabled" role="presentation"><a id="action_download_selected_list_atag" role="menuitem">Download list of selected processes (JSON) (must select at least one row)</a></li>`
-                    + `<li id="action_download_selected_json" class="disabled" role="presentation"><a id="action_download_selected_json_atag" role="menuitem">Download logs of selected processes (JSON) (all rows selected must not be pending)</a></li>`
-                    + `<li id="action_download_selected_csv" class="disabled" role="presentation"><a id="action_download_selected_csv_atag" role="menuitem">Download logs of selected processes (CSV) (all rows selected must not be pending)</a></li>`
+                    + '<li role="separator" class="divider"></li>'
                     + `<li id="action_disable" class="disabled" role="presentation"><a id="action_disable_atag" role="menuitem">Disable selected rows (all rows selected must be 'pending')</a></li>`
                     + `<li id="action_enable" class="disabled" role="presentation"><a id="action_enable_atag" role="menuitem">Enable selected rows (all rows selected must be 'disabled')</a></li>`
                     + `<li id="action_retry_incident" class="disabled" role="presentation"><a id="action_retry_incident_atag" role="menuitem">Retry all selected incident rows (all rows selected must be 'incident')</a></li>`
                     + `<li id="action_retry_failed_to_start" class="disabled" role="presentation"><a id="action_retry_failed_to_start_atag" role="menuitem">Retry all selected failed to start rows (all rows selected must be 'failedToStart')</a></li>`
                     + `<li id="action_mark_as_resolved" class="disabled" role="presentation"><a id="action_mark_as_resolved_atag" role="menuitem">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
                     + `<#include "adaptation-process-actions.ftl">`
-                    + `</ul>`).appendTo(".above-table-buttons");
+                    + `</ul></div>`).appendTo(".above-table-buttons");
+
+                $('<div class="btn-group"><button id="action-download-group" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Download &nbsp;'
+                    + '<span class="caret"></span>'
+                    + '</button>'
+                    + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="action-download-group">'
+                    + `<li id="action_download_selected_list" class="disabled" role="presentation"><a id="action_download_selected_list_atag" role="menuitem">Download list of selected processes (JSON) (must select at least one row)</a></li>`
+                    + `<li id="action_download_selected_json" class="disabled" role="presentation"><a id="action_download_selected_json_atag" role="menuitem">Download logs of selected processes (JSON) (all rows selected must not be pending)</a></li>`
+                    + `<li id="action_download_selected_csv" class="disabled" role="presentation"><a id="action_download_selected_csv_atag" role="menuitem">Download logs of selected processes (CSV) (all rows selected must not be pending)</a></li>`
+                    + `<#include "adaptation-process-actions.ftl">`
+                    + `</ul></div>`).appendTo(".above-table-buttons");
 
                 fetchAndDisplayProcesses();
             });
