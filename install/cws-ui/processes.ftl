@@ -130,6 +130,10 @@
         .above-table-filler {
             flex-grow: 1;
         }
+
+        .btn-icon {
+            margin-right: 5px;
+        }
     </style>
 
     <!-- Just for debugging purposes. Don't actually copy this line! -->
@@ -486,6 +490,7 @@
                                             putAllAfter = 1;
                                         }
                                         if (key.includes("(file, image")) {
+                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                             temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + '<a class="thumbnail">'
                                                 + '<img class="grow" src="' + tempVal + '">'
                                                 + '</a>' + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
@@ -500,11 +505,13 @@
                                                 continue;
                                             }
                                         } else if (checkForURL(tempVal)) {
+                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                             temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + "<a href=\"" + tempVal + "\">" + tempVal + "</a>" + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div></div><br>";
                                         } else {
+                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                             temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
@@ -563,6 +570,7 @@
                                             putAllAfter = 1;
                                         }
                                         if (key.includes("(file, image")) {
+                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                             temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + '<a class="thumbnail">'
                                                 + '<img class="grow" src="' + tempVal + '">'
                                                 + '</a>' + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
@@ -583,11 +591,13 @@
                                                 continue;
                                             }   
                                         } else if (checkForURL(tempVal)) {
+                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                             temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + "<a href=\"" + tempVal + "\">" + tempVal + "</a>" + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div></div><br>";
                                         } else {
+                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                             temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
@@ -696,7 +706,8 @@
                         {
                             extend: 'colvis',
                             columns: ':not(.noVis)',
-                            className: 'btn btn-primary'
+                            className: 'btn btn-primary',
+                            text: '<i class="glyphicon glyphicon-eye-open btn-icon"></i>Columns',
                         }
                     ],
                     searchBuilder: {
@@ -727,7 +738,7 @@
                     }, 2000);
                 });
 
-                $('<div class="btn-group"><button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Actions &nbsp;'
+                $('<div class="btn-group"><button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><i class="glyphicon glyphicon-tasks btn-icon"></i>&nbsp;Actions &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
@@ -742,11 +753,11 @@
                     + `<#include "adaptation-process-actions.ftl">`
                     + `</ul></div>`).appendTo(".above-table-buttons");
 
-                $('<div class="btn-group"><button id="action-download-group" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Download &nbsp;'
+                $('<div class="btn-group"><button id="action-download-group" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><i class="glyphicon glyphicon-save btn-icon"></i>&nbsp;Download &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="action-download-group">'
-                    + `<li id="action_download_selected_list" class="disabled" role="presentation"><a id="action_download_selected_list_atag" role="menuitem">Download list of selected processes (JSON) (must select at least one row)</a></li>`
+                    + `<li id="action_download_selected_list" class="disabled" role="presentation"><a id="action_download_selected_list_atag" role="menuitem">Download list of selected processes (must select at least one row)</a></li>`
                     + `<li id="action_download_selected_json" class="disabled" role="presentation"><a id="action_download_selected_json_atag" role="menuitem">Download logs of selected processes (JSON) (all rows selected must not be pending)</a></li>`
                     + `<li id="action_download_selected_csv" class="disabled" role="presentation"><a id="action_download_selected_csv_atag" role="menuitem">Download logs of selected processes (CSV) (all rows selected must not be pending)</a></li>`
                     + `<#include "adaptation-process-actions.ftl">`
