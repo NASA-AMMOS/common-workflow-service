@@ -5,8 +5,6 @@
     <title>CWS - Processes</title>
     <script src="/${base}/js/jquery.min.js"></script>
     <script src="/${base}/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
-    <link rel="stylesheet" href="/${base}/js/DataTables/responsive.bootstrap.min.css">
     <script src="/${base}/js/moment.js"></script>
     <script src="/${base}/js/DataTables/datatables.js"></script>
     <script src="/${base}/js/bootstrap-datepicker.min.js"></script>
@@ -16,135 +14,14 @@
     <!-- Custom js adaptation script; override this file from your adaptation project -->
     <script src="/${base}/js/adaptation-process-actions.js"></script>
     <script src="/${base}/js/cws.js"></script>
+    <!-- Load CSS Files-->
     <link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom styles for this template -->
     <link href="/${base}/css/dashboard.css" rel="stylesheet">
     <link href="/${base}/css/bootstrap-datepicker.min.css" rel="stylesheet">
     <link href="/${base}/css/microtip.css" rel="stylesheet">
-    <style>
-
-        label {
-            margin-bottom: 0px;
-        }
-
-        .dataTables_wrapper .dtsb-titleRow {
-            display: none;
-        }
-
-        .dataTables_wrapper .dtsb-group {
-            padding-bottom: -15px !important;
-            padding-top: 8px;
-        }
-
-        summary {
-            width: 100px;
-            display: list-item;
-        }
-
-        #processes-table {
-            font-size: 90%;
-        }
-
-        #pd-select {
-            width: 90%;
-        }
-
-        #status-select {
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            padding: 10px;
-        }
-
-        #status-select label {
-            cursor: pointer;
-            padding-left: 5px;
-        }
-
-        #datepicker-div input {
-            /*width:40%;*/
-            margin-bottom: 1em;
-            float: left;
-        }
-
-        .tr-fail {
-            color: #D9534F;
-        }
-
-        .tr-complete {
-            color: black;
-        }
-
-        .tr-running {
-            color: #5BC0DE;
-        }
-
-        .tr-pending {
-            color: #F0AD4E;
-        }
-
-        .tr-incident {
-            color: #C347ED;
-        }
-
-        #hide-subprocs-div {
-            margin: 20px 0px;
-        }
-
-        #display-subprocs-div {
-            margin: 30px 0px;
-        }
-
-        #super-proc-inst-id {
-            background: #ededed;
-            ;
-            padding: 5px;
-            border-radius: 8px;
-            margin-left: 8px;
-            padding: 5px;
-        }
-
-        .thumbnail {
-            margin-top: 5px !important;
-            margin-bottom: 5px !important;
-        }
-
-        .above-table-div {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
-            justify-content: flex-start;
-            align-items: flex-end;
-            gap: 10px;
-            margin-bottom: 5px;
-        }
-
-        .above-table-buttons {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
-            justify-content: flex-end;
-            align-items: flex-end;
-            gap: 10px;
-        }
-
-        .above-table-filler {
-            flex-grow: 1;
-        }
-
-        .btn-icon {
-            margin-right: 5px;
-        }
-
-        .below-table-div {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 5px;
-        }
-    </style>
+    <link href="/${base}/css/processes.css" rel="stylesheet">
+    <link href="/${base}/js/DataTables/datatables.css" rel="stylesheet">
+    <link href="/${base}/js/DataTables/responsive.bootstrap.min.css" rel="stylesheet">
 
     <!-- Just for debugging purposes. Don't actually copy this line! -->
     <!--[if lt IE 9]>
@@ -173,6 +50,7 @@
 
                         <h2 class="sub-header">Processes</h2>
 
+                        <!-- Filters box (top of page) -->
                         <div id="filters-div">
                             <h3 style="margin-top: 10px;">Filters:</h3>
                             <p>Select filters before retrieving data to reduce loading time.</p>
@@ -242,36 +120,51 @@
                             </div>
                         </div>
 
+                        <!-- Toggle visibility of filters button -->
                         <div id="filters-btn" class="btn btn-warning"><span class="glyphicon glyphicon-filter">
                             </span>&nbsp;Filters&nbsp;<span id="filter-arrow"
                                 class="glyphicon glyphicon-chevron-up"></span>
                         </div>
 
+                        <!-- Shows superprocess ID when displaying subprocesses, hidden otherwise -->
                         <div id="display-subprocs-div">
                             <h3>Displaying Subprocesses for Process Instance ID: <span
                                     id="super-proc-inst-id">34374-349083748</span></h3>
                         </div>
                         <div id="action_msg"></div>
 
+                        <!-- Processes table -->
                         <div id="proc-log">
                             <div class="ajax-spinner" id="ajax-spinner"></div>
-                            <table id="processes-table" class="table table-striped table-responsive table-bordered sortable" style="width: 100% !important; overflow: hidden;">
+                            <table id="processes-table"
+                                class="table table-striped table-responsive table-bordered sortable"
+                                style="width: 100% !important; overflow: hidden;">
                                 <thead>
                                     <tr>
                                         <th data-priority="1">
                                             <div class="btn-group">
-                                                <button id="selectDropdownBtn" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-label="Select Options" style="background-color: transparent; border-color: transparent; box-shadow: none; display: flex; justify-content: center; width: 14px; border: 0px solid transparent; padding-left: 15px; padding-right: 15px">
-                                                    <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
+                                                <button id="selectDropdownBtn" type="button"
+                                                    class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                                    aria-haspopup="true" aria-label="Select Options"
+                                                    style="background-color: transparent; border-color: transparent; box-shadow: none; display: flex; justify-content: center; width: 14px; border: 0px solid transparent; padding-left: 15px; padding-right: 15px">
+                                                    <span class="glyphicon glyphicon-chevron-down"
+                                                        aria-hidden="true"></span>
                                                 </button>
                                                 <ul class="dropdown-menu">
-                                                    <li><a id="selectOnPage" onclick="selectPage()">Select x processes on this page</a></li>
-                                                    <li><a id="selectAll" onclick="selectAll()">Select all x processes</a></li>
+                                                    <li><a id="selectOnPage" onclick="selectPage()">Select x processes
+                                                            on this page</a></li>
+                                                    <li><a id="selectAll" onclick="selectAll()">Select all x
+                                                            processes</a></li>
                                                     <li role="separator" class="divider"></li>
-                                                    <li><a id="invertOnPage" onclick="invertPage()">Invert selection on this page</a></li>
-                                                    <li><a id="invertAll" onclick="invertAll()">Invert selection</a></li>
+                                                    <li><a id="invertOnPage" onclick="invertPage()">Invert selection on
+                                                            this page</a></li>
+                                                    <li><a id="invertAll" onclick="invertAll()">Invert selection</a>
+                                                    </li>
                                                     <li role="separator" class="divider"></li>
-                                                    <li><a id="deselectOnPage" onclick="deselectPage()">Deselect x processes on this page</a></li>
-                                                    <li><a id="deselectAll" onclick="deselectAll()">Deselect all x processes</a></li>
+                                                    <li><a id="deselectOnPage" onclick="deselectPage()">Deselect x
+                                                            processes on this page</a></li>
+                                                    <li><a id="deselectAll" onclick="deselectAll()">Deselect all x
+                                                            processes</a></li>
                                                 </ul>
                                             </div>
                                         </th>
@@ -286,8 +179,7 @@
                                         <th style="word-wrap: break-word; min-width: 200px;">Input Variables</th>
                                         <th>Superprocess ID</th>
                                         <th>UUID</th>
-                                        <th style="word-wrap: break-word; min-width: 200px;">Output Variables</
-                                </thead>
+                                        <th style="word-wrap: break-word; min-width: 200px;">Output Variables</ </thead>
                                 <tbody>
                                 </tbody>
                             </table>
@@ -326,6 +218,7 @@
                     todayHighlight: true
                 });
 
+                //Toggle direction of chevron on filter visiblity toggle button
                 $("#filters-btn").click(function () {
                     if ($("#filters-div").is(":visible"))
                         $("#filter-arrow").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
@@ -334,10 +227,12 @@
                     $("#filters-div").slideToggle();
                 });
 
+                //Catch click on filter submit button
                 $("#filter-submit-btn").click(function () {
                     updateLocation(false);
                 });
 
+                //Hide div that displays superprocess ID by default
                 $("#display-subprocs-div").css('display', 'none');
 
                 //get our params from the url
@@ -389,18 +284,26 @@
                     }
                 });
 
+                //display message if we received one from the server
                 displayMessage();
 
+                //initialize our moment format (used for dates in table)
                 $.fn.dataTable.moment('MMM D, YYYY, h:mm:ss A');
 
+                //initialize our DataTable
                 $("#processes-table").DataTable({
                     "autoWidth": false,
+                    //allows for editing what buttons / text says on/in the table
                     language: {
                         searchBuilder: {
                             add: "Add Local Filter",
                         }
                     },
+                    //delays rendering the data in the dom until it has to (ex: don't render page 10 until we browse to page 10)
+                    //improves loading time
                     deferRender: true,
+                    //define what we do with the data we receive from our API call
+                    //render: function() passes in data (the data we receive from the API call) and type (why DataTables is requesting it (like for search, display, filter, etc.))
                     columns: [
                         {
                             data: null,
@@ -443,7 +346,43 @@
                                 }
                             }
                         },
-                        { data: "status" },
+                        { 
+                            data: "status",
+                            render: function(data, type) {
+                                if (type === 'display') {
+                                    switch(data) {
+                                        case "fail" :
+                                            return "<p class=\"tr-fail\">" + data + "</p>";
+                                            break;
+                                        case "incident" :
+                                            return "<p class=\"tr-incident\">" + data + "</p>";
+                                            break;
+                                        case "complete": 
+                                            return "<p class=\"tr-complete\">" + data + "</p>";
+                                            break;
+                                        case "resolved": 
+                                            return "<p class=\"tr-complete\">" + data + "</p>";
+                                            break;
+                                        case "running":
+                                            return "<p class=\"tr-running\">" + data + "</p>";
+                                            break;
+                                        case "pending":
+                                            return "<p class=\"tr-pending\">" + data + "</p>";
+                                            break;
+                                        case "disabled":
+                                            return "<p class=\"tr-failed\">" + data + "</p>";
+                                            break;
+                                        case "failedToStart":
+                                            return "<p class=\"tr-failed\">" + data + "</p>";
+                                            break;
+                                        default:
+                                            return data;
+                                    }
+                                } else {
+                                    return data;
+                                }
+                            }
+                        },
                         { data: "createdTimestamp" },
                         {
                             data: "startedByWorker",
@@ -599,7 +538,7 @@
                                                 before = temp;
                                                 count++;
                                                 continue;
-                                            }   
+                                            }
                                         } else if (checkForURL(tempVal)) {
                                             tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                             temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + "<a href=\"" + tempVal + "\">" + tempVal + "</a>" + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
@@ -642,11 +581,13 @@
                             }
                         },
                     ],
+                    //wait 250ms after the user's last keypress in the search box to start search (better performance)
                     searchDelay: 250,
                     select: {
                         style: 'multi+shift',
                         selector: 'td:first-child'
                     },
+                    //set configuration of the columns (width, visibility order, etc.)
                     columnDefs: [
                         {
                             orderable: false,
@@ -676,7 +617,7 @@
                             responsivePriority: 1
                         },
                         {
-                            targets: [3,9,12],
+                            targets: [3, 9, 12],
                             responsivePriority: 2
                         },
                         {
@@ -688,7 +629,7 @@
                             responsivePriority: 4
                         },
                         {
-                            targets: [5,7],
+                            targets: [5, 7],
                             responsivePriority: 5
                         },
                         {
@@ -704,15 +645,19 @@
                             responsivePriority: 8
                         },
                     ],
+                    //tells datatables that we want to save the state of the table (search, page, etc.) in the browser's local storage
                     "stateSave": true,
+                    //tells datatables what to do before it applys what it fetches from browser's local storage (in this case, clear the search box)
                     "stateLoadParams": function (settings, data) {
                         data.columns.forEach(function (column) {
                             column.search.search = "";
                         });
                     },
-                    dom: "Q<'above-table-div'<'above-table-buttons'B><'above-table-length'l><'above-table-filler'><'above-table-filter'f>>" 
-                        + "t" 
+                    //tells datatables to put specific elements in divs it creates (quotes are classes)
+                    dom: "Q<'above-table-div'<'above-table-buttons'B><'above-table-length'l><'above-table-filler'><'above-table-filter'f>>"
+                        + "t"
                         + "<'below-table-div'ip>",
+                    //tells datatables we want to use one of the predefined buttons
                     buttons: [
                         {
                             extend: 'colvis',
@@ -721,23 +666,30 @@
                             text: '<i class="glyphicon glyphicon-eye-open btn-icon"></i>Columns',
                         }
                     ],
+                    //enables the complex search builder, tells it what columns should be able to be searched
                     searchBuilder: {
                         columns: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
                     },
+                    //enables responsive mode (hides columns when screen is too small), tells it not to display content that is hidden in a subrow (conflicts with checkmark)
                     responsive: {
                         details: false
                     }
                 });
 
+                //now that the datatable is initialized, we can start using its API calls
                 var table = $("#processes-table").DataTable();
+
+                //when we select a row, we want to update the action list
                 table.on('select', function (e, dt, type, indexes) {
                     updateActionList();
                 });
 
+                //when we deselect a row, we want to update the action list
                 table.on('deselect', function (e, dt, type, indexes) {
                     updateActionList();
                 });
 
+                //when we click the copy button next to an input/output variable, we want to copy the value to the clipboard
                 $(document).on('click', '.copy', function (e) {
                     e.preventDefault();
                     var copyValue = $(this).attr('data-copyValue');
@@ -749,6 +701,7 @@
                     }, 2000);
                 });
 
+                //add our action dropdown button to the div that datatables created (created in dom: above)
                 $('<div class="btn-group"><button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><i class="glyphicon glyphicon-tasks btn-icon"></i>&nbsp;Actions &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
@@ -764,6 +717,7 @@
                     + `<#include "adaptation-process-actions.ftl">`
                     + `</ul></div>`).appendTo(".above-table-buttons");
 
+                //add our download dropdown button to the div that datatables created (created in dom: above)
                 $('<div class="btn-group"><button id="action-download-group" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><i class="glyphicon glyphicon-save btn-icon"></i>&nbsp;Download &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
@@ -774,11 +728,12 @@
                     + `<#include "adaptation-process-actions.ftl">`
                     + `</ul></div>`).appendTo(".above-table-buttons");
 
+                //datatable is now setup - fetch our data on initial page load
                 fetchAndDisplayProcesses();
             });
-
             //DOCUMENT.READY END
 
+            //fetches processes from server (using filters if provided) and displays them in the datatable
             function fetchAndDisplayProcesses() {
                 //create our qstring
                 var qstring = "?";
@@ -827,6 +782,7 @@
                         }
                     });
                 }
+                //we need to wait until all ajax calls are done before we can display the data
                 var interval = setInterval(function () {
                     if (doneArr.length === numCalls) {
                         clearInterval(interval);
@@ -840,10 +796,11 @@
                 }, 250);
             }
 
+            //Update the text of the select dropdown to reflect number of rows loaded/in datatable
             function updateSelectDropDown() {
                 //we need to get the # of rows in the entire table & number of rows on current page
                 var numTotalRows = $("#processes-table").DataTable().rows().count();
-                var numCurrentRows = $("#processes-table").DataTable().rows({page: 'current'}).count();
+                var numCurrentRows = $("#processes-table").DataTable().rows({ page: 'current' }).count();
                 if (numTotalRows === 0) {
                     $("#selectDropdownBtn").removeAttr("data-toggle");
                 } else {
@@ -862,19 +819,22 @@
                 }
             }
 
+            //selects rows on current page
             function selectPage() {
-                $("#processes-table").DataTable().rows({page: 'current'}).select();
+                $("#processes-table").DataTable().rows({ page: 'current' }).select();
                 updateActionList();
             }
 
+            //selects rows that meet filter (no filter = all rows)
             function selectAll() {
-                $("#processes-table").DataTable().rows({filter: "applied"}).select();
+                $("#processes-table").DataTable().rows({ filter: "applied" }).select();
                 updateActionList();
             }
 
+            //inverts the selection status of rows on current page
             function invertPage() {
                 //go through all rows on current page and invert their selection
-                $("#processes-table").DataTable().rows({page: 'current'}).every(function () {
+                $("#processes-table").DataTable().rows({ page: 'current' }).every(function () {
                     if (this.selected()) {
                         this.deselect();
                     } else {
@@ -884,9 +844,10 @@
                 updateActionList();
             }
 
+            //inverts the selection status of rows that meet filter (no filter = all rows)
             function invertAll() {
                 //go through all rows and invert their selection
-                $("#processes-table").DataTable().rows({filter: "applied"}).every(function () {
+                $("#processes-table").DataTable().rows({ filter: "applied" }).every(function () {
                     if (this.selected()) {
                         this.deselect();
                     } else {
@@ -896,16 +857,19 @@
                 updateActionList();
             }
 
+            //deselects rows on current page
             function deselectPage() {
-                $("#processes-table").DataTable().rows({page: 'current'}).deselect();
+                $("#processes-table").DataTable().rows({ page: 'current' }).deselect();
                 updateActionList();
             }
 
+            //deselects rows that meet filter (no filter = all rows)
             function deselectAll() {
-                $("#processes-table").DataTable().rows({filter: "applied"}).deselect();
+                $("#processes-table").DataTable().rows({ filter: "applied" }).deselect();
                 updateActionList();
             }
 
+            //applies filters given by user & refreshes the page to apply to URL
             function updateLocation(changeHideSubs) {
                 var localParams = {};
 
@@ -950,6 +914,7 @@
                 window.location = "/${base}/processes" + qstring;
             }
 
+            //gets the number of processes in DB that match the filters that user has applied
             function getNumMatchingProcesses() {
                 var localParams = {};
 
@@ -1012,6 +977,7 @@
                 }
             }
 
+            //gets value of filters from URL and applys them in the GUI
             function applyParamsToFilters(params) {
                 if (params != null) {
                     $("#pd-select").val(params.procDefKey || "def");
@@ -1061,6 +1027,7 @@
                 }
             }
 
+            // loads the history page of a process
             function viewHistory(procInstId) {
 
                 if (procInstId !== '') {
@@ -1070,6 +1037,7 @@
                 }
             }
 
+            // loads the sub-processes page of a process
             function viewSubProcs(procInstId) {
 
                 if (procInstId !== '') {
@@ -1109,10 +1077,10 @@
                         case 'incident':
                             numIncidentSelected++;
                             break;
-                        case 'failed_to_start':
+                        case 'failedToStart':
                             numFailedToStartSelected++;
                             break;
-                        case 'failed':
+                        case 'fail':
                             numFailedSelected++;
                             break;
                         case 'complete':
@@ -1210,6 +1178,7 @@
                 updateAdaptationActionList();
             }
 
+            //opens selected rows' history pages in new tabs
             function action_open_selected_new_tabs() {
                 var table = $("#processes-table").DataTable();
                 var selectedRows = table.rows({ selected: true });
@@ -1219,6 +1188,7 @@
                 });
             }
 
+            //copies selected rows' history page links to clipboard
             function action_copy_all_selected_history_links() {
                 var table = $("#processes-table").DataTable();
                 const protocol = window.location.protocol;
@@ -1379,6 +1349,7 @@
                 return selectedRowUuids;
             }
 
+            //downloads the selected rows' log files as JSON
             function downloadSelectedJSON() {
                 var mainJSON = {};
                 //get selected rows
@@ -1396,6 +1367,7 @@
                 );
             }
 
+            //downloads the selected rows' log files as CSV
             function downloadSelectedCSV() {
                 var mainCSV = `"process_definition","process_instance","time stamp","type","source","details"\r\n`;
                 //get selected rows
@@ -1413,11 +1385,13 @@
                 );
             }
 
+            //intercepts the click event on the download json button
             $("#json-bttn").click(function (e) {
                 e.preventDefault();
                 downloadListJSON();
             });
 
+            //downloads a json list of the statuses of selected rows (less detail than functions above)
             function downloadListJSON() {
                 var dt = $('#processes-table').DataTable();
                 //number of rows
@@ -1426,7 +1400,7 @@
                 var processes = {};
                 var noProcInstIDCounter = 0;
 
-                dt.rows({ selected: true, search: 'applied' }).every(function (rowIdx, tableLoop, rowLoop) {
+                dt.rows({ selected: true}).every(function (rowIdx, tableLoop, rowLoop) {
                     var data = this.data();
                     console.log(data);
                     var thisProcJSON = {};
@@ -1491,7 +1465,8 @@
                 );
             }
 
-            function getInstanceJSON(procInstId, base) {
+            //gets the JSON for a single process
+            function getInstanceJSON(procInstId) {
                 var outputJSON = {};
                 var logLinesJSON = {};
                 var logLines = [];
@@ -1764,6 +1739,181 @@
 
                 return minutes + " min " + seconds + " sec"
             }
+
+            //gets csv string of a specific process (does not include header)
+            function getInstanceCSV(procInstId) {
+                var outputCSV = "";
+                var logLines = [];
+                var scrollId = "";
+                var proc_info = {};
+                var baseEsReq = {
+                    "from": 0,
+                    "size": 20,
+                    "query": { 
+                        "bool": {
+                            "must" :[]
+                        }
+                    },
+                    "sort": { "@timestamp": { "order": "asc" } }
+                };
+                baseEsReq.query.bool.must.push({"query_string":{"fields":["procInstId"],"query" : "\"" + decodeURIComponent(procInstId) + "\""}});
+
+                //get process history
+                $.ajax({
+                    type: "GET",
+                    url: "/${base}/rest/history/" + procInstId,
+                    Accept : "application/json",
+                    contentType: "application/json",
+                    dataType: "json",
+                    async: false
+                }).success(function(data) {
+                    var status = data.state;
+                    if (data.state === "COMPLETED") {
+                        status = "Complete";
+                    }
+                    else if (data.state === "ACTIVE") {
+                        status = "Running";
+                    }
+                    proc_info["process_definition"] = data.procDefKey;
+                    proc_info["process_instance"] = data.procInstId;
+                    proc_info["start_time"] = data.startTime;
+                    proc_info["end_time"] = data.endTime;
+                    proc_info["duration"] = convertMillis(data.duration);
+                    proc_info["status"] = status;
+                    for (const entry of data.details) {
+                        let date = entry["date"];
+                        if (entry["message"].startsWith("Ended ")) {
+                            date += " ";
+                        }
+                        const row = [date, entry["type"], entry["activity"], outputMessage(entry["message"])];
+                        logLines.push(row);
+                    }
+                }).fail(function(xhr, err) {
+                    console.error("Error getting instance JSON: " + xhr.responseText);
+                });
+
+                $.ajax({
+                    type: "GET",
+                    url: "/${base}/rest/logs/get?source=" + encodeURIComponent(JSON.stringify(baseEsReq)),
+                    Accept : "application/json",
+                    contentType: "application/json",
+                    dataType: "json",
+                    async: false
+                }).success(function(data) {
+                    var finished = false;
+                    scrollId = data._scroll_id;
+                    if (data.hits) {
+                        for (const hit of data.hits.hits) {
+                            const source = hit._source;
+                            const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
+                            logLines.push(row);
+                            
+                        }
+                    }
+                    while (!finished) {
+                        $.ajax({
+                            type: "POST",
+                            url: "/${base}/rest/logs/get/scroll",
+                            data: "scrollId=" + scrollId,
+                            async: false,
+                            success: function(data) {
+                                if (data.hits) {
+                                    
+                                    if (data.hits.hits.length > 0) {
+                                        for (const hit of data.hits.hits) {
+                                            const source = hit._source;
+                                            const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
+                                            logLines.push(row);
+                                        }
+                                        scrollId = data._scroll_id;
+                                    }
+                                    else {
+                                        finished = true;
+                                    }
+                                }
+                            },
+                            error: function(e) {
+                                alert("Error retrieving history data.");
+                            }
+                        });
+                    }
+                }).fail(function(xhr, err) {
+                    console.error("Error getting instance JSON: " + xhr.responseText);
+                });
+                logLines.sort(function(a, b) {
+                    var aTemp = a[0];
+                    //if there is a space in the last char, remove it
+                    if (aTemp.charAt(aTemp.length - 1) == " ") {
+                        aTemp = aTemp.substring(0, aTemp.length - 1);
+                    }
+                    var bTemp = b[0];
+                    //if there is a space in the last char, remove it
+                    if (bTemp.charAt(bTemp.length - 1) == " ") {
+                        bTemp = bTemp.substring(0, bTemp.length - 1);
+                    }
+                    var aDate = moment(aTemp);
+                    var bDate = moment(bTemp);
+                    if (aDate.isBefore(bDate)) return -1;
+                    if (bDate.isBefore(aDate)) return 1;
+                    return 0;
+                });
+
+                logLines.forEach(function(row) {
+                    var data = row;
+                    var details = data[3];
+                    var tmpDetails = "";
+                    var lineString = "";
+                    if (data[3].indexOf("Setting (json)") === -1) {
+                        details = details.replaceAll('<br>', "\n");
+                        details = details.replaceAll("<p>", "");
+                        details = details.replaceAll("</p>", "");
+                        details = details.replaceAll('"' , '""');
+                        details = details.replaceAll('\n' , ' ');
+                        //add first and last char as double quotes
+                        details = '"' + details + '"';
+                        lineString = proc_info["process_definition"] + "," + proc_info["process_instance"] + "," + data[0] + "," + data[1] + "," + data[2] + "," + details + "\r\n";
+                    } else {
+                        lineString = proc_info["process_definition"] + "," + proc_info["process_instance"] + "," + data[0] + "," + data[1] + "," + data[2] + ",";
+                        //remove last char
+                        if (data[3].indexOf("_in =") !== -1) {
+                            lineString += '"' + details.substring(0, details.indexOf("_in =")+3) + " ";
+                            details = details.substring(details.indexOf("_in =")+3);
+                        } else {
+                            lineString += '"' + details.substring(0, details.indexOf("_out =")+4) + " ";
+                            details = details.substring(details.indexOf("_out =")+4);
+                        }
+                        //now we need to go through and get details from json string
+                        //note: key is always after <tr><td ...> and value is the following td
+                        while (details.indexOf("<tr><td") !== -1) {
+                            details = details.substring(details.indexOf("<tr><td")+8);
+                            details = details.substring(details.indexOf(">")+1);
+                            var key = details.substring(0, details.indexOf("</td>"));
+                            details = details.substring(details.indexOf("<td>")+4);
+                            var value = details.substring(0, details.indexOf("</td>"));
+                            tmpDetails += key + ": " + value + "; ";
+                        }
+                        //check/clean tmpDetails
+                        if (tmpDetails !== "") {
+                            //replace all break points with new line
+                            tmpDetails = tmpDetails.replaceAll(/<br>/g, " ");
+                            //find and remove everything between <summary>  and  </summary>
+                            tmpDetails = tmpDetails.replace(/<summary>.*<\/summary>/g, "");
+                            //find and remove <details>  and  </details>
+                            tmpDetails = tmpDetails.replace(/<details>/g, "");
+                            tmpDetails = tmpDetails.replace(/<\/details>/g, "");
+                            //CSV quirk: replace all " with ""
+                            tmpDetails = tmpDetails.replaceAll('"' , '""');
+                        }
+                        //remove last char
+                        tmpDetails = tmpDetails.substring(0, tmpDetails.length-1);
+                        tmpDetails = tmpDetails + '"';
+                        lineString += tmpDetails + "\r\n";
+                    }
+                    lineString = lineString.replaceAll("<table><tr>", "");
+                    outputCSV = outputCSV + lineString;
+                } );
+                return outputCSV;
+            };
         </script>
 
 </body>

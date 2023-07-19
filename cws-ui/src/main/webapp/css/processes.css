@@ -1,0 +1,121 @@
+label {
+    margin-bottom: 0px;
+}
+
+.dataTables_wrapper .dtsb-titleRow {
+    display: none;
+}
+
+.dataTables_wrapper .dtsb-group {
+    padding-bottom: -15px !important;
+    padding-top: 8px;
+}
+
+summary {
+    width: 100px;
+    display: list-item;
+}
+
+#processes-table {
+    font-size: 90%;
+}
+
+#pd-select {
+    width: 90%;
+}
+
+#status-select {
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 10px;
+}
+
+#status-select label {
+    cursor: pointer;
+    padding-left: 5px;
+}
+
+#datepicker-div input {
+    /*width:40%;*/
+    margin-bottom: 1em;
+    float: left;
+}
+
+.tr-fail {
+    color: #D9534F;
+}
+
+.tr-complete {
+    color: black;
+}
+
+.tr-running {
+    color: #5BC0DE;
+}
+
+.tr-pending {
+    color: #F0AD4E;
+}
+
+.tr-incident {
+    color: #C347ED;
+}
+
+#hide-subprocs-div {
+    margin: 20px 0px;
+}
+
+#display-subprocs-div {
+    margin: 30px 0px;
+}
+
+#super-proc-inst-id {
+    background: #ededed;
+    ;
+    padding: 5px;
+    border-radius: 8px;
+    margin-left: 8px;
+    padding: 5px;
+}
+
+.thumbnail {
+    margin-top: 5px !important;
+    margin-bottom: 5px !important;
+}
+
+.above-table-div {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: flex-end;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.above-table-buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.above-table-filler {
+    flex-grow: 1;
+}
+
+.btn-icon {
+    margin-right: 5px;
+}
+
+.below-table-div {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 5px;
+}
