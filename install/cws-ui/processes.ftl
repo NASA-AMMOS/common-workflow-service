@@ -228,7 +228,6 @@
                             </div>
                         </div>
 
-
                         <div id="filters-btn" class="btn btn-warning"><span class="glyphicon glyphicon-filter">
                             </span>&nbsp;Filters&nbsp;<span id="filter-arrow"
                                 class="glyphicon glyphicon-chevron-up"></span>
@@ -1078,7 +1077,7 @@
 
                 selectedRows.every(function (rowIdx, tableLoop, rowLoop) {
                     var data = this.data();
-                    switch (data[4]) {
+                    switch (data["status"]) {
                         case 'disabled':
                             numDisabledSelected++;
                             break;
@@ -1403,6 +1402,7 @@
                 var numRows = dt.rows({ selected: true }).count();
                 var jsonFile = {};
                 var processes = {};
+                var noProcInstIDCounter = 0;
 
                 dt.rows({ selected: true, search: 'applied' }).every(function (rowIdx, tableLoop, rowLoop) {
                     var data = this.data();
@@ -1415,14 +1415,14 @@
                     var inputVars = "";
                     var inputVarsTemp = "";
 
-                    if (data["startedByWorker"] !== "") {
+                    if (data["startedByWorker"] !== "" && data["startedByWorker"] !== null) {
                         startedOnWorker = data["startedByWorker"];
                         workerIP = data["startedByWorker"].split("_").slice(0, -2).join(".");
                     } else {
                         startedOnWorker = data["startedByWorker"];
                     }
 
-                    if (data["procEndTime"] !== "") {
+                    if (data["procEndTime"] !== null) {
                         process_end = data["procEndTime"];
                         if (data["procStartTime"] !== '' && data["procEndTime"] !== '') {
                             var start = moment(data["procStartTime"]);
@@ -1453,7 +1453,13 @@
                     thisProcJSON["duration"] = duration;
                     thisProcJSON["input_variables"] = inputVars;
 
-                    processes[data["procInstId"]] = thisProcJSON;
+                    if (data["procInstId"] !== null && data["procDefKey"] !== "") {
+                        processes[data["procInstId"]] = thisProcJSON;
+                    } else {
+                        processes["no_assigned_proc_inst_id_" + noProcInstIDCounter] = thisProcJSON;
+                        noProcInstIDCounter++;
+                    }
+
                 });
                 jsonFile["processes"] = processes;
                 console.log(jsonFile);
