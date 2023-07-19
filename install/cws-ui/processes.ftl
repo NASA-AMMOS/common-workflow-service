@@ -387,7 +387,7 @@
                     "autoWidth": false,
                     language: {
                         searchBuilder: {
-                            add: "Filter loaded data",
+                            add: "Add Local Filter",
                         }
                     },
                     deferRender: true,
