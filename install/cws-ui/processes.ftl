@@ -134,6 +134,16 @@
         .btn-icon {
             margin-right: 5px;
         }
+
+        .below-table-div {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
     </style>
 
     <!-- Just for debugging purposes. Don't actually copy this line! -->
@@ -700,8 +710,9 @@
                             column.search.search = "";
                         });
                     },
-                    dom: "Q<'above-table-div'<'above-table-buttons'B><'above-table-length'l><'above-table-filler'><'above-table-filter'f>>" + "tip",
-                    //dom: "Q<'row'<'col-sm-auto buttons'B>><'row'<'col-sm-1 action-button'><'col-sm-5 length'l><'col-sm-6 filter'f>>" + "tip",
+                    dom: "Q<'above-table-div'<'above-table-buttons'B><'above-table-length'l><'above-table-filler'><'above-table-filter'f>>" 
+                        + "t" 
+                        + "<'below-table-div'ip>",
                     buttons: [
                         {
                             extend: 'colvis',
