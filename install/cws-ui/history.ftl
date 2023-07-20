@@ -7,6 +7,8 @@
 	<script src="/${base}/js/docs.min.js"></script>
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
+	<script src="/${base}/js/moment.js"></script>
+	<script type="text/javascript" src="/${base}/js/cws.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/${base}/css/bootstrap-datepicker.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
@@ -21,6 +23,13 @@
 		.dataTables_wrapper {margin-left: 5px; margin-right: -10px;}
 		summary {
 			width: 100px;
+		}
+		.historyLimitSize {
+			max-height: 150px;
+		}
+		.thumbnail {
+			margin-top: 5px !important;
+			margin-bottom: 0px !important;
 		}
 	</style>
 	<script>
@@ -217,10 +226,6 @@
 				if (entry["message"].startsWith("Ended ")) {
 					date += " ";
 				}
-
-				if(entry["activity"] === data.procInstId) {
-					inputVarRows.push(entry);
-				}
 				
 				const row = "<tr><td>"+ date + "</td>" +
 							"<td>"+ entry["type"] + "</td>"+
@@ -311,7 +316,8 @@
 			});
 		}
 
-		setInputVariableTable(inputVarRows);
+		setInputVariableTable(data.inputVariables);
+		setOutputVariableTable(data.outputVariables);
 		
 		return tableRows;
 	}
@@ -339,7 +345,6 @@
 	function downloadLogCSV() {
 		var dt = $('#logData').DataTable();
 		var data = dt.buttons.exportData();
-		console.log(data);
 		//number of rows
 		var csvString = "";
 		//get headers and put them as first row in CSV
@@ -351,7 +356,6 @@
 
 		dt.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
 			var data = this.data();
-			console.log(data);
 			var details = data[3];
 			var tmpDetails = "";
 			var lineString = "";
@@ -400,7 +404,6 @@
 				tmpDetails = tmpDetails.substring(0, tmpDetails.length-1);
 				tmpDetails = tmpDetails + '"';
 				lineString += tmpDetails + "\r\n";
-				console.log(lineString);
 			}
 			csvString = csvString + lineString;
 		} );
@@ -412,98 +415,13 @@
 	}
 
 	function downloadLogJSON() {
-		var dt = $('#logData').DataTable();
-		var data = dt.buttons.exportData();
-		//number of rows
-		var numRows = dt.rows().count();
-		var jsonFile = {};
-		var logInfo = {
-			"process_definition": $("#procDefKey").text(),
-			"process_instance": $("#procInstId").text(),
-			"start_time": $("#procStartTime").text(),
-			"end_time": $("#procEndTime").text(),
-			"duration": $("#procDuration").text(),
-			"status": $("#procStatus").text()
-		}
-		jsonFile["process_info"] = logInfo;
-
-		//go through each row of inputVariableTable and add to jsonFile
-		var inputVariables = {};
-		$("#inputVariableTable tr").each(function() {
-			var key = $(this).find("td").eq(0).text();
-			var value = $(this).find("td").eq(1).text();
-			inputVariables[key] = value;
-		});
-		delete inputVariables[""];
-		jsonFile["input_variables"] = inputVariables;
-
-		var logs = {};
-
-		dt.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
-			var data = this.data();
-			var tmpDetails = data[3];
-			var details = "";
-			var lineJson = {};
-			var nestedJson = {};
-			if (data[3].indexOf("Setting (json)") === -1) {
-				details = data[3];
-				lineJson = {
-					"time-stamp": data[0],
-					"type": data[1],
-					"source": data[2],
-					"details": details
-				};
-			} else {
-				//we need to first separate the string from the rest of the HTML
-				if (data[3].indexOf("_in =") !== -1) {
-					details = data[3].substring(0, data[3].indexOf("_in =")+3);
-					tmpDetails = data[3].substring(data[3].indexOf("_in =")+3);
-				} else {
-					details = data[3].substring(0, data[3].indexOf("_out =")+4);
-					tmpDetails = data[3].substring(data[3].indexOf("_out =")+4);
-				}
-				//now we need to go through and get details from json string
-				//note: key is always after <tr><td ...> and value is the following td
-				while (tmpDetails.indexOf("<tr><td") !== -1) {
-					tmpDetails = tmpDetails.substring(tmpDetails.indexOf("<tr><td")+8);
-					tmpDetails = tmpDetails.substring(tmpDetails.indexOf(">")+1);
-					var key = tmpDetails.substring(0, tmpDetails.indexOf("</td>"));
-					tmpDetails = tmpDetails.substring(tmpDetails.indexOf("<td>")+4);
-					var value = tmpDetails.substring(0, tmpDetails.indexOf("</td>"));
-					nestedJson[key] = value;
-				}
-				//check/clean nested json object
-				if (nestedJson["stdout"] !== undefined) {
-					//replace all break points with new line
-					nestedJson["stdout"] = nestedJson["stdout"].replaceAll(/<br>/g, "\n");
-					//find and remove everything between <summary>  and  </summary>
-					nestedJson["stdout"] = nestedJson["stdout"].replace(/<summary>.*<\/summary>/g, "");
-				}
-				lineJson = {
-					"time-stamp": data[0],
-					"type": data[1],
-					"source": data[2],
-					"details": details,
-					"json": nestedJson
-				};
-			}
-			//check/clean details
-			if (lineJson["details"] !== "") {
-				//replace all break points with new line
-				details = details.replaceAll('<br>', "\n");
-				details = details.replaceAll("<p>", "");
-				details = details.replaceAll("</p>", "");
-				lineJson["details"] = details;
-			}
-			logs[numRows-rowLoop-1] = lineJson;
-		} );
-		jsonFile["logs"] = logs;
-		console.log(jsonFile);
-		$.fn.dataTable.fileSave(
-			new Blob( [ JSON.stringify(jsonFile) ] ),
-			$("#procInstId").text() + '.json'
-		);
-	}
+		console.log($("#procInstId").html());
+        var mainJSON = getInstanceJSON($('#procInstId').html(), "${base}");
+        $.fn.dataTable.fileSave(
+            new Blob([JSON.stringify(mainJSON)]),
+            'history-' + $("#procInstId").html() + '.json'
+        );
+    }
 
 	function retryIncident(procInstId) {
 		var idArr = [procInstId];
@@ -595,59 +513,372 @@
 
 	}); //END OF DOCUMENT.READY
 
-	function setInputVariableTable(historyRows) {
-		if (historyRows.length == 0) {
+	function setInputVariableTable(data) {
+		if (jQuery.isEmptyObject(data)) {
 			$("#inputVariables").html("None");
 		} else {
-			//declare new map of <string, string>
-			var inputVarObj = {};
-			for (var i = 0; i < historyRows.length; i++) {
-				var message = historyRows[i].message;
-				var varType = message.substring(message.indexOf("("), message.indexOf(")")+1);
-				console.log(varType);
-				var varName = message.substring(message.indexOf(")")+2);
-				varName = varName.substring(0, varName.indexOf("=")-1) + " " + varType;
-				var varValue = message.substring(message.indexOf("=")+2);
-				inputVarObj[varName] = varValue;
-			}
 			var output = "";
-			var before = "";
-			var after = "";
-			var putAllAfter = 0;
-			var count = 0;
-			for (const [key, value] of Object.entries(inputVarObj)) {
-				if (key === "workerId") {
-					continue;
-				}
-				if (count > 3) {
-					putAllAfter = 1;
-				}
-				var temp = "<div><div style=\"width: 85%; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + key + ":</b> " + value + "</div><div class=\"copySpan\" style=\"width: 15%; float:right\">"
-					+ "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + value + "\" onClick=''>"
-					+ "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-					+ "</span></div></div><br>";
-				if (key === "startedOnWorkerId") {
-					after = after + temp;
-					putAllAfter = 1;
-				} else if (putAllAfter === 0) {
-					before = before + temp;
-				} else {
-					after = after + temp;
-				}
-				count++;
+		var before = "";
+		var after = "";
+		var putAllAfter = 0;
+		var count = 0;
+		for (const [key, value] of Object.entries(data)) {
+			var temp = "";
+			var tempVal = value;
+			var tempKey = key;
+			if (tempKey === "workerId") {
+				continue;
 			}
-			if (after.length < 0) {
-				output = before;
+			if (count > 3) {
+				putAllAfter = 1;
+			}
+			if (key.includes("(file, image")) {
+				temp = `<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 10px;"><div style="flex-grow: 1; align-self: start"><b>` + tempKey + `: </b><img class="history-grow historyLimitSize" src="` + tempVal + `"></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div><br>`;
+			} else if (checkForURL(tempVal)) {
+				temp = `<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 10px;"><div style="flex-grow: 1; align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div><br>`;
 			} else {
-				output = before + "<details><summary><b>Show All</b></summary>" + after + "</details>";
+				temp = `<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 10px;"><div style="flex-grow: 1; align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div><br>`;
 			}
-			$("#inputVariables").html(output);
+			if (tempKey === "startedOnWorkerId") {
+				after = after + temp;
+				putAllAfter = 1;
+			} else if (putAllAfter === 0) {
+				before = before + temp;
+			} else {
+				after = after + temp;
+			}
+			count++;
 		}
+		if (after.length == 0) {
+			output = before;
+		} else {
+			output = before + "<details><summary><b> Show All</b></summary>" + after + "</details>";
+		}
+		}
+		$("#inputVariables").html(output);
 	}
 
-	function copyInput(varValue) {
-		navigator.clipboard.writeText(varValue);
+	function setOutputVariableTable(data) {
+		if (jQuery.isEmptyObject(data)) {
+			$("#outputVariables").html("None");
+		} else {
+			var output = "";
+		var before = "";
+		var after = "";
+		var putAllAfter = 0;
+		var count = 0;
+		for (const [key, value] of Object.entries(data)) {
+			var temp = "";
+			var tempVal = value;
+			var tempKey = key.substring(7);
+			if (tempKey === "workerId") {
+				continue;
+			}
+			if (count > 3) {
+				putAllAfter = 1;
+			}
+			if (key.includes("(file, image")) {
+				tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+				temp = `<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 10px;"><div style="flex-grow: 1; align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div><br>`;
+			} else if (checkForURL(tempVal)) {
+				tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+				temp = `<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 10px;"><div style="flex-grow: 1; align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div><br>`;
+			} else {
+				tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+				temp = `<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 10px;"><div style="flex-grow: 1; align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div><br>`;
+			}
+			if (tempKey === "startedOnWorkerId") {
+				after = after + temp;
+				putAllAfter = 1;
+			} else if (putAllAfter === 0) {
+				before = before + temp;
+			} else {
+				after = after + temp;
+			}
+			count++;
+		}
+		if (after.length == 0) {
+			output = before;
+		} else {
+			output = before + "<details><summary><b> Show All</b></summary>" + after + "</details>";
+		}
+		}
+		$("#outputVariables").html(output);
 	}
+
+	function getInstanceJSON(procInstId) {
+    var outputJSON = {};
+    var logLinesJSON = {};
+    var logLines = [];
+    var scrollId = "";
+    var baseEsReq = {
+        "from": 0,
+        "size": 20,
+        "query": { 
+            "bool": {
+                "must" :[]
+            }
+        },
+        "sort": { "@timestamp": { "order": "asc" } }
+    };
+    baseEsReq.query.bool.must.push({"query_string":{"fields":["procInstId"],"query" : "\"" + decodeURIComponent(procInstId) + "\""}});
+
+    //get process history
+    $.ajax({
+        type: "GET",
+        url: "/${base}/rest/history/" + procInstId,
+        Accept : "application/json",
+        contentType: "application/json",
+        dataType: "json",
+        async: false
+    }).success(function(data) {
+        var status = data.state;
+        if (data.state === "COMPLETED") {
+            status = "Complete";
+        }
+        else if (data.state === "ACTIVE") {
+            status = "Running";
+        }
+        var proc_info = {
+            "process_definition": data.procDefKey,
+            "process_instance": data.procInstId,
+            "start_time": data.startTime,
+            "end_time": data.endTime,
+            "duration": convertMillis(data.duration),
+            "status": status,
+            "input_variables": data.inputVariables,
+            "output_variables": data.outputVariables
+        };
+        outputJSON["process_info"] = proc_info;
+        for (const entry of data.details) {
+            let date = entry["date"];
+            if (entry["message"].startsWith("Ended ")) {
+                date += " ";
+            }
+            const row = [date, entry["type"], entry["activity"], outputMessage(entry["message"])];
+            logLines.push(row);
+        }
+    }).fail(function(xhr, err) {
+        console.error("Error getting instance JSON: " + xhr.responseText);
+    });
+
+    $.ajax({
+        type: "GET",
+        url: "/${base}/rest/logs/get?source=" + encodeURIComponent(JSON.stringify(baseEsReq)),
+        Accept : "application/json",
+        contentType: "application/json",
+        dataType: "json",
+        async: false
+    }).success(function(data) {
+        var finished = false;
+        scrollId = data._scroll_id;
+        if (data.hits) {
+            for (const hit of data.hits.hits) {
+                const source = hit._source;
+                const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
+                logLines.push(row);
+                
+            }
+        }
+        while (!finished) {
+            $.ajax({
+                type: "POST",
+                url: "/${base}/rest/logs/get/scroll",
+                data: "scrollId=" + scrollId,
+                async: false,
+                success: function(data) {
+                    if (data.hits) {
+                        
+                        if (data.hits.hits.length > 0) {
+                            for (const hit of data.hits.hits) {
+                                const source = hit._source;
+                                const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
+                                logLines.push(row);
+                            }
+                            scrollId = data._scroll_id;
+                        }
+                        else {
+                            finished = true;
+                        }
+                    }
+                },
+                error: function(e) {
+                    alert("Error retrieving history data.");
+                }
+            });
+        }
+    }).fail(function(xhr, err) {
+        console.error("Error getting instance JSON: " + xhr.responseText);
+    });
+    logLines.sort(function(a, b) {
+        var aTemp = a[0];
+        //if there is a space in the last char, remove it
+        if (aTemp.charAt(aTemp.length - 1) == " ") {
+            aTemp = aTemp.substring(0, aTemp.length - 1);
+        }
+        var bTemp = b[0];
+        //if there is a space in the last char, remove it
+        if (bTemp.charAt(bTemp.length - 1) == " ") {
+            bTemp = bTemp.substring(0, bTemp.length - 1);
+        }
+        var aDate = moment(aTemp);
+        var bDate = moment(bTemp);
+        if (aDate.isBefore(bDate)) return -1;
+        if (bDate.isBefore(aDate)) return 1;
+        return 0;
+    });
+
+    var i = 0;
+    logLines.forEach(function(row) {
+        var data = row;
+        var tmpDetails = data[3];
+        var details = "";
+        var lineJson = {};
+        var nestedJson = {};
+        //go through data[0] and if there is a space at the end, remove it
+        if (data[0].charAt(data[0].length - 1) == " ") {
+            data[0] = data[0].substring(0, data[0].length - 1);
+        }
+        if (data[3].indexOf("Setting (json)") === -1) {
+            //check if data[3] starts with "<table><tr>". If it does, remove it.
+            if (data[3].startsWith("<table><tr>")) {
+                tmpDetails = data[3].substring(11);
+            }
+            details = data[3];
+            lineJson = {
+                "time-stamp": data[0],
+                "type": data[1],
+                "source": data[2],
+                "details": details
+            };
+        } else {
+            var fixedDetails = "";
+            if (data[3].startsWith("<table><tr>")) {
+                data[3] = data[3].substring(11);
+            }
+            //we need to first separate the string from the rest of the HTML
+            if (data[3].indexOf("_in =") !== -1) {
+                details = data[3].substring(0, data[3].indexOf("_in =")+3);
+                tmpDetails = data[3].substring(data[3].indexOf("_in =")+3);
+            } else {
+                details = data[3].substring(0, data[3].indexOf("_out =")+4);
+                tmpDetails = data[3].substring(data[3].indexOf("_out =")+4);
+            }
+            //now we need to go through and get details from json string
+            //note: key is always after <tr><td ...> and value is the following td
+            while (tmpDetails.indexOf("<tr><td") !== -1) {
+                tmpDetails = tmpDetails.substring(tmpDetails.indexOf("<tr><td")+8);
+                tmpDetails = tmpDetails.substring(tmpDetails.indexOf(">")+1);
+                var key = tmpDetails.substring(0, tmpDetails.indexOf("</td>"));
+                tmpDetails = tmpDetails.substring(tmpDetails.indexOf("<td>")+4);
+                var value = tmpDetails.substring(0, tmpDetails.indexOf("</td>"));
+                nestedJson[key] = value;
+            }
+            //check/clean nested json object
+            if (nestedJson["stdout"] !== undefined) {
+                //replace all break points with new line
+                nestedJson["stdout"] = nestedJson["stdout"].replaceAll(/<br>/g, "\n");
+                //find and remove everything between <summary>  and  </summary>
+                nestedJson["stdout"] = nestedJson["stdout"].replace(/<summary>.*<\/summary>/g, "");
+            }
+            lineJson = {
+                "time-stamp": data[0],
+                "type": data[1],
+                "source": data[2],
+                "details": details,
+                "json": nestedJson
+            };
+        }
+        //check/clean details
+        if (lineJson["details"] !== "") {
+            //replace all break points with new line
+            details = details.replaceAll('<br>', "\n");
+            details = details.replaceAll('<br/>', "\n");
+            details = details.replaceAll("<p>", "");
+            details = details.replaceAll("</p>", "");
+            lineJson["details"] = details;
+        }
+        logLinesJSON[i] = lineJson;
+        i++;
+    } );
+    outputJSON["logs"] = logLinesJSON;
+    return outputJSON;
+};
+
+function outputMessage(msg) {
+
+    if (msg.startsWith("Setting (json) ")) {
+
+        var i2 = msg.indexOf("= ")
+
+        if (i2 != -1) {
+            var cmd = msg.substring(0, i2 + 1)
+            var jsonObj = JSON.parse(msg.substring(i2 + 2))
+            var output = '<table><tr>' + cmd + '<br/><br/><table id=\"logDataNest\" class=\"table table-striped table-bordered\">'
+
+            Object.keys(jsonObj).forEach(function(key) {
+                var value = jsonObj[key];
+                output += makeRow(key, value, cmd)
+            });
+
+            output += '</table>'
+
+            return output
+        }
+    }
+
+    return msg.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
+}
+
+function makeRow(key, value, cmd) {
+
+    var style = 'width: 210px;'
+
+    if (cmd.endsWith('_out =')) {
+        style = 'width: 120px;'
+    }
+
+    if (key == 'stdout' || key == 'stderr') {
+        return '<tr><td style="' + style + ';font-weight:bold;">' + key + '</td><td>' + formatMsg(value) + '</td></tr>'
+    }
+    return '<tr><td style="' + style + ';font-weight:bold;">' + key + '</td><td>' + value + '</td></tr>'
+}
+
+function formatMsg(msg) {
+
+    var index = 0, count = 0, maxCount = 30
+
+    for ( ; count < maxCount && i2 != -1; count++) {
+
+        var i2 = msg.indexOf('\n', index)
+
+        if (i2 != -1) {
+            index = i2 + 1
+        }
+    }
+
+    if (count < maxCount - 1 || index > msg.length / 2) {
+        return msg.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
+    }
+
+    var first = msg.substring(0, index).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
+    var rest = msg.substring(index).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
+
+    return first + '<details><summary>Show All</summary>' + rest + '</details>'
+}
+
+function convertMillis(millis) {
+
+     var x = millis / 1000
+    var seconds = Math.floor(x % 60)
+    x /= 60
+    var minutes = Math.floor(x)
+    
+    if (minutes === 0)
+        return millis / 1000 + " sec";
+
+    return minutes + " min " + seconds + " sec"
+}
 	</script>
 	
 
@@ -696,29 +927,39 @@
 		
 		<h2 class="sub-header">History</h2>
 		<div class="row">
-				<table align="center" class="table table-bordered " style="width: 50%; font-size:95%">
-					<tr>
-						<td style="font-weight:bold;">Process Definition</td><td id="procDefKey">Unknown</td>
-					</tr>
-					<tr>
-						<td style="font-weight:bold;">Process Instance ID</td><td id="procInstId">Unknown</td>
-					</tr>
-					<tr>
-						<td style="font-weight:bold;">Start Time</td><td id="procStartTime">N/A</td>
-					</tr>
-					<tr>
-						<td style="font-weight:bold;">End Time</td><td id="procEndTime">N/A</td>
-					</tr>
-					<tr>
-						<td style="font-weight:bold;">Duration</td><td id="procDuration">N/A</td>
-					</tr>
-					<tr>
-						<td style="font-weight:bold;">Status</td><td id="procStatus"></td>
-					</tr>
-					<tr>
-						<td style="font-weight:bold;">Input Variables</td><td id="inputVariables"></td>
-					</tr>
-				</table>
+			<table align="center" class="table table-bordered " style="width: 50%; font-size:95%">
+				<tr>
+					<td style="font-weight:bold;">Process Definition</td><td id="procDefKey">Unknown</td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold;">Process Instance ID</td><td id="procInstId">Unknown</td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold;">Start Time</td><td id="procStartTime">N/A</td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold;">End Time</td><td id="procEndTime">N/A</td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold;">Duration</td><td id="procDuration">N/A</td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold;">Status</td><td id="procStatus"></td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold;">Input Variables</td><td id="inputVariables"></td>
+				</tr>
+			</table>
+		</div>
+		<div class="row">
+			<table align="center" class="table table-bordered" style="width: 50%; font-size: 95%">
+				<tr>
+					<th>Output Variables</th>
+				</tr>
+				<tr>
+					<td id="outputVariables"></td>
+				</tr>
+			</table>
 		</div>
       <div id="resolveButtonDiv" class="row" style="text-align: center; display: none;">
         <button id="resolveButton" class="btn btn-primary" type="button" onclick="markAsResolved($('#procInstId').text())">Mark as Resolved</button>
@@ -747,6 +988,5 @@
 		</div>
 		<a id="downloadAnchorElement" style="display:none"></a>
 	</div>
-<script type="text/javascript" src="/${base}/js/cws.js"></script>
 </body>
 </html>

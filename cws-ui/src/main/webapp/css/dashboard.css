@@ -313,6 +313,7 @@ div[class*="bar-"]{
   position: relative;
   outline: none;
   float: right;
+  text-align: end;
 }
 
 .copy svg {
@@ -320,4 +321,34 @@ div[class*="bar-"]{
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.grow {
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  z-index: 5;
+  height:inherit;
+  border: 5px solid lightgray;
+  border-radius: 5px;
+  max-height: 150px;
+  max-width: 150px;
+}
+
+.grow:hover {
+  transform: scale(2) translateX(-15%);
+  z-index: 6;
+}
+
+.history-grow {
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  z-index: 5;
+  height:inherit;
+  border: 5px solid lightgray;
+  border-radius: 5px;
+}
+
+.history-grow:hover {
+  transform: scale(2) translateX(-15%);
+  z-index: 6;
 }
