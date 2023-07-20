@@ -303,7 +303,13 @@ public abstract class CwsSecurityFilter implements javax.servlet.Filter {
 		
 		return false;  // DON'T skip
 	}
-	
+
+	// Simple override of http return for redirect code when http request is valid
+	protected void statusOverride(HttpServletResponse resp){
+		if (resp.getStatus() == 200){
+			resp.setStatus(301);
+		}
+	}
 	
 	protected void logRequestInfo(HttpServletRequest req) {
 		// Log all of the headers
