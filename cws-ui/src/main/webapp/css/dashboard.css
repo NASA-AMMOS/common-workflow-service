@@ -338,3 +338,17 @@ div[class*="bar-"]{
   transform: scale(2) translateX(-15%);
   z-index: 6;
 }
+
+.history-grow {
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  z-index: 5;
+  height:inherit;
+  border: 5px solid lightgray;
+  border-radius: 5px;
+}
+
+.history-grow:hover {
+  transform: scale(2) translateX(-15%);
+  z-index: 6;
+}
