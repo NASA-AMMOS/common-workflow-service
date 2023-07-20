@@ -578,10 +578,13 @@
 				putAllAfter = 1;
 			}
 			if (key.includes("(file, image")) {
+				tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 				temp = `<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 10px;"><div style="flex-grow: 1; align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div><br>`;
 			} else if (checkForURL(tempVal)) {
+				tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 				temp = `<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 10px;"><div style="flex-grow: 1; align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div><br>`;
 			} else {
+				tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 				temp = `<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 10px;"><div style="flex-grow: 1; align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div><br>`;
 			}
 			if (tempKey === "startedOnWorkerId") {
