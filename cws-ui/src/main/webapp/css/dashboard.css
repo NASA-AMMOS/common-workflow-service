@@ -328,9 +328,13 @@ div[class*="bar-"]{
   position: relative;
   z-index: 5;
   height:inherit;
+  border: 5px solid lightgray;
+  border-radius: 5px;
+  max-height: 150px;
+  max-width: 150px;
 }
 
 .grow:hover {
-  transform: scale(1.5);
+  transform: scale(2) translateX(-15%);
   z-index: 6;
 }

@@ -67,9 +67,17 @@
                                     <input id="super-proc-inst-id-in" style="width: 90%" type="text"
                                         class="form-control" placeholder="Superprocess Instance ID" />
                                 </div>
-                                <div style="margin-top: 15px" id="hide-subprocs-div">
+                                <div style="margin-top: 10px" id="hide-subprocs-div">
                                     <label for="hide-subprocs">Hide Subprocesses</label>
                                     <input name="hide-subprocs" id="hide-subprocs-btn" type="checkbox">
+                                </div>
+                                <div id="output-proc-filter-div">
+                                    <h4>Output Variables:</h4>
+                                    <input id="output-var-name-filter" style="width: 90%" type="text"
+                                        class="form-control" placeholder="Variable Name" />
+                                    <input id="output-var-value-filter" style="width: 90%; margin-top: 1em" type="text"
+                                        class="form-control" placeholder="Variable Value" />
+
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -176,10 +184,10 @@
                                         <th>Started on Worker</th>
                                         <th>Process Start</th>
                                         <th>Process End</th>
-                                        <th style="word-wrap: break-word; min-width: 200px;">Input Variables</th>
+                                        <th style="word-wrap: break-word;">Input Variables</th>
                                         <th>Superprocess ID</th>
                                         <th>UUID</th>
-                                        <th style="word-wrap: break-word; min-width: 200px;">Output Variables</ </thead>
+                                        <th style="word-wrap: break-word;">Output Variables</ </thead>
                                 <tbody>
                                 </tbody>
                             </table>
@@ -283,6 +291,12 @@
                         $("#max-return-num").prop('disabled', false);
                     }
                 });
+                $("#output-var-name-filter").change(function () {
+                    getNumMatchingProcesses();
+                });
+                $("#output-var-value-filter").change(function () {
+                    getNumMatchingProcesses();
+                });
 
                 //display message if we received one from the server
                 displayMessage();
@@ -296,7 +310,7 @@
                     //allows for editing what buttons / text says on/in the table
                     language: {
                         searchBuilder: {
-                            add: "Add Local Filter",
+                            add: "<i class=\"glyphicon glyphicon-search btn-icon\"></i>Add Local Filter",
                         }
                     },
                     //delays rendering the data in the dom until it has to (ex: don't render page 10 until we browse to page 10)
@@ -440,9 +454,9 @@
                                         }
                                         if (key.includes("(file, image")) {
                                             tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + '<a class="thumbnail">'
-                                                + '<img class="grow" src="' + tempVal + '">'
-                                                + '</a>' + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
+                                                + '<br><img class="grow" src="' + tempVal + '">'
+                                                + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div></div><br>";
@@ -520,9 +534,9 @@
                                         }
                                         if (key.includes("(file, image")) {
                                             tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + '<a class="thumbnail">'
-                                                + '<img class="grow" src="' + tempVal + '">'
-                                                + '</a>' + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
+                                                + '<br><img class="grow" src="' + tempVal + '">'
+                                                + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div></div><br>";
@@ -545,6 +559,15 @@
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div></div><br>";
+                                        } else if (tempKey.toUpperCase().includes("SUMMARY")){
+                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div></div><br>";
+                                            before = before + temp;
+                                            count++;
+                                            continue;
                                         } else {
                                             tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                             temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
@@ -611,6 +634,10 @@
                         {
                             targets: [0],
                             "width": "30px"
+                        },
+                        {
+                            targets: [9, 12],
+                            width: "200px"
                         },
                         {
                             targets: [2],
@@ -947,7 +974,12 @@
                     localParams["superProcInstId"] = "null";
                 } else {
                     delete localParams["superProcInstId"];
-
+                }
+                if ($("#output-var-name-filter").val() != "") {
+                    localParams["outputVarName"] = $("#output-var-name-filter").val();
+                }
+                if ($("#output-var-value-filter").val() != "") {
+                    localParams["outputVarValue"] = $("#output-var-value-filter").val();
                 }
                 var qstring = "?";
                 if (localParams != null) {
