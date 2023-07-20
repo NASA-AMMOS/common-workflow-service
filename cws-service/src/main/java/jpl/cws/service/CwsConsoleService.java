@@ -587,7 +587,7 @@ public class CwsConsoleService {
     public Map<String, String> getInputVariablesForProcess(String processInstanceId) {
         Map<String, String> inputVarMap = new HashMap<String, String>();
 
-        List<HistoricVariableInstance> historicVariableInstances= historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstanceId).list();
+        List<HistoricVariableInstance> historicVariableInstances = historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstanceId).list();
 
         if (historicVariableInstances.isEmpty()) {
             return inputVarMap;
@@ -595,7 +595,7 @@ public class CwsConsoleService {
 
         for (HistoricVariableInstance historicVariableInstance : historicVariableInstances) {
             String varName = historicVariableInstance.getName();
-            if(!(varName.toUpperCase().startsWith("TASK_") && (varName.toUpperCase().endsWith("_IN") || varName.toUpperCase().endsWith("_OUT"))) && !(varName.toUpperCase().startsWith("OUTPUT_"))) {
+            if (!(varName.toUpperCase().startsWith("TASK_") && (varName.toUpperCase().endsWith("_IN") || varName.toUpperCase().endsWith("_OUT"))) && !(varName.toUpperCase().startsWith("OUTPUT_"))) {
                 String varType = historicVariableInstance.getTypeName();
                 //if varType is not a file, then get the value as a string and put it in the outputVarMap
                 if (varType == null || !varType.equals("file")) {
@@ -637,7 +637,7 @@ public class CwsConsoleService {
     public Map<String, String> getOutputVariablesForProcess(String processInstanceId) {
         Map<String, String> outputVarMap = new HashMap<String, String>();
 
-        List<HistoricVariableInstance> historicVariableInstances= historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstanceId).list();
+        List<HistoricVariableInstance> historicVariableInstances = historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstanceId).list();
 
         if (historicVariableInstances.isEmpty()) {
             return outputVarMap;
@@ -646,7 +646,7 @@ public class CwsConsoleService {
         for (HistoricVariableInstance historicVariableInstance : historicVariableInstances) {
             String varName = historicVariableInstance.getName();
             String varActivity = historicVariableInstance.getActivityInstanceId().split(":")[0];
-            if(!(varName.toUpperCase().startsWith("TASK_") && (varName.toUpperCase().endsWith("_IN") || varName.toUpperCase().endsWith("_OUT"))) && (varName.toUpperCase().startsWith("OUTPUT_"))) {
+            if (!(varName.toUpperCase().startsWith("TASK_") && (varName.toUpperCase().endsWith("_IN") || varName.toUpperCase().endsWith("_OUT"))) && (varName.toUpperCase().startsWith("OUTPUT_"))) {
                 String varType = historicVariableInstance.getTypeName();
                 //if varType is not a file, then get the value as a string and put it in the outputVarMap
                 if (varType == null || !varType.equals("file")) {
@@ -750,6 +750,8 @@ public class CwsConsoleService {
 
         List<Map<String, Object>> workerProcDefRows = schedulerDbService.getWorkerProcDefRows();
 
+        List<Map<String, Object>> allWorkerTags = schedulerDbService.getWorkerTags();
+
         for (Map<String, Object> workerRow : workerRows) {
             String workerId = workerRow.get("id").toString();
             String workerName = workerRow.get("name").toString();
@@ -775,9 +777,21 @@ public class CwsConsoleService {
                 workerStatus = workerStatusObj.toString();
             }
 
+            //Get worker tags
+            List<Map<String, String>> workerTags = new ArrayList<>();
+            for (Map<String, Object> tag : allWorkerTags) {
+                String worker_id = tag.get("worker_id").toString();
+                if (worker_id.equals(workerId)) {
+                    log.error("Comparing " + worker_id + " to " + workerId);
+                    Map<String, String> temp = new HashMap<String, String>();
+                    temp.put(tag.get("name").toString(), tag.get("value").toString());
+                    workerTags.add(temp);
+                }
+            }
+
             // Create new worker object if necessary
             //
-            Worker worker = new Worker(workerId, workerName, workerInstallType, workerType, workerStatus);
+            Worker worker = new Worker(workerId, workerName, workerInstallType, workerType, workerStatus, workerTags);
 
             // Get and set worker.lastHeartbeatTime
             //
@@ -1106,13 +1120,10 @@ public class CwsConsoleService {
             Timestamp procStartTime = (Timestamp) row.get("proc_start_time");
             Timestamp procEndTime = (Timestamp) row.get("proc_end_time");
             Map<String, String> inputVars;
-            Map<String, String> outputVars;
             if (procInstIdObj != null) {
                 inputVars = getInputVariablesForProcess(procInstIdObj.toString());
-                outputVars = getOutputVariablesForProcess(procInstIdObj.toString());
             } else {
                 inputVars = new HashMap<String, String>();
-                outputVars = new HashMap<String, String>();
             }
             CwsProcessInstance instance = new CwsProcessInstance(uuidObj == null ? null : uuidObj.toString(),
                     procDefKeyObj == null ? null : procDefKeyObj.toString(),
@@ -1124,7 +1135,7 @@ public class CwsConsoleService {
                     updatedTimestampObj == null ? null : updatedTimestampObj,
                     claimedByWorker == null ? null : claimedByWorker, startedByWorker == null ? null : startedByWorker,
                     procStartTime == null ? null : procStartTime, procEndTime == null ? null : procEndTime,
-                    inputVars, outputVars);
+                    inputVars);
             instances.add(instance);
         }
 

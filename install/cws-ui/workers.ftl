@@ -160,7 +160,27 @@
 			$("#"+workerId+"_configTable").hide();
 			$("#"+workerId+"_configOverview").html("show details");
 		}
-		
+
+		//
+		//	CALLED WHEN USER CLICKS ON TAGS '+' ICON
+		//
+		function expandTags(workerId) {
+			$("#"+workerId+"_plus_tags").hide();
+			$("#"+workerId+"_minus_tags").show();
+			$("#"+workerId+"_tagsTable").show();
+			$("#"+workerId+"_tagsOverview").html("hide tags");
+		}
+
+		//
+		//	CALLED WHEN USER CLICKS ON TAGS '-' ICON
+		//
+		function collapseTags(workerId) {
+			$("#"+workerId+"_plus_tags").show();
+			$("#"+workerId+"_minus_tags").hide();
+			$("#"+workerId+"_tagsTable").hide();
+			$("#"+workerId+"_tagsOverview").html("show tags");
+		}
+
 		//
 		// FUNCTION THAT REFRESHES UI "N / M enabled" COUNTS
 		//
@@ -191,6 +211,7 @@
 			<#list workers as w>
 				$("#${w.id}_minus_procDefs").hide();
 				$("#${w.id}_minus_config").hide();
+				$("#${w.id}_minus_tags").hide();
 			</#list>
 			
 			<!--Call any potential adaptation specific updates -->
@@ -281,11 +302,12 @@
 				<table id="workers-table" class="table table-striped table-bordered" border="1">
 					<thead>
 						<tr>
-							<th width="20%">Name</th>
+							<th width="15%">Name</th>
 							<th width="5%">Status</th>
 							<th width="10%"># Active</th>
-							<th width="35%">Configuration</th>
-							<th width="30%">Process Definitions</th>
+							<th width="20%">Tags</th>
+							<th width="30%">Configuration</th>
+							<th width="20%">Process Definitions</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -295,6 +317,29 @@
 								<td>${w.name}<#if w.cwsWorkerType == "run_models_only"><sup>M</sup></#if><#if w.cwsWorkerType == "run_external_tasks_only"><sup>E</sup></#if></td>
 								<td>${w.status}</td>
 								<td><div id="${w.id}_numRunningProcs" data-maxThreads="${w.jobExecutorMaxPoolSize}"></div></td>
+								<td>
+									<image id="${w.id}_plus_tags" src="/${base}/images/plus2.png" onclick="expandTags('${w.id}');" />
+									<image id="${w.id}_minus_tags" src="/${base}/images/minus2.png" onclick="collapseTags('${w.id}');" />
+									<span id="${w.id}_tagsOverview">show tags</span>
+									<div id="${w.id}_updateTagsStatus"></div>
+									<table id="${w.id}_tagsTable" class="table table-striped table-bordered" style="display:none">
+										<thead>
+											<tr>
+												<th width="50%">Name</th>
+												<th width="50%">Value</th>
+											</tr>
+										</thead>
+										<tbody>
+											<#list w.workerTags as tag>
+												<#list tag as key, value>
+													<tr>
+														<td>${key}</td>
+														<td>${value}</td>
+													</tr>
+												</#list>
+											</#list>
+									</table>
+								</td>
 								<td>
 									<image id="${w.id}_plus_config"  src="/${base}/images/plus2.png" onclick="expandConfig('${w.id}');" />
 									<image id="${w.id}_minus_config" src="/${base}/images/minus2.png" onclick="collapseConfig('${w.id}');" />
