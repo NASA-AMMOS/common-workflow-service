@@ -565,7 +565,7 @@
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div></div><br>";
-                                            before = before + temp;
+                                            before = temp + before;
                                             count++;
                                             continue;
                                         } else {
