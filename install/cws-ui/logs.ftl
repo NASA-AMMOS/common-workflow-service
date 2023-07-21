@@ -115,7 +115,16 @@
 		}
 	}
 
-	$("#logData").DataTable();
+	$("#logData").DataTable({
+		deferRender: true,
+		ordering: true,
+		paging: true,
+		searching: true,
+		scroller: true,
+		ajax: function (data, callback, settings) {
+			
+		}
+	});
 
 	if(localStorage.getItem(refreshRateVar)===null){
 		localStorage.setItem(refreshRateVar,"10000");
@@ -257,18 +266,20 @@
 			<div id="resultCount"></div>
 			
 			<div id="log-div">
-				<div class="ajax-spinner"></div>
+				<!--<div class="ajax-spinner"></div>-->
 				<table id="logData"class="table table-striped table-bordered sortable"style="width:100%;">
-					<tr>
-						<th>Time Stamp</th>
-						<th>CWS Host</th>
-						<th>CWS Worker ID</th>
-						<th>Log Level</th>
-						<th>Thread Name</th>
-						<th>Proc Def Key</th>
-						<th>Proc Inst ID</th>
-						<th>Message</th>
-					</tr>
+					<thead>
+						<tr>
+							<th>Time Stamp</th>
+							<th>CWS Host</th>
+							<th>CWS Worker ID</th>
+							<th>Log Level</th>
+							<th>Thread Name</th>
+							<th>Proc Def Key</th>
+							<th>Proc Inst ID</th>
+							<th>Message</th>
+						</tr>
+					</thead>
 				</table>
 			</div>
 		</div>
