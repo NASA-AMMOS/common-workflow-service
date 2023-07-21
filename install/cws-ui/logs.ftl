@@ -133,9 +133,30 @@
 	
 		$("#logData").DataTable({
 			deferRender: true,
-			scroller: true,
+			scroller: {
+				boundaryScale: 0.25,
+				displayBuffer: 20,
+				loadingIndicator: true,
+			},
 			scrollY: 600,
 			serverSide: true,
+			searchDelay: 250,
+			dom: 'Bfrtip',
+			autoWidth: false,
+			columnDefs: [
+				{
+					targets: [1,2,5,6],
+					visible: false,
+				}
+			],
+			buttons: [
+				{
+					extend: 'colvis',
+					columns: ':not(.noVis)',
+					className: 'btn btn-primary',
+					text: '<i class="glyphicon glyphicon-eye-open btn-icon"></i>Columns',
+				}
+			],
 			ajax: function (data, callback, settings) {
 				//store our draw value
 				var draw = data.draw;

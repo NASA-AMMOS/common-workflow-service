@@ -629,7 +629,7 @@ public class RestService extends MvcCore {
 	public @ResponseBody String getLogsScroll(
 			@RequestParam(value = "scrollId") String scrollId) {
 		String urlString = constructElasticsearchUrl("/_search/scroll");
-		String jsonData = "{ \"scroll\" : \"1m\", \"scroll_id\" : \"" + scrollId + "\" }";
+		String jsonData = "{ \"scroll\" : \"10m\", \"scroll_id\" : \"" + scrollId + "\" }";
 
 		log.trace("REST getLogs query = " + urlString);
 		log.trace("REST getLogs jsonData = " + jsonData);
