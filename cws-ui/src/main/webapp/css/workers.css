@@ -1,0 +1,15 @@
+.value_flexbox {
+    display: flex; 
+    flex-wrap: nowrap; 
+    justify-content: space-between;
+}
+
+.copy_flexbox {
+    width: 30px;
+}
+
+.copy_span {
+    display: flex; 
+    justify-content: flex-end; 
+    align-items: center;
+}
