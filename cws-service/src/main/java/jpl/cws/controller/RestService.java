@@ -653,8 +653,37 @@ public class RestService extends MvcCore {
 
 		return "ERROR";
 	}
-	
-	
+
+	/**
+	 * REST method used to get the total number of log rows
+	 *
+	 */
+	@RequestMapping(value="/logs/get/count", method = GET, produces="application/json")
+	public @ResponseBody String getNumLogs() {
+		String urlString = constructElasticsearchUrl("/_count");
+
+		log.trace("REST getNumLogs query = " + urlString);
+
+		try {
+			RestCallResult restCallResult;
+			if (elasticsearchUseAuth()) {
+				// Authenticated call
+				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, "application/json; charset=utf-8", elasticsearchUsername, elasticsearchPassword);
+			} else {
+				// Unauthenticated call
+				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, "application/json; charset=utf-8");
+			}
+			if (restCallResult.getResponseCode() != 200) {
+				return "ERROR";
+			}
+			return restCallResult.getResponse();
+		} catch (Exception e) {
+			log.error("Problem performing REST call to get count of log data (URL=" + urlString + ")", e);
+		}
+
+		return "ERROR";
+	}
+
 	/**
 	 * REST method used to get logs
 	 * 
@@ -662,7 +691,7 @@ public class RestService extends MvcCore {
 	@RequestMapping(value = "/logs/get", method = GET, produces="application/json")
 	public @ResponseBody String getLogs(
 			@RequestParam(value = "source") String source) {
-		String urlString = constructElasticsearchUrl("/_search?scroll=1m&source=" + source + "&source_content_type=application/json");
+		String urlString = constructElasticsearchUrl("/_search?scroll=5m&source=" + source + "&source_content_type=application/json");
 		
 		log.trace("REST getLogs query = " + urlString);
 		

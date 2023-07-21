@@ -21,161 +21,6 @@
 	<link href="/${base}/js/DataTables/datatables.css"rel="stylesheet">
 	<link href="/${base}/css/dashboard.css"rel="stylesheet">
 	<link href="/${base}/css/logs.css"rel="stylesheet">
-
-	<!--JavaScript-->
-	<script>
-
-	//STATE PERSISTANCE CONSTS
-	const username="username"; //temporary, hardcoded value for now
-	const refreshRateVar="CWS_DASH_LOGS_REFRESH_RATE-"+username;
-	const refreshVar="CWS_DASH_LOGS_REFRESH-"+username;
-	const qstringVar="CWS_DASH_LOGS_QSTRING-"+username;
-
-	// Global vars
-	var params;
-	var FETCH_COUNT=200;
-	var htmlTableRows=[];
-	var renderFlag=0;
-
-	var baseEsReq={
-		"from":0,
-		"size":FETCH_COUNT,
-		"query":{
-			"bool":{
-				"must":[]
-			}
-		},
-		"sort":{
-			"@timestamp":{
-				"order":"desc"
-			}
-		}
-	};
-
-	//----------------------------
-	function fetchInitialLogs(){
-		renderFlag=0;
-		htmlTableRows=[];
-		var esReq=baseEsReq;
-
-		if(params.procDefKey){
-			esReq.query.bool.must.push({"match":{"procDefKey":params.procDefKey}});
-		}
-		if(params.logLevel){
-			esReq.query.bool.must.push({"match":{"logLevel":params.logLevel}});
-		}
-		if(params.program){
-			esReq.query.bool.must.push({"match":{"program":params.program}});
-		}
-		if(params.procInstId){
-			//esReq.query.bool.must.push({"match":{"procInstId" : decodeURIComponent(params.procInstId)}});
-			esReq.query.bool.must.push({"query_string":{"fields":["procInstId"],"query":"\""+decodeURIComponent(params.procInstId)+"\""}});
-		}
-		if(params.search){
-			esReq.query.bool.must.push({"query_string":{"fields":["msgBody"],"query":decodeURIComponent(params.search)}});
-		}
-
-		var startDate=params.startDate?decodeURIComponent(params.startDate):"";
-		var endDate=params.endDate?decodeURIComponent(params.endDate):"";
-
-		if(startDate!=""){
-			//esReq.query.range["@timestamp"].gte = startDate;
-			esReq.query.bool.must.push({"range":{"@timestamp":{"gte":startDate}}});
-		}
-		if(endDate!=""){
-			//esReq.query.range["@timestamp"].lte = endDate;
-			esReq.query.bool.must.push({"range":{"@timestamp":{"lte":endDate}}});
-		}
-
-		$("#pd-select").val(params.procDefKey||"def");
-		//$("#level-select").val(params.logLevel || "def");
-		if(params.logLevel){
-			params.logLevel.split(',').forEach(function(lvl){
-				$("#log-level-sel input[value='"+lvl+"']").prop("checked",true);
-			});
-		}
-		$("#pi-text").val(params.procInstId?decodeURIComponent(params.procInstId):"");
-		$("#search-text").val(params.search?decodeURIComponent(params.search):"");
-		$("#start-date").val(startDate);
-		$("#end-date").val(endDate);
-
-		getLogData(esReq);
-	}
-
-	$(document).ready(function(){
-
-	// DISPLAY MESSAGE AT TOP OF PAGE
-	//
-	if($("#statusMessageDiv:contains('ERROR:')").length>=1){
-		$("#statusMessageDiv").css("color","red");
-	} else if($("#statusMessageDiv h2").text()!=""){
-		$("#statusMessageDiv").css("color","green");
-		if($('#statusMessageDiv').html().length>9){
-			$('#statusMessageDiv').fadeOut(5000,"linear");
-		}
-	}
-
-	$("#logData").DataTable({
-		deferRender: true,
-		ordering: true,
-		paging: true,
-		searching: true,
-		scroller: true,
-		ajax: function (data, callback, settings) {
-			
-		}
-	});
-
-	if(localStorage.getItem(refreshRateVar)===null){
-		localStorage.setItem(refreshRateVar,"10000");
-	}
-
-	$("#refresh-rate").val((parseInt(localStorage.getItem(refreshRateVar))/1000).toString());
-
-
-	if(localStorage.getItem(refreshVar)==="1"){
-		$("#refresh-checkbox").prop("checked",true);
-		refreshRate=parseInt(localStorage.getItem(refreshRateVar));
-		refID=setInterval(refreshLogs,refreshRate);
-	} else{
-		$("#refresh-checkbox").prop("checked",false);
-	}
-
-	//get our current url
-	var currentUrl=window.location.href;
-	//get our local storage url
-	var localStorageUrl=localStorage.getItem(qstringVar);
-	//check if a cookie has been stored (indicating we can restore state)
-	if(localStorageUrl!=null){
-		//remove everything before ?
-		currentUrl=currentUrl.substring(currentUrl.indexOf("logs")+4);
-		//compare against what is in local storage
-		if(currentUrl!=localStorageUrl){
-			//if they are different, go to the one in local storage (essentially restoring from last time used)
-			window.location="/${base}/logs"+localStorageUrl;
-		}
-	}
-
-	//
-	// INITIAL LOG SET
-	//
-	$("#log-div .ajax-spinner").show();
-
-	//GET query string values
-	params=getQueryString();
-
-	if(params==null){
-		loadDefaultLog();
-	}
-	else{
-		loadLogsToTable();
-	}
-
-	$("#log-div .ajax-spinner").hide();
-
-	}); //END OF DOCUMENT.READY
-
-	</script>
 	
 	<!--Just for debugging purposes.Don't actually copy this line! -->
 	<!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -307,6 +152,267 @@
 
 <script type="text/javascript"src="/${base}/js/cws.js"></script>
 <script type="text/javascript">
+
+	//STATE PERSISTANCE CONSTS
+	const username="username"; //temporary, hardcoded value for now
+	const refreshRateVar="CWS_DASH_LOGS_REFRESH_RATE-"+username;
+	const refreshVar="CWS_DASH_LOGS_REFRESH-"+username;
+	const qstringVar="CWS_DASH_LOGS_QSTRING-"+username;
+
+	// Global vars
+	var params;
+	var FETCH_COUNT=200;
+	var htmlTableRows=[];
+	var renderFlag=0;
+
+	var latestScrollId = "";
+
+	var baseEsReq={
+		"from":0,
+		"size":FETCH_COUNT,
+		"query":{
+			"bool":{
+				"must":[]
+			}
+		},
+		"sort":{
+			"@timestamp":{
+				"order":"desc"
+			}
+		}
+	};
+
+	//----------------------------
+	function getEsReq(){
+		renderFlag=0;
+		htmlTableRows=[];
+		var esReq=baseEsReq;
+
+		if(params.procDefKey !== undefined){
+			esReq.query.bool.must.push({"match":{"procDefKey":params.procDefKey}});
+		}
+		if(params.logLevel  !== undefined){
+			esReq.query.bool.must.push({"match":{"logLevel":params.logLevel}});
+		}
+		if(params.program  !== undefined){
+			esReq.query.bool.must.push({"match":{"program":params.program}});
+		}
+		if(params.procInstId  !== undefined){
+			//esReq.query.bool.must.push({"match":{"procInstId" : decodeURIComponent(params.procInstId)}});
+			esReq.query.bool.must.push({"query_string":{"fields":["procInstId"],"query":"\""+decodeURIComponent(params.procInstId)+"\""}});
+		}
+		if(params.search  !== undefined){
+			esReq.query.bool.must.push({"query_string":{"fields":["msgBody"],"query":decodeURIComponent(params.search)}});
+		}
+
+		var startDate=params.startDate?decodeURIComponent(params.startDate):"";
+		var endDate=params.endDate?decodeURIComponent(params.endDate):"";
+
+		if(startDate!=""){
+			//esReq.query.range["@timestamp"].gte = startDate;
+			esReq.query.bool.must.push({"range":{"@timestamp":{"gte":startDate}}});
+		}
+		if(endDate!=""){
+			//esReq.query.range["@timestamp"].lte = endDate;
+			esReq.query.bool.must.push({"range":{"@timestamp":{"lte":endDate}}});
+		}
+
+		$("#pd-select").val(params.procDefKey||"def");
+		//$("#level-select").val(params.logLevel || "def");
+		if(params.logLevel){
+			params.logLevel.split(',').forEach(function(lvl){
+				$("#log-level-sel input[value='"+lvl+"']").prop("checked",true);
+			});
+		}
+		$("#pi-text").val(params.procInstId?decodeURIComponent(params.procInstId):"");
+		$("#search-text").val(params.search?decodeURIComponent(params.search):"");
+		$("#start-date").val(startDate);
+		$("#end-date").val(endDate);
+
+		return esReq;
+	}
+
+	function apiTest() {
+		console.log(getEsReq());
+	}
+
+	$(document).ready(function(){
+
+	params = getQueryString();
+
+	// DISPLAY MESSAGE AT TOP OF PAGE
+	//
+	if($("#statusMessageDiv:contains('ERROR:')").length>=1){
+		$("#statusMessageDiv").css("color","red");
+	} else if($("#statusMessageDiv h2").text()!=""){
+		$("#statusMessageDiv").css("color","green");
+		if($('#statusMessageDiv').html().length>9){
+			$('#statusMessageDiv').fadeOut(5000,"linear");
+		}
+	}
+
+	$("#logData").DataTable({
+		deferRender: true,
+		ordering: true,
+		paging: true,
+		searching: true,
+		scroller: true,
+		serverSide: true,
+		sortable: false,
+		ajax: function (data, callback, settings) {
+			//we are going to emulate some of the functions of serverSide processing here
+			//INPUT:
+			//draw (int): keeps track of ordering of requests, return this value back
+			//start (int): starting index of the data to return
+			//length (int): number of records to return
+			//search (object): search object
+			//search[value] (string): search value
+			//search[regex] (boolean): is the search value a regex? - should always be false (IGNORE)
+			//order (array): array of objects containing ordering information (IGNORE)
+			//order[i][column] (int): column index to order by (IGNORE)
+			//order[i][dir] (string): direction to order by (asc, desc) (IGNORE)
+			//columns (array): array of objects containing column information (IGNORE)
+			//columns[i][data] (string): column data source (IGNORE)
+			//columns[i][name] (string): column name (IGNORE)
+			//columns[i][searchable] (boolean): is the column searchable? (IGNORE)
+			//columns[i][orderable] (boolean): is the column orderable? (IGNORE)
+			//columns[i][search][value] (string): search value for the column (IGNORE)
+			//columns[i][search][regex] (boolean): is the search value a regex? - should always be false (IGNORE)
+
+			//OUTPUT:
+			//draw (int): echo back the draw value
+			//recordsTotal (int): total number of records (not just the ones returned)
+			//recordsFiltered (int): total number of records after filtering
+			//data (array): array of data to display on the page
+			//error (string): error message if there is one
+
+			//store our draw value
+			var draw = data.draw;
+
+			//get total number of records
+			var totalRecords = 0;
+			$.ajax({
+				url: "/${base}/rest/logs/get/count",
+				type: "GET",
+				async: false,
+				success: function (data) {
+					totalRecords = data.count;
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					console.log("Error getting total number of records: " + errorThrown);
+				}
+			});
+
+			//get our esReq based off of filters above table
+			var esReq = getEsReq();
+
+			//check if we have a search value. If we do, we need to store it
+			if (data.search.value) {
+				var newSearchValue = data.search.value;
+				//we need to check if our esReq already has a search value
+				if (esReq.query.bool.must !== undefined) {
+					//there is at least one search condition
+					//go through must array and check if there is a query_string already
+					for (var i = 0; i < esReq.query.bool.must.length; i++) {
+						if (esReq.query.bool.must[i].query_string !== undefined) {
+							//we found a query_string, so we need to update it
+							var existingSearchValue = esReq.query.bool.must[i].query_string.query;
+							esReq.query.bool.must[i].query_string.query = "(" + existingSearchValue + ") AND (" + newSearchValue + ")";
+							break;
+						}
+					}
+				}
+			}
+			//we need to change the esReq to return the requested number of elements
+			esReq.size = data.length;
+
+			var returnData;
+
+			//we need to check if we've made a request before (if we have a scrollId)
+			if (latestScrollId === "") {
+				//we haven't made a request for data yet. We need to make one now and store the resulting scrollID for later calls
+				$.ajax({
+					url: "/${base}/rest/logs/get?source=" + encodeURIComponent(JSON.stringify(esReq)),
+					type: "POST",
+					contentType: "application/json",
+					async: false,
+					success: function (data) {
+						latestScrollId = data._scroll_id;
+						returnData = data;
+					},
+					error: function (jqXHR, textStatus, errorThrown) {
+						console.log("Error getting initial data: " + errorThrown);
+					}
+				});
+			} else {
+				//we made a request for data before. We need to make a request using the scrollID
+				$.ajax({
+					url: "/${base}/rest/logs/get/scroll?scrollId=" + latestScrollId,
+					type: "GET",
+					async: false,
+					success: function (data) {
+						latestScrollId = data._scroll_id;
+						returnData = data;
+					},
+					error: function (jqXHR, textStatus, errorThrown) {
+						console.log("Error getting scroll data: " + errorThrown);
+					}
+				});
+			}
+
+			
+		}
+	});
+
+	if(localStorage.getItem(refreshRateVar)===null){
+		localStorage.setItem(refreshRateVar,"10000");
+	}
+
+	$("#refresh-rate").val((parseInt(localStorage.getItem(refreshRateVar))/1000).toString());
+
+
+	if(localStorage.getItem(refreshVar)==="1"){
+		$("#refresh-checkbox").prop("checked",true);
+		refreshRate=parseInt(localStorage.getItem(refreshRateVar));
+		refID=setInterval(refreshLogs,refreshRate);
+	} else{
+		$("#refresh-checkbox").prop("checked",false);
+	}
+
+	//get our current url
+	var currentUrl=window.location.href;
+	//get our local storage url
+	var localStorageUrl=localStorage.getItem(qstringVar);
+	//check if a cookie has been stored (indicating we can restore state)
+	if(localStorageUrl!=null){
+		//remove everything before ?
+		currentUrl=currentUrl.substring(currentUrl.indexOf("logs")+4);
+		//compare against what is in local storage
+		if(currentUrl!=localStorageUrl){
+			//if they are different, go to the one in local storage (essentially restoring from last time used)
+			window.location="/${base}/logs"+localStorageUrl;
+		}
+	}
+
+	//
+	// INITIAL LOG SET
+	//
+	$("#log-div .ajax-spinner").show();
+
+	//GET query string values
+	params=getQueryString();
+
+	if(params==null){
+		loadDefaultLog();
+	}
+	else{
+		loadLogsToTable();
+	}
+
+	$("#log-div .ajax-spinner").hide();
+
+	}); //END OF DOCUMENT.READY
+
 	$("#filters-btn").click(function(){
 		if($("#filters-div").is(":visible"))
 			$("#filter-arrow").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
