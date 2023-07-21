@@ -1,0 +1,70 @@
+#filters-table td {
+    width: 20%;
+}
+
+#pd-select {
+    width: 90%;
+}
+
+#log-level-sel {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+}
+
+#log-level-sel input {
+    margin-right: 5px
+}
+
+#log-level-sel label {
+    cursor: pointer;
+    font-weight: normal;
+}
+
+#logData {
+    font-size: 95%;
+}
+
+#logData tr th {
+    white-space: nowrap;
+}
+
+/* log level header*/
+#logData tr th:nth-child(5) {
+    padding-right: 25px;
+}
+
+#logData tr td {
+    line-height: 1;
+}
+
+#logData tr td:nth-child(8) {
+    /*overflow: auto;*/
+    word-wrap: break-word;
+    word-break: break-all;
+    font-family: courier, consolas;
+    /*white-space: normal !important;*/
+}
+
+tr.debug {
+    color: #777;
+}
+
+#sh-cols div {
+    display: inline-block;
+    border-right: 1px solid #eee;
+    padding: 4px 15px;
+}
+
+#sh-cols div input, #sh-cols div label {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+#sh-cols div:last-child {
+    border: none;
+}
+
+#start-date, #end-date {
+    width: 90%;
+}
