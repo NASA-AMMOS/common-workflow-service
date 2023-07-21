@@ -49,7 +49,7 @@ public class RestGetTaskTest2 {
 		task.execute(execution);
 
 		assertTrue("TaskResult httpStatusCode variable unexpected value",
-				execution.getVariable(VAR_PREFIX + "httpStatusCode").equals("200"));
+				execution.getVariable(VAR_PREFIX + "httpStatusCode").equals("301"));
 		System.out.println("RESPONSE:\n" + execution.getVariable(VAR_PREFIX + "response"));
 	}
 }

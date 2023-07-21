@@ -58,9 +58,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.TimeZone;
+import javax.naming.AuthenticationNotSupportedException;
+import javax.naming.AuthenticationException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 
 import javax.tools.ToolProvider;
 
@@ -241,8 +247,8 @@ public class CwsInstaller {
 			if (!reconfigure && !installConsole) {
 				deleteCwsUiWebApp();
 			}
-			setIdentityPluginType();
 			setupDatabase();
+			setIdentityPluginType();
 			setupAdminUser();
 			setupNotificationEmails();
 			setupTokenExpirationHours();
@@ -734,20 +740,83 @@ public class CwsInstaller {
 
 	private static void setupAdminUser() {
 		cws_user = getPreset("admin_user");
+		String manually_provide_admin_info = "";
 
 		if (cws_installer_mode.equals("interactive")) {
 			if (cws_user == null) {
 				if (cws_auth_scheme.equalsIgnoreCase("LDAP")) {
-					cws_user = readRequiredLine("Enter name of LDAP user to be used as initial administrator: ",
-							"Must specify a LDAP username!");
+					boolean valid_ldap_user = false;
+					while (!valid_ldap_user) {
+						cws_user = readRequiredLine("Enter name of LDAP user to be used as initial administrator: ",
+							"Must specify an LDAP username!");
+						try {
+							String read_provide_admin_info = "";
+							Path pluginBeanFilePath = Paths.get(config_templates_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
+							String ldapBaseDn = getLdapBaseDnValue(pluginBeanFilePath);
+							boolean verifyLdapUserInfo = verifyLdapUserInfoRetrieval(cws_ldap_url,ldapBaseDn, cws_user);
+
+							if (verifyLdapUserInfo) {
+								valid_ldap_user = verifyLdapUserInfo;
+							} else {
+								print("   WARNING: CWS Installer could not retrieve LDAP User Information.");
+								print("            **RECOMMENDATION**: Set up your LDAP Admin account with the");
+								print("                                following LDAP attributes: givenName, sn, mail.");
+								print("                                And restart the CWS installation process.");
+								while (!read_provide_admin_info.equalsIgnoreCase("y") &&
+									!read_provide_admin_info.equalsIgnoreCase("n")) {
+
+									read_provide_admin_info =
+										readRequiredLine("Do you want to manually provide administrator first name, last name, and email? (Y/N): ",
+											"ERROR: Must specify either 'Y' or 'N'");
+								}
+								manually_provide_admin_info = read_provide_admin_info.toLowerCase();
+								if (manually_provide_admin_info.equalsIgnoreCase("y")) {
+									valid_ldap_user = true;
+								}
+							}
+						} catch(IOException e) {
+							// exception
+						}
+					}
 				} else {
 					cws_user = readRequiredLine("Enter username to be used as initial administrator: ",
 							"Must specify a username!");
 				}
 			} else {
 				if (cws_auth_scheme.equalsIgnoreCase("LDAP")) {
-					cws_user = readLine("Enter name of LDAP user to be used as initial administrator. " +
-									"Default is " + cws_user + ": ", cws_user);
+					boolean valid_ldap_user = false;
+					while (!valid_ldap_user) {
+						cws_user = readLine("Enter name of LDAP user to be used as initial administrator. " +
+													"Default is " + cws_user + ": ", cws_user);
+						try {
+							String read_provide_admin_info = "";
+							Path pluginBeanFilePath = Paths.get(config_templates_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
+							String ldapBaseDn = getLdapBaseDnValue(pluginBeanFilePath);
+							boolean verifyLdapUserInfo = verifyLdapUserInfoRetrieval(cws_ldap_url,ldapBaseDn, cws_user);
+
+							if (verifyLdapUserInfo) {
+								valid_ldap_user = verifyLdapUserInfo;
+							} else {
+								print("   WARNING: CWS Installer could not retrieve LDAP User Information.");
+								print("            **RECOMMENDATION**: Set up your LDAP Admin account with the");
+								print("                                following LDAP attributes: givenName, sn, mail.");
+								print("                                And restart the CWS installation process.");
+								while (!read_provide_admin_info.equalsIgnoreCase("y") &&
+									!read_provide_admin_info.equalsIgnoreCase("n")) {
+
+									read_provide_admin_info =
+										readRequiredLine("Do you want to manually provide administrator first name, last name, and email? (Y/N): ",
+											"ERROR: Must specify either 'Y' or 'N'");
+								}
+								manually_provide_admin_info = read_provide_admin_info.toLowerCase();
+								if (manually_provide_admin_info.equalsIgnoreCase("y")) {
+									valid_ldap_user = true;
+								}
+							}
+						} catch(IOException e) {
+							// exception
+						}
+					}
 				} else {
 					cws_user = readLine("Enter username to be used as initial administrator. " +
 									"Default is " + cws_user + ": ", cws_user);
@@ -759,8 +828,8 @@ public class CwsInstaller {
 			}
 		}
 
-		// Prompt only for CAMUNDA security scheme
-		if (cws_auth_scheme.equalsIgnoreCase("CAMUNDA")) {
+		// Prompt only for CAMUNDA security scheme OR if user wants to manually enter firstname, lastname, and email
+		if (cws_auth_scheme.equalsIgnoreCase("CAMUNDA") || manually_provide_admin_info.equalsIgnoreCase("y")) {
 			cws_user_firstname = getPreset("admin_firstname");
 
 			if (cws_installer_mode.equals("interactive")) {
@@ -1660,6 +1729,13 @@ public class CwsInstaller {
 		print("VALIDATING CONFIGURATION...  Please wait, this may take some time...");
 
 		warningCount += validateDbConfig();
+		if (cws_auth_scheme.equals("LDAP")) {
+			try {
+				warningCount += validateLdapUserConfig();
+			} catch(IOException e) {
+				// exception
+			}
+		}
 		warningCount += validateTomcatPorts();
 		boolean timeSyncMissing = validateTimeSyncService() == 1;
 
@@ -1863,6 +1939,172 @@ public class CwsInstaller {
 		return warningCount;
 	}
 
+	private static int validateLdapUserConfig() throws IOException {
+		int warningCount = 0;
+		// VALIDATE LDAP or CAM CONFIGURATION AND LDAP USER INFO RETREIVEL
+		print("");
+		if (cws_auth_scheme.equals("LDAP")) {
+			print("checking that user provided LDAP authentication profile (UID: " + cws_user + ") is valid...");
+		}
+
+		Path pluginBeanFilePath = Paths.get(config_templates_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
+		String ldapBaseDn = getLdapBaseDnValue(pluginBeanFilePath);
+		boolean verifyLdapUserInfo = verifyLdapUserInfoRetrieval(cws_ldap_url,ldapBaseDn, cws_user);
+
+		if (verifyLdapUserInfo == false) {
+			print("   [WARNING]");
+			print("       It was determined that your CWS Admin User ID '" + cws_user + "' did not return a user first name, last name, and email.");
+			print("          You must satisfy these LDAP requirements before installing CWS with CWS Admin User ID '" + cws_user + "'");
+			print("             (1) Make sure your LDAP account holds the properties: givenName, sn, mail                     ");
+			print("             (2) Check your host machine for proper installation of LDAP Server Certificates               ");
+			print("             (3) Verify the LDAP plugin bean has the correct properties                                    ");
+			print("                  Plugin bean filepath: " + pluginBeanFilePath.toString()                                                 );
+			print(" ");
+
+
+			if (cws_installer_mode.equals("interactive")) {
+				if (cws_user_firstname == null || cws_user_lastname == null || cws_user_email == null) {
+					return 1;
+				} else {
+					print("       CWS installation will default to using the following presets:");
+					print("           admin_firstname=" + cws_user_firstname);
+					print("           admin_lastname=" + cws_user_lastname);
+					print("           admin_email=" + cws_user_email);
+					print("   ");
+				}
+			} else {
+				if (getPreset("admin_firstname") == null || getPreset("admin_lastname") == null || getPreset("admin_email") == null) {
+					print("       POSSIBLE FIXES:  ");
+					print("             - Option #1: (RECOMMENDED) Update your LDAP Admin account '" + cws_user + "' with the following");
+					print("                                        LDAP attributes: givenName, sn, mail. And restart the CWS installation process.");
+					print("             - Option #2: Include these 3 settings with assigned values in your configuration.properties file:");
+					print("                                        - admin_firstname=[VALUE]");
+					print("                                        - admin_lastname=[VALUE]");
+					print("                                        - admin_email=[VALUE]");
+					print(" ");
+					return 1;
+				} else {
+					print("       CWS installation will default to using the following presets:");
+					print("           admin_firstname=" + getPreset("admin_firstname"));
+					print("           admin_lastname=" + getPreset("admin_lastname"));
+					print("           admin_email=" + getPreset("admin_email"));
+					print(" ");
+				}
+			}
+
+			print("   [OK]");
+
+		} else {
+			print("   [OK]");
+		}
+		return warningCount;
+	}
+
+	private static boolean verifyLdapUserInfoRetrieval(String ldapUrl, String searchBaseDn, String ldapUid) {
+		//
+		// Verify that LDAP Admin User has properties givenName, sn, and mail
+		//
+		Hashtable env = new Hashtable();
+		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+		env.put(Context.PROVIDER_URL, ldapUrl);
+		String[] attributeFilter = {"givenName", "sn", "mail"};
+		List<String> attributesNotFound = new ArrayList<>();
+
+		try {
+			DirContext ctx = new InitialDirContext(env);
+			SearchControls ctrl = new SearchControls();
+			ctrl.setReturningAttributes(attributeFilter);
+			ctrl.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+			String filter = "(&(uid=" + ldapUid + "))";
+			NamingEnumeration results = ctx.search(searchBaseDn, filter, ctrl);
+			if (!results.hasMore()) {
+				return false;
+			}
+			while (results.hasMore()) {
+				SearchResult result = (SearchResult) results.next();
+				Attributes attrs = result.getAttributes();
+				// First name attribute - givenName
+				Attribute givenNameAttr = attrs.get("givenName");
+				// Last name attribute - sn
+				Attribute snAttr = attrs.get("sn");
+				// Email attribute - mail
+				Attribute mailAttr = attrs.get("mail");
+				if (givenNameAttr == null || snAttr == null || mailAttr == null) {
+					if (givenNameAttr == null) {
+						attributesNotFound.add("givenName");
+					}
+					if (snAttr == null) {
+						attributesNotFound.add("sn");
+					}
+					if (mailAttr == null) {
+						attributesNotFound.add("mail");
+					}
+					print("   ERROR: LDAP Admin ID '" + ldapUid + "' is missing attribute(s) - " + attributesNotFound);
+					return false;
+				}
+			}
+			ctx.close();
+		} catch (AuthenticationNotSupportedException e) {
+			print("   ERROR: LDAP authentication failed with server " + ldapUrl + " (" + e.getMessage() + ")");
+			return false;
+		} catch (AuthenticationException e) {
+			print("   ERROR: LDAP authentication error: " + e.getMessage());
+			return false;
+		} catch (NamingException e) {
+			print("   ERROR: LDAP JNDI API context error: " + e.getMessage());
+			return false;
+		}
+		return true;
+	}
+
+	private static String getLdapBaseDnValue(Path beanFilePath) throws IOException {
+		//
+		// Get and return LDAP baseDn, userSearchBase to validate LDAP user info
+		//
+		String propertyBase = "";
+		String base = "";
+		String propertySearchBase = "";
+		String[] identityAttributes = new String[3];
+		String[] attributeFilter = {"givenName", "sn", "mail"};
+
+		try {
+			String fileContent = new String(Files.readAllBytes(beanFilePath));
+			String repl = "";
+			String replContent = fileContent.substring(0, fileContent.indexOf("<bean id=\"ldapIdentityProviderPlugin\""));
+			fileContent = fileContent.replace(replContent, repl);
+
+			// Turn file content from string to document
+			String xmlContent = fileContent;
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder;
+			builder = factory.newDocumentBuilder();
+			Document docx = builder.parse(new InputSource(new StringReader(xmlContent)));
+
+			NodeList bean = docx.getElementsByTagName("property");
+			for(int i = 0; i < bean.getLength(); i++) {
+				Element beanElement = (Element) bean.item(i);
+				if (beanElement.getAttribute("name").equalsIgnoreCase("baseDn")) {
+					if (beanElement.getAttribute("value").equals("")) {
+						propertyBase = beanElement.getTextContent();
+					} else {
+						propertyBase = beanElement.getAttribute("value");
+					}
+				}
+				if (beanElement.getAttribute("name").equalsIgnoreCase("userSearchBase")) {
+					if (beanElement.getAttribute("value").equals("")) {
+						propertySearchBase = beanElement.getTextContent();
+					} else {
+						propertySearchBase = beanElement.getAttribute("value");
+					}
+				}
+			}
+			base = propertySearchBase + "," + propertyBase;
+		} catch (Exception e) {
+			//
+		}
+		return base;
+	}
 
 	private static int validateTomcatPorts() {
 		int warningCount = 0;
@@ -2026,7 +2268,7 @@ public class CwsInstaller {
 			return 0; // no warnings
 
 		} catch (Exception e) {
-			log.error("error: ", e);
+			log.error("Elasticsearch validation error: ", e.getMessage());
 			print("   [WARNING]");
 			print("       There was a problem determining if the user provided Elasticsearch is running or not.");
 			print("");
@@ -2249,9 +2491,15 @@ public class CwsInstaller {
 		else {
 			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
 			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
-			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
-			content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
-			content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
+			if (identityAttr[0] != null) {
+				content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
+			}
+			if (identityAttr[1] != null) {
+				content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
+			}
+			if (identityAttr[2] != null) {
+				content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
+			}
 		}
 		writeToFile(filePath, content);
 		copy(
@@ -2336,9 +2584,15 @@ public class CwsInstaller {
 		} else {
 			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
 			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
-			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
-			content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
-			content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
+			if (identityAttr[0] != null) {
+				content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
+			}
+			if (identityAttr[1] != null) {
+				content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
+			}
+			if (identityAttr[2] != null) {
+				content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
+			}
 		}
 
 		content = content.replace("__CWS_NOTIFICATION_EMAILS__",           cws_notification_emails);
@@ -2452,9 +2706,15 @@ public class CwsInstaller {
 		} else {
 			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
 			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
-			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
-			content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
-			content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
+			if (identityAttr[0] != null) {
+				content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
+			}
+			if (identityAttr[1] != null) {
+				content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
+			}
+			if (identityAttr[2] != null) {
+				content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
+			}
 		}
 
 		content = content.replace("__CWS_NOTIFICATION_EMAILS__",         cws_notification_emails);
@@ -2597,6 +2857,7 @@ public class CwsInstaller {
 	}
 
 
+
 	private static String[] getIdentityPluginAttribute(Path beanFilePath, String user, String ldapURL) throws IOException {
 		//
 		// Get identity plugin properties and attributes
@@ -2653,6 +2914,17 @@ public class CwsInstaller {
 
 			String filter = "(&(uid=" + user + "))";
 			NamingEnumeration results = dirCxt.search(base, filter, ctrl);
+			if (!results.hasMore()) {
+				if (cws_installer_mode.equals("interactive")) {
+					identityAttributes[0] = cws_user_firstname;
+					identityAttributes[1] = cws_user_lastname;
+					identityAttributes[2] = cws_user_email;
+				} else {
+					identityAttributes[0] = getPreset("admin_firstname");
+					identityAttributes[1] = getPreset("admin_lastname");
+					identityAttributes[2] = getPreset("admin_email");
+				}
+			}
 			while (results.hasMore()) {
 				SearchResult result = (SearchResult) results.next();
 				Attributes attrs = result.getAttributes();
@@ -2668,16 +2940,16 @@ public class CwsInstaller {
 			}
 			dirCxt.close();
 		} catch (Exception e) {
-			print("+----------------------------------------------------------------------------------+");
-			print("CWS Installer ERROR: LDAP API failed to retrieve CWS user's " + Arrays.toString(attributeFilter));
-			print("     to set in CWS properties files and utilize for CWS services. Make sure 'ldap_plugin_bean.xml' is ");
-			print("     properly configured. Refer to the template /tomcat_conf/ldap_plugin_bean.xml");
-			print("ERROR: " + e);
-			print("+----------------------------------------------------------------------------------+");
-			// JNDI LDAP retrieval failed.
-			identityAttributes[0] = "__CWS_ADMIN_FIRSTNAME__";
-			identityAttributes[1] = "__CWS_ADMIN_LASTNAME__";
-			identityAttributes[2] = "__CWS_ADMIN_EMAIL__";
+			// JNDI LDAP retrieval failed. This will return the alternatively set admin email and name
+			if (cws_installer_mode.equals("interactive")) {
+				identityAttributes[0] = cws_user_firstname;
+				identityAttributes[1] = cws_user_lastname;
+				identityAttributes[2] = cws_user_email;
+			} else {
+				identityAttributes[0] = getPreset("admin_firstname");
+				identityAttributes[1] = getPreset("admin_lastname");
+				identityAttributes[2] = getPreset("admin_email");
+			}
 		}
 		return identityAttributes;
 	}
@@ -2815,9 +3087,15 @@ public class CwsInstaller {
 		} else {
 			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
 			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
-			setPreset("admin_firstname", identityAttr[0]);
-			setPreset("admin_lastname", identityAttr[1]);
-			setPreset("admin_email", identityAttr[2]);
+			if (identityAttr[0] != null) {
+				setPreset("admin_firstname", identityAttr[0]);
+			}
+			if (identityAttr[1] != null) {
+				setPreset("admin_lastname", identityAttr[1]);
+			}
+			if (identityAttr[2] != null) {
+				setPreset("admin_email", identityAttr[2]);
+			}
 		}
 
 		setPreset("cws_web_port", cws_tomcat_connector_port);

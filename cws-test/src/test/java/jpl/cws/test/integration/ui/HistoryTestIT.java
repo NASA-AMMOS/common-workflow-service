@@ -3,8 +3,6 @@ package jpl.cws.test.integration.ui;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Set;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -12,9 +10,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.logging.LogEntries;
-import org.openqa.selenium.logging.LogEntry;
-import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.support.ui.Select;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,8 +63,9 @@ public class HistoryTestIT extends WebTestUtil {
 
 			goToPage("processes");
 
-			log.info("Filtering Test History Page results.");
 			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
+
+			sleep(5000);
 
 			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
 			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_history_page");
@@ -99,7 +95,6 @@ public class HistoryTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		
 		screenShot("HistoryTestIT-runResultsTest");
 		assertTrue("Deployments Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
