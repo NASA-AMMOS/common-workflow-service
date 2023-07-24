@@ -29,11 +29,6 @@
     font-size: 95%;
 }
 
-/* log level header*/
-#logData tr th:nth-child(5) {
-    padding-right: 25px;
-}
-
 #logData tr td {
     line-height: 1;
 }
@@ -134,4 +129,9 @@ div.dts tbody th, div.dts tbody td {
     justify-content: space-between;
     align-items: center;
     height: 50px;
+}
+
+.scrollTable {
+    overflow-y: auto;
+    clear: both;
 }
