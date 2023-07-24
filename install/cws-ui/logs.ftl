@@ -45,7 +45,7 @@
 		var htmlTableRows=[];
 		var renderFlag=0;
 	
-		var latestScrollId = "";
+		var now = moment().format("YYYY-MM-DDTHH:mm:ss.SSSSSSZ");
 	
 		var baseEsReq={
 			"from":0,
@@ -139,7 +139,7 @@
 			},
 			deferRender: true,
 			scroller: {
-				boundaryScale: 0.25,
+				boundaryScale: 0.50,
 				displayBuffer: 20,
 				loadingIndicator: true,
 			},
@@ -179,6 +179,8 @@
                         + "t"
                         + "<'below-table-div'ip>",
 			ajax: function (data, callback, settings) {
+
+				console.log(data);
 				//store our draw value
 				var draw = data.draw;
 	
@@ -198,6 +200,12 @@
 	
 				//get our esReq based off of filters above table
 				var esReq = getEsReq();
+
+				//push our timestamp to the esreq
+				esReq.query.bool.must.push({"range": {"@timestamp": {"lte": now}}});
+
+				//update our esReq with the new from value
+				esReq.from = parseInt(data.start);
 	
 				//check if we have a search value. If we do, we need to store it
 				if (data.search !== undefined && data.search.value !== undefined && data.search.value !== "") {
@@ -221,38 +229,20 @@
 	
 				var returnData;
 				var fetchError = "";
-	
-				//we need to check if we've made a request before (if we have a scrollId)
-				if (latestScrollId === "") {
-					//we haven't made a request for data yet. We need to make one now and store the resulting scrollID for later calls
-					$.ajax({
-						url: "/${base}/rest/logs/get?source=" + encodeURIComponent(JSON.stringify(esReq)),
-						type: "GET",
-						contentType: "application/json",
-						async: false,
-						success: function (data) {
-							latestScrollId = data._scroll_id;
-							returnData = data;
-						},
-						error: function (jqXHR, textStatus, errorThrown) {
-							fetchError = "Error getting initial data: " + errorThrown;
-						}
-					});
-				} else {
-					//we made a request for data before. We need to make a request using the scrollID
-					$.ajax({
-						url: "/${base}/rest/logs/get/scroll?scrollId=" + latestScrollId,
-						type: "POST",
-						async: false,
-						success: function (data) {
-							latestScrollId = data._scroll_id;
-							returnData = data;
-						},
-						error: function (jqXHR, textStatus, errorThrown) {
-							fetchError = "Error getting data from scrollId: " + errorThrown;
-						}
-					});
-				}
+
+				$.ajax({
+					url: "/${base}/rest/logs/logs/get?source=" + encodeURIComponent(JSON.stringify(esReq)),
+					type: "GET",
+					contentType: "application/json",
+					async: false,
+					success: function (data) {
+						latestScrollId = data._scroll_id;
+						returnData = data;
+					},
+					error: function (jqXHR, textStatus, errorThrown) {
+						fetchError = "Error getting initial data: " + errorThrown;
+					}
+				});
 	
 				//we should have our data now. We need to format it for the table
 				var formattedData = [];
@@ -313,8 +303,6 @@
 					"data": formattedData,
 					"error": fetchError
 				}
-	
-				console.log(returnObj);
 				callback(returnObj);
 			},
 			columns: [
@@ -412,6 +400,18 @@
 		params=getQueryString();
 	
 		$("#log-div .ajax-spinner").hide();
+
+		$("#start-date").datepicker({
+			orientation: 'left top',
+			todayBtn: 'true',
+			todayHighlight: true
+		});
+
+		$("#end-date").datepicker({
+			orientation: 'left top',
+			todayBtn: 'true',
+			todayHighlight: true
+		});
 	
 		}); //END OF DOCUMENT.READY
 	
@@ -527,7 +527,7 @@
 			<h2 class="sub-header">Logs</h2>
 			<div id="filters-div">
 				<h4>Filters:</h4>
-					<div class="col-md-3">
+					<div class="col-md-4">
 						<h5>Process Definitions</h5>
 						<select id="pd-select">
 							<option value="def">All Process Definitions</option>
@@ -535,12 +535,10 @@
 								<option value="${pd.key}">${pd.name}</option>
 							</#list>
 						</select>
-					</div>
-					<div class="col-md-2">
 						<h5>Process Instances</h5>
 						<input id="pi-text"type="text"class="form-control"placeholder="Instance ID...">
 					</div>
-					<div class="col-md-3">
+					<div class="col-md-4">
 						<h5>Log Level</h5>
 						<div id="log-level-sel">
 							<input type='checkbox'id='trace'value='TRACE'/>
@@ -555,16 +553,12 @@
 							<label for='error'>Error</label><br/>
 						</div>
 					</div>
-					<div class="col-md-2">
+					<div class="col-md-4">
 						<h5>Search by Keyword</h5>
 						<input id="search-text"id="filter-text"type="text"class="form-control"placeholder="Search..."/>
-					</div>
-					<div class="col-md-3">
 						<span>Start Date:</span>
 						<input id="start-date"class="form-control"placeholder="yyyy-mm-dd"
         data-date-format="yyyy-mm-dd"maxlength="10"type="text">
-					</div>
-					<div class="col-md-3">
 						<span>End Date:</span>
 						<input id="end-date"class="form-control"placeholder="yyyy-mm-dd"
         data-date-format="yyyy-mm-dd"size="16"type="text">

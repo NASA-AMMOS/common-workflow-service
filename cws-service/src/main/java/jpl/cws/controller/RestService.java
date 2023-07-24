@@ -629,7 +629,7 @@ public class RestService extends MvcCore {
 	public @ResponseBody String getLogsScroll(
 			@RequestParam(value = "scrollId") String scrollId) {
 		String urlString = constructElasticsearchUrl("/_search/scroll");
-		String jsonData = "{ \"scroll\" : \"10m\", \"scroll_id\" : \"" + scrollId + "\" }";
+		String jsonData = "{ \"scroll\" : \"1m\", \"scroll_id\" : \"" + scrollId + "\" }";
 
 		log.trace("REST getLogs query = " + urlString);
 		log.trace("REST getLogs jsonData = " + jsonData);
@@ -679,6 +679,37 @@ public class RestService extends MvcCore {
 			return restCallResult.getResponse();
 		} catch (Exception e) {
 			log.error("Problem performing REST call to get count of log data (URL=" + urlString + ")", e);
+		}
+
+		return "ERROR";
+	}
+
+	/**
+	 * REST method used to get logs on the logs page (shorter scroll timer)
+	 *
+	 */
+	@RequestMapping(value = "/logs/logs/get", method = GET, produces="application/json")
+	public @ResponseBody String getLogLogs(
+			@RequestParam(value = "source") String source) {
+		String urlString = constructElasticsearchUrl("/_search?source=" + source + "&source_content_type=application/json");
+
+		log.trace("REST getLogLogs query = " + urlString);
+
+		try {
+			RestCallResult restCallResult;
+			if (elasticsearchUseAuth()) {
+				// Authenticated call
+				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, "application/json; charset=utf-8", elasticsearchUsername, elasticsearchPassword);
+			} else {
+				// Unauthenticated call
+				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, "application/json; charset=utf-8");
+			}
+			if (restCallResult.getResponseCode() != 200) {
+				return "ERROR";
+			}
+			return restCallResult.getResponse();
+		} catch (Exception e) {
+			log.error("Problem performing REST call to get log data (URL=" + urlString + ")", e);
 		}
 
 		return "ERROR";
