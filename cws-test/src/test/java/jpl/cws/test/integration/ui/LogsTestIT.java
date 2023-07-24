@@ -75,9 +75,6 @@ public class LogsTestIT extends WebTestUtil {
 			
 			log.info("Looking for text, 'Graphite', 'Command ls exit exit code: 0', and 'Deployed process definitions: test_logs_page.bpmn'.");
 
-			driver.findElement(By.xpath("//input[@id='search-text']")).sendKeys("Graphite");
-			driver.findElement(By.xpath("//a[@id='filter-submit-btn']")).click();
-
 			Set<String> logtyp = driver.manage().logs().getAvailableLogTypes();
 			for (String s : logtyp) {
 				log.error("BROWSER: " + logtyp);
@@ -88,14 +85,33 @@ public class LogsTestIT extends WebTestUtil {
 				log.error("BROWSER: " + logEntry);
 			}
 
-			if (findOnPage("Graphite")
-					&& findOnPage("Command 'ls' exit code: 0")
-					&& findOnPage("Deployed process definition: 'test_logs_page.bpmn'")) {
-				scriptPass = true;
-				testCasesCompleted++;
+			driver.findElement(By.xpath("//input[@id='search-text']")).sendKeys("Graphite");
+			driver.findElement(By.xpath("//a[@id='filter-submit-btn']")).click();
+			sleep(3000);
+
+			if (findOnPage("Graphite")) {
+				driver.findElement(By.xpath("//input[@id='search-text']")).sendKeys("Command 'ls' exit code: 0");
+				driver.findElement(By.xpath("//a[@id='filter-submit-btn']")).click();
+				sleep(3000);
+
+				if (findOnPage("Command 'ls' exit code: 0")) {
+					driver.findElement(By.xpath("//input[@id='search-text']")).sendKeys("Deployed process definition: 'test_logs_page.bpmn'");
+					driver.findElement(By.xpath("//a[@id='filter-submit-btn']")).click();
+					sleep(3000);
+
+					if (findOnPage("Deployed process definition: 'test_logs_page.bpmn'")) {
+						scriptPass = true;
+						testCasesCompleted++;
+					} else {
+						log.info("\"Deployed process definition: 'test_logs_page.bpmn'\" not found.");
+					}
+				} else {
+					log.info("\"Command 'ls' exit code: 0\" not found.");
+				}
 			} else {
-				log.info("Not found.");
+				log.info("\"Graphite\" not found.");
 			}
+
 			log.info("------ END LogsTestIT:runOutputTest ------");
 		}
 		catch (Throwable e) {
