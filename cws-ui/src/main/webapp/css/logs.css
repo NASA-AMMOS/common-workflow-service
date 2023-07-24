@@ -3,7 +3,7 @@
 }
 
 #pd-select {
-    width: 90%;
+    width: 100%;
 }
 
 #log-level-sel {
@@ -62,7 +62,7 @@ tr.debug {
 }
 
 #start-date, #end-date {
-    width: 90%;
+    width: 100%;
 }
 
 .textWrap {

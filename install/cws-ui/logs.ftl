@@ -115,6 +115,9 @@
 		$(document).ready(function(){
 	
 		params = getQueryString();
+
+		//show ajax spinner
+		$("#log-div .ajax-spinner").show();
 	
 		// DISPLAY MESSAGE AT TOP OF PAGE
 		//
@@ -145,6 +148,10 @@
 			dom: 'Bfrtip',
 			ordering: false,
 			searchBuilder: true,
+			"initComplete": function(settings, json) {
+				//hide ajax spinner
+				$("#log-div .ajax-spinner").hide();
+			},
 			columnDefs: [
 				{
 					targets: [1,2,5,6],
@@ -564,7 +571,7 @@
 			<div id="resultCount"></div>
 			
 			<div id="log-div">
-				<!--<div class="ajax-spinner"></div>-->
+				<div class="ajax-spinner"></div>
 				<table id="logData"class="table table-striped table-bordered sortable" style="width: 100%">
 					<thead>
 						<tr>
