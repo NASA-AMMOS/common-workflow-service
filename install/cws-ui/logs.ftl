@@ -46,6 +46,8 @@
 		var renderFlag=0;
 	
 		var now = moment().format("YYYY-MM-DDTHH:mm:ss.SSSSSSZ");
+
+		var refID;
 	
 		var baseEsReq={
 			"from":0,
@@ -353,15 +355,34 @@
 		}
 	
 		$("#refresh-rate").val((parseInt(localStorage.getItem(refreshRateVar))/1000).toString());
-	
-	
-		if(localStorage.getItem(refreshVar)==="1"){
-			$("#refresh-checkbox").prop("checked",true);
-			refreshRate=parseInt(localStorage.getItem(refreshRateVar));
-			refID=setInterval(refreshLogs,refreshRate);
-		} else{
-			$("#refresh-checkbox").prop("checked",false);
+
+		if(localStorage.getItem(refreshVar)===null){
+			localStorage.setItem(refreshVar,"false");
 		}
+
+		if(localStorage.getItem(refreshVar)=="true"){
+			$("#refresh-checkbox").prop("checked",true);
+			refID=setInterval(refreshLogs,parseInt(localStorage.getItem(refreshRateVar)));
+		}
+
+		$("#refresh-rate").change(function(){
+			localStorage.setItem(refreshRateVar,$(this).val()*1000);
+			if($("#refresh-checkbox").is(":checked")){
+				clearInterval(refID);
+				refID=setInterval(refreshLogs,parseInt(localStorage.getItem(refreshRateVar)));
+			}
+		});
+
+		//onchange for checkbox
+		$("#refresh-checkbox").change(function(){
+			if($(this).is(":checked")){
+				localStorage.setItem(refreshVar,"true");
+				refID=setInterval(refreshLogs,parseInt(localStorage.getItem(refreshRateVar)));
+			} else {
+				localStorage.setItem(refreshVar,"false");
+				clearInterval(refID);
+			}
+		});
 	
 		//get our current url
 		var currentUrl=window.location.href;
@@ -470,31 +491,17 @@
 			todayBtn:'true',
 			todayHighlight:true
 		});
-	
-		//
-		// AUTO-REFRESH SETTING
-		//
-		var refID;
-		$("#refresh-checkbox").click(function(){
-			if($(this).prop("checked")){
-				localStorage.setItem(refreshVar,"1");
-				refreshRate=parseInt(localStorage.getItem(refreshRateVar));
-				refreshLogs();
-				refID=setInterval(refreshLogs,refreshRate);
-			} else {
-				localStorage.setItem(refreshVar,"0");
-				clearInterval(refID);
-			}
-		});
-	
-		$("#refresh-rate").on('change',function(){
-			refreshRate=parseInt($(this).val())*1000;
-			localStorage.setItem(refreshRateVar,refreshRate.toString());
-			if($("#refresh-checkbox").prop("checked")){
-				clearInterval(refID);
-				refID=setInterval(refreshLogs,refreshRate);
-			}
-		});
+
+		function refreshLogs(){
+			$("#log-div .ajax-spinner").show();
+			//update timestamp to grab new logs
+			now=moment().format("YYYY-MM-DDTHH:mm:ss.SSSSSSZ");
+			$("#logData").DataTable().ajax.reload(function(){
+				$("#log-div .ajax-spinner").hide();
+			},false);
+			console.log("refreshing");
+		}
+		
 	</script>
 
 </head>
