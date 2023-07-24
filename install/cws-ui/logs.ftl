@@ -67,53 +67,49 @@
 			renderFlag=0;
 			htmlTableRows=[];
 			var esReq=baseEsReq;
-	
-			if(params.procDefKey !== undefined){
-				esReq.query.bool.must.push({"match":{"procDefKey":params.procDefKey}});
+			if (params !== undefined && params !== null) {
+				if(params.procDefKey !== undefined && params.procDefKey !== null){
+					esReq.query.bool.must.push({"match":{"procDefKey":params.procDefKey}});
+				}
+				if(params.logLevel  !== undefined && params.logLevel !== null){
+					esReq.query.bool.must.push({"match":{"logLevel":params.logLevel}});
+				}
+				if(params.program  !== undefined && params.program !== null){
+					esReq.query.bool.must.push({"match":{"program":params.program}});
+				}
+				if(params.procInstId  !== undefined && params.procInstId !== null){
+					//esReq.query.bool.must.push({"match":{"procInstId" : decodeURIComponent(params.procInstId)}});
+					esReq.query.bool.must.push({"query_string":{"fields":["procInstId"],"query":"\""+decodeURIComponent(params.procInstId)+"\""}});
+				}
+				if(params.search  !== undefined && params.search !== null){
+					esReq.query.bool.must.push({"query_string":{"fields":["msgBody"],"query":decodeURIComponent(params.search)}});
+				}
+		
+				var startDate=params.startDate?decodeURIComponent(params.startDate):"";
+				var endDate=params.endDate?decodeURIComponent(params.endDate):"";
+		
+				if(startDate!=""){
+					//esReq.query.range["@timestamp"].gte = startDate;
+					esReq.query.bool.must.push({"range":{"@timestamp":{"gte":startDate}}});
+				}
+				if(endDate!=""){
+					//esReq.query.range["@timestamp"].lte = endDate;
+					esReq.query.bool.must.push({"range":{"@timestamp":{"lte":endDate}}});
+				}
+		
+				$("#pd-select").val(params.procDefKey||"def");
+				//$("#level-select").val(params.logLevel || "def");
+				if(params.logLevel){
+					params.logLevel.split(',').forEach(function(lvl){
+						$("#log-level-sel input[value='"+lvl+"']").prop("checked",true);
+					});
+				}
+				$("#pi-text").val(params.procInstId?decodeURIComponent(params.procInstId):"");
+				$("#search-text").val(params.search?decodeURIComponent(params.search):"");
+				$("#start-date").val(startDate);
+				$("#end-date").val(endDate);
 			}
-			if(params.logLevel  !== undefined){
-				esReq.query.bool.must.push({"match":{"logLevel":params.logLevel}});
-			}
-			if(params.program  !== undefined){
-				esReq.query.bool.must.push({"match":{"program":params.program}});
-			}
-			if(params.procInstId  !== undefined){
-				//esReq.query.bool.must.push({"match":{"procInstId" : decodeURIComponent(params.procInstId)}});
-				esReq.query.bool.must.push({"query_string":{"fields":["procInstId"],"query":"\""+decodeURIComponent(params.procInstId)+"\""}});
-			}
-			if(params.search  !== undefined){
-				esReq.query.bool.must.push({"query_string":{"fields":["msgBody"],"query":decodeURIComponent(params.search)}});
-			}
-	
-			var startDate=params.startDate?decodeURIComponent(params.startDate):"";
-			var endDate=params.endDate?decodeURIComponent(params.endDate):"";
-	
-			if(startDate!=""){
-				//esReq.query.range["@timestamp"].gte = startDate;
-				esReq.query.bool.must.push({"range":{"@timestamp":{"gte":startDate}}});
-			}
-			if(endDate!=""){
-				//esReq.query.range["@timestamp"].lte = endDate;
-				esReq.query.bool.must.push({"range":{"@timestamp":{"lte":endDate}}});
-			}
-	
-			$("#pd-select").val(params.procDefKey||"def");
-			//$("#level-select").val(params.logLevel || "def");
-			if(params.logLevel){
-				params.logLevel.split(',').forEach(function(lvl){
-					$("#log-level-sel input[value='"+lvl+"']").prop("checked",true);
-				});
-			}
-			$("#pi-text").val(params.procInstId?decodeURIComponent(params.procInstId):"");
-			$("#search-text").val(params.search?decodeURIComponent(params.search):"");
-			$("#start-date").val(startDate);
-			$("#end-date").val(endDate);
-	
 			return esReq;
-		}
-	
-		function apiTest() {
-			console.log(getEsReq());
 		}
 	
 		$(document).ready(function(){
@@ -179,8 +175,6 @@
                         + "t"
                         + "<'below-table-div'ip>",
 			ajax: function (data, callback, settings) {
-
-				console.log(data);
 				//store our draw value
 				var draw = data.draw;
 	
@@ -206,24 +200,7 @@
 
 				//update our esReq with the new from value
 				esReq.from = parseInt(data.start);
-	
-				//check if we have a search value. If we do, we need to store it
-				if (data.search !== undefined && data.search.value !== undefined && data.search.value !== "") {
-					var newSearchValue = data.search.value;
-					//we need to check if our esReq already has a search value
-					if (esReq.query.bool.must !== undefined) {
-						//there is at least one search condition
-						//go through must array and check if there is a query_string already
-						for (var i = 0; i < esReq.query.bool.must.length; i++) {
-							if (esReq.query.bool.must[i].query_string !== undefined) {
-								//we found a query_string, so we need to update it
-								var existingSearchValue = esReq.query.bool.must[i].query_string.query;
-								esReq.query.bool.must[i].query_string.query = "(" + existingSearchValue + ") AND (" + newSearchValue + ")";
-								break;
-							}
-						}
-					}
-				}
+				
 				//we need to change the esReq to return the requested number of elements
 				esReq.size = data.length;
 	
@@ -247,6 +224,7 @@
 				//we should have our data now. We need to format it for the table
 				var formattedData = [];
 				for (hit in returnData.hits.hits) {
+					//apply our local search here too
 					var hitData = returnData.hits.hits[hit]._source;
 					var formattedRow = {};
 					if (hitData["@timestamp"] !== undefined) {
@@ -289,7 +267,9 @@
 					} else {
 						formattedRow["messsage"] = "";
 					}
-					formattedData.push(formattedRow);
+					if (Object.values(formattedRow).join("").toUpperCase().includes(data.search.value.toUpperCase())) {
+						formattedData.push(formattedRow);
+					}
 				}
 	
 				//we can get the # of filtered requests from the returnData
@@ -412,6 +392,15 @@
 			todayBtn: 'true',
 			todayHighlight: true
 		});
+
+		$("#filter-submit-btn").click(function(e){
+			e.preventDefault();
+			window.location="/${base}/logs"+getFilterQString();
+		});
+	
+		$("#filter-submit-btn").on("contextmenu",function(e){
+			$(this).attr("href","/${base}/logs"+getFilterQString(false));
+		});
 	
 		}); //END OF DOCUMENT.READY
 	
@@ -458,15 +447,6 @@
 			//console.log(encodeURI(qstring));
 			return qstring;
 		}
-	
-		$("#filter-submit-btn").click(function(e){
-			e.preventDefault();
-			window.location="/${base}/logs"+getFilterQString();
-		});
-	
-		$("#filter-submit-btn").on("contextmenu",function(e){
-			$(this).attr("href","/${base}/logs"+getFilterQString(false));
-		});
 	
 		var today=new Date();
 		var todayDate=today.getDate()+"/"+today.getMonth()+"/"+today.getFullYear();
