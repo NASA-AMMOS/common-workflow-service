@@ -75,6 +75,9 @@ public class LogsTestIT extends WebTestUtil {
 			
 			log.info("Looking for text, 'Graphite', 'Command ls exit exit code: 0', and 'Deployed process definitions: test_logs_page.bpmn'.");
 
+			driver.findElement(By.xpath("//input[@id='search-text']")).sendKeys("Graphite");
+			driver.findElement(By.xpath("//a[@id='filter-submit-btn']")).click();
+
 			Set<String> logtyp = driver.manage().logs().getAvailableLogTypes();
 			for (String s : logtyp) {
 				log.error("BROWSER: " + logtyp);
@@ -84,9 +87,6 @@ public class LogsTestIT extends WebTestUtil {
 			for(LogEntry logEntry : lg) {
 				log.error("BROWSER: " + logEntry);
 			}
-
-			driver.findElement(By.xpath("//input[@id='search-text']")).sendKeys("Graphite");
-			driver.findElement(By.xpath("//a[@id='filter-submit-btn']")).click();
 
 			if (findOnPage("Graphite")
 					&& findOnPage("Command 'ls' exit code: 0")

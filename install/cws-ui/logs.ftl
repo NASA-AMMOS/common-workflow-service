@@ -220,6 +220,8 @@
 				var returnData;
 				var fetchError = "";
 
+				console.log("ES REQ: " + JSON.stringify(esReq));
+
 				$.ajax({
 					url: "/${base}/rest/logs/logs/get?source=" + encodeURIComponent(JSON.stringify(esReq)),
 					type: "GET",
