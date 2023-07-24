@@ -25,10 +25,6 @@
     font-size: 95%;
 }
 
-#logData tr th {
-    white-space: nowrap;
-}
-
 /* log level header*/
 #logData tr th:nth-child(5) {
     padding-right: 25px;
@@ -38,7 +34,7 @@
     line-height: 1;
 }
 
-#logData tr td:nth-child(8) {
+.messageStyle {
     /*overflow: auto;*/
     word-wrap: break-word;
     word-break: break-all;
@@ -67,4 +63,63 @@ tr.debug {
 
 #start-date, #end-date {
     width: 90%;
+}
+
+.textWrap {
+    text-wrap: normal;
+}
+
+div.dts tbody th, div.dts tbody td {
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+}
+
+.above-table-div {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: flex-end;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.above-table-buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.above-table-filter {
+    margin-right: 15px;
+}
+
+.above-table-filler {
+    flex-grow: 1;
+}
+
+.btn-icon {
+    margin-right: 5px;
+}
+
+.below-table-div {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.dataTables_wrapper .dtsb-titleRow {
+    display: none;
+}
+
+.dataTables_wrapper .dtsb-group {
+    padding-bottom: -15px !important;
+    padding-top: 8px;
 }

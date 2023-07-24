@@ -132,6 +132,11 @@
 		}
 	
 		$("#logData").DataTable({
+			language: {
+				searchBuilder: {
+					add: "<i class=\"glyphicon glyphicon-search btn-icon\"></i>Add Local Filter",
+				}
+			},
 			deferRender: true,
 			scroller: {
 				boundaryScale: 0.25,
@@ -142,11 +147,24 @@
 			serverSide: true,
 			searchDelay: 250,
 			dom: 'Bfrtip',
-			autoWidth: false,
+			ordering: false,
+			searchBuilder: true,
 			columnDefs: [
 				{
 					targets: [1,2,5,6],
 					visible: false,
+				},
+				{
+					targets: [0],
+					width: "215px"
+				},
+				{
+					targets: [3],
+					width: "75px"
+				},
+				{
+					targets: [4],
+					width: "150px"
 				}
 			],
 			buttons: [
@@ -157,6 +175,9 @@
 					text: '<i class="glyphicon glyphicon-eye-open btn-icon"></i>Columns',
 				}
 			],
+			dom: "Q<'above-table-div'<'above-table-buttons'B><'above-table-length'l><'above-table-filler'><'above-table-filter'f>>"
+                        + "t"
+                        + "<'below-table-div'ip>",
 			ajax: function (data, callback, settings) {
 				//store our draw value
 				var draw = data.draw;
@@ -343,7 +364,7 @@
 					data: "message",
 					render: function (data, type) {
 						if (type == "display") {
-							return "<p>" + data.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>";
+							return "<p class=\"messageStyle\">" + data.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>";
 						} else {
 							return data;
 						}
@@ -570,7 +591,7 @@
 			
 			<div id="log-div">
 				<!--<div class="ajax-spinner"></div>-->
-				<table id="logData"class="table table-striped table-bordered sortable">
+				<table id="logData"class="table table-striped table-bordered sortable" style="width: 100%">
 					<thead>
 						<tr>
 							<th>Time Stamp</th>
