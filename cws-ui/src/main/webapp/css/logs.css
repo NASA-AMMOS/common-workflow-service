@@ -2,6 +2,10 @@
     width: 20%;
 }
 
+#filters-div {
+    margin-right: 15px;
+}
+
 #pd-select {
     width: 100%;
 }
@@ -122,4 +126,12 @@ div.dts tbody th, div.dts tbody td {
 .dataTables_wrapper .dtsb-group {
     padding-bottom: -15px !important;
     padding-top: 8px;
+}
+
+#filter-btn-refresh-flexbox {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    height: 50px;
 }

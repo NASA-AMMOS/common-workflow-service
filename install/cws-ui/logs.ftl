@@ -545,30 +545,31 @@
 						<input id="search-text"id="filter-text"type="text"class="form-control"placeholder="Search..."/>
 						<span>Start Date:</span>
 						<input id="start-date"class="form-control"placeholder="yyyy-mm-dd"
-        data-date-format="yyyy-mm-dd"maxlength="10"type="text">
+        					data-date-format="yyyy-mm-dd"maxlength="10"type="text">
 						<span>End Date:</span>
 						<input id="end-date"class="form-control"placeholder="yyyy-mm-dd"
-        data-date-format="yyyy-mm-dd"size="16"type="text">
+        					data-date-format="yyyy-mm-dd"size="16"type="text">
 					</div>
 
-					<div class="col-md-12">
+					<div class="col-md-12" style="margin-top: 15px;">
 						<a id="filter-submit-btn"class="btn btn-info pull-right"href="#">Filter</a>
 					</div>
 			</div>
-			<div id="filters-btn"class="btn btn-warning"><span class="glyphicon glyphicon-filter">
-				</span>&nbsp;Filters&nbsp;<span id="filter-arrow"class="glyphicon glyphicon-chevron-up"></span>
+			<div id="filter-btn-refresh-flexbox">
+				<div id="filters-btn"class="btn btn-warning"><span class="glyphicon glyphicon-filter">
+					</span>&nbsp;Filters&nbsp;<span id="filter-arrow"class="glyphicon glyphicon-chevron-up"></span>
+				</div>
+				<div style="margin:30px 15px;"class="pull-right">
+					<input type="checkbox"id="refresh-checkbox"/>&nbsp;
+					<label for='refresh-checkbox'>Refresh the logs every</label>&nbsp;
+					<select id="refresh-rate">
+						<option value="10">10 seconds</option>
+						<option value="5">5 seconds</option>
+						<option value="3">3 seconds</option>
+						<option value="1">1 second</option>
+					</select>
+				</div>
 			</div>
-			<div style="margin:30px 0px;"class="pull-right">
-				<input type="checkbox"id="refresh-checkbox"/>&nbsp;
-				<label for='refresh-checkbox'>Refresh the logs every</label>&nbsp;
-				<select id="refresh-rate">
-					<option value="10">10seconds</option>
-					<option value="5">5seconds</option>
-					<option value="3">3seconds</option>
-					<option value="1">1second</option>
-				</select>
-			</div>
-			<div id="resultCount"></div>
 			
 			<div id="log-div">
 				<div class="ajax-spinner"></div>
