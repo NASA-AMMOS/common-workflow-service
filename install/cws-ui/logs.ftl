@@ -86,6 +86,9 @@
 				if(params.search  !== undefined && params.search !== null){
 					esReq.query.bool.must.push({"query_string":{"fields":["msgBody"],"query":decodeURIComponent(params.search)}});
 				}
+				if (params.workerId !== undefined && params.workerId !== null) {
+					esReq.query.bool.must.push({"match":{"cwsWorkerId":params.workerId}});
+				}
 		
 				var startDate=params.startDate?decodeURIComponent(params.startDate):"";
 				var endDate=params.endDate?decodeURIComponent(params.endDate):"";
@@ -107,6 +110,7 @@
 					});
 				}
 				$("#pi-text").val(params.procInstId?decodeURIComponent(params.procInstId):"");
+				$("#worker-id-text").val(params.workerId?decodeURIComponent(params.workerId):"");
 				$("#search-text").val(params.search?decodeURIComponent(params.search):"");
 				$("#start-date").val(startDate);
 				$("#end-date").val(endDate);
@@ -449,6 +453,9 @@
 			if($("#pi-text").val()!=""){
 				params.procInstId=encodeURIComponent($("#pi-text").val());
 			}
+			if($("#worker-id-text").val()!=""){
+				params.workerId=encodeURIComponent($("#worker-id-text").val());
+			}
 			if($("#log-level-sel input:checked").length>0){
 				var lvl=[]
 				$("#log-level-sel input:checked").each(function(){
@@ -531,6 +538,8 @@
 						</select>
 						<h5>Process Instances</h5>
 						<input id="pi-text"type="text"class="form-control"placeholder="Instance ID...">
+						<h5>Worker ID</h5>
+						<input id="worker-id-text" type="text" class="form-control" placeholder="Worker ID...">
 					</div>
 					<div class="col-md-4">
 						<h5>Log Level</h5>
@@ -550,10 +559,10 @@
 					<div class="col-md-4">
 						<h5>Search by Keyword</h5>
 						<input id="search-text"id="filter-text"type="text"class="form-control"placeholder="Search..."/>
-						<span>Start Date:</span>
+						<h5>Start Date:</h5>
 						<input id="start-date"class="form-control"placeholder="yyyy-mm-dd"
         					data-date-format="yyyy-mm-dd"maxlength="10"type="text">
-						<span>End Date:</span>
+						<h5>End Date:</h5>
 						<input id="end-date"class="form-control"placeholder="yyyy-mm-dd"
         					data-date-format="yyyy-mm-dd"size="16"type="text">
 					</div>
