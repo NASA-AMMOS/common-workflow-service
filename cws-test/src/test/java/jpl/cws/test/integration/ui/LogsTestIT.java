@@ -4,10 +4,15 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -67,6 +72,18 @@ public class LogsTestIT extends WebTestUtil {
 			log.info("------ START LogsTestIT:runOutputTest ------");
 
 			goToPage("logs");
+
+			sleep(5000);
+
+			Set<String> logtyp = driver.manage().logs().getAvailableLogTypes();
+			for (String s : logtyp) {
+				log.error("BROWSER: " + logtyp);
+			}
+			LogEntries logEntries = driver.manage().logs().get(LogType.BROWSER);
+			List<LogEntry> lg = logEntries.getAll();
+			for(LogEntry logEntry : lg) {
+				log.error("BROWSER: " + logEntry);
+			}
 			
 			log.info("Looking for text, 'Graphite', 'Command ls exit exit code: 0', and 'Deployed process definitions: test_logs_page.bpmn'.");
 
