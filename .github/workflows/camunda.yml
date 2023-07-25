@@ -113,6 +113,7 @@ jobs:
           path: test-screenshots/
           
       - name: Upload logs
+        if: ${{ always() && steps.build.outcome == 'success' }}
         uses: actions/upload-artifact@v3
         with:
           name: logs
