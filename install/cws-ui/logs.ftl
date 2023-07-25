@@ -236,7 +236,7 @@
 					}
 				});
 
-				console.log(JSON.stringify(returnData));
+				console.error(JSON.stringify(returnData));
 	
 				//we should have our data now. We need to format it for the table
 				var formattedData = [];
