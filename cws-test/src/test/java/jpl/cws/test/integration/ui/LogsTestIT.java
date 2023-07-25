@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
@@ -76,7 +77,9 @@ public class LogsTestIT extends WebTestUtil {
 			
 			log.info("Looking for text, 'Graphite', 'Command ls exit exit code: 0', and 'Deployed process definitions: test_logs_page.bpmn'.");
 
-			driver.findElement(By.xpath("//input[@id='search-text']")).clear();
+			for (int i = 0; i < 15; i++) {
+				driver.findElement(By.xpath("//input[@id='search-text']")).sendKeys(Keys.BACK_SPACE);
+			}
 			driver.findElement(By.xpath("//input[@id='search-text']")).sendKeys("Graphite");
 			driver.findElement(By.xpath("//a[@id='filter-submit-btn']")).click();
 			sleep(3000);
@@ -89,14 +92,18 @@ public class LogsTestIT extends WebTestUtil {
 
 			if (findOnPage("Graphite")) {
 				log.info("Found Graphite on page.");
-				driver.findElement(By.xpath("//input[@id='search-text']")).clear();
+				for (int i = 0; i < 15; i++) {
+					driver.findElement(By.xpath("//input[@id='search-text']")).sendKeys(Keys.BACK_SPACE);
+				}
 				driver.findElement(By.xpath("//input[@id='search-text']")).sendKeys("Command 'ls' exit code: 0");
 				driver.findElement(By.xpath("//a[@id='filter-submit-btn']")).click();
 				sleep(3000);
 
 				if (findOnPage("Command 'ls' exit code: 0")) {
 					log.info("Found Command 'ls' exit code: 0 on page.");
-					driver.findElement(By.xpath("//input[@id='search-text']")).clear();
+					for (int i = 0; i < 15; i++) {
+						driver.findElement(By.xpath("//input[@id='search-text']")).sendKeys(Keys.BACK_SPACE);
+					}
 					driver.findElement(By.xpath("//input[@id='search-text']")).sendKeys("Deployed process definition: 'test_logs_page.bpmn'");
 					driver.findElement(By.xpath("//a[@id='filter-submit-btn']")).click();
 					sleep(3000);
