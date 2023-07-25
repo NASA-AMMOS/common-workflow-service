@@ -589,6 +589,22 @@ public class CwsInstaller {
 				// PROMPT USER FOR LDAP SERVER URL
 				if (cws_installer_mode.equals("interactive")) {
 					cws_ldap_url = readLine("Enter the LDAP URL, default is " + cws_ldap_url + ": ", cws_ldap_url);
+
+					boolean valid_ldap_server = false;
+					while (!valid_ldap_server) {
+						cws_ldap_url = readRequiredLine("Enter the LDAP URL, default is " + cws_ldap_url + ": ", cws_ldap_url);
+						try {
+
+							boolean checkLdapServer = checkLdapServerStatus(cws_ldap_url);
+							if (checkLdapServer == true) {
+								valid_ldap_server = true;
+							} else {
+								valid_ldap_server = false;
+							}
+						} catch(IOException e) {
+							// exception
+						}
+					}
 				}
 
 				cws_identity_plugin_class = ldap_identity_plugin_class;
@@ -1731,6 +1747,7 @@ public class CwsInstaller {
 		warningCount += validateDbConfig();
 		if (cws_auth_scheme.equals("LDAP")) {
 			try {
+				warningCount += validateLdapServer();
 				warningCount += validateLdapUserConfig();
 			} catch(IOException e) {
 				// exception
@@ -1939,9 +1956,74 @@ public class CwsInstaller {
 		return warningCount;
 	}
 
+	/**
+	 * Validates the LDAP URL configuration.
+	 *
+	 */
+	private static int validateLdapServer() throws IOException {
+		int warningCount = 0;
+		// VALIDATE LDAP SERVER
+		print("");
+		if (cws_auth_scheme.equals("LDAP")) {
+			print("checking that user provided LDAP Server (" + cws_ldap_url + ") is accessible...");
+		}
+
+		boolean checkLdapServer = checkLdapServerStatus(cws_ldap_url);
+		if (checkLdapServer == false) {
+			print("   [WARNING]");
+			return 1;
+		} else {
+			print("   [OK]");
+		}
+		return warningCount;
+	}
+
+	private static boolean checkLdapServerStatus(String ldapUrl) throws IOException {
+		//
+		// Check for LDAP Server accessibility
+		//
+		Path pluginBeanFilePath = Paths.get(config_templates_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
+		String ldapBaseDn = getLdapBaseDnValue(pluginBeanFilePath);
+		String[] baseDnArray = ldapBaseDn.split(",");
+		String searchBase = baseDnArray[0];
+
+		Hashtable env = new Hashtable();
+		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+		env.put(Context.PROVIDER_URL, ldapUrl);
+		try {
+			DirContext ctx = new InitialDirContext(env);
+			SearchControls ctrl = new SearchControls();
+			ctrl.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+			String filter = "(&(" + searchBase + "))";
+			NamingEnumeration ldapQuery = ctx.search(ldapBaseDn, filter, ctrl);
+
+			while (ldapQuery.hasMore()) {
+				SearchResult r = (SearchResult) ldapQuery.next();
+				//print(">>" + r.getNameInNamespace());
+			}
+			// Close the context
+			ctx.close();
+		} catch (AuthenticationNotSupportedException e) {
+			print("   ERROR: LDAP authentication failed with server " + ldapUrl + " (" + e.getMessage() + ")");
+			return false;
+		} catch (AuthenticationException e) {
+			print("   ERROR: LDAP authentication error: " + e.getMessage());
+			return false;
+		} catch (NamingException e) {
+			print("   ERROR: LDAP JNDI API context error: " + e.getMessage());
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Validates the LDAP User Admin configuration.
+	 *
+	 */
 	private static int validateLdapUserConfig() throws IOException {
 		int warningCount = 0;
-		// VALIDATE LDAP or CAM CONFIGURATION AND LDAP USER INFO RETREIVEL
+		// VALIDATE LDAP CONFIGURATION AND LDAP USER INFO RETREIVEL
 		print("");
 		if (cws_auth_scheme.equals("LDAP")) {
 			print("checking that user provided LDAP authentication profile (UID: " + cws_user + ") is valid...");
