@@ -223,7 +223,8 @@
 				console.error("ESREQ: " + JSON.stringify(esReq));
 
 				$.ajax({
-					url: "/${base}/rest/logs/logs/get?source=" + encodeURIComponent(JSON.stringify(esReq)),
+					url: "/${base}/rest/logs/logs/get",
+					data: "source=" + encodeURIComponent(JSON.stringify(esReq)),
 					type: "GET",
 					contentType: "application/json",
 					async: false,
