@@ -111,6 +111,12 @@ jobs:
         with:
           name: test-screenshots
           path: test-screenshots/
+          
+      - name: Upload logs
+        uses: actions/upload-artifact@v3
+        with:
+          name: logs
+          path: dist/console-only/cws/logs
 
       - name: Send custom JSON data to Slack workflow
         if: ${{ always() && contains(env.TEAM, github.actor) }}
