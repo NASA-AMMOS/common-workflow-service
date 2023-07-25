@@ -153,6 +153,7 @@
 			searchDelay: 250,
 			dom: 'Bfrtip',
 			ordering: false,
+
 			"initComplete": function(settings, json) {
 				//hide ajax spinner
 				$("#log-div .ajax-spinner").hide();
@@ -223,13 +224,77 @@
 				console.error("ESREQ: " + JSON.stringify(esReq));
 
 				$.ajax({
-					url: "/${base}/rest/logs/logs/get",
-					data: "source=" + encodeURIComponent(JSON.stringify(esReq)),
+					url: "/${base}/rest/logs/logs/get?source=" + encodeURIComponent(JSON.stringify(esReq)),
 					type: "GET",
 					async: false,
-					success: function (data) {
-						latestScrollId = data._scroll_id;
-						returnData = data;
+					success: function (ajaxData) {
+						returnData = ajaxData;
+						console.error("RETURN DATA: " + JSON.stringify(returnData));
+	
+						//we should have our data now. We need to format it for the table
+						var formattedData = [];
+						for (hit in returnData.hits.hits) {
+							//apply our local search here too
+							var hitData = returnData.hits.hits[hit]._source;
+							var formattedRow = {};
+							if (hitData["@timestamp"] !== undefined) {
+								formattedRow["timestamp"] = hitData["@timestamp"];
+							} else {
+								formattedRow["timestamp"] = "";
+							}
+							if (hitData["cwsHost"] !== undefined) {
+								formattedRow["cws_host"] = hitData["host"];
+							} else {
+								formattedRow["cws_host"] = "";
+							}
+							if (hitData["cwsWorkerId"] !== undefined) {
+								formattedRow["cws_worker_id"] = hitData["cwsWorkerId"];
+							} else {
+								formattedRow["cws_worker_id"] = "";
+							}
+							if (hitData["logLevel"] !== undefined) {
+								formattedRow["log_level"] = hitData["logLevel"];
+							} else {
+								formattedRow["log_level"] = "";
+							}
+							if (hitData["threadName"] !== undefined) {
+								formattedRow["thread_name"] = hitData["threadName"];
+							} else {
+								formattedRow["thread_name"] = "";
+							}
+							if (hitData["procDefKey"] !== undefined) {
+								formattedRow["procDefKey"] = hitData["procDefKey"];
+							} else {
+								formattedRow["procDefKey"] = "";
+							}
+							if (hitData["procInstId"] !== undefined) {
+								formattedRow["procInstId"] = hitData["procInstId"];
+							} else {
+								formattedRow["procInstId"] = "";
+							}
+							if (hitData["msgBody"] !== undefined) {
+								formattedRow["message"] = hitData["msgBody"];
+							} else {
+								formattedRow["messsage"] = "";
+							}
+							if (Object.values(formattedRow).join("").toUpperCase().includes(data.search.value.toUpperCase())) {
+								formattedData.push(formattedRow);
+							}
+						}
+			
+						//we can get the # of filtered requests from the returnData
+						var filteredRecords = returnData.hits.total.value;
+			
+						//now we need to build our return object
+						var returnObj = {
+							"draw": draw,
+							"recordsTotal": totalRecords,
+							"recordsFiltered": filteredRecords,
+							"data": formattedData,
+							"error": fetchError
+						}
+						console.error("RETURN OBJ: " + JSON.stringify(returnObj));
+						callback(returnObj);
 					},
 					error: function (jqXHR, textStatus, errorThrown) {
 						fetchError = "Error getting initial data: " + errorThrown;
@@ -237,72 +302,7 @@
 					}
 				});
 
-				console.error("RETURN DATA: " + JSON.stringify(returnData));
-	
-				//we should have our data now. We need to format it for the table
-				var formattedData = [];
-				for (hit in returnData.hits.hits) {
-					//apply our local search here too
-					var hitData = returnData.hits.hits[hit]._source;
-					var formattedRow = {};
-					if (hitData["@timestamp"] !== undefined) {
-						formattedRow["timestamp"] = hitData["@timestamp"];
-					} else {
-						formattedRow["timestamp"] = "";
-					}
-					if (hitData["cwsHost"] !== undefined) {
-						formattedRow["cws_host"] = hitData["host"];
-					} else {
-						formattedRow["cws_host"] = "";
-					}
-					if (hitData["cwsWorkerId"] !== undefined) {
-						formattedRow["cws_worker_id"] = hitData["cwsWorkerId"];
-					} else {
-						formattedRow["cws_worker_id"] = "";
-					}
-					if (hitData["logLevel"] !== undefined) {
-						formattedRow["log_level"] = hitData["logLevel"];
-					} else {
-						formattedRow["log_level"] = "";
-					}
-					if (hitData["threadName"] !== undefined) {
-						formattedRow["thread_name"] = hitData["threadName"];
-					} else {
-						formattedRow["thread_name"] = "";
-					}
-					if (hitData["procDefKey"] !== undefined) {
-						formattedRow["procDefKey"] = hitData["procDefKey"];
-					} else {
-						formattedRow["procDefKey"] = "";
-					}
-					if (hitData["procInstId"] !== undefined) {
-						formattedRow["procInstId"] = hitData["procInstId"];
-					} else {
-						formattedRow["procInstId"] = "";
-					}
-					if (hitData["msgBody"] !== undefined) {
-						formattedRow["message"] = hitData["msgBody"];
-					} else {
-						formattedRow["messsage"] = "";
-					}
-					if (Object.values(formattedRow).join("").toUpperCase().includes(data.search.value.toUpperCase())) {
-						formattedData.push(formattedRow);
-					}
-				}
-	
-				//we can get the # of filtered requests from the returnData
-				var filteredRecords = returnData.hits.total.value;
-	
-				//now we need to build our return object
-				var returnObj = {
-					"draw": draw,
-					"recordsTotal": totalRecords,
-					"recordsFiltered": filteredRecords,
-					"data": formattedData,
-					"error": fetchError
-				}
-				console.error("RETURN OBJ: " + JSON.stringify(returnObj));
-				callback(returnObj);
+				
 			},
 			columns: [
 				{
