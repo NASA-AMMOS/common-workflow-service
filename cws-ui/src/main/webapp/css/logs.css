@@ -78,9 +78,8 @@ div.dts tbody th, div.dts tbody td {
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: flex-start;
-    align-items: flex-end;
+    align-items: center;
     gap: 10px;
-    margin-bottom: 5px;
 }
 
 .above-table-buttons {

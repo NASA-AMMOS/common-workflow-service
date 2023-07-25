@@ -153,7 +153,6 @@
 			searchDelay: 250,
 			dom: 'Bfrtip',
 			ordering: false,
-			searchBuilder: true,
 			"initComplete": function(settings, json) {
 				//hide ajax spinner
 				$("#log-div .ajax-spinner").hide();
@@ -184,7 +183,7 @@
 					text: '<i class="glyphicon glyphicon-eye-open btn-icon"></i>Columns',
 				}
 			],
-			dom: "Q<'above-table-div'<'above-table-buttons'B><'above-table-length'l><'above-table-filler'><'above-table-filter'f>>"
+			dom: "<'above-table-div'<'above-table-buttons'B><'above-table-length'l><'above-table-filler'><'above-table-filter'f>>"
                         + "t"
                         + "<'below-table-div'ip>",
 			ajax: function (data, callback, settings) {
@@ -216,7 +215,7 @@
 				
 				//we need to change the esReq to return the requested number of elements
 				esReq.size = data.length;
-	
+				
 				var returnData;
 				var fetchError = "";
 
