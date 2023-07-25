@@ -305,9 +305,12 @@ public abstract class CwsSecurityFilter implements javax.servlet.Filter {
 	}
 
 	// Simple override of http return for redirect code when http request is valid
-	protected void statusOverride(HttpServletResponse resp){
+	protected void statusOverride(HttpServletResponse resp, HttpServletRequest req){
 		if (resp.getStatus() == 200){
 			resp.setStatus(301);
+			String newURL = getBaseUrl(req);
+			newURL.replaceFirst("http:", "https:");
+			resp.setHeader("Location", newURL);
 		}
 	}
 	
