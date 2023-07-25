@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -75,20 +76,16 @@ public class LogsTestIT extends WebTestUtil {
 			
 			log.info("Looking for text, 'Graphite', 'Command ls exit exit code: 0', and 'Deployed process definitions: test_logs_page.bpmn'.");
 
-			Set<String> logtyp = driver.manage().logs().getAvailableLogTypes();
-			for (String s : logtyp) {
-				log.error("BROWSER: " + logtyp);
-			}
-			LogEntries logEntries = driver.manage().logs().get(LogType.BROWSER);
-			List<LogEntry> lg = logEntries.getAll();
-			for(LogEntry logEntry : lg) {
-				log.error("BROWSER: " + logEntry);
-			}
-
 			driver.findElement(By.xpath("//input[@id='search-text']")).clear();
 			driver.findElement(By.xpath("//input[@id='search-text']")).sendKeys("Graphite");
 			driver.findElement(By.xpath("//a[@id='filter-submit-btn']")).click();
 			sleep(3000);
+
+			LogEntries logEntries = driver.manage().logs().get(LogType.BROWSER);
+			for (LogEntry entry : logEntries) {
+				System.out.println(new Date(entry.getTimestamp()) + " " + entry.getLevel() + " " + entry.getMessage());
+				//do something useful with the data
+			}
 
 			if (findOnPage("Graphite")) {
 				log.info("Found Graphite on page.");

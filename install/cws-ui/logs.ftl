@@ -220,7 +220,8 @@
 				var returnData;
 				var fetchError = "";
 
-				console.log("ES REQ: " + JSON.stringify(esReq));
+				console.error("DATA: " + JSON.stringify(data));
+				console.error("ESREQ: " + JSON.stringify(esReq));
 
 				$.ajax({
 					url: "/${base}/rest/logs/logs/get?source=" + encodeURIComponent(JSON.stringify(esReq)),
@@ -236,7 +237,7 @@
 					}
 				});
 
-				console.error(JSON.stringify(returnData));
+				console.error("RETURN DATA: " + JSON.stringify(returnData));
 	
 				//we should have our data now. We need to format it for the table
 				var formattedData = [];
@@ -300,6 +301,7 @@
 					"data": formattedData,
 					"error": fetchError
 				}
+				console.error("RETURN OBJ: " + JSON.stringify(returnObj));
 				callback(returnObj);
 			},
 			columns: [
