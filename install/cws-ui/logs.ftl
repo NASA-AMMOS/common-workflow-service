@@ -440,9 +440,7 @@
 		$("#filter-submit-btn").on("contextmenu",function(e){
 			$(this).attr("href","/${base}/logs"+getFilterQString(false));
 		});
-	
-		}); //END OF DOCUMENT.READY
-	
+
 		$("#filters-btn").click(function(){
 			if($("#filters-div").is(":visible"))
 				$("#filter-arrow").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
@@ -451,6 +449,8 @@
 	
 			$("#filters-div").slideToggle();
 		});
+	
+		}); //END OF DOCUMENT.READY
 	
 		function getFilterQString(){
 			var params={};
