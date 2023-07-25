@@ -85,21 +85,27 @@ public class LogsTestIT extends WebTestUtil {
 				log.error("BROWSER: " + logEntry);
 			}
 
+			driver.findElement(By.xpath("//input[@id='search-text']")).clear();
 			driver.findElement(By.xpath("//input[@id='search-text']")).sendKeys("Graphite");
 			driver.findElement(By.xpath("//a[@id='filter-submit-btn']")).click();
 			sleep(3000);
 
 			if (findOnPage("Graphite")) {
+				log.info("Found Graphite on page.");
+				driver.findElement(By.xpath("//input[@id='search-text']")).clear();
 				driver.findElement(By.xpath("//input[@id='search-text']")).sendKeys("Command 'ls' exit code: 0");
 				driver.findElement(By.xpath("//a[@id='filter-submit-btn']")).click();
 				sleep(3000);
 
 				if (findOnPage("Command 'ls' exit code: 0")) {
+					log.info("Found Command 'ls' exit code: 0 on page.");
+					driver.findElement(By.xpath("//input[@id='search-text']")).clear();
 					driver.findElement(By.xpath("//input[@id='search-text']")).sendKeys("Deployed process definition: 'test_logs_page.bpmn'");
 					driver.findElement(By.xpath("//a[@id='filter-submit-btn']")).click();
 					sleep(3000);
 
 					if (findOnPage("Deployed process definition: 'test_logs_page.bpmn'")) {
+						log.info("Found Deployed process definition: 'text_logs_page.bpmn' on page.");
 						scriptPass = true;
 						testCasesCompleted++;
 					} else {
