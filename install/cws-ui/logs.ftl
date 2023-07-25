@@ -215,7 +215,7 @@
 				
 				//we need to change the esReq to return the requested number of elements
 				esReq.size = data.length;
-				
+
 				var returnData;
 				var fetchError = "";
 
@@ -233,6 +233,7 @@
 					},
 					error: function (jqXHR, textStatus, errorThrown) {
 						fetchError = "Error getting initial data: " + errorThrown;
+						returnData = fetchError;
 					}
 				});
 
