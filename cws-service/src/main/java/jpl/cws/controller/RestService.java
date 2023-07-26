@@ -688,12 +688,12 @@ public class RestService extends MvcCore {
 	 * REST method used to get logs on the logs page (shorter scroll timer)
 	 *
 	 */
-	@RequestMapping(value = "/logs/logs/get", method = GET, produces="application/json")
-	public @ResponseBody String getLogLogs(
+	@RequestMapping(value = "/logs/get/noScroll", method = GET, produces="application/json")
+	public @ResponseBody String getLogsNoScroll(
 			@RequestParam(value = "source") String source) {
-		String urlString = constructElasticsearchUrl("/_search?source=" + source + "&source_content_type=application/json");
+		String urlString = constructElasticsearchUrl("/_search?_source=" + source + "&source_content_type=application/json");
 
-		log.trace("REST getLogLogs query = " + urlString);
+		log.debug("REST getLogs query = " + urlString);
 
 		try {
 			RestCallResult restCallResult;
@@ -705,7 +705,7 @@ public class RestService extends MvcCore {
 				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, "application/json; charset=utf-8");
 			}
 			if (restCallResult.getResponseCode() != 200) {
-				return "ERROR fetching data: " + restCallResult.getResponse() + ", " + restCallResult.getResponseMessage();
+				return "ERROR";
 			}
 			return restCallResult.getResponse();
 		} catch (Exception e) {
