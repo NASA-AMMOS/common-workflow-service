@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -691,18 +692,21 @@ public class RestService extends MvcCore {
 	@RequestMapping(value = "/logs/get/noScroll", method = GET, produces="application/json")
 	public @ResponseBody String getLogsNoScroll(
 			@RequestParam(value = "source") String source) {
-		String urlString = constructElasticsearchUrl("/_search?source=" + source + "&source_content_type=application/json");
+		String urlString = constructElasticsearchUrl("/_search");
 
-		log.debug("REST getLogs query = " + urlString);
+		log.debug("REST logs/get/noScroll query = " + urlString);
 
 		try {
+			//we need to decode source
+			String result = java.net.URLDecoder.decode(source, StandardCharsets.UTF_8.name());
+			log.debug("logs/get/noScroll: result: " + result);
 			RestCallResult restCallResult;
 			if (elasticsearchUseAuth()) {
 				// Authenticated call
-				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, "application/json; charset=utf-8", elasticsearchUsername, elasticsearchPassword);
+				restCallResult = WebUtils.restCall(urlString, "POST", result, null, null, "application/json; charset=utf-8", elasticsearchUsername, elasticsearchPassword);
 			} else {
 				// Unauthenticated call
-				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, "application/json; charset=utf-8");
+				restCallResult = WebUtils.restCall(urlString, "POST", result, null, null, "application/json; charset=utf-8");
 			}
 			if (restCallResult.getResponseCode() != 200) {
 				log.error("Error with /logs/get/noScroll: " + restCallResult.getResponse() + "; " + restCallResult.getResponseMessage());
