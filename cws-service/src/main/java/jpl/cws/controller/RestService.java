@@ -36,11 +36,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.google.gson.*;
 import org.apache.commons.io.IOUtils;
 import org.camunda.bpm.engine.ExternalTaskService;
 import org.camunda.bpm.engine.ManagementService;
 import org.camunda.bpm.engine.RepositoryService;
-import com.google.gson.JsonArray;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -62,16 +62,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 
 import jpl.cws.core.db.SchedulerDbService;
 import jpl.cws.core.db.SchedulerJob;
@@ -698,7 +688,7 @@ public class RestService extends MvcCore {
 
 		try {
 			//we need to decode source
-			String result = source.replaceAll("\\+", "%2b");
+			String result = source.replaceAll("%2B", "+");
 			result = java.net.URLDecoder.decode(source, StandardCharsets.UTF_8.name());
 
 			log.debug("logs/get/noScroll: result: " + result);
