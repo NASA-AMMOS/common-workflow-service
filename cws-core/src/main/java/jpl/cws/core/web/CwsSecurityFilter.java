@@ -309,11 +309,12 @@ public abstract class CwsSecurityFilter implements javax.servlet.Filter {
 		if (resp.getStatus() == 200){
 			resp.setStatus(301);
 			String newURL = getBaseUrl(req);
-			newURL.replaceFirst("http:", "https:");
+			newURL = newURL.replaceFirst("http:", "https:");
+			newURL = newURL.replaceFirst("38080", "38443");
 			resp.setHeader("Location", newURL);
 		}
 	}
-	
+
 	protected void logRequestInfo(HttpServletRequest req) {
 		// Log all of the headers
 		Enumeration<String> reqHeaderNames = req.getHeaderNames();
