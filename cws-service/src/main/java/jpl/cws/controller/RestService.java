@@ -698,7 +698,9 @@ public class RestService extends MvcCore {
 
 		try {
 			//we need to decode source
-			String result = java.net.URLDecoder.decode(source, StandardCharsets.UTF_8.name());
+			String result = source.replaceAll("\\+", "%2b");
+			result = java.net.URLDecoder.decode(source, StandardCharsets.UTF_8.name());
+
 			log.debug("logs/get/noScroll: result: " + result);
 			RestCallResult restCallResult;
 			if (elasticsearchUseAuth()) {
