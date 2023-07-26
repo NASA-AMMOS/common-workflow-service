@@ -705,7 +705,8 @@ public class RestService extends MvcCore {
 				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, "application/json; charset=utf-8");
 			}
 			if (restCallResult.getResponseCode() != 200) {
-				return "ERROR";
+				log.error("Error with /logs/get/noScroll: " + restCallResult.getResponse() + "; " + restCallResult.getResponseMessage());
+				return "ERROR: " + restCallResult.getResponse() + "; " + restCallResult.getResponseMessage();
 			}
 			return restCallResult.getResponse();
 		} catch (Exception e) {

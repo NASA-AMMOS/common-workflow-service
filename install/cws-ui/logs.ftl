@@ -226,8 +226,8 @@
 				var returnData;
 				var fetchError = "";
 
-				//console.error("DATA: " + JSON.stringify(data));
-				//console.error("ESREQ: " + JSON.stringify(esReq));
+				console.error("DATA: " + JSON.stringify(data));
+				console.error("ESREQ: " + JSON.stringify(esReq));
 
 				//console.log("STRINGIFIED: " + JSON.stringify(esReq));
 				//console.log("ENCODED: " + encodeURIComponent(JSON.stringify(esReq)));
@@ -243,8 +243,7 @@
 					async: false,
 					success: function (ajaxData) {
 						returnData = ajaxData;
-						//console.error("RETURN DATA: " + JSON.stringify(returnData));
-	
+						console.error("RETURN DATA: " + JSON.stringify(returnData));
 						//we should have our data now. We need to format it for the table
 						var formattedData = [];
 						for (hit in returnData.hits.hits) {
