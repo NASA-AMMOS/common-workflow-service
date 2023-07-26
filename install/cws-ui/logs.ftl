@@ -237,7 +237,7 @@
 				esReq = esReq.replace(/"/g, "%22");
 
 				$.ajax({
-					url: "/logs/get/noScroll?source=" + encodeURIComponent(JSON.stringify(esReq)),
+					url: "/logs/get/noScroll?source=" + esReq,
 					type: "GET",
 					async: false,
 					success: function (ajaxData) {
