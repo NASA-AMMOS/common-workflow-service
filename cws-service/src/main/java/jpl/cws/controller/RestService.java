@@ -691,7 +691,7 @@ public class RestService extends MvcCore {
 	@RequestMapping(value = "/logs/get/noScroll", method = GET, produces="application/json")
 	public @ResponseBody String getLogsNoScroll(
 			@RequestParam(value = "source") String source) {
-		String urlString = constructElasticsearchUrl("/_search?_source=" + source + "&source_content_type=application/json");
+		String urlString = constructElasticsearchUrl("/_search?source=" + source + "&source_content_type=application/json");
 
 		log.debug("REST getLogs query = " + urlString);
 

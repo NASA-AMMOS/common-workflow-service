@@ -228,8 +228,16 @@
 				console.error("DATA: " + JSON.stringify(data));
 				console.error("ESREQ: " + JSON.stringify(esReq));
 
+				console.log("STRINGIFIED: " + JSON.stringify(esReq));
+				console.log("ENCODED: " + encodeURIComponent(JSON.stringify(esReq)));
+
+				esReq = JSON.stringify(esReq);
+				esReq = encodeURIComponent(esReq);
+				//sometimes double quotes get left here? replace double quotes with url encoded
+				esReq = esReq.replace(/"/g, "%22");
+
 				$.ajax({
-					url: "/${base}/rest/logs/logs/get?source=" + encodeURIComponent(JSON.stringify(esReq)),
+					url: "/logs/get/noScroll?source=" + encodeURIComponent(JSON.stringify(esReq)),
 					type: "GET",
 					async: false,
 					success: function (ajaxData) {
