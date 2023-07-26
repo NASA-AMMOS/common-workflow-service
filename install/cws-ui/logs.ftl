@@ -109,6 +109,11 @@
 						$("#log-level-sel input[value='"+lvl+"']").prop("checked",true);
 					});
 				}
+
+				if (esReq.query.bool.must.length == 0) {
+					esReq.query.bool.must.push({"match": {"logLevel":"TRACE,DEBUG,INFO,WARN,ERROR"}});
+				}
+
 				$("#pi-text").val(params.procInstId?decodeURIComponent(params.procInstId):"");
 				$("#worker-id-text").val(params.workerId?decodeURIComponent(params.workerId):"");
 				$("#search-text").val(params.search?decodeURIComponent(params.search):"");
