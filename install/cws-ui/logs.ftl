@@ -148,6 +148,7 @@
 				}
 			},
 			deferRender: true,
+			stateSave: true,
 			scroller: {
 				boundaryScale: 0.50,
 				displayBuffer: 20,
@@ -225,11 +226,11 @@
 				var returnData;
 				var fetchError = "";
 
-				console.error("DATA: " + JSON.stringify(data));
-				console.error("ESREQ: " + JSON.stringify(esReq));
+				//console.error("DATA: " + JSON.stringify(data));
+				//console.error("ESREQ: " + JSON.stringify(esReq));
 
-				console.log("STRINGIFIED: " + JSON.stringify(esReq));
-				console.log("ENCODED: " + encodeURIComponent(JSON.stringify(esReq)));
+				//console.log("STRINGIFIED: " + JSON.stringify(esReq));
+				//console.log("ENCODED: " + encodeURIComponent(JSON.stringify(esReq)));
 
 				esReq = JSON.stringify(esReq);
 				esReq = encodeURIComponent(esReq);
@@ -242,7 +243,7 @@
 					async: false,
 					success: function (ajaxData) {
 						returnData = ajaxData;
-						console.error("RETURN DATA: " + JSON.stringify(returnData));
+						//console.error("RETURN DATA: " + JSON.stringify(returnData));
 	
 						//we should have our data now. We need to format it for the table
 						var formattedData = [];
@@ -306,7 +307,7 @@
 							"data": formattedData,
 							"error": fetchError
 						}
-						console.error("RETURN OBJ: " + JSON.stringify(returnObj));
+						//console.error("RETURN OBJ: " + JSON.stringify(returnObj));
 						callback(returnObj);
 					},
 					error: function (jqXHR, textStatus, errorThrown) {
