@@ -38,6 +38,9 @@
     word-wrap: break-word;
     word-break: break-all;
     font-family: courier, consolas;
+    height: 50px;
+    overflow-y: auto;
+    margin-bottom: 0px !important;
     /*white-space: normal !important;*/
 }
 

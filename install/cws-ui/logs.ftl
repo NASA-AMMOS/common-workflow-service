@@ -364,6 +364,18 @@
 				}
 			],
 		});
+
+		var table = $('#logData').DataTable();
+
+		table.on("draw", function() {
+			$(".messageStyle").each(function(i, obj) {
+				if (obj.scrollHeight > obj.clientHeight) {
+					$(obj).css("resize", "vertical");
+				} else {
+					$(obj).css("resize", "none");
+				}
+			});
+		}); 
 	
 		if(localStorage.getItem(refreshRateVar)===null){
 			localStorage.setItem(refreshRateVar,"10000");
