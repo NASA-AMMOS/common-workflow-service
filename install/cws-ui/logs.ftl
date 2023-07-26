@@ -122,6 +122,25 @@
 			}
 			return esReq;
 		}
+
+		function apiTest() {
+			var esReq = getEsReq();
+			esReq = JSON.stringify(esReq);
+			esReq = encodeURIComponent(esReq);
+			console.log("ESREQ: " + esReq);
+			$.ajax({
+					url: "/${base}/rest/logs/get/noScroll",
+					data: "source=" + esReq,
+					type: "GET",
+					async: false,
+					success: function (ajaxData) {
+						console.log("SUCCESS: " + JSON.stringify(ajaxData));
+					},
+					error: function (jqXHR, textStatus, errorThrown) {
+						console.log("ERROR: " + errorThrown);
+					}
+			});
+		}
 	
 		$(document).ready(function(){
 	
@@ -227,7 +246,6 @@
 				var fetchError = "";
 
 				console.error("DATA: " + JSON.stringify(data));
-				console.error("ESREQ: " + JSON.stringify(esReq));
 
 				//console.log("STRINGIFIED: " + JSON.stringify(esReq));
 				//console.log("ENCODED: " + encodeURIComponent(JSON.stringify(esReq)));
@@ -236,10 +254,11 @@
 				esReq = encodeURIComponent(esReq);
 				//sometimes double quotes get left here? replace double quotes with url encoded
 				esReq = esReq.replace(/"/g, "%22");
+				console.error("ESREQ: " + esReq);
 
 				$.ajax({
 					url: "/${base}/rest/logs/get/noScroll",
-					data: esReq,
+					data: "source=" + esReq,
 					type: "GET",
 					async: false,
 					success: function (ajaxData) {
