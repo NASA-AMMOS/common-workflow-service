@@ -77,12 +77,6 @@ public class LogsTestIT extends WebTestUtil {
 			
 			log.info("Looking for text, 'Graphite', 'Command ls exit exit code: 0', and 'Deployed process definitions: test_logs_page.bpmn'.");
 
-			LogEntries logEntries = driver.manage().logs().get(LogType.BROWSER);
-			for (LogEntry entry : logEntries) {
-				System.out.println(new Date(entry.getTimestamp()) + " " + entry.getLevel() + " " + entry.getMessage());
-				//do something useful with the data
-			}
-
 			if (findOnPage("Graphite")) {
 				log.info("Found Graphite on page.");
 				if (findOnPage("Command 'ls' exit code: 0")) {
@@ -118,35 +112,23 @@ public class LogsTestIT extends WebTestUtil {
 			log.info("------ START LogsTestIT:runTableColumnTest ------");
 			
 			goToPage("logs");
-			
-			waitForElementID("cwshost-chkbox");
+
+			waitForElementXPath("xpath=//div[@id='logData_wrapper']/div/div/div/button/span");
+
 			log.info("Checking CWS Host.");
-			findElById("cwshost-chkbox").click();
+			findElByXPath("xpath=//a[contains(text(),'CWS Host')]").click();
 			sleep(1000);
-			
-			waitForElementID("cwswid-chkbox");
-			log.info("Checking CWS ID.");
-			findElById("cwswid-chkbox").click();
+
+			log.info("Checking CWS Worker ID.");
+			findElByXPath("xpath=//a[contains(text(),'CWS Worker ID')]").click();
 			sleep(1000);
-			
-			waitForElementID("loglvl-chkbox");
-			log.info("Checking Log Level.");
-			findElById("loglvl-chkbox").click();
+
+			log.info("Checking ProcDefKey.");
+			findElByXPath("xpath=//a[contains(text(),'Proc Def Key')]").click();
 			sleep(1000);
-			
-			waitForElementID("thn-chkbox");
-			log.info("Checking Thread Name.");
-			findElById("thn-chkbox").click();
-			sleep(1000);
-			
-			waitForElementID("pdk-chkbox");
-			log.info("Checking Process Definition Key.");
-			findElById("pdk-chkbox").click();
-			sleep(1000);
-			
-			waitForElementID("pid-chkbox");
-			log.info("Checking Process ID.");
-			findElById("pid-chkbox").click();
+
+			log.info("Checking ProcInstId.");
+			findElByXPath("xpath=//a[contains(text(),'Proc Inst ID')]").click();
 			sleep(1000);
 			
 			wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.tagName("table")));

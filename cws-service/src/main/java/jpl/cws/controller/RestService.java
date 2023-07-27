@@ -687,8 +687,6 @@ public class RestService extends MvcCore {
 		log.debug("REST logs/get/noScroll query = " + urlString);
 
 		try {
-			//we need to decode source
-			log.debug("GET NO SCROLL BEFORE REPLACEMENT: " + source);
 			String result = source;
 
 			log.debug("logs/get/noScroll: result: " + result);
