@@ -475,12 +475,12 @@
 		});
 
 		$("#filters-btn").click(function(){
-			if($("#filters-div").is(":visible"))
+			if($("#filters-div-flex").is(":visible"))
 				$("#filter-arrow").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
 			else
 				$("#filter-arrow").removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
 	
-			$("#filters-div").slideToggle();
+			$("#filters-div-flex").slideToggle();
 		});
 
 		autocomplete(document.getElementById("pi-text"), procInstIdArr);
