@@ -68,35 +68,28 @@
 	
 		//----------------------------
 		function getEsReq(){
-			console.log("getEsReq called");
 			renderFlag=0;
 			htmlTableRows=[];
 			var esReq=baseEsReq;
 			if (params !== undefined && params !== null) {
 				if(params.procDefKey !== undefined && params.procDefKey !== null){
 					esReq.query.bool.must.push({"match":{"procDefKey":params.procDefKey}});
-					console.log("pushing procDefKey: " + params.procDefKey);
 				}
 				if(params.logLevel  !== undefined && params.logLevel !== null){
 					esReq.query.bool.must.push({"match":{"logLevel":params.logLevel}});
-					console.log("pushing logLevel: " + params.logLevel);
 				}
 				if(params.program  !== undefined && params.program !== null){
 					esReq.query.bool.must.push({"match":{"program":params.program}});
-					console.log("pushing program: " + params.program);
 				}
 				if(params.procInstId  !== undefined && params.procInstId !== null){
 					//esReq.query.bool.must.push({"match":{"procInstId" : decodeURIComponent(params.procInstId)}});
 					esReq.query.bool.must.push({"query_string":{"fields":["procInstId"],"query":"\""+decodeURIComponent(params.procInstId)+"\""}});
-					console.log("pushing procInstId: " + params.procInstId);
 				}
 				if(params.search  !== undefined && params.search !== null){
 					esReq.query.bool.must.push({"query_string":{"fields":["msgBody"],"query":decodeURIComponent(params.search)}});
-					console.log("pushing search: " + params.search);
 				}
 				if (params.workerId !== undefined && params.workerId !== null) {
 					esReq.query.bool.must.push({"match":{"cwsWorkerId":params.workerId}});
-					console.log("pushing workerId: " + params.workerId);
 				}
 		
 				var startDate=params.startDate?decodeURIComponent(params.startDate):"";
@@ -140,7 +133,6 @@
 
 		//push our timestamp to the esreq
 		mainEsReq.query.bool.must.push({"range": {"@timestamp": {"lte": now}}});
-		console.log("pushing timestamp: " + now);
 
 		//show ajax spinner
 		$("#log-div .ajax-spinner").show();
@@ -235,7 +227,6 @@
 				var returnData;
 				var fetchError = "";
 
-				console.error("DATA: " + JSON.stringify(data));
 
 				//console.log("STRINGIFIED: " + JSON.stringify(esReq));
 				//console.log("ENCODED: " + encodeURIComponent(JSON.stringify(esReq)));
@@ -244,7 +235,6 @@
 				local_esReq = encodeURIComponent(local_esReq);
 				//sometimes double quotes get left here? replace double quotes with url encoded
 				local_esReq = local_esReq.replace(/"/g, "%22");
-				console.error("ESREQ: " + local_esReq);
 
 				$.ajax({
 					url: "/${base}/rest/logs/get/noScroll",
@@ -253,7 +243,6 @@
 					async: false,
 					success: function (ajaxData) {
 						returnData = ajaxData;
-						console.error("RETURN DATA: " + JSON.stringify(returnData));
 						//we should have our data now. We need to format it for the table
 						var formattedData = [];
 						for (hit in returnData.hits.hits) {
@@ -266,7 +255,7 @@
 								formattedRow["timestamp"] = "";
 							}
 							if (hitData["cwsHost"] !== undefined) {
-								formattedRow["cws_host"] = hitData["host"];
+								formattedRow["cws_host"] = hitData["cwsHost"];
 							} else {
 								formattedRow["cws_host"] = "";
 							}
@@ -562,7 +551,6 @@
 			$("#logData").DataTable().ajax.reload(function(){
 				$("#log-div .ajax-spinner").hide();
 			},false);
-			console.log("refreshing");
 		}
 		
 	</script>
