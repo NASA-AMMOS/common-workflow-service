@@ -740,6 +740,16 @@ public class CwsConsoleService {
         return workers;
     }
 
+    public List<String> getAllWorkerIds() {
+        List<Map<String, Object>> workerIds = schedulerDbService.getWorkerIds();
+        List<String> allIds = new ArrayList<String>();
+        for (Map<String, Object> workerId: workerIds) {
+            String id = workerId.get("id").toString();
+            allIds.add(id);
+        }
+        return allIds;
+    }
+
     /**
      *
      */
@@ -1093,6 +1103,10 @@ public class CwsConsoleService {
     public String getProcInstStatusJson(String uuidOrProcInstId) {
         Map<String, Object> data = cwsProcessService.getProcInstStatusMap(uuidOrProcInstId);
         return new GsonBuilder().setPrettyPrinting().create().toJson(data);
+    }
+
+    public List<String> getProcInstIds() {
+        return schedulerDbService.getAllProcInsts();
     }
 
     /**

@@ -531,6 +531,10 @@ public class SchedulerDbService extends DbService implements InitializingBean {
         );
     }
 
+    public List<Map<String,Object>> getWorkerIds() {
+        return jdbcTemplate.queryForList("SELECT id FROM cws_worker ORDER BY id");
+    }
+
     public List<Map<String, Object>> getWorkers() {
         return jdbcTemplate.queryForList(
                 "SELECT * FROM cws_worker ORDER BY name");
@@ -881,6 +885,32 @@ public class SchedulerDbService extends DbService implements InitializingBean {
         log.trace("cwsRowsCount = " + cwsRowsCount + ", camundaRowsCount = " + camundaRowsCount);
 
         return cwsRowsCount + camundaRowsCount;
+    }
+
+    /**
+     * Returns the list of process instance IDs
+     */
+
+    public List<String> getAllProcInsts() {
+        String cwsQuery = "SELECT proc_inst_id FROM cws_sched_worker_proc_inst WHERE proc_inst_id IS NOT NULL;";
+        List<Map<String, Object>> cwsRows = jdbcTemplate.queryForList(cwsQuery);
+
+        String camundaQuery = "SELECT PI.proc_inst_id AS proc_inst_id FROM cws_proc_inst_status PI LEFT JOIN cws_sched_worker_proc_inst CI ON PI.proc_inst_id = CI.proc_inst_id WHERE PI.proc_inst_id IS NOT NULL;";
+        List<Map<String, Object>> camundaRows = jdbcTemplate.queryForList(camundaQuery);
+
+        List<String> ret = new ArrayList<String>();
+
+        for (Map<String, Object> cwsRow: cwsRows) {
+            ret.add((String) cwsRow.get("proc_inst_id"));
+        }
+
+        for (Map<String, Object> camundaRow: camundaRows) {
+            if (!ret.contains((String) camundaRow.get("proc_inst_id"))) {
+                ret.add((String) camundaRow.get("proc_inst_id"));
+            }
+        }
+
+        return ret;
     }
 
 

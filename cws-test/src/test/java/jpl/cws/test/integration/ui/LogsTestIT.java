@@ -117,19 +117,19 @@ public class LogsTestIT extends WebTestUtil {
 			findElByXPath("//div[@id='logData_wrapper']/div/div/div/button/span").click();
 
 			log.info("Checking CWS Host.");
-			findElByXPath("xpath=//a[contains(.,'CWS Host')]").click();
+			findElByXPath("//a[text()='CWS Host']").click();
 			sleep(1000);
 
 			log.info("Checking CWS Worker ID.");
-			findElByXPath("xpath=//a[contains(.,'CWS Worker ID')]").click();
+			findElByXPath("//a[text()='CWS Worker ID']").click();
 			sleep(1000);
 
 			log.info("Checking ProcDefKey.");
-			findElByXPath("xpath=//a[contains(.,'Proc Def Key')]").click();
+			findElByXPath("//a[text()='Proc Def Key']").click();
 			sleep(1000);
 
 			log.info("Checking ProcInstId.");
-			findElByXPath("xpath=//a[contains(.,'Proc Inst ID')]").click();
+			findElByXPath("//a[text()='Proc Inst ID']").click();
 			sleep(1000);
 			
 			wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.tagName("table")));

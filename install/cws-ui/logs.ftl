@@ -14,6 +14,7 @@
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
     <script src="/${base}/js/DataTables/dataTables.responsive.min.js"></script>
     <script src="/${base}/js/DataTables/responsive.bootstrap.min.js"></script>
+	<script src="/${base}/js/cws.js" type="text/javascript"></script>
 
 	<!--Load CSS Stylesheets-->
 	<link href="/${base}/css/bootstrap.min.css"rel="stylesheet">
@@ -138,11 +139,14 @@
 		$(document).ready(function(){
 		//show ajax spinner
 		$("#log-div .ajax-spinner").show();
+
+		document.addEventListener("click", function (e) {
+			closeAllLists(e.target);
+		});
 	
 		params = getQueryString();
 
 		mainEsReq = getEsReq();
-
 		//push our timestamp to the esreq
 		mainEsReq.query.bool.must.push({"range": {"@timestamp": {"lte": now}}});
 	
@@ -478,6 +482,9 @@
 	
 			$("#filters-div").slideToggle();
 		});
+
+		autocomplete(document.getElementById("pi-text"), procInstIdArr);
+		autocomplete(document.getElementById("worker-id-text"), workerIdArr);
 	
 		}); //END OF DOCUMENT.READY
 	
@@ -576,9 +583,12 @@
 			</span>
 			
 			<h2 class="sub-header">Logs</h2>
-			<div id="filters-div">
-				<h4>Filters:</h4>
-					<div class="col-md-4">
+			<div id="filters-div-flex">
+				<div id="filters-div-header">
+					<h4>Filters:</h4>
+				</div>
+				<div id="filters-div-row">
+					<div id="filters-div-col-1">
 						<h5>Process Definitions</h5>
 						<select id="pd-select">
 							<option value="def">All Process Definitions</option>
@@ -587,11 +597,15 @@
 							</#list>
 						</select>
 						<h5>Process Instances</h5>
-						<input id="pi-text"type="text"class="form-control"placeholder="Instance ID...">
+						<div class="autocomplete">
+							<input id="pi-text"type="text"class="form-control"placeholder="Instance ID...">
+						</div>
 						<h5>Worker ID</h5>
-						<input id="worker-id-text" type="text" class="form-control" placeholder="Worker ID...">
+						<div class="autocomplete">
+							<input id="worker-id-text" type="text" class="form-control" placeholder="Worker ID...">
+						</div>
 					</div>
-					<div class="col-md-4">
+					<div id="filters-div-col-2">
 						<h5>Log Level</h5>
 						<div id="log-level-sel">
 							<input type='checkbox'id='trace'value='TRACE'/>
@@ -606,20 +620,17 @@
 							<label for='error'>Error</label><br/>
 						</div>
 					</div>
-					<div class="col-md-4">
+					<div id="filters-div-col-3">
 						<h5>Search by Keyword</h5>
 						<input id="search-text"id="filter-text"type="text"class="form-control"placeholder="Search..."/>
 						<h5>Start Date:</h5>
 						<input id="start-date"class="form-control"placeholder="yyyy-mm-dd"
-        					data-date-format="yyyy-mm-dd"maxlength="10"type="text">
+							data-date-format="yyyy-mm-dd"maxlength="10"type="text">
 						<h5>End Date:</h5>
 						<input id="end-date"class="form-control"placeholder="yyyy-mm-dd"
-        					data-date-format="yyyy-mm-dd"size="16"type="text">
+							data-date-format="yyyy-mm-dd"size="16"type="text">
 					</div>
-
-					<div class="col-md-12" style="margin-top: 15px;">
-						<a id="filter-submit-btn"class="btn btn-info pull-right"href="#">Filter</a>
-					</div>
+				</div>
 			</div>
 			<div id="filter-btn-refresh-flexbox">
 				<div id="filters-btn"class="btn btn-warning"><span class="glyphicon glyphicon-filter">
@@ -675,9 +686,6 @@
 		</div><!--modal-content-->
 	</div><!--modal-dialog-->
 </div><!--.modal.fade-->
-
-
-<script type="text/javascript"src="/${base}/js/cws.js"></script>
 
 </body>
 </html>
