@@ -689,13 +689,7 @@ public class RestService extends MvcCore {
 		try {
 			//we need to decode source
 			log.debug("GET NO SCROLL BEFORE REPLACEMENT: " + source);
-			String result = java.net.URLDecoder.decode(source, StandardCharsets.UTF_8.name());
-			
-			//get index of 00:00
-			int index = result.indexOf("00:00");
-
-			//replace space in front of 00:00 with +
-			result = result.substring(0, index) + "+" + result.substring(index + 1);
+			String result = source;
 
 			log.debug("logs/get/noScroll: result: " + result);
 			RestCallResult restCallResult;
