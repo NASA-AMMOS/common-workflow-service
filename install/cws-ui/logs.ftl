@@ -44,6 +44,16 @@
 		var FETCH_COUNT=200;
 		var htmlTableRows=[];
 		var renderFlag=0;
+
+		var workerIdArr = [];
+		<#list workerIds as workerId>
+			workerIdArr.push("${workerId}");
+		</#list>
+
+		var procInstIdArr = [];
+		<#list procInstIds as procInstId>
+			procInstIdArr.push("${procInstId}");
+		</#list>
 	
 		var now = moment().format("YYYY-MM-DDTHH:mm:ss.SSSSSSZ");
 
@@ -126,6 +136,8 @@
 		}
 	
 		$(document).ready(function(){
+		//show ajax spinner
+		$("#log-div .ajax-spinner").show();
 	
 		params = getQueryString();
 
@@ -133,9 +145,6 @@
 
 		//push our timestamp to the esreq
 		mainEsReq.query.bool.must.push({"range": {"@timestamp": {"lte": now}}});
-
-		//show ajax spinner
-		$("#log-div .ajax-spinner").show();
 	
 		// DISPLAY MESSAGE AT TOP OF PAGE
 		//
@@ -437,15 +446,8 @@
 			}
 		}
 	
-		//
-		// INITIAL LOG SET
-		//
-		$("#log-div .ajax-spinner").show();
-	
 		//GET query string values
 		params=getQueryString();
-	
-		$("#log-div .ajax-spinner").hide();
 
 		$("#start-date").datepicker({
 			orientation: 'left top',
