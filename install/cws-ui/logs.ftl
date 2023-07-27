@@ -181,6 +181,10 @@
 					width: "215px"
 				},
 				{
+					targets: [1],
+					width: "75px"
+				},
+				{
 					targets: [3],
 					width: "75px"
 				},
