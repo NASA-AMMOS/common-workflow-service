@@ -111,20 +111,6 @@ jobs:
         with:
           name: test-screenshots
           path: test-screenshots/
-          
-      - name: Upload Startup / Shutdown Logs
-        if: ${{ always() && steps.build.outcome == 'success' }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: logs
-          path: dist/console-only/cws/logs
-          
-      - name: Upload server logs
-        if: ${{ always() && steps.build.outcome == 'success' }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: server-logs
-          path: dist/console-only/cws/server/apache-tomcat-9.0.72/logs
 
       - name: Send custom JSON data to Slack workflow
         if: ${{ always() && contains(env.TEAM, github.actor) }}
