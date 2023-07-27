@@ -114,6 +114,7 @@ public class LogsTestIT extends WebTestUtil {
 			goToPage("logs");
 
 			waitForElementXPath("//div[@id='logData_wrapper']/div/div/div/button/span");
+			findElByXPath("//div[@id='logData_wrapper']/div/div/div/button/span");
 
 			log.info("Checking CWS Host.");
 			findElByXPath("//a[contains(text(),'CWS Host')]").click();
