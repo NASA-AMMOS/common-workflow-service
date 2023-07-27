@@ -631,6 +631,9 @@
 							data-date-format="yyyy-mm-dd"size="16"type="text">
 					</div>
 				</div>
+				<div id="filters-div-row" style="justify-content: flex-end !important; margin-top: 15px;">
+					<a id="filter-submit-btn" class="btn btn-info pull-right" href="#">Filter</a>
+				</div>
 			</div>
 			<div id="filter-btn-refresh-flexbox">
 				<div id="filters-btn"class="btn btn-warning"><span class="glyphicon glyphicon-filter">

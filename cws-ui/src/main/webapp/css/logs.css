@@ -137,6 +137,7 @@ div.dts tbody th, div.dts tbody td {
 #filters-div-flex {
     border: 1px solid #eee;
     margin: 10px auto;
+    margin-right: 15px;
     padding: 10px;
     /*display: none;*/
     overflow: visible;
@@ -149,18 +150,21 @@ div.dts tbody th, div.dts tbody td {
     justify-content: space-around;
     align-items: flex-start;
     gap: 30px;
+    margin-left: 15px;
+    margin-right: 15px;
 }
 
 #filters-div-col-1 {
     flex-grow: 1;
-    max-width: 292px;
+    width: 33%;
 }
 
 #filters-div-col-2 {
     flex-grow: 1;
+    width: 33%;
 }
 
 #filters-div-col-3 {
     flex-grow: 1;
+    width: 33%;
 }
-

@@ -127,10 +127,10 @@ function removeActive(x) {
     }
 }
 
-function closeAllLists(elmnt) {
+function closeAllLists(elmnt, inp) {
     var x = document.getElementsByClassName("autocomplete-items-cws");
     for (var i = 0; i < x.length; i++) {
-        if (elmnt !== x[i] && elmnt !== inp) {
+        if (elmnt !== x[i]) {
             x[i].parentNode.removeChild(x[i]);
         }
     }
