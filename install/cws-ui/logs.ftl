@@ -63,31 +63,40 @@
 				}
 			}
 		};
+
+		var mainEsReq;
 	
 		//----------------------------
 		function getEsReq(){
+			console.log("getEsReq called");
 			renderFlag=0;
 			htmlTableRows=[];
 			var esReq=baseEsReq;
 			if (params !== undefined && params !== null) {
 				if(params.procDefKey !== undefined && params.procDefKey !== null){
 					esReq.query.bool.must.push({"match":{"procDefKey":params.procDefKey}});
+					console.log("pushing procDefKey: " + params.procDefKey);
 				}
 				if(params.logLevel  !== undefined && params.logLevel !== null){
 					esReq.query.bool.must.push({"match":{"logLevel":params.logLevel}});
+					console.log("pushing logLevel: " + params.logLevel);
 				}
 				if(params.program  !== undefined && params.program !== null){
 					esReq.query.bool.must.push({"match":{"program":params.program}});
+					console.log("pushing program: " + params.program);
 				}
 				if(params.procInstId  !== undefined && params.procInstId !== null){
 					//esReq.query.bool.must.push({"match":{"procInstId" : decodeURIComponent(params.procInstId)}});
 					esReq.query.bool.must.push({"query_string":{"fields":["procInstId"],"query":"\""+decodeURIComponent(params.procInstId)+"\""}});
+					console.log("pushing procInstId: " + params.procInstId);
 				}
 				if(params.search  !== undefined && params.search !== null){
 					esReq.query.bool.must.push({"query_string":{"fields":["msgBody"],"query":decodeURIComponent(params.search)}});
+					console.log("pushing search: " + params.search);
 				}
 				if (params.workerId !== undefined && params.workerId !== null) {
 					esReq.query.bool.must.push({"match":{"cwsWorkerId":params.workerId}});
+					console.log("pushing workerId: " + params.workerId);
 				}
 		
 				var startDate=params.startDate?decodeURIComponent(params.startDate):"";
@@ -122,29 +131,16 @@
 			}
 			return esReq;
 		}
-
-		function apiTest() {
-			var esReq = getEsReq();
-			esReq = JSON.stringify(esReq);
-			esReq = encodeURIComponent(esReq);
-			console.log("ESREQ: " + esReq);
-			$.ajax({
-					url: "/${base}/rest/logs/get/noScroll",
-					data: "source=" + esReq,
-					type: "GET",
-					async: false,
-					success: function (ajaxData) {
-						console.log("SUCCESS: " + JSON.stringify(ajaxData));
-					},
-					error: function (jqXHR, textStatus, errorThrown) {
-						console.log("ERROR: " + errorThrown);
-					}
-			});
-		}
 	
 		$(document).ready(function(){
 	
 		params = getQueryString();
+
+		mainEsReq = getEsReq();
+
+		//push our timestamp to the esreq
+		mainEsReq.query.bool.must.push({"range": {"@timestamp": {"lte": now}}});
+		console.log("pushing timestamp: " + now);
 
 		//show ajax spinner
 		$("#log-div .ajax-spinner").show();
@@ -229,18 +225,12 @@
 						console.log("Error getting total number of records: " + errorThrown);
 					}
 				});
-	
-				//get our esReq based off of filters above table
-				var esReq = getEsReq();
-
-				//push our timestamp to the esreq
-				esReq.query.bool.must.push({"range": {"@timestamp": {"lte": now}}});
 
 				//update our esReq with the new from value
-				esReq.from = parseInt(data.start);
+				mainEsReq.from = parseInt(data.start);
 				
 				//we need to change the esReq to return the requested number of elements
-				esReq.size = data.length;
+				mainEsReq.size = data.length;
 
 				var returnData;
 				var fetchError = "";
@@ -250,15 +240,15 @@
 				//console.log("STRINGIFIED: " + JSON.stringify(esReq));
 				//console.log("ENCODED: " + encodeURIComponent(JSON.stringify(esReq)));
 
-				esReq = JSON.stringify(esReq);
-				esReq = encodeURIComponent(esReq);
+				var local_esReq = JSON.stringify(mainEsReq);
+				local_esReq = encodeURIComponent(local_esReq);
 				//sometimes double quotes get left here? replace double quotes with url encoded
-				esReq = esReq.replace(/"/g, "%22");
-				console.error("ESREQ: " + esReq);
+				local_esReq = local_esReq.replace(/"/g, "%22");
+				console.error("ESREQ: " + local_esReq);
 
 				$.ajax({
 					url: "/${base}/rest/logs/get/noScroll",
-					data: "source=" + esReq,
+					data: "source=" + local_esReq,
 					type: "GET",
 					async: false,
 					success: function (ajaxData) {
@@ -553,7 +543,22 @@
 		function refreshLogs(){
 			$("#log-div .ajax-spinner").show();
 			//update timestamp to grab new logs
+			var oldNow = now;
 			now=moment().format("YYYY-MM-DDTHH:mm:ss.SSSSSSZ");
+			
+			//find the condition with oldNow timestamp and update it to be now
+			for (var i = 0; i < mainEsReq.query.bool.must.length; i++) {
+				if (mainEsReq.query.bool.must[i].range !== undefined) {
+					if (mainEsReq.query.bool.must[i].range["@timestamp"] !== undefined) {
+						if (mainEsReq.query.bool.must[i].range["@timestamp"].lte !== undefined) {
+							if (mainEsReq.query.bool.must[i].range["@timestamp"].lte == oldNow) {
+								mainEsReq.query.bool.must[i].range["@timestamp"].lte = now;
+							}
+						}
+					}
+				}
+			}
+
 			$("#logData").DataTable().ajax.reload(function(){
 				$("#log-div .ajax-spinner").hide();
 			},false);
