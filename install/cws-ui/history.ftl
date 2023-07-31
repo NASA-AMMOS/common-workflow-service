@@ -16,28 +16,14 @@
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<link href="/${base}/css/microtip.css" rel="stylesheet">
-	<style>
-		.dataTables_wrapper .filter .dataTables_filter{float:right; padding-top: 15px; display: inline; margin-right: 15px;}
-		.dataTables_wrapper .download-button {padding-top: 15px;}
-		.dataTables_wrapper .button {float:left; display: inline; margin-top: 15px; margin-right: 15px;}
-		.dataTables_wrapper {margin-left: 5px; margin-right: -10px;}
-		summary {
-			width: 100px;
-		}
-		.historyLimitSize {
-			max-height: 150px;
-		}
-		.thumbnail {
-			margin-top: 5px !important;
-			margin-bottom: 0px !important;
-		}
-	</style>
+	<link href="/${base}/css/history.css" rel="stylesheet">
 	<script>
 
 	//STATE PERSISTANCE VARS
 	var username = "username";
 	var downloadFileTypeVar = "CWS_DASH_HISTORY_DOWNLOAD_FILE_TYPE-" + username;
-	var datatableStateVar = "CWS_DASH_HISTORY_DATATABLE_STATE-" + username + "_";
+	var datatableStateVar = "CWS_DASH_HISTORY_DATATABLE_STATE-" + username;
+	var hideLogLinesVar = "CWS_DASH_HISTORY_HIDE_LOG_LINES-" + username;
 
 	// Global vars
 	var isDataTablesInit = 0;
@@ -462,11 +448,12 @@
 	}
 	
 	$( document ).ready(function() {
-
+		
 		$("#logData").DataTable({
 			order: [[0, 'asc']],
 			paging: false,
-			dom: "<'row'<'col-sm-2 download-button'><'col-sm-10 filter'f>>" + "tip",
+			dom: "<'above-table-div'<'above-table-buttons'><'above-table-filler'><'above-table-filter'f>>"
+                        + "t"
 		});
 
 		$('<div class="dropdown" style="display:inline;">'
@@ -477,7 +464,20 @@
 			+ '<li id="action_download_json" class="enabled" role="presentation"><a id="json-bttn" role="menuitem" href="#">Download as JSON</a></li>'
 			+ '<li id="action_download_csv" class="enabled" role="presentation"><a id="csv-bttn" role="menuitem" href="#">Download as CSV</a></li>'
   			+ '</ul>'
-  			+ '</div>').appendTo(".download-button");
+  			+ '</div>').appendTo(".above-table-buttons");
+
+		$('<div id="hide-log-lines" style="display: inline;">'
+			+ '<input type="checkbox" id="hide-log-lines-checkbox" checked>'
+			+ '<label style="margin-left: 8px;" for="hide-log-lines-checkbox">Hide Command Output Log Lines</label>'
+			+ '</div>').appendTo(".above-table-buttons");
+
+		if (localStorage.getItem(hideLogLinesVar) === "true") {
+			$("#hide-log-lines-checkbox").attr("checked", true);
+		} else if (localStorage.getItem(hideLogLinesVar) === "false") {
+			$("#hide-log-lines-checkbox").attr("checked", false);
+		} else {
+			$("#hide-log-lines-checkbox").attr("checked", true);
+		}
 
 		// Get query string values
 		params = getQueryString();
@@ -508,6 +508,23 @@
 		$("#csv-bttn").click(function(e) {
 			e.preventDefault();
 			downloadLogCSV();
+		});
+
+		//if the checkbox is checked, hide the log lines
+		if ($("#hide-log-lines-checkbox").is(":checked")) {
+			$("#logData").DataTable().column(3).search("^(?!LINE: )", true, false).draw();
+		} else {
+			$("#logData").DataTable().column(3).search("").draw();
+		}
+		
+		$("#hide-log-lines-checkbox").change(function() {
+			if(this.checked) {
+				$("#logData").DataTable().column(3).search("^(?!LINE: )", true, false).draw();
+				localStorage.setItem(hideLogLinesVar, "true");
+			} else {
+				$("#logData").DataTable().column(3).search("").draw();
+				localStorage.setItem(hideLogLinesVar, "false");
+			}
 		});
 
 
@@ -890,33 +907,6 @@ function convertMillis(millis) {
 		<script src="/${base}/js/html5shiv.js"></script>
 		<script src="/${base}/js/respond.min.js"></script>
 	<![endif]-->
-
-	<style type="text/css">
-
-	#logData{
-		font-size:95%;
-	}
-	#logData tr th{
-		white-space: nowrap;
-	}
-	/* log level header*/
-	#logData tr th:nth-child(5){
-		padding-right: 25px;
-	}
-	#logData tr td{
-		line-height: 1;
-	}
-	#logData tr td:nth-child(4){
-		/*overflow: auto;*/
-		word-wrap: break-word;
-		word-break: break-all;
-		font-family: courier,consolas;
-		/*white-space: normal !important;*/
-	}
-	summary {
-		display: list-item;
-	}
-	</style>
 
 </head>
 
