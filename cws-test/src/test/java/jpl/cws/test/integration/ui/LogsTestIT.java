@@ -4,10 +4,17 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -70,14 +77,24 @@ public class LogsTestIT extends WebTestUtil {
 			
 			log.info("Looking for text, 'Graphite', 'Command ls exit exit code: 0', and 'Deployed process definitions: test_logs_page.bpmn'.");
 
-			if (findOnPage("Graphite")
-					&& findOnPage("Command 'ls' exit code: 0")
-					&& findOnPage("Deployed process definition: 'test_logs_page.bpmn'")) {
-				scriptPass = true;
-				testCasesCompleted++;
+			if (findOnPage("Graphite")) {
+				log.info("Found Graphite on page.");
+				if (findOnPage("Command 'ls' exit code: 0")) {
+					log.info("Found Command 'ls' exit code: 0 on page.");
+					if (findOnPage("Deployed process definition: 'test_logs_page.bpmn'")) {
+						log.info("Found Deployed process definition: 'text_logs_page.bpmn' on page.");
+						scriptPass = true;
+						testCasesCompleted++;
+					} else {
+						log.info("\"Deployed process definition: 'test_logs_page.bpmn'\" not found.");
+					}
+				} else {
+					log.info("\"Command 'ls' exit code: 0\" not found.");
+				}
 			} else {
-				log.info("Not found.");
+				log.info("\"Graphite\" not found.");
 			}
+
 			log.info("------ END LogsTestIT:runOutputTest ------");
 		}
 		catch (Throwable e) {
@@ -95,35 +112,24 @@ public class LogsTestIT extends WebTestUtil {
 			log.info("------ START LogsTestIT:runTableColumnTest ------");
 			
 			goToPage("logs");
-			
-			waitForElementID("cwshost-chkbox");
+
+			waitForElementXPath("//div[@id='logData_wrapper']/div/div/div/button/span");
+			findElByXPath("//div[@id='logData_wrapper']/div/div/div/button/span").click();
+
 			log.info("Checking CWS Host.");
-			findElById("cwshost-chkbox").click();
+			findElByXPath("//a[text()='CWS Host']").click();
 			sleep(1000);
-			
-			waitForElementID("cwswid-chkbox");
-			log.info("Checking CWS ID.");
-			findElById("cwswid-chkbox").click();
+
+			log.info("Checking CWS Worker ID.");
+			findElByXPath("//a[text()='CWS Worker ID']").click();
 			sleep(1000);
-			
-			waitForElementID("loglvl-chkbox");
-			log.info("Checking Log Level.");
-			findElById("loglvl-chkbox").click();
+
+			log.info("Checking ProcDefKey.");
+			findElByXPath("//a[text()='Proc Def Key']").click();
 			sleep(1000);
-			
-			waitForElementID("thn-chkbox");
-			log.info("Checking Thread Name.");
-			findElById("thn-chkbox").click();
-			sleep(1000);
-			
-			waitForElementID("pdk-chkbox");
-			log.info("Checking Process Definition Key.");
-			findElById("pdk-chkbox").click();
-			sleep(1000);
-			
-			waitForElementID("pid-chkbox");
-			log.info("Checking Process ID.");
-			findElById("pid-chkbox").click();
+
+			log.info("Checking ProcInstId.");
+			findElByXPath("//a[text()='Proc Inst ID']").click();
 			sleep(1000);
 			
 			wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.tagName("table")));

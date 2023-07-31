@@ -421,7 +421,7 @@
 				//dom: "<'row'<'col-sm-2 download-button'><'col-sm-10 filter'f>>" + "tip",
 			});
 
-			$('<button id="download-btn" class="btn btn-primary" onclick="downloadJSON()"><i class="glyphicon glyphicon-save btn-icon"></i>Download (JSON)</button>').appendTo(".above-table-buttons");
+			$('<button id="download-btn" class="btn btn-primary" onclick="downloadJSON()"><i class="glyphicon glyphicon-save btn-icon"></i>Download</button>').appendTo(".above-table-buttons");
 
 			refreshStats();
 			pageRefId = setInterval(pageRefresh, parseInt(localStorage.getItem(refreshRateVar)));

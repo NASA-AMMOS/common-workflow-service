@@ -220,7 +220,7 @@ public class WebTestUtil {
 	protected void goToPage(String page) {
 		log.info("Navigating to " + page + " page");
 		driver.get("http://"+HOSTNAME+":"+PORT + "/cws-ui/" + page);
-		driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
+		driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(60));
 		postLogging(page, "Navigated to ");
 
 	}

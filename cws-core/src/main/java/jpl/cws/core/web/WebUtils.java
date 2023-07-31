@@ -71,7 +71,7 @@ public class WebUtils {
 	 * 
 	 */
 	public static RestCallResult restCall(String urlString, String method, String data, String cookie, String acceptType, String contentType, Boolean allowInsecureRequests, String username, String password) throws Exception {
-		log.trace("urlString = " + urlString);
+		log.debug("urlString = " + urlString);
 		HttpURLConnection connection = null;
 		try {
 			
