@@ -364,7 +364,7 @@
                                     }
                                     return '<div class="table-cell-flex"><p>' + data + '</p>' 
                                                 + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div>";
                                 }
@@ -378,13 +378,13 @@
                                         var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + data.procInstId + "/runtime?tab=incidents-tab";
                                         return "<div class='table-cell-flex'><a href=\"" + incidentUrl + "\" target=\"blank_\">" + data.procInstId + "</a>"
                                             + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
                                             + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                             + "</span></div>";
                                     } else {
                                         return '<div class="table-cell-flex"><p>' + data.procInstId + '</p>' 
                                                 + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div>";
                                     }
@@ -428,7 +428,7 @@
                                     }
                                     return '<div class="table-cell-flex"><p>' + data + '</p>' 
                                                 + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div>";
                                 } else {
@@ -447,7 +447,7 @@
                                     }
                                     return '<div class="table-cell-flex"><p>' + data + '</p>' 
                                                 + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div>";
                                 }
@@ -463,13 +463,13 @@
                                             + data 
                                             + '</p>' 
                                             + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
                                             + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                             + "</span></div></div>"
                                             + '<div class="table-cell-flex"><div style="margin-top: 0px;">'
                                             + "<b>Worker IP: </b>" + data.split("_").slice(0, -2).join(".") + '</div>'
                                             + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data.split("_").slice(0, -2).join(".") + "\" onClick=''>"
+                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data.split("_").slice(0, -2).join(".") + "\" onClick=''>"
                                             + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                             + "</span></div></div>";
                                     }
@@ -485,7 +485,7 @@
                                 } else {
                                     return '<div class="table-cell-flex"><p>' + data + '</p>' 
                                                 + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div>";
                                 }
@@ -509,7 +509,7 @@
                                         + data.procEndTime + procDuration
                                         + '</p>' 
                                         + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                        + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data.procEndTime + "\" onClick=''>"
+                                        + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data.procEndTime + "\" onClick=''>"
                                         + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                         + "</span></div>";
                                 } else {
@@ -606,7 +606,7 @@
                                     }
                                     return '<div class="table-cell-flex"><p>' + data + '</p>' 
                                                 + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div>";
                                 }
@@ -623,7 +623,7 @@
                                     }
                                     return '<div class="table-cell-flex"><p>' + data + '</p>' 
                                                 + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div>";
                                 }
@@ -840,11 +840,13 @@
                     e.preventDefault();
                     var copyValue = $(this).attr('data-copyValue');
                     var isImage = $(this).attr('data-isImage');
+                    console.log(isImage);
                     copyInput(copyValue, isImage);
                     $(this).attr('aria-label', 'Copied!');
                     setTimeout(function () {
                         $('.copy').attr('aria-label', 'Copy');
                     }, 2000);
+                    console.log("fire");
                 });
 
                 //add our action dropdown button to the div that datatables created (created in dom: above)
