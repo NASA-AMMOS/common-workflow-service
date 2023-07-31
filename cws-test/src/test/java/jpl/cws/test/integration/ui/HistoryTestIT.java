@@ -81,6 +81,9 @@ public class HistoryTestIT extends WebTestUtil {
 
 			findOnPage("CWS - History");
 
+			waitForElementXPath("//input[@id='hide-log-lines-checkbox']");
+			driver.findElement(By.xpath("//input[@id='hide-log-lines-checkbox']")).click();
+
 			if (findOnPage("History Page.")
 					&& findOnPage("Command 'mkdir Test' exit code: 0")
 					&& findOnPage("Command 'ls' exit code: 0")
