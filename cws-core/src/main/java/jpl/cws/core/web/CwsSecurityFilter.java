@@ -51,10 +51,15 @@ public abstract class CwsSecurityFilter implements javax.servlet.Filter {
 	protected AuthorizationService authorizationService;
 
 	protected String cwsSecurityScheme;
-	
+
+	private String cwsWebPort;
+	private String cwsSSLPort;
+
 	public void init(FilterConfig filterConfig) {
 		try {
 			cwsSecurityScheme = filterConfig.getInitParameter("identityPluginType");
+			cwsWebPort = filterConfig.getInitParameter("cwsWebPort");
+			cwsSSLPort = filterConfig.getInitParameter("cwsSSLPort");
 			log.debug("CWS Security scheme is: " + cwsSecurityScheme);
 
 			this.contextPath = filterConfig.getServletContext().getContextPath();
@@ -310,7 +315,7 @@ public abstract class CwsSecurityFilter implements javax.servlet.Filter {
 			resp.setStatus(301);
 			String newURL = getBaseUrl(req);
 			newURL = newURL.replaceFirst("http:", "https:");
-			newURL = newURL.replaceFirst("38080", "38443");
+			newURL = newURL.replaceFirst(cwsWebPort, cwsSSLPort);
 			resp.setHeader("Location", newURL);
 		}
 	}
