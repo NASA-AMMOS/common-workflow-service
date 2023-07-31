@@ -377,11 +377,11 @@
 								return data.name;
 							} else {
 								var html = `<div class="proc-name-flex"><div class="proc-name-btns">`
-									+ `<a href="/${base}/modeler?procDefKey=` + data.key + `" target="_blank"></span>`
+									+ `<a href="/${base}/modeler?procDefKey=` + data.key + `" target="_blank">`
 									+ `<span style="float: right;" id="edit-` + data.key + `" class="glyphicon glyphicon-pencil"></span></a>`
 									+ `<a data-proc-key="` + data.key + `" onClick="handleDeleteProcDef('` + data.key + `')"><span style="cursor: pointer; float: right; color: #d9534f; padding-left: 7;" id="delete-` 
-									+ data.key + `" class="glyphicon glyphicon-remove-sign"></a></div>`
-									+ `<div class-"proc-name-name"><a style="cursor: pointer;" onClick='parent.location="/camunda/app/cockpit/default/#/process-definition/` + data.id + `/runtime"'/>` + data.name + `</a></div>`;
+									+ data.key + `" class="glyphicon glyphicon-remove-sign"></span></a>`
+									+ `</div><div class-"proc-name-name"><a style="cursor: pointer;" onClick='parent.location="/camunda/app/cockpit/default/#/process-definition/` + data.id + `/runtime"'/>` + data.name + `</a></div>`;
 								return html;
 							}
 						}
@@ -429,7 +429,7 @@
 						}
 					},
 					{
-						data: { suspended: "suspended", key: "key"},
+						data: { suspended: "suspended", key: "key", id: "id" },
 						render: function (data, type) {
 							if (type !== 'display') {
 								if (data.suspended === "true") {
@@ -440,13 +440,19 @@
 								}
 							} else {
 								var status = "";
+								var html = "";
 								if (data.suspended == "true") {
-									status = "Suspended";
+									html = `<div class="status-div-flex"><div class="pause-btn-div"><a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="resumeProcDef('` + data.id + `', '` + data.key + `')">`
+									+ `<span style="cursor: pointer; float: right; padding-left: 7; color: green;" id="suspend-` 
+									+ data.key + `" class="glyphicon glyphicon-play"></span></a></div>`
+									+ `<div class="status-div-text" id="status-txt-` + data.key + `">Suspended</div></div>`;
 								}
 								else {
-									status = "Active";
+									html = `<div class="status-div-flex"><div class="pause-btn-div"><a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="suspendProcDef('` + data.id + `', '` + data.key + `')">`
+									+ `<span style="cursor: pointer; float: right; padding-left: 7; color: #d9534f;" id="suspend-` 
+									+ data.key + `" class="glyphicon glyphicon-pause"></span></a></div>`
+									+ `<div class="status-div-text" id="status-txt-` + data.key + `">Active</div></div>`;
 								}
-								var html = status + `<img id="spinner_` + data.key + `" src="/${base}/images/spinner.20.gif" style="display: none;"/>`;
 								return html;
 							}
 						}
@@ -582,6 +588,54 @@
 				idling = true;
 				$("#page-ref-modal").modal('show');
 			}
+		}
+
+		//suspend procDef given procDefId
+		function suspendProcDef(procDefId, procDefKey) {
+			console.log("Suspending procDefId: " + procDefId);
+			var result;
+			//make a post request to suspend the procDef
+			$.ajax({
+				url: "/${base}/rest/deployments/suspend/" + encodeURIComponent(procDefId),
+				type: "POST",
+				success: function (data) {
+					console.log("successfully suspended");
+					//change the glyphicon to play & make green
+					$("#suspend-" + procDefKey).removeClass("glyphicon-pause");
+					$("#suspend-" + procDefKey).addClass("glyphicon-play");
+					$("#suspend-" + procDefKey).css("color", "green");
+					$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
+					$("#status-txt-" + procDefKey).html("Suspended");
+				},
+				error: function(data) {
+					console.log("error suspending");
+				}
+			})
+
+		}
+
+		//resume procDef given procDefId
+		function resumeProcDef(procDefId, procDefKey) {
+			console.log("Resuming procDefId: " + procDefId);
+			var result;
+			//make a post request to suspend the procDef
+			$.ajax({
+				url: "/${base}/rest/deployments/activate/" + encodeURIComponent(procDefId),
+				type: "POST",
+				success: function (data) {
+					console.log("successfully activated");
+					//change the glyphicon to pause & make color #d9534f
+					$("#suspend-" + procDefKey).removeClass("glyphicon-play");
+					$("#suspend-" + procDefKey).addClass("glyphicon-pause");
+					$("#suspend-" + procDefKey).css("color", "#d9534f");
+					$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
+					$("#status-txt-" + procDefKey).html("Active");
+				},
+				error: function(data) {
+					console.log("error activating");
+				}
+			})
+
 		}
 
 		$(function () {

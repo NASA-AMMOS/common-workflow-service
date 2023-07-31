@@ -1218,4 +1218,30 @@ public class CwsConsoleService {
             throw e;
         }
     }
+
+    /**
+     * Suspend a procDefKey given a procDefId
+     */
+    public String suspendProcDefId(String procDefId) {
+        try {
+            repositoryService.updateProcessDefinitionSuspensionState().byProcessDefinitionId(procDefId).suspend();
+            return "Success";
+        } catch (Exception e) {
+            log.error("*** ERROR *** Could not suspend procDefId: " + e);
+            return "Error";
+        }
+    }
+
+    /**
+     * Activate a suspended procDefKey given a procDefId
+     */
+    public String activateProcDefId(String procDefId) {
+        try {
+            repositoryService.updateProcessDefinitionSuspensionState().byProcessDefinitionId(procDefId).activate();
+            return "Success";
+        } catch (Exception e) {
+            log.error("*** ERROR *** Could not activate procDefId: " + e);
+            return "Error";
+        }
+    }
 }

@@ -198,3 +198,17 @@
     align-content: space-between;
     gap: 5px;
 }
+
+.status-div-flex {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: baseline;
+    align-content: center;
+    gap: 10px;
+}
+
+.glyphicon-pause {
+    scale: 1.5;
+}

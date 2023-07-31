@@ -1436,7 +1436,30 @@ public class RestService extends MvcCore {
 		
 		return "success";
 	}
-	
+
+	/**
+	 * Suspends a process definition given its procDefId
+	 *
+	 */
+	@RequestMapping(value = "/deployments/suspend/{procDefId}", method = POST)
+	public @ResponseBody String suspendProcDefId(
+			@PathVariable String procDefId) {
+		log.info("*** REST CALL *** suspendProcDefId (procDefId=" + procDefId + ")");
+		String result = cwsConsoleService.suspendProcDefId(procDefId);
+		return result;
+	}
+
+	/**
+	 * Activates a suspended process definition given its procDefId
+	 *
+	 */
+	@RequestMapping(value = "/deployments/activate/{procDefId}", method = POST)
+	public @ResponseBody String activateProcDefId(
+			@PathVariable String procDefId ) {
+		log.info ("*** REST CALL *** activateProcDefId (procDefId" + procDefId + ")");
+		String result = cwsConsoleService.activateProcDefId(procDefId);
+		return result;
+	}
 	
 	/**
 	 * 
