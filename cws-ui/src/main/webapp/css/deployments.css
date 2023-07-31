@@ -179,3 +179,22 @@
         transform: rotate(360deg);
     }
 }
+
+.proc-name-flex {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.proc-name-btns {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    align-content: space-between;
+    gap: 5px;
+}
