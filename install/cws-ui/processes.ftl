@@ -374,6 +374,9 @@
                             data: { procInstId: "procInstId", status: "status" },
                             render: function (data, type) {
                                 if (type === 'display') {
+                                    if (data.procInstId === null) {
+                                        return "";
+                                    }
                                     if (data.status === "incident") {
                                         var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + data.procInstId + "/runtime?tab=incidents-tab";
                                         return "<div class='table-cell-flex'><a href=\"" + incidentUrl + "\" target=\"blank_\">" + data.procInstId + "</a>"
@@ -481,8 +484,14 @@
                             data: "procStartTime",
                             render: function (data, type) {
                                 if (type !== "display") {
+                                    if (data === null) {
+                                        return "";
+                                    }
                                     return data;
                                 } else {
+                                    if (data === null || data === undefined || data === "") {
+                                        return "";
+                                    }
                                     return '<div class="table-cell-flex"><p>' + data + '</p>' 
                                                 + "<div class=\"copySpan\" style=\"width: 20px;\">"
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
