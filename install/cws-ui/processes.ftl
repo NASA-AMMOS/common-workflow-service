@@ -201,6 +201,7 @@
             //STATE PERSISTANCE CONSTS
             const username = "username"; //temporary, hardcoded value for now
             const hideSubProcsVar = "CWS_DASH_PROCS_HIDE_SUBPROCS-" + username;
+            const qStringVar = "CWS_DASH_PROCS_QSTRING-" + username;
 
             //GLOBAL VARS
             var params = {};
@@ -211,6 +212,16 @@
                 //(automatically hides subprocs if never visited this page before)
                 if (localStorage.getItem(hideSubProcsVar) === null) {
                     localStorage.setItem(hideSubProcsVar, true);
+                }
+
+                //try to load qStringVar from local storage. If it doesn't exist, ignore
+                if (localStorage.getItem(qStringVar) !== null) {
+                    //if we have a qStringVar, we want to apply it and then update location
+                    var qString = localStorage.getItem(qStringVar);
+                    if(!(isEqual(parseQueryString(qString), getQueryString()))){
+                        applyParamsToFilters(parseQueryString(qString));
+                        updateLocation(false);
+                    }
                 }
 
                 //initialize our datepicker elements
@@ -937,6 +948,8 @@
                     }
                 }
                 qstring = qstring.substring(0, qstring.length - 1);
+                //save qstring
+                localStorage.setItem(qStringVar, qstring);
                 console.log(encodeURI(qstring));
                 window.location = "/${base}/processes" + qstring;
             }
