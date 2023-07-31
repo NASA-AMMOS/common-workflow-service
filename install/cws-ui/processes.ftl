@@ -376,47 +376,61 @@
                                 if (type === 'display') {
                                     if (data.status === "incident") {
                                         var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + data.procInstId + "/runtime?tab=incidents-tab";
-                                        return "<a href=\"" + incidentUrl + "\" target=\"blank_\">" + data.procInstId + "</a>";
+                                        return "<div class='table-cell-flex'><a href=\"" + incidentUrl + "\" target=\"blank_\">" + data.procInstId + "</a>"
+                                            + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                            + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                            + "</span></div>";
                                     } else {
-                                        return data.procInstId;
+                                        return '<div class="table-cell-flex"><p>' + data.procInstId + '</p>' 
+                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div>";
                                     }
                                 } else {
-                                    return data;
+                                    return data.procInstId;
                                 }
                             }
                         },
                         { 
                             data: "status",
                             render: function(data, type) {
+                                var status;
                                 if (type === 'display') {
                                     switch(data) {
                                         case "fail" :
-                                            return "<p class=\"tr-fail\">" + data + "</p>";
+                                            status = "<p class=\"tr-fail\">" + data + "</p>";
                                             break;
                                         case "incident" :
-                                            return "<p class=\"tr-incident\">" + data + "</p>";
+                                            status = "<p class=\"tr-incident\">" + data + "</p>";
                                             break;
                                         case "complete": 
-                                            return "<p class=\"tr-complete\">" + data + "</p>";
+                                            status = "<p class=\"tr-complete\">" + data + "</p>";
                                             break;
                                         case "resolved": 
-                                            return "<p class=\"tr-complete\">" + data + "</p>";
+                                            status = "<p class=\"tr-complete\">" + data + "</p>";
                                             break;
                                         case "running":
-                                            return "<p class=\"tr-running\">" + data + "</p>";
+                                            status = "<p class=\"tr-running\">" + data + "</p>";
                                             break;
                                         case "pending":
-                                            return "<p class=\"tr-pending\">" + data + "</p>";
+                                            status = "<p class=\"tr-pending\">" + data + "</p>";
                                             break;
                                         case "disabled":
-                                            return "<p class=\"tr-failed\">" + data + "</p>";
+                                            status = "<p class=\"tr-failed\">" + data + "</p>";
                                             break;
                                         case "failedToStart":
-                                            return "<p class=\"tr-failed\">" + data + "</p>";
+                                            status =  "<p class=\"tr-failed\">" + data + "</p>";
                                             break;
                                         default:
-                                            return data;
+                                            status =  data;
                                     }
+                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
+                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div>";
                                 } else {
                                     return data;
                                 }
@@ -444,7 +458,20 @@
                             render: function (data, type) {
                                 if (type === 'display') {
                                     if (data !== null) {
-                                        return data + "<br><b>Worker IP: </b>" + data.split("_").slice(0, -2).join(".");
+                                        return '<div class="table-cell-main-flex">'
+                                            + '<div class="table-cell-flex"><p>'
+                                            + data 
+                                            + '</p>' 
+                                            + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                            + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                            + "</span></div></div>"
+                                            + '<div class="table-cell-flex"><div style="margin-top: 0px;">'
+                                            + "<b>Worker IP: </b>" + data.split("_").slice(0, -2).join(".") + '</div>'
+                                            + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data.split("_").slice(0, -2).join(".") + "\" onClick=''>"
+                                            + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                            + "</span></div></div>";
                                     }
                                 }
                                 return data;
@@ -478,7 +505,13 @@
                                     } else {
                                         var procDuration = '';
                                     }
-                                    return data.procEndTime + procDuration;
+                                    return '<div class="table-cell-flex"><p>' 
+                                        + data.procEndTime + procDuration
+                                        + '</p>' 
+                                        + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                        + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data.procEndTime + "\" onClick=''>"
+                                        + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                        + "</span></div>";
                                 } else {
                                     return data.procEndTime;
                                 }

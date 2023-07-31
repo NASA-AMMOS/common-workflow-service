@@ -128,3 +128,12 @@ summary {
     align-items: flex-start;
     gap: 10px;
 }
+
+.table-cell-main-flex {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0px;
+}
