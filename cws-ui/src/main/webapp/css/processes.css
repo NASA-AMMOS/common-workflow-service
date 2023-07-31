@@ -119,3 +119,12 @@ summary {
     gap: 10px;
     margin-bottom: 5px;
 }
+
+.table-cell-flex {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}

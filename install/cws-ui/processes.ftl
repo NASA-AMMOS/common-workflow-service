@@ -355,6 +355,20 @@
                         },
                         {
                             data: "procDefKey",
+                            render: function (data, type) {
+                                if (type !== "display") {
+                                    return data;
+                                } else {
+                                    if (data === null || data === undefined || data === "") {
+                                        return "";
+                                    }
+                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
+                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div>";
+                                }
+                            }
                         },
                         {
                             data: { procInstId: "procInstId", status: "status" },
@@ -408,7 +422,23 @@
                                 }
                             }
                         },
-                        { data: "createdTimestamp" },
+                        { 
+                            data: "createdTimestamp",
+                            render: function (data, type) {
+                                if (type !== "display") {
+                                    return data;
+                                } else {
+                                    if (data === null || data === undefined || data === "") {
+                                        return "";
+                                    }
+                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
+                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div>";
+                                }
+                            }
+                        },
                         {
                             data: "startedByWorker",
                             render: function (data, type) {
@@ -420,7 +450,20 @@
                                 return data;
                             }
                         },
-                        { data: "procStartTime" },
+                        { 
+                            data: "procStartTime",
+                            render: function (data, type) {
+                                if (type !== "display") {
+                                    return data;
+                                } else {
+                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
+                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div>";
+                                }
+                            }
+                        },
                         {
                             data: { procEndTime: "procEndTime", procStartTime: "procStartTime" },
                             render: function (data, type) {
@@ -519,8 +562,40 @@
                                 }
                             }
                         },
-                        { data: "superProcInstId" },
-                        { data: "uuid" },
+                        { 
+                            data: "superProcInstId",
+                            render: function (data, type) {
+                                if (type !== "display") {
+                                    return data;
+                                } else {
+                                    if (data === null || data === undefined || data === "") {
+                                        return "";
+                                    }
+                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
+                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div>";
+                                }
+                            }
+                        },
+                        {
+                            data: "uuid",
+                            render: function (data, type) {
+                                if (type !== "display") {
+                                    return data;
+                                } else {
+                                    if (data === null || data === undefined || data === "") {
+                                        return "";
+                                    }
+                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
+                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div>";
+                                }
+                            }
+                        },
                         {
                             data: "outputVariables",
                             render: function (data, type) {
