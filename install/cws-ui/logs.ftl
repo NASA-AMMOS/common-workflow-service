@@ -56,7 +56,7 @@
 			procInstIdArr.push("${procInstId}");
 		</#list>
 	
-		var now = moment().format("YYYY-MM-DDTHH:mm:ss.SSSSSSZ");
+		var now = moment().format("YYYY-MM-DDTHH:mm:ss.SSSSSS");
 
 		var refID;
 	
@@ -400,6 +400,15 @@
 				}
 			});
 		}); 
+
+		$("#logData_info.dataTables_info").on(change, function() {
+			//if it contains " of 10,000 entries", then display at top of page 
+			if ($("#logData_info.dataTables_info").text().includes(" of 10,000 entries")) {
+				$("#warning-msg").show();
+			} else {
+				$("#warning-msg").hide();
+			}
+		});
 	
 		if(localStorage.getItem(refreshRateVar)===null){
 			localStorage.setItem(refreshRateVar,"10000");
@@ -631,8 +640,9 @@
 							data-date-format="yyyy-mm-dd"size="16"type="text">
 					</div>
 				</div>
-				<div id="filters-div-row" style="justify-content: flex-end !important; margin-top: 15px;">
-					<a id="filter-submit-btn" class="btn btn-info pull-right" href="#">Filter</a>
+				<div class="filter-div-submit">
+					<b style="margin-top: auto; margin-bottom: auto; color: red;" id="warning-msg">Warning: Only the most recent 10,000 entries are displayed. Please narrow your search criteria.</b>
+					<a id="filter-submit-btn" class="btn btn-info" href="#">Filter</a>
 				</div>
 			</div>
 			<div id="filter-btn-refresh-flexbox">

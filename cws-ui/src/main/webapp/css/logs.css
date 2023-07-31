@@ -168,3 +168,15 @@ div.dts tbody th, div.dts tbody td {
     flex-grow: 1;
     width: 33%;
 }
+
+.filter-div-submit {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-top: 15px;
+}
