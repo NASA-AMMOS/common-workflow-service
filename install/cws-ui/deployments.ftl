@@ -11,56 +11,8 @@
 	<script src="/${base}/js/DataTables/datatables.js"></script>
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
-	<style>
-		.dataTables_wrapper .filter .dataTables_filter {
-			float: right;
-			padding-top: 15px;
-			display: inline;
-			margin-right: 15px;
-		}
+	<link href="/${base}/css/deployments.css" rel="stylesheet">
 
-		.dataTables_wrapper .mylength .dataTables_length {
-			float: right
-		}
-
-		.dataTables_wrapper .download-button {
-			padding-top: 15px;
-		}
-
-		.above-table-div {
-			display: flex;
-			flex-direction: row;
-			flex-wrap: nowrap;
-			justify-content: space-between;
-			align-items: flex-end;
-			gap: 10px;
-			margin-bottom: 5px;
-			margin-top: 15px;
-		}
-
-		.above-table-buttons {
-			display: flex;
-			flex-direction: row;
-			flex-wrap: nowrap;
-			justify-content: flex-end;
-			align-items: flex-end;
-			gap: 10px;
-		}
-
-		.btn-icon {
-			margin-right: 5px;
-		}
-
-		.below-table-div {
-			display: flex;
-			flex-direction: row;
-			flex-wrap: nowrap;
-			justify-content: space-between;
-			align-items: flex-start;
-			gap: 10px;
-			margin-bottom: 5px;
-		}
-	</style>
 	<script>
 
 		//STATE PERSISTANCE CONSTS
@@ -422,6 +374,26 @@
 			});
 
 			$('<button id="download-btn" class="btn btn-primary" onclick="downloadJSON()"><i class="glyphicon glyphicon-save btn-icon"></i>Download</button>').appendTo(".above-table-buttons");
+			$('<input name="hide-suspended" id="hide-sus-btn" type="checkbox" style="align-self: center;"><label for="hide-sus-btn">Hide All Suspended Processes</label>').appendTo(".above-table-buttons");
+
+			$("#hide-sus-btn").click(function () {
+				if ($(this).prop("checked")) {
+					$("#process-table").DataTable().column(4).search("Active", false, true).draw();
+					localStorage.setItem(hideSuspendedProcVar, "1");
+				}
+				else {
+					$("#process-table").DataTable().column(4).search("").draw();
+				}
+			});
+
+			if (parseInt(localStorage.getItem(hideSuspendedProcVar)) == 0) {
+				$("#hide-sus-btn").prop("checked", false);
+				$("#process-table").DataTable().column(4).search("").draw();
+			}
+			else {
+				$("#hide-sus-btn").prop("checked", true);
+				$("#process-table").DataTable().column(4).search("Active", false, true).draw();
+			}
 
 			refreshStats();
 			pageRefId = setInterval(pageRefresh, parseInt(localStorage.getItem(refreshRateVar)));
@@ -485,151 +457,6 @@
 		<script src="/${base}/js/html5shiv.js"></script>
 		<script src="/${base}/js/respond.min.js"></script>
 	<![endif]-->
-
-	<style type="text/css">
-		.status-div {
-			padding: 0px 6px 6px 6px;
-		}
-
-		#suspend-div {
-			height: 50px;
-			float: right;
-		}
-
-		.bar-failedToStart {
-			background-color: #D8860B;
-		}
-
-		.bar-incident {
-			background-color: #C347ED;
-			/*#F142F4;*/
-		}
-
-		#workers-div {
-			overflow: auto;
-			max-height: 500px;
-			margin-left: 20px;
-		}
-
-		.stat-txt {
-			font-size: 0.7em;
-			font-family: monospace;
-		}
-
-		.progress-bar-warning {
-			background-color: #E7B814;
-		}
-
-		.progress-bar-disabled {
-			background-color: #CCCCCC;
-		}
-
-		.progress-bar-info {
-			background-color: #4363CF;
-		}
-
-		#selAll-label {
-			cursor: pointer;
-		}
-
-		/*	#workers-div div{
-		margin: 10px;
-		float:left; 
-		width:155px;
-	}
-	#workers-div div input{
-		margin: 0 5px;
-		/*transform:scale(1.2);*/
-		}
-
-		#workers-div div label {
-			margin: 0 5px;
-			cursor: pointer;
-		}
-
-		*/ #deploy-table td {
-			padding: 10px;
-		}
-
-		#process-table {
-			margin-top: 2rem;
-		}
-
-		#process-table tr td {
-			vertical-align: middle;
-			padding: 4px 8px;
-			min-width: 70px;
-		}
-
-		#process-table tr td:nth-child(1) {
-			min-width: 200px;
-			overflow: hidden;
-			text-wrap: none
-		}
-
-		#process-table tr td:nth-child(3) {
-			text-align: center;
-			width: 70px;
-		}
-
-		#process-table tr td:nth-child(4) {
-			text-align: center;
-			width: 70px;
-		}
-
-		#process-table tr td:nth-child(5) {
-			text-align: center;
-			width: 70px;
-		}
-
-		.progress {
-			margin: 0px;
-		}
-
-		.w-down {
-			color: #bbb;
-		}
-
-		#deleting-message-container {
-			margin-top: 30px;
-			display: none;
-			justify-content: center;
-			align-items: center;
-
-		}
-
-		.loader {
-			border: 10px solid #f3f3f3;
-			border-radius: 50%;
-			border-top: 10px solid #3498db;
-			width: 40px;
-			height: 40px;
-			-webkit-animation: spin 1s linear infinite;
-			/* Safari */
-			animation: spin 1s linear infinite;
-		}
-
-		/* Safari */
-		@-webkit-keyframes spin {
-			0% {
-				-webkit-transform: rotate(0deg);
-			}
-
-			100% {
-				-webkit-transform: rotate(360deg);
-			}
-		}
-
-		@keyframes spin {
-			0% {
-				transform: rotate(0deg);
-			}
-
-			100% {
-				transform: rotate(360deg);
-			}
-		}
-	</style>
 </head>
 
 <body>
@@ -667,11 +494,6 @@
 
 						<div class="row">
 							<div class="col-md-4">
-								<div>
-									<label for="hide-sus-btn">
-										<input name="hide-suspended" id="hide-sus-btn" type="checkbox">
-										Hide All Suspended Processes</label>
-								</div>
 								<div>
 									<select class="form-control" id="refresh-rate">
 										<option value="5">5 second refresh rate</option>
@@ -1018,29 +840,6 @@
 					window.location = "/${base}/processes?status=incident";
 				}
 			});
-
-			$("#hide-sus-btn").click(function () {
-				if ($(this).prop("checked")) {
-					$("#process-table tr.disabled").hide(100);
-					localStorage.setItem(hideSuspendedProcVar, "1");
-					hideall = true;
-				}
-				else {
-					$("#process-table tr.disabled").show(100);
-					localStorage.setItem(hideSuspendedProcVar, "0");
-					hideall = true;
-				}
-			});
-
-			if (parseInt(localStorage.getItem(hideSuspendedProcVar)) == 0) {
-				$("#hide-sus-btn").prop("checked", false);
-				$("#process-table tr.disabled").show(100);
-				hideall == true;
-			}
-			else {
-				$("#hide-sus-btn").prop("checked", true);
-				$("#process-table tr.disabled").hide(100);
-			}
 
 			function listWorkersInModal(dataProcKey) {
 				$.get("/${base}/rest/worker/" + dataProcKey + "/getWorkersForProc", function (data) {
