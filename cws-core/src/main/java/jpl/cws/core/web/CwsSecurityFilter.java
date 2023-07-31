@@ -61,6 +61,9 @@ public abstract class CwsSecurityFilter implements javax.servlet.Filter {
 			cwsWebPort = filterConfig.getInitParameter("cwsWebPort");
 			cwsSSLPort = filterConfig.getInitParameter("cwsSSLPort");
 			log.debug("CWS Security scheme is: " + cwsSecurityScheme);
+			log.debug("CWS cwsWebPort is: " + cwsWebPort);
+			log.debug("CWS cwsSSLPort is: " + cwsSSLPort);
+
 
 			this.contextPath = filterConfig.getServletContext().getContextPath();
 			

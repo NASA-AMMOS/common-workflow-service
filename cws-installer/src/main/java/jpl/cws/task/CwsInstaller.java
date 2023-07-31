@@ -614,7 +614,6 @@ public class CwsInstaller {
 		}
 	}
 
-
 	private static void setupDatabase() {
 		cws_db_type = getPreset("database_type");
 
