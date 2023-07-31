@@ -46,131 +46,131 @@
 			procDefArray.push(procDef);
 		</#list>
 
-			function refreshStatUI(name, statsCounts) {
+		function refreshStatUI(name, statsCounts) {
 
-				// REFRESH THE TEXTUAL STATS SUMMARY
-				//
-				var statTotal =
-					statsCounts.pending +
-					statsCounts.disabled +
-					statsCounts.active +
-					statsCounts.completed +
-					statsCounts.error +
-					statsCounts.fts +
-					statsCounts.incident;
+			// REFRESH THE TEXTUAL STATS SUMMARY
+			//
+			var statTotal =
+				statsCounts.pending +
+				statsCounts.disabled +
+				statsCounts.active +
+				statsCounts.completed +
+				statsCounts.error +
+				statsCounts.fts +
+				statsCounts.incident;
 
-				var instanceTextString = "";
-				if (statsCounts.pending) {
-					instanceTextString += "<b>pending</b>:&nbsp;" + statsCounts.pending + "&nbsp;&nbsp;";
-				}
-				if (statsCounts.disabled) {
-					instanceTextString += "<b>disabled</b>:&nbsp;" + statsCounts.disabled + "&nbsp;&nbsp;";
-				}
-				if (statsCounts.active) {
-					instanceTextString += "<b>running</b>:&nbsp;" + statsCounts.active + "&nbsp;&nbsp;";
-				}
-				if (statsCounts.completed) {
-					instanceTextString += "<b>completed</b>:&nbsp;" + statsCounts.completed + "&nbsp;&nbsp;";
-				}
-				if (statsCounts.error) {
-					instanceTextString += " <b>failed</b>:&nbsp;" + statsCounts.error + "&nbsp;&nbsp;";
-				}
-				if (statsCounts.fts) {
-					instanceTextString += "<b>failed-start</b>:&nbsp;" + statsCounts.fts + "&nbsp;&nbsp;";
-				}
-				if (statsCounts.incident) {
-					instanceTextString += "<b>incidents</b>:&nbsp;" + statsCounts.incident + "&nbsp;&nbsp;";
-				}
-
-
-				if (statTotal > 0) {
-					$("#stat-txt-" + name).html(instanceTextString);
-				} else {
-					$("#stat-txt-" + name).html(
-						"No stats for this process"
-					);
-				}
-
-				//calculate the percentage of each dimension
-				var statsPercent = {};
-
-				statsPercent.pending = statsCounts.pending / statTotal;
-				//alert(statsCounts.disabled);
-				statsPercent.disabled = statsCounts.disabled / statTotal;
-				statsPercent.active = statsCounts.active / statTotal;
-				statsPercent.completed = statsCounts.completed / statTotal;
-				statsPercent.error = statsCounts.error / statTotal;
-				statsPercent.fts = statsCounts.fts / statTotal;
-				statsPercent.incident = statsCounts.incident / statTotal;
-
-				//set the minimum percentage of each dimension to 1.5 if it's smaller than 1.5
-				if (statsPercent.pending < 0.015 && statsPercent.pending > 0) {
-					statsPercent.pending = 0.015;
-				}
-				if (statsPercent.disabled < 0.015 && statsPercent.disabled > 0) {
-					statsPercent.disabled = 0.015;
-				}
-				if (statsPercent.active < 0.015 && statsPercent.active > 0) {
-					statsPercent.active = 0.015;
-				}
-				if (statsPercent.completed < 0.015 && statsPercent.completed > 0) {
-					statsPercent.completed = 0.015;
-				}
-				if (statsPercent.error < 0.015 && statsPercent.error > 0) {
-					statsPercent.error = 0.015;
-				}
-				if (statsPercent.fts < 0.015 && statsPercent.fts > 0) {
-					statsPercent.fts = 0.015;
-				}
-				if (statsPercent.incident < 0.015 && statsPercent.incident > 0) {
-					statsPercent.incident = 0.015;
-				}
-
-				/**
-				* because of the possible additional percentage, calculate the number of
-				* each dimension corresponding to the adjusted percentage
-				**/
-				var statsTemp = {};
-
-				statsTemp.pending = statsPercent.pending * statTotal;
-				statsTemp.disabled = statsPercent.disabled * statTotal;
-				statsTemp.error = statsPercent.error * statTotal;
-				statsTemp.active = statsPercent.active * statTotal;
-				statsTemp.completed = statsPercent.completed * statTotal;
-				statsTemp.fts = statsPercent.fts * statTotal;
-				statsTemp.incident = statsPercent.incident * statTotal;
-
-				statTotal = statsTemp.pending + statsTemp.disabled + statsTemp.error + statsTemp.active +
-					statsTemp.completed + statsTemp.fts + statsTemp.incident;
-
-				/**
-				* recalculate percentage distribution using the recalculated values
-				**/
-				statsPercent.pending = statsTemp.pending / statTotal * 100;
-				statsPercent.disabled = statsTemp.disabled / statTotal * 100;
-				statsPercent.active = statsTemp.active / statTotal * 100;
-				statsPercent.completed = statsTemp.completed / statTotal * 100;
-				statsPercent.error = statsTemp.error / statTotal * 100;
-				statsPercent.fts = statsTemp.fts / statTotal * 100;
-				statsPercent.incident = statsTemp.incident / statTotal * 100;
-
-				//set the width of each bar
-				$("#stat-bar-" + name + " div.bar-pending").css('width', statsPercent.pending + '%');
-				$("#stat-bar-" + name + " div.bar-disabled").css('width', statsPercent.disabled + '%');
-				$("#stat-bar-" + name + " div.bar-active").css('width', statsPercent.active + '%');
-				$("#stat-bar-" + name + " div.bar-completed").css('width', statsPercent.completed + '%');
-				$("#stat-bar-" + name + " div.bar-error").css('width', statsPercent.error + '%');
-				$("#stat-bar-" + name + " div.bar-failedToStart").css('width', statsPercent.fts + '%');
-				$("#stat-bar-" + name + " div.bar-incident").css('width', statsPercent.incident + '%');
-				//set the tooltip text of each bar
-				$("#stat-bar-" + name + " div.bar-pending").attr('data-original-title', statsCounts.pending + " Pending");
-				$("#stat-bar-" + name + " div.bar-disabled").attr('data-original-title', statsCounts.disabled + " Disabled");
-				$("#stat-bar-" + name + " div.bar-active").attr('data-original-title', statsCounts.active + " Running");
-				$("#stat-bar-" + name + " div.bar-completed").attr('data-original-title', statsCounts.completed + " Completed");
-				$("#stat-bar-" + name + " div.bar-error").attr('data-original-title', statsCounts.error + " Failed");
-				$("#stat-bar-" + name + " div.bar-failedToStart").attr('data-original-title', statsCounts.fts + " Failed to Start");
-				$("#stat-bar-" + name + " div.bar-incident").attr('data-original-title', statsCounts.incident + " Incidents");
+			var instanceTextString = "";
+			if (statsCounts.pending) {
+				instanceTextString += "<b>pending</b>:&nbsp;" + statsCounts.pending + "&nbsp;&nbsp;";
 			}
+			if (statsCounts.disabled) {
+				instanceTextString += "<b>disabled</b>:&nbsp;" + statsCounts.disabled + "&nbsp;&nbsp;";
+			}
+			if (statsCounts.active) {
+				instanceTextString += "<b>running</b>:&nbsp;" + statsCounts.active + "&nbsp;&nbsp;";
+			}
+			if (statsCounts.completed) {
+				instanceTextString += "<b>completed</b>:&nbsp;" + statsCounts.completed + "&nbsp;&nbsp;";
+			}
+			if (statsCounts.error) {
+				instanceTextString += " <b>failed</b>:&nbsp;" + statsCounts.error + "&nbsp;&nbsp;";
+			}
+			if (statsCounts.fts) {
+				instanceTextString += "<b>failed-start</b>:&nbsp;" + statsCounts.fts + "&nbsp;&nbsp;";
+			}
+			if (statsCounts.incident) {
+				instanceTextString += "<b>incidents</b>:&nbsp;" + statsCounts.incident + "&nbsp;&nbsp;";
+			}
+
+
+			if (statTotal > 0) {
+				$("#stat-txt-" + name).html(instanceTextString);
+			} else {
+				$("#stat-txt-" + name).html(
+					"No stats for this process"
+				);
+			}
+
+			//calculate the percentage of each dimension
+			var statsPercent = {};
+
+			statsPercent.pending = statsCounts.pending / statTotal;
+			//alert(statsCounts.disabled);
+			statsPercent.disabled = statsCounts.disabled / statTotal;
+			statsPercent.active = statsCounts.active / statTotal;
+			statsPercent.completed = statsCounts.completed / statTotal;
+			statsPercent.error = statsCounts.error / statTotal;
+			statsPercent.fts = statsCounts.fts / statTotal;
+			statsPercent.incident = statsCounts.incident / statTotal;
+
+			//set the minimum percentage of each dimension to 1.5 if it's smaller than 1.5
+			if (statsPercent.pending < 0.015 && statsPercent.pending > 0) {
+				statsPercent.pending = 0.015;
+			}
+			if (statsPercent.disabled < 0.015 && statsPercent.disabled > 0) {
+				statsPercent.disabled = 0.015;
+			}
+			if (statsPercent.active < 0.015 && statsPercent.active > 0) {
+				statsPercent.active = 0.015;
+			}
+			if (statsPercent.completed < 0.015 && statsPercent.completed > 0) {
+				statsPercent.completed = 0.015;
+			}
+			if (statsPercent.error < 0.015 && statsPercent.error > 0) {
+				statsPercent.error = 0.015;
+			}
+			if (statsPercent.fts < 0.015 && statsPercent.fts > 0) {
+				statsPercent.fts = 0.015;
+			}
+			if (statsPercent.incident < 0.015 && statsPercent.incident > 0) {
+				statsPercent.incident = 0.015;
+			}
+
+			/**
+			* because of the possible additional percentage, calculate the number of
+			* each dimension corresponding to the adjusted percentage
+			**/
+			var statsTemp = {};
+
+			statsTemp.pending = statsPercent.pending * statTotal;
+			statsTemp.disabled = statsPercent.disabled * statTotal;
+			statsTemp.error = statsPercent.error * statTotal;
+			statsTemp.active = statsPercent.active * statTotal;
+			statsTemp.completed = statsPercent.completed * statTotal;
+			statsTemp.fts = statsPercent.fts * statTotal;
+			statsTemp.incident = statsPercent.incident * statTotal;
+
+			statTotal = statsTemp.pending + statsTemp.disabled + statsTemp.error + statsTemp.active +
+				statsTemp.completed + statsTemp.fts + statsTemp.incident;
+
+			/**
+			* recalculate percentage distribution using the recalculated values
+			**/
+			statsPercent.pending = statsTemp.pending / statTotal * 100;
+			statsPercent.disabled = statsTemp.disabled / statTotal * 100;
+			statsPercent.active = statsTemp.active / statTotal * 100;
+			statsPercent.completed = statsTemp.completed / statTotal * 100;
+			statsPercent.error = statsTemp.error / statTotal * 100;
+			statsPercent.fts = statsTemp.fts / statTotal * 100;
+			statsPercent.incident = statsTemp.incident / statTotal * 100;
+
+			//set the width of each bar
+			$("#stat-bar-" + name + " div.bar-pending").css('width', statsPercent.pending + '%');
+			$("#stat-bar-" + name + " div.bar-disabled").css('width', statsPercent.disabled + '%');
+			$("#stat-bar-" + name + " div.bar-active").css('width', statsPercent.active + '%');
+			$("#stat-bar-" + name + " div.bar-completed").css('width', statsPercent.completed + '%');
+			$("#stat-bar-" + name + " div.bar-error").css('width', statsPercent.error + '%');
+			$("#stat-bar-" + name + " div.bar-failedToStart").css('width', statsPercent.fts + '%');
+			$("#stat-bar-" + name + " div.bar-incident").css('width', statsPercent.incident + '%');
+			//set the tooltip text of each bar
+			$("#stat-bar-" + name + " div.bar-pending").attr('data-original-title', statsCounts.pending + " Pending");
+			$("#stat-bar-" + name + " div.bar-disabled").attr('data-original-title', statsCounts.disabled + " Disabled");
+			$("#stat-bar-" + name + " div.bar-active").attr('data-original-title', statsCounts.active + " Running");
+			$("#stat-bar-" + name + " div.bar-completed").attr('data-original-title', statsCounts.completed + " Completed");
+			$("#stat-bar-" + name + " div.bar-error").attr('data-original-title', statsCounts.error + " Failed");
+			$("#stat-bar-" + name + " div.bar-failedToStart").attr('data-original-title', statsCounts.fts + " Failed to Start");
+			$("#stat-bar-" + name + " div.bar-incident").attr('data-original-title', statsCounts.incident + " Incidents");
+		}
 
 		function handleDeleteProcDef(proc_def_key) {
 
@@ -200,7 +200,6 @@
 
 			return "An unknown error occured.";
 		}
-
 
 		function deleteProcDef(proc_def_key) {
 			$.ajax({
@@ -341,6 +340,7 @@
 				}
 			});
 		}
+
 		$(document).ready(function () {
 			// DISPLAY MESSAGE AT TOP OF PAGE
 			//
@@ -543,7 +543,9 @@
 			}
 
 			refreshStats();
-			pageRefId = setInterval(pageRefresh, parseInt(localStorage.getItem(refreshRateVar)));
+			if (parseInt(localStorage.getItem(refreshRateVar)) !== 0) {
+				pageRefId = setInterval(pageRefresh, parseInt(localStorage.getItem(refreshRateVar)));
+			}
 			idleTimer = setInterval(idleMode, idleInterval);
 
 			$("#resume-refresh").click(function () {
@@ -1018,7 +1020,7 @@
 				refreshRate = parseInt($(this).val()) * 1000;
 				localStorage.setItem(refreshRateVar, refreshRate.toString());
 				clearInterval(pageRefId);
-				if (refreshRate == 0)
+				if (refreshRate === 0)
 					return;
 				refreshStats();
 				pageRefId = setInterval(pageRefresh, parseInt(localStorage.getItem(refreshRateVar)));
