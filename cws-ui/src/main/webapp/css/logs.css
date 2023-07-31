@@ -180,3 +180,7 @@ div.dts tbody th, div.dts tbody td {
     margin-right: 15px;
     margin-top: 15px;
 }
+
+#logData_info.dataTables_info {
+    padding-top: 0px;
+}

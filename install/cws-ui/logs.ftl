@@ -214,9 +214,9 @@
 					text: '<i class="glyphicon glyphicon-eye-open btn-icon"></i>Columns',
 				}
 			],
-			dom: "<'above-table-div'<'above-table-buttons'B><'above-table-length'l><'above-table-filler'><'above-table-filter'f>>"
+			dom: "<'above-table-div'<'above-table-buttons'B><'above-table-length'i><'above-table-filler'><'above-table-filter'f>>"
                         + "t"
-                        + "<'below-table-div'ip>",
+                        + "<'below-table-div'p>",
 			ajax: function (data, callback, settings) {
 				//store our draw value
 				var draw = data.draw;
