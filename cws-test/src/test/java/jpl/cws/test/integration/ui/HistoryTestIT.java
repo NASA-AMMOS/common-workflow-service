@@ -11,6 +11,7 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,8 +82,12 @@ public class HistoryTestIT extends WebTestUtil {
 
 			findOnPage("CWS - History");
 
-			waitForElementXPath("//input[@id='hide-log-lines-checkbox']");
-			driver.findElement(By.xpath("//input[@id='hide-log-lines-checkbox']")).click();
+			WebElement hideLineCheckbox = findElByXPath("//input[@id='hide-log-lines-checkbox']");
+			waitForElement(hideLineCheckbox);
+
+			sleep(10000);
+
+			hideLineCheckbox.click();
 
 			if (findOnPage("History Page.")
 					&& findOnPage("Command 'mkdir Test' exit code: 0")
