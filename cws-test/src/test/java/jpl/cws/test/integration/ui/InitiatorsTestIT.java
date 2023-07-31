@@ -197,16 +197,6 @@ public class InitiatorsTestIT extends WebTestUtil {
 			log.info("Filtering results for Test Initiators Page test.");
 			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
 
-			Set<String> logtyp = driver.manage().logs().getAvailableLogTypes();
-			for (String s : logtyp) {
-				log.info("BROWSER: " + logtyp);
-			}
-			LogEntries logEntries = driver.manage().logs().get(LogType.BROWSER);
-			List<LogEntry> lg = logEntries.getAll();
-			for(LogEntry logEntry : lg) {
-				log.info("BROWSER: " + logEntry);
-			}
-
 			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
 			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_initiators_page");
 			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
