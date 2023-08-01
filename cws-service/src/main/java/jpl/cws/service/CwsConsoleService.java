@@ -1244,4 +1244,19 @@ public class CwsConsoleService {
             return "Error";
         }
     }
+
+    /**
+     * Delete a running process instance given an array of procInstIds
+     */
+    public String deleteRunningProcInst(List<String> procInstIds) {
+        try {
+            for (String procInstId : procInstIds) {
+                runtimeService.deleteProcessInstance(procInstId, "User requested delete from processes page.", true, true, true);
+                log.debug("DELETED PROCESS INSTANCE");
+            }
+            return "Success";
+        } catch (Exception e) {
+            return "Error: " + e;
+        }
+    }
 }

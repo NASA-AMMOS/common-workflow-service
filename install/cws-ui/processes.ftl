@@ -381,13 +381,13 @@
                                         var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + data.procInstId + "/runtime?tab=incidents-tab";
                                         return "<div class='table-cell-flex'><a href=\"" + incidentUrl + "\" target=\"blank_\">" + data.procInstId + "</a>"
                                             + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
+                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data.procInstId + "\" onClick=''>"
                                             + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                             + "</span></div>";
                                     } else {
                                         return '<div class="table-cell-flex"><p>' + data.procInstId + '</p>' 
                                                 + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data.procInstId + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div>";
                                     }
@@ -866,6 +866,7 @@
                     + `<li id="action_open_selected_new_tabs" class="disabled" role="presentation"><a id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)</a></li>`
                     + `<li id="action_copy_all_selected_history_links" class="disabled" role="presentation"><a id="action_copy_all_selected_history_links_atag" role="menuitem">Copy all selected history links (must not be pending)</a></li>`
                     + '<li role="separator" class="divider"></li>'
+                    + `<li id="action_delete_selected" class="disabled" role="presentation"><a id="action_delete_selected_atag" role="menuitem">Delete selected rows (all rows selected must be 'running')</a></li>`
                     + `<li id="action_disable" class="disabled" role="presentation"><a id="action_disable_atag" role="menuitem">Disable selected rows (all rows selected must be 'pending')</a></li>`
                     + `<li id="action_enable" class="disabled" role="presentation"><a id="action_enable_atag" role="menuitem">Enable selected rows (all rows selected must be 'disabled')</a></li>`
                     + `<li id="action_retry_incident" class="disabled" role="presentation"><a id="action_retry_incident_atag" role="menuitem">Retry all selected incident rows (all rows selected must be 'incident')</a></li>`
@@ -1228,6 +1229,7 @@
                 var numFailedToStartSelected = 0;
                 var numFailedSelected = 0;
                 var numComplete = 0;
+                var numRunning = 0;
 
                 selectedRows.every(function (rowIdx, tableLoop, rowLoop) {
                     var data = this.data();
@@ -1250,6 +1252,9 @@
                         case 'complete':
                             numComplete++;
                             break;
+                        case 'running':
+                            numRunning++;
+                            break;
                     }
                 });
 
@@ -1259,6 +1264,7 @@
                     var incident = numIncidentSelected == numSelected;
                     var failedToStart = numFailedToStartSelected == numSelected;
                     var failed = numFailedSelected == numSelected;
+                    var running = numRunning == numSelected;
                 }
 
                 // Disable everything
@@ -1282,6 +1288,8 @@
                 $("#action_download_selected_csv").removeClass("enabled");
                 $("#action_download_selected_list").addClass("disabled");
                 $("#action_download_selected_list").removeClass("enabled");
+                $("#action_delete_selected").addClass("disabled");
+                $("#action_delete_selected").removeClass("enabled");
 
                 // Remove hrefs from the anchor tags
                 $("#action_disable_atag").removeAttr("href");
@@ -1294,6 +1302,7 @@
                 $("#action_download_selected_json_atag").removeAttr("href");
                 $("#action_download_selected_csv_atag").removeAttr("href");
                 $("#action_download_selected_list_atag").removeAttr("href");
+                $("#action_delete_selected_atag").removeAttr("href");
 
                 // Enable the right one
 
@@ -1321,6 +1330,9 @@
                 else if (failed) {
                     $("#action_mark_as_resolved").removeClass("disabled");
                     $("#action_mark_as_resolved_atag").attr("href", "javascript:action_mark_as_resolved();");
+                } else if (running) {
+                    $("#action_delete_selected").removeClass("disabled");
+                    $("#action_delete_selected_atag").attr("href", "javascript:action_delete_selected();");
                 }
 
                 if ((numSelected > 0)) {
@@ -1340,6 +1352,32 @@
 
                 // Execute adaptation actions if any
                 updateAdaptationActionList();
+            }
+
+            function action_delete_selected() {
+                var table = $("#processes-table").DataTable();
+                var selectedRows = table.rows({ selected: true });
+                var procInstIds = [];
+                selectedRows.every(function (rowIdx, tableLoop, rowLoop) {
+                    procInstIds.push(this.data()["procInstId"]);
+                });
+                    $.ajax({
+                    type: "POST",
+                    url: "/${base}/rest/processes/delete",
+                    Accept: "application/json",
+                    contentType: "application/json",
+                    data: JSON.stringify(procInstIds)
+                    })
+                    .success(function (msg) {
+                        //clear table
+                        table.clear().draw();
+                        //reload table
+                        fetchAndDisplayProcesses();
+                    })
+                    .fail(function (xhr, err) {
+                        console.error(xhr.responseTextmsg);
+                        console.error(err);
+                    })
             }
 
             //opens selected rows' history pages in new tabs

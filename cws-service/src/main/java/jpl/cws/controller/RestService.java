@@ -1460,7 +1460,21 @@ public class RestService extends MvcCore {
 		String result = cwsConsoleService.activateProcDefId(procDefId);
 		return result;
 	}
-	
+
+	/**
+	 * Method that deletes a running process instance.
+	 *
+	 * Accepts an array of procInstIds and expects all of them to be running.
+	 */
+	@RequestMapping(value = "/processes/delete", method = POST)
+	public @ResponseBody String deleteRunningProcInsts(
+			final HttpSession session,
+			@RequestBody List<String> procInstIds) {
+		log.debug("*** REST CALL *** deleteRunningProcInsts");
+		String result = cwsConsoleService.deleteRunningProcInst(procInstIds);
+		return result;
+	}
+
 	/**
 	 * 
 	 * 
@@ -1658,4 +1672,5 @@ public class RestService extends MvcCore {
 		}
 		return restCallResult.getResponse();
 	}
+
 }
