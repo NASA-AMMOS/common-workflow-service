@@ -40,7 +40,8 @@ public class CwsProcessInstance {
             String startedByWorker,
             Timestamp procStartTime,
             Timestamp procEndTime,
-            Map<String, String> inputVariables) {
+            Map<String, String> inputVariables,
+            Map<String, String> outputVariables) {
         super();
         this.uuid = uuid;
         this.procDefKey = procDefKey;
@@ -55,6 +56,7 @@ public class CwsProcessInstance {
         this.procStartTime = procStartTime;
         this.procEndTime = procEndTime;
         this.inputVariables = inputVariables;
+        this.outputVariables = outputVariables;
     }
 
     public String getUuid() {
@@ -159,6 +161,14 @@ public class CwsProcessInstance {
 
     public Map<String, String> getInputVariables() {
         return inputVariables;
+    }
+
+    public void setOutputVariables(Map<String, String> input) {
+        this.outputVariables = input;
+    }
+
+    public Map<String, String> getOutputVariables() {
+        return outputVariables;
     }
 
 

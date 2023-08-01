@@ -617,14 +617,77 @@ public class InitiatorsService implements InitializingBean {
 		disableAndStopInitiator(cwsConsoleService.getProcessInitiatorById(initiatorId));
 	}
 
+	public synchronized void disableAndStopAllInitiators() throws Exception {
+		disableAndStopAllInitiators(cwsConsoleService.getAllProcessInitiators());
+	}
+
 	// Synchronized to prevent race conditions in refreshing the spring context
 	public synchronized void enableAndStartInitiator(String initiatorId) throws Exception {
 		enableAndStartInitiator(cwsConsoleService.getProcessInitiatorById(initiatorId));
+	}
+
+	public synchronized void enableAndStartAllInitiators() throws Exception {
+		enableAndStartAllInitiators(cwsConsoleService.getAllProcessInitiators());
 	}
 	
 	
 	public CwsProcessInitiator getInitiator(String initiatorId) {
 		return cwsConsoleService.getProcessInitiatorById(initiatorId);
+	}
+
+	private void disableAndStopAllInitiators(List<CwsProcessInitiator> initiators) throws Exception {
+		log.debug("disableAndStopAllInitiators");
+		if (initiators == null) {
+			throw new IllegalArgumentException("Null initiator list!");
+		}
+
+		//Check if any initiators are currently enabled
+		for (CwsProcessInitiator initiator : initiators) {
+			if (initiator == null) {
+				throw new IllegalArgumentException("null initiator!");
+			}
+
+			// Is the initiator currently enabled?
+			//
+			boolean isEnabled = initiator.isEnabled();
+			log.trace("before updating initiator, enabled = " + isEnabled);
+
+			if (isEnabled) {
+				// Disable the initiator
+				//
+				initiator.setEnabled(false);
+			}
+
+			// Stop initiator, if necessary
+			//
+			if (initiator.isAlive()) {
+				log.trace("Interrupting (stopping) initiator: " + initiator + " ...");
+
+				// Interrupt the initiator...
+				//
+				initiator.interrupt();
+
+				// Wait for initiator to die...
+				//
+				int maxWaits = 0;
+				while (initiator.isAlive() && maxWaits++ < 10) {
+					log.warn("initiator still alive... (poll #" + maxWaits + ")");
+					try { Thread.sleep(200); } catch (InterruptedException e) { }
+				}
+				if (initiator.isAlive()) {
+					log.error("initiator " + initiator + " (procDefKey=" +initiator.getProcDefKey()+") still alive after interruption!");
+				}
+				else {
+					log.trace("initator is NOT alive.");
+				}
+			}
+			else {
+				log.trace("initiator was already dead. No need to interrupt it.");
+			}
+
+			initiator.cleanUp();
+			log.trace("Done with disableAndStopInitiator of " + initiator);
+		}
 	}
 	
 	/**
@@ -676,6 +739,52 @@ public class InitiatorsService implements InitializingBean {
 		
 		initiator.cleanUp();
 		log.trace("Done with disableAndStopInitiator of " + initiator);
+	}
+
+	/**
+	 *
+	 *
+	 */
+	private void enableAndStartAllInitiators(List<CwsProcessInitiator> initiators) throws Exception {
+		log.debug("enableAndStartAllInitiators");
+		if (initiators == null) {
+			throw new IllegalArgumentException("Null initiator list!");
+		}
+
+		//Check if any initiators are currently enabled
+		for (CwsProcessInitiator initiator : initiators) {
+			if (initiator == null) {
+				throw new IllegalArgumentException("null initiator!");
+			}
+
+			// If this initiator is not being enabled for the first time, then
+			// we must re-initialize it..
+			//
+			if (initiator.getState() != Thread.State.NEW) {
+				disableAndStopInitiator(initiator);
+				cwsConsoleService.replaceInitiatorBean(initiator.getInitiatorId(), initiator);
+				initiator = cwsConsoleService.getProcessInitiatorById(initiator.getInitiatorId());
+			}
+
+			// Enable the initiator
+			//
+			initiator.setEnabled(true);
+
+			// Start up initiator if necessary
+			//
+			try {
+				if (initiator.isAlive()) {
+					log.error("initiator should not already be alive!");
+				}
+				else {
+					log.debug("Starting initiator: " + initiator + " ...");
+					initiator.start();
+				}
+			}
+			catch (Exception e) {
+				log.error("problem while starting up a new initiator", e);
+			}
+		}
 	}
 	
 	

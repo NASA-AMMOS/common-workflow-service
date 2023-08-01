@@ -418,6 +418,16 @@ public class CwsConsoleService {
         return initiator;
     }
 
+    public List<CwsProcessInitiator> getAllProcessInitiators() {
+        Map<String, CwsProcessInitiator> initiatorMap;
+        initiatorMap = SpringApplicationContext.getBeansOfType(CwsProcessInitiator.class);
+        ArrayList<CwsProcessInitiator> initiators= new ArrayList<CwsProcessInitiator>();
+        for (Map.Entry<String, CwsProcessInitiator> initiator : initiatorMap.entrySet()) {
+            initiators.add(initiator.getValue());
+        }
+        return initiators;
+    }
+
     public void replaceInitiatorBean(String springBeanKey, CwsProcessInitiator newInitiator) {
         log.debug("replaceInitiatorBean initiator: " + springBeanKey + " ...");
         springApplicationContext.replaceBean(springBeanKey, null, newInitiator.getPropertyValues(),
@@ -1134,10 +1144,13 @@ public class CwsConsoleService {
             Timestamp procStartTime = (Timestamp) row.get("proc_start_time");
             Timestamp procEndTime = (Timestamp) row.get("proc_end_time");
             Map<String, String> inputVars;
+            Map<String, String> outputVars;
             if (procInstIdObj != null) {
                 inputVars = getInputVariablesForProcess(procInstIdObj.toString());
+                outputVars = getOutputVariablesForProcess(procInstIdObj.toString());
             } else {
                 inputVars = new HashMap<String, String>();
+                outputVars = new HashMap<String, String>();
             }
             CwsProcessInstance instance = new CwsProcessInstance(uuidObj == null ? null : uuidObj.toString(),
                     procDefKeyObj == null ? null : procDefKeyObj.toString(),
@@ -1149,7 +1162,7 @@ public class CwsConsoleService {
                     updatedTimestampObj == null ? null : updatedTimestampObj,
                     claimedByWorker == null ? null : claimedByWorker, startedByWorker == null ? null : startedByWorker,
                     procStartTime == null ? null : procStartTime, procEndTime == null ? null : procEndTime,
-                    inputVars);
+                    inputVars, outputVars);
             instances.add(instance);
         }
 

@@ -228,6 +228,23 @@ public class RestService extends MvcCore {
 		// Success!
 		return buildModel("login", "updated initiator enabled to " + enabled);
 	}
+
+	@RequestMapping(value = "/initiators/all/enabled", method = POST)
+	public @ResponseBody ModelAndView setAllInitiatorsEnabled(
+			@RequestParam("enabled") boolean enabled) {
+
+		try {
+			if (enabled) {
+				cwsInitiatorsService.enableAndStartAllInitiators();
+			} else {
+				cwsInitiatorsService.disableAndStopAllInitiators();
+			}
+		} catch (Exception e) {
+			log.error("A problem occured when setting enabled status to " + enabled, e);
+			return buildModel("initiators", e.getMessage());
+		}
+		return buildModel("login", "updated initiator enabled to " + enabled);
+	}
 	
 	
 	/**
@@ -251,6 +268,32 @@ public class RestService extends MvcCore {
 			log.error("isInitiatorEnabled exception", e);
 		}
 		return "error";
+	}
+
+	/**
+	 * Gets all process initiators enabled flag.
+	 *
+	 */
+	@RequestMapping(value = "initiators/all/enabled", method = GET)
+	public @ResponseBody Map<String, String> areAllInitiatorsEnabled () {
+		try {
+			log.trace("REST::areAllInitiatorsEnabled");
+			List<CwsProcessInitiator> initiators = cwsConsoleService.getAllProcessInitiators();
+			Map<String, String> statusMap = new HashMap<>();
+			for (int i = 0; i < initiators.size(); i++) {
+				String status = "";
+				if (initiators.get(i).isEnabled()) {
+					status = "true";
+				} else {
+					status = "false";
+				}
+				statusMap.put(initiators.get(i).getInitiatorId(), status);
+			}
+			return statusMap;
+		} catch (Exception e) {
+			log.error("areAllInitiatorsEnabled exception", e);
+		}
+		return null;
 	}
 	
 	

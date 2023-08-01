@@ -214,6 +214,7 @@
 		$("#workers-modal").modal('hide');
 		$("#cancelledByUserMsg").modal('show');
 	});
+
 	
 	//
 	// Sets the enabled flag on a process initiator
@@ -232,6 +233,21 @@
 			type: "POST",
 			url: "/${base}/rest/initiators/" + initiatorId + "/enabled",
 			data: { enabled: cb.is(':checked') }
+		})
+		.done(function( msg ) {
+			//alert( "Data Saved: " + msg );
+			refreshIcons();
+		});
+	}
+
+	//
+	// Sets the enabled flag on all initiators
+	//
+	function setAllEnabled() {
+		$.ajax({
+			type: "POST",
+			url: "/${base}/rest/initiators/all/enabled",
+			data: { enabled: $("#active-all input").is(':checked') }
 		})
 		.done(function( msg ) {
 			//alert( "Data Saved: " + msg );
@@ -294,19 +310,14 @@
 		// DETERMINE WHICH INITIATORS ARE ENABLED
 		//
 		initiatorEnabled = {};
-		$(".initiator_id").each(function() {
-			var id = $(this).html();
-			//console.log("id = " + id);
-			$.ajax({
-					type:     "GET",
-					url:      "/${base}/rest/initiators/" + id + "/enabled",
-					dataType: "text",
-					async:    false
-				})
-				.done(function( enabled ) {
-					//console.log( id + " Data got: " + enabled );
-					initiatorEnabled[id] = enabled;
-				});
+		$.ajax({
+			type:     "GET",
+			url:      "/${base}/rest/initiators/all/enabled",
+			dataType: "text",
+			async:    false
+		})
+		.done(function( enabled ) {
+			initiatorEnabled = JSON.parse(enabled);
 		});
 
 		//
