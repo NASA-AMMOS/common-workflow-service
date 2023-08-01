@@ -252,18 +252,15 @@
 		.done(function( msg ) {
 			//alert( "Data Saved: " + msg );
 			refreshIcons();
+			$("#beans-table .ajax-spinner").hide();
 		});
 	}
 
 	$("#active-all input").on('click',function(){
 		console.log('activate all');
+		$("#beans-table .ajax-spinner").show();
 		$(this).prop('disabled', true);
-		$("#inits-table div.slide-switch input").each(function(){
-			//$(this).prop('checked', $("#active-all input").prop('checked'));
-			if ($(this).prop('checked') !== $("#active-all input").prop('checked')) {
-				$(this).click();
-			}
-		});
+		setAllEnabled();
 		
 		setTimeout(function(){
 			$("#active-all input").prop("disabled",false);
