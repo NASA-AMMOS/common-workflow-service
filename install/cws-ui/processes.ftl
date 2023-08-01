@@ -570,7 +570,9 @@
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div></div><br>";
                                         } else {
-                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                            if (tempKey.toUpperCase().includes("(STRING)")) {
+                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                            }
                                             temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
@@ -697,7 +699,9 @@
                                             count++;
                                             continue;
                                         } else {
-                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                            if (tempKey.toUpperCase().includes("(STRING)")) {
+                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                            }
                                             temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
