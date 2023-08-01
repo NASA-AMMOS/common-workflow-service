@@ -183,6 +183,19 @@
 			"initComplete": function(settings, json) {
 				//hide ajax spinner
 				$("#log-div .ajax-spinner").hide();
+				if ($("#logData_info").text().includes(" of 10,000 entries")) {
+				console.log("ahh");
+				$("#warning-msg").show();
+				} else {
+					$("#warning-msg").hide();
+				}
+				$(".messageStyle").each(function(i, obj) {
+				if (obj.scrollHeight > obj.clientHeight) {
+					$(obj).css("resize", "vertical");
+				} else {
+					$(obj).css("resize", "none");
+				}
+			});
 			},
 			columnDefs: [
 				{
@@ -388,10 +401,7 @@
 				}
 			],
 		});
-
-		var table = $('#logData').DataTable();
-
-		table.on("draw", function() {
+		$('#logData').DataTable().on("draw.dt", function() {
 			$(".messageStyle").each(function(i, obj) {
 				if (obj.scrollHeight > obj.clientHeight) {
 					$(obj).css("resize", "vertical");
@@ -400,15 +410,6 @@
 				}
 			});
 		}); 
-
-		$("#logData_info.dataTables_info").on(change, function() {
-			//if it contains " of 10,000 entries", then display at top of page 
-			if ($("#logData_info.dataTables_info").text().includes(" of 10,000 entries")) {
-				$("#warning-msg").show();
-			} else {
-				$("#warning-msg").hide();
-			}
-		});
 	
 		if(localStorage.getItem(refreshRateVar)===null){
 			localStorage.setItem(refreshRateVar,"10000");
