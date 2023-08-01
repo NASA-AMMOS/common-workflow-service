@@ -588,18 +588,22 @@ public class CwsInstaller {
 
 				// PROMPT USER FOR LDAP SERVER URL
 				if (cws_installer_mode.equals("interactive")) {
-					cws_ldap_url = readLine("Enter the LDAP URL, default is " + cws_ldap_url + ": ", cws_ldap_url);
-
 					boolean valid_ldap_server = false;
 					while (!valid_ldap_server) {
-						cws_ldap_url = readRequiredLine("Enter the LDAP URL, default is " + cws_ldap_url + ": ", cws_ldap_url);
-						try {
+						String read_cws_ldap_url = readLine("Enter the LDAP URL. " + "Default is " + cws_ldap_url + ": ", cws_ldap_url);
 
-							boolean checkLdapServer = checkLdapServerStatus(cws_ldap_url);
+						try {
+							boolean checkLdapServer = checkLdapServerStatus(read_cws_ldap_url);
 							if (checkLdapServer == true) {
 								valid_ldap_server = true;
+								cws_ldap_url = read_cws_ldap_url;
 							} else {
 								valid_ldap_server = false;
+								print("   WARNING: LDAP (" + read_cws_ldap_url + ") cannot be reached." );
+								print("       Possible Issues: ");
+								print("        - Incorrect configuration of 'config/templates/tomcat_conf/ldap_plugin_bean.xml'.");
+								print("        - Can't contact LDAP server because of bad certificate in host machine.");
+								print("        - LDAP server is inactive.");
 							}
 						} catch(IOException e) {
 							// exception
@@ -1971,6 +1975,10 @@ public class CwsInstaller {
 		boolean checkLdapServer = checkLdapServerStatus(cws_ldap_url);
 		if (checkLdapServer == false) {
 			print("   [WARNING]");
+			print("       Possible Issues: ");
+			print("        - Incorrect configuration of 'config/templates/tomcat_conf/ldap_plugin_bean.xml'.");
+			print("        - Can't contact LDAP server because of bad certificate in host machine.");
+			print("        - LDAP server is inactive.");
 			return 1;
 		} else {
 			print("   [OK]");
@@ -1998,20 +2006,27 @@ public class CwsInstaller {
 			String filter = "(&(" + searchBase + "))";
 			NamingEnumeration ldapQuery = ctx.search(ldapBaseDn, filter, ctrl);
 
+			if (!ldapQuery.hasMore()) {
+				print("   ERROR: LDAP server (" + ldapUrl + ")" + " Search Query return is empty. Server may be inactive.") ;
+				return false;
+			}
+
 			while (ldapQuery.hasMore()) {
 				SearchResult r = (SearchResult) ldapQuery.next();
-				//print(">>" + r.getNameInNamespace());
+				if (r.getNameInNamespace().toString() != null || r.getNameInNamespace().length() == 0) {
+					break;
+				}
 			}
 			// Close the context
 			ctx.close();
 		} catch (AuthenticationNotSupportedException e) {
-			print("   ERROR: LDAP authentication failed with server " + ldapUrl + " (" + e.getMessage() + ")");
+			print("   ERROR: LDAP authentication failed with server " + ldapUrl + " (" + e.toString() + ")");
 			return false;
 		} catch (AuthenticationException e) {
-			print("   ERROR: LDAP authentication error: " + e.getMessage());
+			print("   ERROR AuthenticationException: " + e.toString());
 			return false;
 		} catch (NamingException e) {
-			print("   ERROR: LDAP JNDI API context error: " + e.getMessage());
+			print("   ERROR NamingException: " + e.toString());
 			return false;
 		}
 		return true;
