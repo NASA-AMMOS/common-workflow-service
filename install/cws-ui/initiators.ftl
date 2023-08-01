@@ -317,6 +317,14 @@
 			initiatorEnabled = JSON.parse(enabled);
 		});
 
+		//if there is no "false" in the list, then all are enabled.
+		if (Object.values(initiatorEnabled).indexOf("false") == -1) {
+			$("#active-all input").prop('checked', true);
+		}
+		else {
+			$("#active-all input").prop('checked', false);
+		}
+
 		//
 		// TURN ON SWITCHES FOR ENABLED INIATORS
 		//
