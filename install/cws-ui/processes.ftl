@@ -202,7 +202,6 @@
             const username = "username"; //temporary, hardcoded value for now
             const hideSubProcsVar = "CWS_DASH_PROCS_HIDE_SUBPROCS-" + username;
             const qStringVar = "CWS_DASH_PROCS_QSTRING-" + username;
-
             //GLOBAL VARS
             var params = {};
 
@@ -1394,7 +1393,9 @@
                 var selectedRows = table.rows({ selected: true });
                 selectedRows.every(function (rowIdx, tableLoop, rowLoop) {
                     var data = this.data();
-                    window.open("/${base}/history?procInstId=" + data["procInstId"], "_blank");
+                    setTimeout(function () {
+                        window.open("/${base}/history?procInstId=" + data["procInstId"], "_blank");
+                    }, 200 * rowLoop);
                 });
             }
 
