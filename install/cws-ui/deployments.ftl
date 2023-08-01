@@ -575,6 +575,70 @@
 				idleTimer = setInterval(idleMode, idleInterval);
 			});
 
+			$(".bar-error").click(function () {
+				id = $(this).parent().attr("data-pdk");
+				if (id) {
+					window.location = "/${base}/processes?procDefKey=" + id + "&status=fail";
+				}
+				else {
+					window.location = "/${base}/processes?status=fail";
+				}
+			});
+			$(".bar-completed").click(function () {
+				id = $(this).parent().attr("data-pdk");
+				if (id) {
+					window.location = "/${base}/processes?procDefKey=" + id + "&status=complete,resolved";
+				}
+				else {
+					window.location = "/${base}/processes?status=complete,resolved";
+				}
+			});
+			$(".bar-pending").click(function () {
+				id = $(this).parent().attr("data-pdk");
+				if (id) {
+					window.location = "/${base}/processes?procDefKey=" + id + "&status=pending";
+				}
+				else {
+					window.location = "/${base}/processes?status=pending";
+				}
+			});
+			$(".bar-disabled").click(function () {
+				id = $(this).parent().attr("data-pdk");
+				if (id) {
+					window.location = "/${base}/processes?procDefKey=" + id + "&status=disabled";
+				}
+				else {
+					window.location = "/${base}/processes?status=disabled";
+				}
+			});
+			$(".bar-active").click(function () {
+				id = $(this).parent().attr("data-pdk");
+				if (id) {
+					window.location = "/${base}/processes?procDefKey=" + id + "&status=running";
+				}
+				else {
+					window.location = "/${base}/processes?status=running";
+				}
+			});
+			$(".bar-failedToStart").click(function () {
+				id = $(this).parent().attr("data-pdk");
+				if (id) {
+					window.location = "/${base}/processes?procDefKey=" + id + "&status=failedToStart";
+				}
+				else {
+					window.location = "/${base}/processes?status=failedToStart";
+				}
+			});
+			$(".bar-incident").click(function () {
+				id = $(this).parent().attr("data-pdk");
+				if (id) {
+					window.location = "/${base}/processes?procDefKey=" + id + "&status=incident";
+				}
+				else {
+					window.location = "/${base}/processes?status=incident";
+				}
+			});
+
 			adjustWorkersButton();
 		});
 
@@ -902,69 +966,6 @@
 			var dataProcKey;
 			var hideall = false;
 			var id;
-			$(".bar-error").click(function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=fail";
-				}
-				else {
-					window.location = "/${base}/processes?status=fail";
-				}
-			});
-			$(".bar-completed").click(function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=complete,resolved";
-				}
-				else {
-					window.location = "/${base}/processes?status=complete,resolved";
-				}
-			});
-			$(".bar-pending").click(function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=pending";
-				}
-				else {
-					window.location = "/${base}/processes?status=pending";
-				}
-			});
-			$(".bar-disabled").click(function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=disabled";
-				}
-				else {
-					window.location = "/${base}/processes?status=disabled";
-				}
-			});
-			$(".bar-active").click(function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=running";
-				}
-				else {
-					window.location = "/${base}/processes?status=running";
-				}
-			});
-			$(".bar-failedToStart").click(function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=failedToStart";
-				}
-				else {
-					window.location = "/${base}/processes?status=failedToStart";
-				}
-			});
-			$(".bar-incident").click(function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=incident";
-				}
-				else {
-					window.location = "/${base}/processes?status=incident";
-				}
-			});
 
 			function listWorkersInModal(dataProcKey) {
 				$.get("/${base}/rest/worker/" + dataProcKey + "/getWorkersForProc", function (data) {
