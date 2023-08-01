@@ -218,9 +218,14 @@
                 if (localStorage.getItem(qStringVar) !== null) {
                     //if we have a qStringVar, we want to apply it and then update location
                     var qString = localStorage.getItem(qStringVar);
-                    if(!(isEqual(parseQueryString(qString), getQueryString()))){
-                        applyParamsToFilters(parseQueryString(qString));
-                        updateLocation(false);
+                    var qStringObj = getQueryString();
+                    if (qStringObj["cache"] == null || qStringObj["cache"] == undefined) {
+                        console.log("no cache param");
+                        //if we have a cache param, we don't want to load from cache
+                        if(!(isEqual(parseQueryString(qString), getQueryString()))){
+                            applyParamsToFilters(parseQueryString(qString));
+                            updateLocation(false);
+                        }
                     }
                 }
 
@@ -1071,9 +1076,8 @@
                         qstring += encodeURI(p) + "=" + encodeURI(localParams[p]) + "&";
                     }
                 }
-                qstring = qstring.substring(0, qstring.length - 1);
-                //save qstring
                 localStorage.setItem(qStringVar, qstring);
+                qstring = qstring + "cache=false"
                 console.log(encodeURI(qstring));
                 window.location = "/${base}/processes" + qstring;
             }

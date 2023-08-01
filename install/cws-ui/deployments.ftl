@@ -578,64 +578,64 @@
 			$(".bar-error").click(function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=fail";
+					window.location = "/${base}/processes?procDefKey=" + id + "&status=fail&cache=false";
 				}
 				else {
-					window.location = "/${base}/processes?status=fail";
+					window.location = "/${base}/processes?status=fail&cache=false";
 				}
 			});
 			$(".bar-completed").click(function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=complete,resolved";
+					window.location = "/${base}/processes?procDefKey=" + id + "&status=complete,resolved&cache=false";
 				}
 				else {
-					window.location = "/${base}/processes?status=complete,resolved";
+					window.location = "/${base}/processes?status=complete,resolved&cache=false";
 				}
 			});
 			$(".bar-pending").click(function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=pending";
+					window.location = "/${base}/processes?procDefKey=" + id + "&status=pending&cache=false";
 				}
 				else {
-					window.location = "/${base}/processes?status=pending";
+					window.location = "/${base}/processes?status=pending&cache=false";
 				}
 			});
 			$(".bar-disabled").click(function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=disabled";
+					window.location = "/${base}/processes?procDefKey=" + id + "&status=disabled&cache=false";
 				}
 				else {
-					window.location = "/${base}/processes?status=disabled";
+					window.location = "/${base}/processes?status=disabled&cache=false";
 				}
 			});
 			$(".bar-active").click(function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=running";
+					window.location = "/${base}/processes?procDefKey=" + id + "&status=running&cache=false";
 				}
 				else {
-					window.location = "/${base}/processes?status=running";
+					window.location = "/${base}/processes?status=running&cache=false";
 				}
 			});
 			$(".bar-failedToStart").click(function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=failedToStart";
+					window.location = "/${base}/processes?procDefKey=" + id + "&status=failedToStart&cache=false";
 				}
 				else {
-					window.location = "/${base}/processes?status=failedToStart";
+					window.location = "/${base}/processes?status=failedToStart&cache=false";
 				}
 			});
 			$(".bar-incident").click(function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=incident";
+					window.location = "/${base}/processes?procDefKey=" + id + "&status=incident&cache=false";
 				}
 				else {
-					window.location = "/${base}/processes?status=incident";
+					window.location = "/${base}/processes?status=incident&cache=false";
 				}
 			});
 
