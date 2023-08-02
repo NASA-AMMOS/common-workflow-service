@@ -474,6 +474,14 @@
 			<param-name>identityPluginType</param-name>
 			<param-value>__CWS_IDENTITY_PLUGIN_TYPE__</param-value>
 		</init-param>
+        <init-param>
+            <param-name>cwsWebPort</param-name>
+            <param-value>__CWS_WEB_PORT__</param-value>
+        </init-param>
+        <init-param>
+            <param-name>cwsSSLPort</param-name>
+            <param-value>__CWS_SSL_PORT__</param-value>
+        </init-param>
 		<init-param>
 			<param-name>adminUserId</param-name>
 			<param-value>__CWS_ADMIN_USERNAME__</param-value>

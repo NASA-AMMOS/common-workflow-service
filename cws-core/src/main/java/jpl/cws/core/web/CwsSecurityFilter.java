@@ -51,11 +51,19 @@ public abstract class CwsSecurityFilter implements javax.servlet.Filter {
 	protected AuthorizationService authorizationService;
 
 	protected String cwsSecurityScheme;
-	
+
+	private String cwsWebPort;
+	private String cwsSSLPort;
+
 	public void init(FilterConfig filterConfig) {
 		try {
 			cwsSecurityScheme = filterConfig.getInitParameter("identityPluginType");
+			cwsWebPort = filterConfig.getInitParameter("cwsWebPort");
+			cwsSSLPort = filterConfig.getInitParameter("cwsSSLPort");
 			log.debug("CWS Security scheme is: " + cwsSecurityScheme);
+			log.debug("CWS cwsWebPort is: " + cwsWebPort);
+			log.debug("CWS cwsSSLPort is: " + cwsSSLPort);
+
 
 			this.contextPath = filterConfig.getServletContext().getContextPath();
 			
@@ -305,12 +313,16 @@ public abstract class CwsSecurityFilter implements javax.servlet.Filter {
 	}
 
 	// Simple override of http return for redirect code when http request is valid
-	protected void statusOverride(HttpServletResponse resp){
+	protected void statusOverride(HttpServletResponse resp, HttpServletRequest req){
 		if (resp.getStatus() == 200){
 			resp.setStatus(301);
+			String newURL = getBaseUrl(req);
+			newURL = newURL.replaceFirst("http:", "https:");
+			newURL = newURL.replaceFirst(cwsWebPort, cwsSSLPort);
+			resp.setHeader("Location", newURL);
 		}
 	}
-	
+
 	protected void logRequestInfo(HttpServletRequest req) {
 		// Log all of the headers
 		Enumeration<String> reqHeaderNames = req.getHeaderNames();

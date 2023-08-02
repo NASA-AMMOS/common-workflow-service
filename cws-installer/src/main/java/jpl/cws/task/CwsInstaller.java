@@ -634,7 +634,6 @@ public class CwsInstaller {
 		}
 	}
 
-
 	private static void setupDatabase() {
 		cws_db_type = getPreset("database_type");
 
@@ -2578,6 +2577,9 @@ public class CwsInstaller {
 		content = content.replace("__CWS_SECURITY_FILTER_CLASS__",    cws_security_filter_class);
 		content = content.replace("__CWS_ADMIN_USERNAME__",           cws_user);
 		content = content.replace("__CWS_TOKEN_EXPIRATION_MINUTES__", Integer.toString(Integer.parseInt(cws_token_expiration_hours) * 60));
+		content = content.replace("__CWS_WEB_PORT__", cws_tomcat_connector_port);
+		content = content.replace("__CWS_SSL_PORT__", cws_tomcat_ssl_port);
+
 
 		if (cws_auth_scheme.equals("CAMUNDA")) {
 			content = content.replace("__CWS_ADMIN_FIRSTNAME__",       cws_user_firstname);
@@ -2608,6 +2610,8 @@ public class CwsInstaller {
 		content = getFileContents(filePath);
 		content = content.replace("__CWS_IDENTITY_PLUGIN_TYPE__",  cws_auth_scheme);
 		content = content.replace("__CWS_SECURITY_FILTER_CLASS__", cws_security_filter_class);
+		content = content.replace("__CWS_WEB_PORT__", cws_tomcat_connector_port);
+		content = content.replace("__CWS_SSL_PORT__", cws_tomcat_ssl_port);
 
 		writeToFile(filePath, content);
 		copy(
@@ -2620,6 +2624,8 @@ public class CwsInstaller {
 		content = getFileContents(filePath);
 		content = content.replace("__CWS_IDENTITY_PLUGIN_TYPE__",  cws_auth_scheme);
 		content = content.replace("__CWS_SECURITY_FILTER_CLASS__", cws_security_filter_class);
+		content = content.replace("__CWS_WEB_PORT__", cws_tomcat_connector_port);
+		content = content.replace("__CWS_SSL_PORT__", cws_tomcat_ssl_port);
 		writeToFile(filePath, content);
 		copy(
 			Paths.get(config_work_dir + SEP + "engine-rest_mods" + SEP + "web.xml"),

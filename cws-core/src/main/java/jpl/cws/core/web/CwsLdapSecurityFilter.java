@@ -77,7 +77,7 @@ public class CwsLdapSecurityFilter extends CwsSecurityFilter {
 			// FIXME:  add similar logic as above to redirect Camunda login pages..
 
 			chain.doFilter(request, resp); // continue onwards with chain
-			statusOverride(resp);
+			statusOverride(resp, req);
 			return;
 		}
 		else {
