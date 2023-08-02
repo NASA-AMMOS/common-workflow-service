@@ -535,7 +535,6 @@
 			$("#inputVariables").html("None");
 		} else {
 			var output = "";
-			console.log(data);
 			for (const [key, value] of Object.entries(data).reverse()) {
 				var temp = "";
 				var tempVal = value;
@@ -562,26 +561,86 @@
 		if (jQuery.isEmptyObject(data)) {
 			$("#outputVariables").html("None");
 		} else {
+			console.log("we have atleast one output variable");
 			var output = "";
-			
-			console.log(data);
-			for (const [key, value] of Object.entries(data).reverse()) {
-				var temp = "";
-				var tempVal = value;
-				var tempKey = key.substring(7);
-				if (key.includes("(file, image")) {
-					tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
-				} else if (checkForURL(tempVal)) {
-					tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
-				} else {
-					if (key.includes("(string)")) {
-						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+			if (Object.keys(data).includes("output_display_order (object)")) {
+				//we have an order array
+				console.log("we have an order array");
+				var orderTruncated = data["output_display_order (object)"].substring(1, data["output_display_order (object)"].length - 1).split(", ");
+				var fullKeys = Object.keys(data);
+				var fullKeysInOrder = [];
+				for (var i = 0; i < Object.keys(orderTruncated).length; i++) {
+					var result =fullKeys.findIndex(element => element.includes(orderTruncated[i]));
+					if (result > -1) {
+						fullKeysInOrder.push(fullKeys[result]);
 					}
-					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 				}
-				output = output + temp;
+				console.log("Full keys in order: " + fullKeysInOrder);
+				//the orderTruncated array now contains the full keys in the order they should be displayed
+				for (key in fullKeysInOrder) {
+					console.log("Adding key: " + fullKeysInOrder[key]);
+					var temp = "";
+					var tempVal = data[fullKeysInOrder[key]];
+					var tempKey = fullKeysInOrder[key].substring(7);
+					if (fullKeysInOrder[key].includes("(file, image")) {
+						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else if (checkForURL(tempVal)) {
+						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else {
+						if (key.includes("(string)")) {
+							tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						}
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					}
+					output = output + temp;
+				}
+				//now we need to add any keys that were not in the fullKeysInOrder array
+				//first, determine which keys were not in the fullKeysInOrder array
+				var keysNotInOrder = fullKeys.filter(x => !fullKeysInOrder.includes(x));
+				console.log("Keys not in order: " + keysNotInOrder);
+				//now add the keys that were not in the fullKeysInOrder array
+				for (key in keysNotInOrder) {
+					console.log("Adding key: " + fullKeysInOrder[key]);
+					var temp = "";
+					var tempVal = data[keysNotInOrder[key]];
+					var tempKey = keysNotInOrder[key].substring(7);
+					if (keysNotInOrder[key].includes("(file, image")) {
+						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else if (checkForURL(tempVal)) {
+						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else {
+						if (key.includes("(string)")) {
+							tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						}
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					}
+					output = output + temp;
+				}
+				
+			} else {
+				//behavior for if variable "output_display_order" is not set
+				for (const [key, value] of Object.entries(data).reverse()) {
+					var temp = "";
+					var tempVal = value;
+					var tempKey = key.substring(7);
+					if (key.includes("(file, image")) {
+						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else if (checkForURL(tempVal)) {
+						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else {
+						if (key.includes("(string)")) {
+							tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						}
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					}
+					output = output + temp;
+				}
 			}
 		}
 		$("#outputVariables").html(output);
