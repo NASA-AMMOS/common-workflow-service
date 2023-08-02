@@ -371,17 +371,27 @@
 			$("#process-table").DataTable({
 				columns: [
 					{
+						data: { id: "id", key: "key" },
+						render: function(data, type) {
+							if (type !== 'display') {
+								return "";
+							} else {
+								return `<div class="proc-name-btns">`
+									+ `<a href="/${base}/modeler?procDefKey=` + data.key + `" target="_blank">`
+									+ `<span style="float: right;" id="edit-` + data.key + `" class="glyphicon glyphicon-pencil"></span></a>`
+									+ `<a data-proc-key="` + data.key + `" onClick="handleDeleteProcDef('` + data.key + `')"><span style="cursor: pointer; float: right; color: #d9534f; padding-left: 7;" id="delete-` 
+									+ data.key + `" class="glyphicon glyphicon-remove-sign"></span></a>`
+									+ `</div>`;
+							}
+						}
+					},
+					{
 						data: { name: "name", id: "id", key: "key" },
 						render: function (data, type) {
 							if (type !== 'display') {
 								return data.name;
 							} else {
-								var html = `<div class="proc-name-flex"><div class="proc-name-btns">`
-									+ `<a href="/${base}/modeler?procDefKey=` + data.key + `" target="_blank">`
-									+ `<span style="float: right;" id="edit-` + data.key + `" class="glyphicon glyphicon-pencil"></span></a>`
-									+ `<a data-proc-key="` + data.key + `" onClick="handleDeleteProcDef('` + data.key + `')"><span style="cursor: pointer; float: right; color: #d9534f; padding-left: 7;" id="delete-` 
-									+ data.key + `" class="glyphicon glyphicon-remove-sign"></span></a>`
-									+ `</div><div class-"proc-name-name"><a style="cursor: pointer;" onClick='parent.location="/camunda/app/cockpit/default/#/process-definition/` + data.id + `/runtime"'/>` + data.name + `</a></div>`;
+								var html = `<div class-"proc-name-name"><a style="cursor: pointer;" onClick='parent.location="/camunda/app/cockpit/default/#/process-definition/` + data.id + `/runtime"'/>` + data.name + `</a></div>`;
 								return html;
 							}
 						}
@@ -501,9 +511,11 @@
 					}
 				],
 				columnDefs: [
-					{ orderable: false, targets: 5 },
-					{ orderable: false, targets: 3 }
+					{ orderable: false, targets: 0},
+					{ orderable: false, targets: 6 },
+					{ orderable: false, targets: 4 },
 				],
+				order: [[1, "asc"]],
 				"paging": false,
 				//filter is top left, length is top right, info is bottom left, pagination is bottom right
 				dom: "<'above-table-div'<'above-table-buttons'>f>"
@@ -525,21 +537,21 @@
 
 			$("#hide-sus-btn").click(function () {
 				if ($(this).prop("checked")) {
-					$("#process-table").DataTable().column(4).search("Active", false, true).draw();
+					$("#process-table").DataTable().column(5).search("Active", false, true).draw();
 					localStorage.setItem(hideSuspendedProcVar, "1");
 				}
 				else {
-					$("#process-table").DataTable().column(4).search("").draw();
+					$("#process-table").DataTable().column(5).search("").draw();
 				}
 			});
 
 			if (parseInt(localStorage.getItem(hideSuspendedProcVar)) == 0) {
 				$("#hide-sus-btn").prop("checked", false);
-				$("#process-table").DataTable().column(4).search("").draw();
+				$("#process-table").DataTable().column(5).search("").draw();
 			}
 			else {
 				$("#hide-sus-btn").prop("checked", true);
-				$("#process-table").DataTable().column(4).search("Active", false, true).draw();
+				$("#process-table").DataTable().column(5).search("Active", false, true).draw();
 			}
 
 			refreshStats();
@@ -822,14 +834,15 @@
 							</div>
 						</div>
 
-						<table id="process-table" class="table table-striped sortable">
+						<table id="process-table" class="table table-striped sortable" style="width: 100%;">
 							<thead>
 								<tr>
-									<th>Name</span></th>
-									<th>Key</span></th>
-									<th>Version&nbsp;</span></th>
-									<th>Workers</span></th>
-									<th>Status&nbsp;</span></th>
+									<th style="width: 30px"></th>
+									<th>Name</th>
+									<th>Key</th>
+									<th>Version</th>
+									<th>Workers</th>
+									<th>Status</th>
 									<th style="width:500px">Instance Statistics</th>
 								</tr>
 							</thead>

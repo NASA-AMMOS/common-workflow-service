@@ -108,28 +108,36 @@
 #process-table tr td {
     vertical-align: middle;
     padding: 4px 8px;
-    min-width: 70px;
 }
 
-#process-table tr td:nth-child(1) {
+#process-table tr td:nth-child(2) {
     min-width: 200px;
     overflow: hidden;
     text-wrap: none
 }
 
 #process-table tr td:nth-child(3) {
-    text-align: center;
-    width: 70px;
+    overflow-wrap: break-word;
+    max-width: 200px;
 }
 
 #process-table tr td:nth-child(4) {
     text-align: center;
-    width: 70px;
+    max-width: 50px;
 }
 
 #process-table tr td:nth-child(5) {
     text-align: center;
     width: 70px;
+}
+
+#process-table tr td:nth-child(6) {
+    text-align: center;
+    width: 70px;
+}
+
+#process-table tr td:nth-child(7) {
+    min-width: 400px;
 }
 
 .progress {
