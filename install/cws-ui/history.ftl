@@ -542,15 +542,15 @@
 				var tempKey = key;
 				if (key.includes("(file, image")) {
 					tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-					temp = `<div style="margin-bottom: 10px; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; align-items: center; gap: 10px;"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 				} else if (checkForURL(tempVal)) {
 					tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-					temp = `<div style="margin-bottom: 10px; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; align-items: center; gap: 10px;"><div style="align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 				} else {
 					if (key.includes("(string)")) {
 						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 					}
-					temp = `<div style="margin-bottom: 10px; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; align-items: center; gap: 10px;"><div style="align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 				}
 				output = output + temp;
 			}
@@ -571,15 +571,15 @@
 				var tempKey = key.substring(7);
 				if (key.includes("(file, image")) {
 					tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-					temp = `<div style="margin-bottom: 10px; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; align-items: center; gap: 10px;"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 				} else if (checkForURL(tempVal)) {
 					tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-					temp = `<div style="margin-bottom: 10px; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; align-items: center; gap: 10px;"><div style="align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 				} else {
 					if (key.includes("(string)")) {
 						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 					}
-					temp = `<div style="margin-bottom: 10px; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; align-items: center; gap: 10px;"><div style="align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div style="align-self: start; margin-top: auto; margin-bottom: auto;"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 				}
 				output = output + temp;
 			}
@@ -904,7 +904,7 @@ function convertMillis(millis) {
 					<td style="font-weight:bold;">Input Variables</td><td id="inputVariables"></td>
 				</tr>
 				<tr>
-					<td style="font-weight: bold;">Output Variables</td><td id="outputVariables"></td>
+					<td style="font-weight: bold;">Output Variables<br><i style="font-weight: normal;">All output variables start with "output_"</i></td><td id="outputVariables"></td>
 				</tr>
 			</table>
 		</div>
