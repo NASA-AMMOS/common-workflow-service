@@ -874,7 +874,7 @@
                     + `<li id="action_open_selected_new_tabs" class="disabled" role="presentation"><a id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)</a></li>`
                     + `<li id="action_copy_all_selected_history_links" class="disabled" role="presentation"><a id="action_copy_all_selected_history_links_atag" role="menuitem">Copy all selected history links (must not be pending)</a></li>`
                     + '<li role="separator" class="divider"></li>'
-                    + `<li id="action_delete_selected" class="disabled" role="presentation"><a id="action_delete_selected_atag" role="menuitem">Delete selected rows (all rows selected must be 'running')</a></li>`
+                    + `<li id="action_delete_selected" class="disabled" role="presentation"><a id="action_delete_selected_atag" role="menuitem">Stop running selected rows (all rows selected must be 'running')</a></li>`
                     + `<li id="action_disable" class="disabled" role="presentation"><a id="action_disable_atag" role="menuitem">Disable selected rows (all rows selected must be 'pending')</a></li>`
                     + `<li id="action_enable" class="disabled" role="presentation"><a id="action_enable_atag" role="menuitem">Enable selected rows (all rows selected must be 'disabled')</a></li>`
                     + `<li id="action_retry_incident" class="disabled" role="presentation"><a id="action_retry_incident_atag" role="menuitem">Retry all selected incident rows (all rows selected must be 'incident')</a></li>`
