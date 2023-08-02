@@ -50,11 +50,6 @@
 		<#list workerIds as workerId>
 			workerIdArr.push("${workerId}");
 		</#list>
-
-		var procInstIdArr = [];
-		<#list procInstIds as procInstId>
-			procInstIdArr.push("${procInstId}");
-		</#list>
 	
 		var now = moment().format("YYYY-MM-DDTHH:mm:ss.SSSSSS");
 
@@ -184,7 +179,6 @@
 				//hide ajax spinner
 				$("#log-div .ajax-spinner").hide();
 				if ($("#logData_info").text().includes(" of 10,000 entries")) {
-				console.log("ahh");
 				$("#warning-msg").show();
 				} else {
 					$("#warning-msg").hide();
@@ -493,7 +487,6 @@
 			$("#filters-div-flex").slideToggle();
 		});
 
-		autocomplete(document.getElementById("pi-text"), procInstIdArr);
 		autocomplete(document.getElementById("worker-id-text"), workerIdArr);
 	
 		}); //END OF DOCUMENT.READY
