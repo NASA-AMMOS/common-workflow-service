@@ -6,7 +6,8 @@ summary {
     width: 100px;
 }
 .historyLimitSize {
-    max-height: 150px;
+    max-height: 200px;
+    max-width: 200px;
 }
 .thumbnail {
     margin-top: 5px !important;
