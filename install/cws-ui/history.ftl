@@ -602,7 +602,10 @@
 				console.log("Keys not in order: " + keysNotInOrder);
 				//now add the keys that were not in the fullKeysInOrder array
 				for (key in keysNotInOrder) {
-					console.log("Adding key: " + fullKeysInOrder[key]);
+					if (keysNotInOrder[key] == "output_display_order (object)") {
+						continue;
+					}
+					console.log("Adding key: " + keysNotInOrder[key]);
 					var temp = "";
 					var tempVal = data[keysNotInOrder[key]];
 					var tempKey = keysNotInOrder[key].substring(7);
