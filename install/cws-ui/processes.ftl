@@ -560,13 +560,6 @@
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div></div><br>";
-                                            if (putAllAfter === 0) {
-                                                putAllAfter = 1;
-                                                after = before + after;
-                                                before = temp;
-                                                count++;
-                                                continue;
-                                            }
                                         } else if (checkForURL(tempVal)) {
                                             tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                             temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + "<a href=\"" + tempVal + "\">" + tempVal + "</a>" + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
@@ -651,75 +644,120 @@
                                     return "";
                                 }
                                 if (type === 'display') {
+                                    console.log("we have atleast one output variable");
                                     var output = "";
                                     var before = "";
                                     var after = "";
-                                    var putAllAfter = 0;
                                     var count = 0;
-                                    for (const [key, value] of Object.entries(data)) {
-                                        var temp = "";
-                                        var tempVal = value;
-                                        var tempKey = key.substring(7);
-                                        if (tempKey === "workerId") {
-                                            continue;
-                                        }
-                                        if (count > 3) {
-                                            putAllAfter = 1;
-                                        }
-                                        if (key.includes("(file, image")) {
-                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
-                                                + '<br><img class="grow" src="' + tempVal + '">'
-                                                + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                + "</span></div></div><br>";
-                                            if (key.toUpperCase().includes("THUMBNAIL")) {
-                                                putAllAfter = 1;
-                                                after = before + after;
-                                                before = temp;
-                                                count++;
-                                                continue;
-                                            } else if (putAllAfter === 0) {
-                                                putAllAfter = 1;
-                                                after = before + after;
-                                                before = temp;
-                                                count++;
-                                                continue;
+                                    if (Object.keys(data).includes("output_display_order (object)")) {
+                                        //we have an order array
+                                        console.log("we have an order array");
+                                        var orderTruncated = data["output_display_order (object)"].substring(1, data["output_display_order (object)"].length - 1).split(", ");
+                                        var fullKeys = Object.keys(data);
+                                        var fullKeysInOrder = [];
+                                        for (var i = 0; i < Object.keys(orderTruncated).length; i++) {
+                                            var result =fullKeys.findIndex(element => element.includes(orderTruncated[i]));
+                                            if (result > -1) {
+                                                fullKeysInOrder.push(fullKeys[result]);
                                             }
-                                        } else if (checkForURL(tempVal)) {
-                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + "<a href=\"" + tempVal + "\">" + tempVal + "</a>" + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                + "</span></div></div><br>";
-                                        } else if (tempKey.toUpperCase().includes("SUMMARY")){
-                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                + "</span></div></div><br>";
-                                            before = before + temp;
-                                            count++;
-                                            continue;
-                                        } else {
-                                            if (tempKey.toUpperCase().includes("(STRING)")) {
+                                        }
+                                        console.log("Full keys in order: " + fullKeysInOrder);
+                                        //the orderTruncated array now contains the full keys in the order they should be displayed
+                                        for (key in fullKeysInOrder) {
+                                            var temp = "";
+                                            var tempVal = data[fullKeysInOrder[key]];
+                                            var tempKey = fullKeysInOrder[key].substring(7);
+                                            if (fullKeysInOrder[key].includes("(file, image")) {
                                                 tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
+                                                    + '<br><img class="grow" src="' + tempVal + '">'
+                                                    + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                    + "</span></div></div><br>";
+                                            } else if (checkForURL(tempVal)) {
+                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + "<a href=\"" + tempVal + "\">" + tempVal + "</a>" + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                    + "</span></div></div><br>";
+                                            } else {
+                                                if (tempKey.toUpperCase().includes("(STRING)")) {
+                                                    tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                                }
+                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                    + "</span></div></div><br>";
                                             }
-                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                + "</span></div></div><br>";
+                                            if (count > 2) {
+                                                after += temp;
+                                            } else {
+                                                before += temp;
+                                            }
+                                            count++;
                                         }
-                                        if (tempKey === "startedOnWorkerId") {
-                                            after = after + temp;
-                                            putAllAfter = 1;
-                                        } else if (putAllAfter === 0) {
-                                            before = before + temp;
+                                        if (after !== "") {
+                                            output = before + '<details><summary style="margin-top: 5px;"><b> Show All</b></summary>' + after + "</details>";
                                         } else {
-                                            after = after + temp;
+                                            output = before;
                                         }
-                                        count++;
+                                    } else {
+                                        for (const [key, value] of Object.entries(data)) {
+                                            var temp = "";
+                                            var tempVal = value;
+                                            var tempKey = key.substring(7);
+                                            if (tempKey === "workerId") {
+                                                continue;
+                                            }
+                                            if (key.includes("(file, image")) {
+                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
+                                                    + '<br><img class="grow" src="' + tempVal + '">'
+                                                    + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                    + "</span></div></div><br>";
+                                                if (key.toUpperCase().includes("THUMBNAIL")) {
+                                                    after = before + after;
+                                                    before = temp;
+                                                    count += 2;
+                                                    continue;
+                                                }
+                                            } else if (checkForURL(tempVal)) {
+                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + "<a href=\"" + tempVal + "\">" + tempVal + "</a>" + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                    + "</span></div></div><br>";
+                                            } else if (tempKey.toUpperCase().includes("SUMMARY")){
+                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                    + "</span></div></div><br>";
+                                                before = before + temp;
+                                                count++;
+                                                continue;
+                                            } else {
+                                                if (tempKey.toUpperCase().includes("(STRING)")) {
+                                                    tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                                }
+                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                    + "</span></div></div><br>";
+                                            }
+                                            if (tempKey === "startedOnWorkerId") {
+                                                after = after + temp;
+                                                count += 2;
+                                            } else if (count < 2) {
+                                                before = before + temp;
+                                            } else {
+                                                after = after + temp;
+                                            }
+                                            count++;
+                                        }
                                     }
                                     if (after.length == 0) {
                                         output = before;
@@ -776,7 +814,7 @@
                             width: "200px"
                         },
                         {
-                            targets: [2],
+                            targets: [1, 2],
                             responsivePriority: 1
                         },
                         {
