@@ -115,7 +115,6 @@ public class MvcCore {
 			//
 			model.addObject("procDefs", cwsExecutionService.listProcessDefinitions());
 			model.addObject("workerIds", cwsConsoleService.getAllWorkerIds());
-			model.addObject("procInstIds", cwsConsoleService.getProcInstIds());
 
 			log.trace("MODEL for Logs page: "+model.getModel());
 		}

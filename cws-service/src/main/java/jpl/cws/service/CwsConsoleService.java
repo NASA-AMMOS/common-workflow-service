@@ -418,6 +418,16 @@ public class CwsConsoleService {
         return initiator;
     }
 
+    public List<CwsProcessInitiator> getAllProcessInitiators() {
+        Map<String, CwsProcessInitiator> initiatorMap;
+        initiatorMap = SpringApplicationContext.getBeansOfType(CwsProcessInitiator.class);
+        ArrayList<CwsProcessInitiator> initiators= new ArrayList<CwsProcessInitiator>();
+        for (Map.Entry<String, CwsProcessInitiator> initiator : initiatorMap.entrySet()) {
+            initiators.add(initiator.getValue());
+        }
+        return initiators;
+    }
+
     public void replaceInitiatorBean(String springBeanKey, CwsProcessInitiator newInitiator) {
         log.debug("replaceInitiatorBean initiator: " + springBeanKey + " ...");
         springApplicationContext.replaceBean(springBeanKey, null, newInitiator.getPropertyValues(),
@@ -1134,10 +1144,13 @@ public class CwsConsoleService {
             Timestamp procStartTime = (Timestamp) row.get("proc_start_time");
             Timestamp procEndTime = (Timestamp) row.get("proc_end_time");
             Map<String, String> inputVars;
+            Map<String, String> outputVars;
             if (procInstIdObj != null) {
                 inputVars = getInputVariablesForProcess(procInstIdObj.toString());
+                outputVars = getOutputVariablesForProcess(procInstIdObj.toString());
             } else {
                 inputVars = new HashMap<String, String>();
+                outputVars = new HashMap<String, String>();
             }
             CwsProcessInstance instance = new CwsProcessInstance(uuidObj == null ? null : uuidObj.toString(),
                     procDefKeyObj == null ? null : procDefKeyObj.toString(),
@@ -1149,7 +1162,7 @@ public class CwsConsoleService {
                     updatedTimestampObj == null ? null : updatedTimestampObj,
                     claimedByWorker == null ? null : claimedByWorker, startedByWorker == null ? null : startedByWorker,
                     procStartTime == null ? null : procStartTime, procEndTime == null ? null : procEndTime,
-                    inputVars);
+                    inputVars, outputVars);
             instances.add(instance);
         }
 
@@ -1216,6 +1229,47 @@ public class CwsConsoleService {
             log.error("Could not access AMQ.", e);
 
             throw e;
+        }
+    }
+
+    /**
+     * Suspend a procDefKey given a procDefId
+     */
+    public String suspendProcDefId(String procDefId) {
+        try {
+            repositoryService.updateProcessDefinitionSuspensionState().byProcessDefinitionId(procDefId).suspend();
+            return "Success";
+        } catch (Exception e) {
+            log.error("*** ERROR *** Could not suspend procDefId: " + e);
+            return "Error";
+        }
+    }
+
+    /**
+     * Activate a suspended procDefKey given a procDefId
+     */
+    public String activateProcDefId(String procDefId) {
+        try {
+            repositoryService.updateProcessDefinitionSuspensionState().byProcessDefinitionId(procDefId).activate();
+            return "Success";
+        } catch (Exception e) {
+            log.error("*** ERROR *** Could not activate procDefId: " + e);
+            return "Error";
+        }
+    }
+
+    /**
+     * Delete a running process instance given an array of procInstIds
+     */
+    public String deleteRunningProcInst(List<String> procInstIds) {
+        try {
+            for (String procInstId : procInstIds) {
+                runtimeService.deleteProcessInstance(procInstId, "User requested delete from processes page.", true, true, true);
+                log.debug("DELETED PROCESS INSTANCE");
+            }
+            return "Success";
+        } catch (Exception e) {
+            return "Error: " + e;
         }
     }
 }

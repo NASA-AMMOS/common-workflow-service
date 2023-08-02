@@ -22,6 +22,29 @@ function getQueryString(){
     return params;
 }
 
+//parses query string. returns null if empty
+function parseQueryString(qstring){
+    /*
+    * PARSE THE QUERY STRING
+    */
+    qstring = qstring.substring(1);
+
+    var keyValPair = qstring.split('&');
+
+    if(keyValPair.length == 1 && keyValPair[0] == ""){
+        return null;
+    }
+
+    var params = {};
+    for(entry in keyValPair){
+        var key = keyValPair[entry].split("=")[0];
+        var val = keyValPair[entry].split("=")[1];
+        params[key] = val;
+    }
+    
+    return params;
+}
+
 //Thank you to sobyte.net for the following function:
 function base64ToBlob(base64Data, mime) {
     mime = mime || "image/png";
@@ -68,6 +91,19 @@ function checkForURL(potentialURL) {
     catch (e) {
         return false;
     }
+}
+
+function isEqual (a, b) {
+    for (const key in a) {
+        if (b[key] !== undefined) {
+            if (a[key] !== b[key]) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+    return true;
 }
 
 function autocomplete(inp, arr) {

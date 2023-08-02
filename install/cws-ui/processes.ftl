@@ -201,7 +201,7 @@
             //STATE PERSISTANCE CONSTS
             const username = "username"; //temporary, hardcoded value for now
             const hideSubProcsVar = "CWS_DASH_PROCS_HIDE_SUBPROCS-" + username;
-
+            const qStringVar = "CWS_DASH_PROCS_QSTRING-" + username;
             //GLOBAL VARS
             var params = {};
 
@@ -211,6 +211,21 @@
                 //(automatically hides subprocs if never visited this page before)
                 if (localStorage.getItem(hideSubProcsVar) === null) {
                     localStorage.setItem(hideSubProcsVar, true);
+                }
+
+                //try to load qStringVar from local storage. If it doesn't exist, ignore
+                if (localStorage.getItem(qStringVar) !== null) {
+                    //if we have a qStringVar, we want to apply it and then update location
+                    var qString = localStorage.getItem(qStringVar);
+                    var qStringObj = getQueryString();
+                    if (qStringObj["cache"] == null || qStringObj["cache"] == undefined) {
+                        console.log("no cache param");
+                        //if we have a cache param, we don't want to load from cache
+                        if(!(isEqual(parseQueryString(qString), getQueryString()))){
+                            applyParamsToFilters(parseQueryString(qString));
+                            updateLocation(false);
+                        }
+                    }
                 }
 
                 //initialize our datepicker elements
@@ -344,72 +359,151 @@
                         },
                         {
                             data: "procDefKey",
+                            render: function (data, type) {
+                                if (type !== "display") {
+                                    return data;
+                                } else {
+                                    if (data === null || data === undefined || data === "") {
+                                        return "";
+                                    }
+                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
+                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div>";
+                                }
+                            }
                         },
                         {
                             data: { procInstId: "procInstId", status: "status" },
                             render: function (data, type) {
                                 if (type === 'display') {
+                                    if (data.procInstId === null) {
+                                        return "";
+                                    }
                                     if (data.status === "incident") {
                                         var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + data.procInstId + "/runtime?tab=incidents-tab";
-                                        return "<a href=\"" + incidentUrl + "\" target=\"blank_\">" + data.procInstId + "</a>";
+                                        return "<div class='table-cell-flex'><a href=\"" + incidentUrl + "\" target=\"blank_\">" + data.procInstId + "</a>"
+                                            + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data.procInstId + "\" onClick=''>"
+                                            + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                            + "</span></div>";
                                     } else {
-                                        return data.procInstId;
+                                        return '<div class="table-cell-flex"><p>' + data.procInstId + '</p>' 
+                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data.procInstId + "\" onClick=''>"
+                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div>";
                                     }
                                 } else {
-                                    return data;
+                                    return data.procInstId;
                                 }
                             }
                         },
                         { 
                             data: "status",
                             render: function(data, type) {
+                                var status;
                                 if (type === 'display') {
                                     switch(data) {
                                         case "fail" :
-                                            return "<p class=\"tr-fail\">" + data + "</p>";
+                                            status = "<p class=\"tr-fail\">" + data + "</p>";
                                             break;
                                         case "incident" :
-                                            return "<p class=\"tr-incident\">" + data + "</p>";
+                                            status = "<p class=\"tr-incident\">" + data + "</p>";
                                             break;
                                         case "complete": 
-                                            return "<p class=\"tr-complete\">" + data + "</p>";
+                                            status = "<p class=\"tr-complete\">" + data + "</p>";
                                             break;
                                         case "resolved": 
-                                            return "<p class=\"tr-complete\">" + data + "</p>";
+                                            status = "<p class=\"tr-complete\">" + data + "</p>";
                                             break;
                                         case "running":
-                                            return "<p class=\"tr-running\">" + data + "</p>";
+                                            status = "<p class=\"tr-running\">" + data + "</p>";
                                             break;
                                         case "pending":
-                                            return "<p class=\"tr-pending\">" + data + "</p>";
+                                            status = "<p class=\"tr-pending\">" + data + "</p>";
                                             break;
                                         case "disabled":
-                                            return "<p class=\"tr-failed\">" + data + "</p>";
+                                            status = "<p class=\"tr-failed\">" + data + "</p>";
                                             break;
                                         case "failedToStart":
-                                            return "<p class=\"tr-failed\">" + data + "</p>";
+                                            status =  "<p class=\"tr-failed\">" + data + "</p>";
                                             break;
                                         default:
-                                            return data;
+                                            status =  data;
                                     }
+                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
+                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div>";
                                 } else {
                                     return data;
                                 }
                             }
                         },
-                        { data: "createdTimestamp" },
+                        { 
+                            data: "createdTimestamp",
+                            render: function (data, type) {
+                                if (type !== "display") {
+                                    return data;
+                                } else {
+                                    if (data === null || data === undefined || data === "") {
+                                        return "";
+                                    }
+                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
+                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div>";
+                                }
+                            }
+                        },
                         {
                             data: "startedByWorker",
                             render: function (data, type) {
                                 if (type === 'display') {
                                     if (data !== null) {
-                                        return data + "<br><b>Worker IP: </b>" + data.split("_").slice(0, -2).join(".");
+                                        return '<div class="table-cell-main-flex">'
+                                            + '<div class="table-cell-flex"><p>'
+                                            + data 
+                                            + '</p>' 
+                                            + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
+                                            + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                            + "</span></div></div>"
+                                            + '<div class="table-cell-flex"><div style="margin-top: 0px;">'
+                                            + "<b>Worker IP: </b>" + data.split("_").slice(0, -2).join(".") + '</div>'
+                                            + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data.split("_").slice(0, -2).join(".") + "\" onClick=''>"
+                                            + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                            + "</span></div></div>";
                                     }
                                 }
                                 return data;
                             }
                         },
-                        { data: "procStartTime" },
+                        { 
+                            data: "procStartTime",
+                            render: function (data, type) {
+                                if (type !== "display") {
+                                    if (data === null) {
+                                        return "";
+                                    }
+                                    return data;
+                                } else {
+                                    if (data === null || data === undefined || data === "") {
+                                        return "";
+                                    }
+                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
+                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div>";
+                                }
+                            }
+                        },
                         {
                             data: { procEndTime: "procEndTime", procStartTime: "procStartTime" },
                             render: function (data, type) {
@@ -424,7 +518,13 @@
                                     } else {
                                         var procDuration = '';
                                     }
-                                    return data.procEndTime + procDuration;
+                                    return '<div class="table-cell-flex"><p>' 
+                                        + data.procEndTime + procDuration
+                                        + '</p>' 
+                                        + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                        + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data.procEndTime + "\" onClick=''>"
+                                        + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                        + "</span></div>";
                                 } else {
                                     return data.procEndTime;
                                 }
@@ -474,7 +574,9 @@
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div></div><br>";
                                         } else {
-                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                            if (tempKey.toUpperCase().includes("(STRING)")) {
+                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                            }
                                             temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
@@ -508,8 +610,40 @@
                                 }
                             }
                         },
-                        { data: "superProcInstId" },
-                        { data: "uuid" },
+                        { 
+                            data: "superProcInstId",
+                            render: function (data, type) {
+                                if (type !== "display") {
+                                    return data;
+                                } else {
+                                    if (data === null || data === undefined || data === "") {
+                                        return "";
+                                    }
+                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
+                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div>";
+                                }
+                            }
+                        },
+                        {
+                            data: "uuid",
+                            render: function (data, type) {
+                                if (type !== "display") {
+                                    return data;
+                                } else {
+                                    if (data === null || data === undefined || data === "") {
+                                        return "";
+                                    }
+                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
+                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
+                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div>";
+                                }
+                            }
+                        },
                         {
                             data: "outputVariables",
                             render: function (data, type) {
@@ -569,7 +703,9 @@
                                             count++;
                                             continue;
                                         } else {
-                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                            if (tempKey.toUpperCase().includes("(STRING)")) {
+                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                            }
                                             temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
@@ -721,11 +857,13 @@
                     e.preventDefault();
                     var copyValue = $(this).attr('data-copyValue');
                     var isImage = $(this).attr('data-isImage');
+                    console.log(isImage);
                     copyInput(copyValue, isImage);
                     $(this).attr('aria-label', 'Copied!');
                     setTimeout(function () {
                         $('.copy').attr('aria-label', 'Copy');
                     }, 2000);
+                    console.log("fire");
                 });
 
                 //add our action dropdown button to the div that datatables created (created in dom: above)
@@ -736,6 +874,7 @@
                     + `<li id="action_open_selected_new_tabs" class="disabled" role="presentation"><a id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)</a></li>`
                     + `<li id="action_copy_all_selected_history_links" class="disabled" role="presentation"><a id="action_copy_all_selected_history_links_atag" role="menuitem">Copy all selected history links (must not be pending)</a></li>`
                     + '<li role="separator" class="divider"></li>'
+                    + `<li id="action_delete_selected" class="disabled" role="presentation"><a id="action_delete_selected_atag" role="menuitem">Delete selected rows (all rows selected must be 'running')</a></li>`
                     + `<li id="action_disable" class="disabled" role="presentation"><a id="action_disable_atag" role="menuitem">Disable selected rows (all rows selected must be 'pending')</a></li>`
                     + `<li id="action_enable" class="disabled" role="presentation"><a id="action_enable_atag" role="menuitem">Enable selected rows (all rows selected must be 'disabled')</a></li>`
                     + `<li id="action_retry_incident" class="disabled" role="presentation"><a id="action_retry_incident_atag" role="menuitem">Retry all selected incident rows (all rows selected must be 'incident')</a></li>`
@@ -936,7 +1075,8 @@
                         qstring += encodeURI(p) + "=" + encodeURI(localParams[p]) + "&";
                     }
                 }
-                qstring = qstring.substring(0, qstring.length - 1);
+                localStorage.setItem(qStringVar, qstring);
+                qstring = qstring + "cache=false"
                 console.log(encodeURI(qstring));
                 window.location = "/${base}/processes" + qstring;
             }
@@ -1096,6 +1236,7 @@
                 var numFailedToStartSelected = 0;
                 var numFailedSelected = 0;
                 var numComplete = 0;
+                var numRunning = 0;
 
                 selectedRows.every(function (rowIdx, tableLoop, rowLoop) {
                     var data = this.data();
@@ -1118,6 +1259,9 @@
                         case 'complete':
                             numComplete++;
                             break;
+                        case 'running':
+                            numRunning++;
+                            break;
                     }
                 });
 
@@ -1127,6 +1271,7 @@
                     var incident = numIncidentSelected == numSelected;
                     var failedToStart = numFailedToStartSelected == numSelected;
                     var failed = numFailedSelected == numSelected;
+                    var running = numRunning == numSelected;
                 }
 
                 // Disable everything
@@ -1150,6 +1295,8 @@
                 $("#action_download_selected_csv").removeClass("enabled");
                 $("#action_download_selected_list").addClass("disabled");
                 $("#action_download_selected_list").removeClass("enabled");
+                $("#action_delete_selected").addClass("disabled");
+                $("#action_delete_selected").removeClass("enabled");
 
                 // Remove hrefs from the anchor tags
                 $("#action_disable_atag").removeAttr("href");
@@ -1162,6 +1309,7 @@
                 $("#action_download_selected_json_atag").removeAttr("href");
                 $("#action_download_selected_csv_atag").removeAttr("href");
                 $("#action_download_selected_list_atag").removeAttr("href");
+                $("#action_delete_selected_atag").removeAttr("href");
 
                 // Enable the right one
 
@@ -1189,6 +1337,9 @@
                 else if (failed) {
                     $("#action_mark_as_resolved").removeClass("disabled");
                     $("#action_mark_as_resolved_atag").attr("href", "javascript:action_mark_as_resolved();");
+                } else if (running) {
+                    $("#action_delete_selected").removeClass("disabled");
+                    $("#action_delete_selected_atag").attr("href", "javascript:action_delete_selected();");
                 }
 
                 if ((numSelected > 0)) {
@@ -1210,13 +1361,41 @@
                 updateAdaptationActionList();
             }
 
+            function action_delete_selected() {
+                var table = $("#processes-table").DataTable();
+                var selectedRows = table.rows({ selected: true });
+                var procInstIds = [];
+                selectedRows.every(function (rowIdx, tableLoop, rowLoop) {
+                    procInstIds.push(this.data()["procInstId"]);
+                });
+                    $.ajax({
+                    type: "POST",
+                    url: "/${base}/rest/processes/delete",
+                    Accept: "application/json",
+                    contentType: "application/json",
+                    data: JSON.stringify(procInstIds)
+                    })
+                    .success(function (msg) {
+                        //clear table
+                        table.clear().draw();
+                        //reload table
+                        fetchAndDisplayProcesses();
+                    })
+                    .fail(function (xhr, err) {
+                        console.error(xhr.responseTextmsg);
+                        console.error(err);
+                    })
+            }
+
             //opens selected rows' history pages in new tabs
             function action_open_selected_new_tabs() {
                 var table = $("#processes-table").DataTable();
                 var selectedRows = table.rows({ selected: true });
                 selectedRows.every(function (rowIdx, tableLoop, rowLoop) {
                     var data = this.data();
-                    window.open("/${base}/history?procInstId=" + data["procInstId"], "_blank");
+                    setTimeout(function () {
+                        window.open("/${base}/history?procInstId=" + data["procInstId"], "_blank");
+                    }, 200 * rowLoop);
                 });
             }
 

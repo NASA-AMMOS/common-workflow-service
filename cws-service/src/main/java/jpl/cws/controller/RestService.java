@@ -228,6 +228,23 @@ public class RestService extends MvcCore {
 		// Success!
 		return buildModel("login", "updated initiator enabled to " + enabled);
 	}
+
+	@RequestMapping(value = "/initiators/all/enabled", method = POST)
+	public @ResponseBody ModelAndView setAllInitiatorsEnabled(
+			@RequestParam("enabled") boolean enabled) {
+
+		try {
+			if (enabled) {
+				cwsInitiatorsService.enableAndStartAllInitiators();
+			} else {
+				cwsInitiatorsService.disableAndStopAllInitiators();
+			}
+		} catch (Exception e) {
+			log.error("A problem occured when setting enabled status to " + enabled, e);
+			return buildModel("initiators", e.getMessage());
+		}
+		return buildModel("login", "updated initiator enabled to " + enabled);
+	}
 	
 	
 	/**
@@ -251,6 +268,32 @@ public class RestService extends MvcCore {
 			log.error("isInitiatorEnabled exception", e);
 		}
 		return "error";
+	}
+
+	/**
+	 * Gets all process initiators enabled flag.
+	 *
+	 */
+	@RequestMapping(value = "initiators/all/enabled", method = GET)
+	public @ResponseBody Map<String, String> areAllInitiatorsEnabled () {
+		try {
+			log.trace("REST::areAllInitiatorsEnabled");
+			List<CwsProcessInitiator> initiators = cwsConsoleService.getAllProcessInitiators();
+			Map<String, String> statusMap = new HashMap<>();
+			for (int i = 0; i < initiators.size(); i++) {
+				String status = "";
+				if (initiators.get(i).isEnabled()) {
+					status = "true";
+				} else {
+					status = "false";
+				}
+				statusMap.put(initiators.get(i).getInitiatorId(), status);
+			}
+			return statusMap;
+		} catch (Exception e) {
+			log.error("areAllInitiatorsEnabled exception", e);
+		}
+		return null;
 	}
 	
 	
@@ -1436,8 +1479,45 @@ public class RestService extends MvcCore {
 		
 		return "success";
 	}
-	
-	
+
+	/**
+	 * Suspends a process definition given its procDefId
+	 *
+	 */
+	@RequestMapping(value = "/deployments/suspend/{procDefId}", method = POST)
+	public @ResponseBody String suspendProcDefId(
+			@PathVariable String procDefId) {
+		log.info("*** REST CALL *** suspendProcDefId (procDefId=" + procDefId + ")");
+		String result = cwsConsoleService.suspendProcDefId(procDefId);
+		return result;
+	}
+
+	/**
+	 * Activates a suspended process definition given its procDefId
+	 *
+	 */
+	@RequestMapping(value = "/deployments/activate/{procDefId}", method = POST)
+	public @ResponseBody String activateProcDefId(
+			@PathVariable String procDefId ) {
+		log.info ("*** REST CALL *** activateProcDefId (procDefId" + procDefId + ")");
+		String result = cwsConsoleService.activateProcDefId(procDefId);
+		return result;
+	}
+
+	/**
+	 * Method that deletes a running process instance.
+	 *
+	 * Accepts an array of procInstIds and expects all of them to be running.
+	 */
+	@RequestMapping(value = "/processes/delete", method = POST)
+	public @ResponseBody String deleteRunningProcInsts(
+			final HttpSession session,
+			@RequestBody List<String> procInstIds) {
+		log.debug("*** REST CALL *** deleteRunningProcInsts");
+		String result = cwsConsoleService.deleteRunningProcInst(procInstIds);
+		return result;
+	}
+
 	/**
 	 * 
 	 * 
@@ -1635,4 +1715,5 @@ public class RestService extends MvcCore {
 		}
 		return restCallResult.getResponse();
 	}
+
 }
