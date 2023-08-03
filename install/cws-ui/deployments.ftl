@@ -264,6 +264,9 @@
 			refreshing = true;
 			//grab the value here so we don't have to do it multiple times
 			var statsCookieValue = parseInt(localStorage.getItem(lastNumHoursVar));
+			if (statsCookieValue == -1) {
+				statsCookieValue = null;
+			}
 
 			$.ajax({
 				url: "/${base}/rest/stats/processInstanceStatsJSON",
@@ -786,7 +789,7 @@
 										<option value="72">Show stats for last 3 Days</option>
 										<option value="168">Show stats for last 1 Week</option>
 										<option value="336">Show stats for last 2 Weeks</option>
-										<option value="null">Show stats for All Time</option>
+										<option value="-1">Show stats for All Time</option>
 									</select>
 								</div>
 							</div>
@@ -1041,7 +1044,7 @@
 			});
 
 			$("#stats-last-num-hours").on('change', function () {
-				lastNumHours = parseInt($(this).val()) | null;
+				lastNumHours = parseInt($(this).val());
 				localStorage.setItem(lastNumHoursVar, lastNumHours.toString());
 				refreshStats();
 			});
