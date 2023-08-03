@@ -64,9 +64,6 @@
 				}
 			},
 			"sort":{
-				"@timestamp":{
-					"order":"desc"
-				}
 			}
 		};
 
@@ -133,7 +130,7 @@
 	
 		$(document).ready(function(){
 		//show ajax spinner
-		$("#log-div .ajax-spinner").show();
+		$(".ajax-spinner").show();
 
 		document.addEventListener("click", function (e) {
 			closeAllLists(e.target);
@@ -173,11 +170,9 @@
 			serverSide: true,
 			searchDelay: 250,
 			dom: 'Bfrtip',
-			ordering: false,
-
 			"initComplete": function(settings, json) {
 				//hide ajax spinner
-				$("#log-div .ajax-spinner").hide();
+				$(".ajax-spinner").hide();
 				if ($("#logData_info").text().includes(" of 10,000 entries")) {
 				$("#warning-msg").show();
 				} else {
@@ -191,6 +186,7 @@
 				}
 			});
 			},
+			order: [[0, 'desc']],
 			columnDefs: [
 				{
 					targets: [1,2,5,6],
@@ -198,7 +194,7 @@
 				},
 				{
 					targets: [0],
-					width: "215px"
+					width: "215px",
 				},
 				{
 					targets: [1],
@@ -211,7 +207,7 @@
 				{
 					targets: [4],
 					width: "150px"
-				}
+				},
 			],
 			buttons: [
 				{
@@ -248,14 +244,61 @@
 				//we need to change the esReq to return the requested number of elements
 				mainEsReq.size = data.length;
 
+				//we need to support sorting
+				//get the column # and direction we are sorting
+				var sortCol = data.order[0].column;
+				console.log("sortCol: " + sortCol);
+				var sortDir = data.order[0].dir;
+
+				//get the column name
+				//NOTE: ES does not support sorting on all data types (especially text)
+				//However, since ES 5, text fields have a keyword subfield that can be used for sorting
+				var sortColName = "";
+				switch (sortCol) {
+					case 0: 
+						sortColName = "@timestamp";
+						break;
+					case 1:
+						sortColName = "cwsHost.keyword";
+						break;
+					case 2:
+						sortColName = "cwsWorkerId.keyword";
+						break;
+					case 3:
+						sortColName = "logLevel.keyword";
+						break;
+					case 4:
+						sortColName = "threadName.keyword";
+						break;
+					case 5:
+						sortColName = "procDefKey.keyword";
+						break;
+					case 6:
+						sortColName = "procInstId.keyword";
+						break;
+					case 7:
+						sortColName = "msgBody.keyword";
+						break;
+					default:
+						sortColName = "@timestamp";
+						break;
+				}
+
+				//update the esreq
+				mainEsReq.sort = {};
+				mainEsReq.sort = {
+					[sortColName]: {
+						"order": sortDir
+					}
+				};
+
 				var returnData;
 				var fetchError = "";
-
-
 				//console.log("STRINGIFIED: " + JSON.stringify(esReq));
 				//console.log("ENCODED: " + encodeURIComponent(JSON.stringify(esReq)));
 
 				var local_esReq = JSON.stringify(mainEsReq);
+				console.log("STRINGIFIED: " + local_esReq);
 				local_esReq = encodeURIComponent(local_esReq);
 				//sometimes double quotes get left here? replace double quotes with url encoded
 				local_esReq = local_esReq.replace(/"/g, "%22");
@@ -267,6 +310,7 @@
 					async: false,
 					success: function (ajaxData) {
 						returnData = ajaxData;
+						console.log(returnData);
 						//we should have our data now. We need to format it for the table
 						var formattedData = [];
 						for (hit in returnData.hits.hits) {
@@ -546,7 +590,7 @@
 		});
 
 		function refreshLogs(){
-			$("#log-div .ajax-spinner").show();
+			$(".ajax-spinner").show();
 			//update timestamp to grab new logs
 			var oldNow = now;
 			now=moment().format("YYYY-MM-DDTHH:mm:ss.SSSSSSZ");
@@ -565,7 +609,7 @@
 			}
 
 			$("#logData").DataTable().ajax.reload(function(){
-				$("#log-div .ajax-spinner").hide();
+				$(".ajax-spinner").hide();
 			},false);
 		}
 		
@@ -635,7 +679,7 @@
 					</div>
 				</div>
 				<div class="filter-div-submit">
-					<b style="margin-top: auto; margin-bottom: auto; color: red;" id="warning-msg">Warning: Only the most recent 10,000 entries are displayed. Please narrow your search criteria.</b>
+					<b style="margin-top: auto; margin-bottom: auto; color: red;" id="warning-msg">Warning: Only the first 10,000 entries are displayed. Please narrow your search criteria.</b>
 					<a id="filter-submit-btn" class="btn btn-info" href="#">Filter</a>
 				</div>
 			</div>
