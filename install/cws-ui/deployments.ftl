@@ -1111,25 +1111,23 @@
 
 				dt.rows().every(function (rowIdx, tableLoop, rowLoop) {
 					var thisModelJson = {};
-					var modelName = this.data()[0].replace(/<a.*?>/g, '');
-					modelName = modelName.substring(0, modelName.indexOf("</a>"));
-
-					var modelId = this.data()[1];
+					this.data().get
+					var modelName = this.data()["name"];
+					console.log(this.data());
+					var modelId = this.data()["key"];
 					//modelId = modelId.substring(modelId.indexOf("id=\"") + 4);
 					//modelId = modelId.substring(0, modelId.indexOf("\""));
 
-					var version = this.data()[2];
+					var version = this.data()["version"];
 
-					var status = this.data()[4];
-					//check if active is in str
-					if (status.indexOf("active") > -1) {
-						status = "active";
+					if (this.data["suspended"] == "true") {
+						status = "Suspended";
 					}
 					else {
-						status = "inactive";
+						status = "Active";
 					}
 
-					var hasAssignedWorkers = $("#pv-" + modelId).hasClass("btn-danger") ? "false" : "true";
+					var hasAssignedWorkers = $("#pv-" + modelId).hasClass("btn-danger");
 
 					var statPending = 0;
 					var statDisabled = 0;
