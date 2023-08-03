@@ -184,3 +184,13 @@ div.dts tbody th, div.dts tbody td {
 #logData_info.dataTables_info {
     padding-top: 0px;
 }
+
+.ajax-spinner{
+    height: 100%;
+    width:100%;
+    position: absolute;
+    z-index: 10;
+    background: #fff url('../images/ajax-spin.gif') no-repeat center;
+    opacity: 0.8;
+    display: none;
+  }

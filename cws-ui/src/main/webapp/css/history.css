@@ -6,7 +6,8 @@ summary {
     width: 100px;
 }
 .historyLimitSize {
-    max-height: 150px;
+    max-height: 200px;
+    max-width: 200px;
 }
 .thumbnail {
     margin-top: 5px !important;
@@ -57,4 +58,19 @@ summary {
 }
 summary {
     display: list-item;
+}
+
+.proc-var-flex-main {
+    margin-bottom: 10px; 
+    display: flex; 
+    flex-direction: row; 
+    flex-wrap: nowrap; 
+    justify-content: flex-start; 
+    align-items: center;
+}
+
+.proc-var-flex-btn {
+    align-self: start; 
+    margin-top: auto; 
+    margin-bottom: auto;
 }

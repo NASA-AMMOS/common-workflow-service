@@ -64,6 +64,7 @@ public class ProcessesTestIT extends WebTestUtil {
 			log.info("------ START ProcessesTestIT:runStatusCompleteTest ------");
 
 			goToPage("processes");
+			sleep(20000);
 
 			log.info("Getting info from table...");
 			wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.tagName("table")));

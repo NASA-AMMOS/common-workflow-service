@@ -675,18 +675,23 @@ public class CwsConsoleService {
                         FileValue fileValue = (FileValue) typedValue;
                         String fileName = fileValue.getFilename();
                         String mimeType = fileValue.getMimeType();
-                        if (mimeType.contains("image")) {
-                            InputStream fileInputStream = fileValue.getValue();
-                            String encodedString = "data:" + mimeType + ";base64, ";
-                            try {
-                                byte[] sourceBytes = IOUtils.toByteArray(fileInputStream);
-                                encodedString += Base64.getEncoder().encodeToString(sourceBytes);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
+                        if (mimeType != null) {
+                            if (mimeType.contains("image")) {
+                                InputStream fileInputStream = fileValue.getValue();
+                                String encodedString = "data:" + mimeType + ";base64, ";
+                                try {
+                                    byte[] sourceBytes = IOUtils.toByteArray(fileInputStream);
+                                    encodedString += Base64.getEncoder().encodeToString(sourceBytes);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                outputVarMap.put(varName + " (" + varType + ", " + mimeType + ")", encodedString);
+                            } else {
+                                outputVarMap.put(varName + " (" + varType + ")", fileName);
                             }
-                            outputVarMap.put(varName + " (" + varType + ", " + mimeType + ")", encodedString);
                         } else {
-                            outputVarMap.put(varName + " (" + varType + ")", fileName);
+                            log.error("PROCESSES PAGE: Encountered an error when trying to detect the mime type of an image. Did you add a mimeType to the file when creating it?");
+                            outputVarMap.put(varName + "(" + varType + ")", "ERROR: File does not have a mime type.");
                         }
                     }
                 }
