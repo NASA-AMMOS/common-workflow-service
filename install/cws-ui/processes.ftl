@@ -534,7 +534,7 @@
                             data: "inputVariables",
                             render: function (data, type) {
                                 if (jQuery.isEmptyObject(data)) {
-                                    return "";
+                                    return "None";
                                 }
                                 if (type === 'display') {
                                     var output = "";
@@ -641,7 +641,7 @@
                             data: "outputVariables",
                             render: function (data, type) {
                                 if (jQuery.isEmptyObject(data)) {
-                                    return "";
+                                    return "None";
                                 }
                                 if (type === 'display') {
                                     console.log("we have atleast one output variable");
