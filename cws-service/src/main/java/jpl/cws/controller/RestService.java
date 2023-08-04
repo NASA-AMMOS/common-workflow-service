@@ -815,18 +815,18 @@ public class RestService extends MvcCore {
 				throw new Exception(restCallResult.getResponse());
 			}
 			
-			response.setStatus(HttpServletResponse.SC_OK);
-			
-			return new JsonResponse(JsonResponse.Status.SUCCESS, restCallResult.getResponse()).toString();
+			String strResponse = "{\"status\": \"SUCCESS\"}";
+
+			return strResponse;
 		}
 		catch (Exception e) {
 			
 			String message = "A problem occurred while trying to delete log data (url=" + urlString + ", data=" + data + ", error=" + e.getMessage() + ")";
 			log.error(message, e);
-			
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			
-			return new JsonResponse(JsonResponse.Status.FAIL, e.getMessage()).toString();
+
+			String strResponse = "{\"status\": \"ERROR\"}";
+
+			return strResponse;
 		}
 	}
 	
