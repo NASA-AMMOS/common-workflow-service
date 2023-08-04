@@ -1130,7 +1130,7 @@
 						status = "Active";
 					}
 
-					var hasAssignedWorkers = $("#pv-" + modelId).hasClass("btn-danger");
+					var hasAssignedWorkers = !$("#pv-" + modelId).hasClass("btn-danger");
 
 					var statPending = 0;
 					var statDisabled = 0;
