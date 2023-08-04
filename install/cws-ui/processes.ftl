@@ -784,6 +784,7 @@
                         style: 'multi+shift',
                         selector: 'td:first-child'
                     },
+                    order: [[2, 'asc']],
                     //set configuration of the columns (width, visibility order, etc.)
                     columnDefs: [
                         {
