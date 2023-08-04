@@ -38,9 +38,12 @@ execution.setVariable("output_display_order", display_order);
     <bpmn:scriptTask id="Activity_0rtfduz" name="Output Thumbnail" scriptFormat="JavaScript">
       <bpmn:incoming>Flow_03wb2sk</bpmn:incoming>
       <bpmn:outgoing>Flow_0nh4lr9</bpmn:outgoing>
-      <bpmn:script>var typedFileValue = org.camunda.bpm.engine.variable.Variables.fileValue("robin.jpeg").file(new java.io.File("/Users/jwood/Pictures/robin.jpeg")).mimeType("image/jpeg").encoding("UTF-8").create();
-
+      <bpmn:script>var typedFileValue = org.camunda.bpm.engine.variable.Variables.fileValue("robin.jpeg").file(new java.io.File("/Users/williamcg/Pictures/robin.jpeg")).mimeType("image/jpeg").encoding("UTF-8").create();
 execution.setVariable("output_thumbnail", typedFileValue);
+var typedFileValue2 = org.camunda.bpm.engine.variable.Variables.fileValue("shuttle.gif").file(new java.io.File("/Users/williamcg/Pictures/shuttle.gif")).mimeType("image/gif").encoding("UTF-8").create();
+execution.setVariable("output_shuttle_gif", typedFileValue2);
+var typedFileValue3 = org.camunda.bpm.engine.variable.Variables.fileValue("jpl.png").file(new java.io.File("/Users/williamcg/Pictures/jpl.png")).mimeType("image/png").encoding("UTF-8").create();
+execution.setVariable("output_jpl_png", typedFileValue3);
 </bpmn:script>
     </bpmn:scriptTask>
   </bpmn:process>
