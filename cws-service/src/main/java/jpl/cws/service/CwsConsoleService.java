@@ -611,10 +611,10 @@ public class CwsConsoleService {
                 if (varType == null || !varType.equals("file")) {
                     Object objValue = historicVariableInstance.getValue();
                     if (objValue == null) {
-                        inputVarMap.put(varName + " (" + varType + ")", null);
+                        inputVarMap.put("[" + historicVariableInstance.getCreateTime().toString() + "]" + varName + " (" + varType + ")", null);
                     } else {
                         String varValue = historicVariableInstance.getValue().toString();
-                        inputVarMap.put(varName + " (" + varType + ")", varValue);
+                        inputVarMap.put("[" + historicVariableInstance.getCreateTime().toString() + "]" + varName + " (" + varType + ")", varValue);
                     }
                 } else {
                     //the variable is a file.
@@ -634,9 +634,9 @@ public class CwsConsoleService {
                                 } catch (IOException e) {
                                     log.error("Error converting image to Base64");
                                 }
-                                inputVarMap.put(varName + " (" + varType + ", " + mimeType + ")", encodedString);
+                                inputVarMap.put("[" + historicVariableInstance.getCreateTime().toString() + "]" + varName + " (" + varType + ", " + mimeType + ")", encodedString);
                             } else {
-                                inputVarMap.put(varName + " (" + varType + ")", fileName);
+                                inputVarMap.put("[" + historicVariableInstance.getCreateTime().toString() + "]" + varName + " (" + varType + ")", fileName);
                             }
                         } else {
                             InputStream fileInputStream = fileValue.getValue();
@@ -647,7 +647,7 @@ public class CwsConsoleService {
                             } catch (IOException e) {
                                 log.error("Error converting file to Base64");
                             }
-                            inputVarMap.put(varName + "(" + varType + ") {" + fileName + "}", encodedString);
+                            inputVarMap.put("[" + historicVariableInstance.getCreateTime().toString() + "]" + varName + "(" + varType + ") {" + fileName + "}", encodedString);
                         }
                     }
                 }

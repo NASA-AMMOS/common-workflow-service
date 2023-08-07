@@ -517,9 +517,9 @@
                             }
                         },
                         {
-                            data: "inputVariables",
+                            data: { inputVariables: "inputVariables", procStartTime: "procStartTime"},
                             render: function (data, type) {
-                                if (jQuery.isEmptyObject(data)) {
+                                if (jQuery.isEmptyObject(data.inputVariables)) {
                                     return "None";
                                 }
                                 if (type === 'display') {
@@ -528,10 +528,15 @@
                                     var after = "";
                                     var putAllAfter = 0;
                                     var count = 0;
-                                    for (const [key, value] of Object.entries(data)) {
+                                    var timeStart = moment(data.procStartTime);
+                                    for (const [key, value] of Object.entries(data.inputVariables)) {
                                         var temp = "";
+                                        var varTimeSet = key.substring(key.indexOf("[")+1, key.indexOf("]"));
+                                        if (moment(varTimeSet).diff(timeStart, "seconds") > 1) {
+                                            continue;
+                                        }
                                         var tempVal = value;
-                                        var tempKey = key;
+                                        var tempKey = key.substring(key.indexOf("]") + 1);
                                         if (tempKey === "workerId") {
                                             continue;
                                         }

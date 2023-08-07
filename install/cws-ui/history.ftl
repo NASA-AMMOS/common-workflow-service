@@ -581,10 +581,15 @@
 			$("#inputVariables").html("None");
 		} else {
 			var output = "";
+			var timeStart = $("#procStartTime").html();
 			for (const [key, value] of Object.entries(data).reverse()) {
 				var temp = "";
+				var varTimeSet = key.substring(key.indexOf("[")+1, key.indexOf("]"));
+				if (moment(varTimeSet).diff(timeStart, "seconds") > 1) {
+					continue;
+				}
 				var tempVal = value;
-				var tempKey = key;
+				var tempKey = key.substring(key.indexOf("]")+1);
 				if (key.includes("(file, image")) {
 					tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
@@ -1083,8 +1088,8 @@ function convertMillis(millis) {
 						<thead>
 							<tr>
 								<th id="timeStampColumn" style="width: 185px">Time Stamp</th>
-								<th>Type</th>
-								<th>Source</th>
+								<th style="width: 125px;">Type</th>
+								<th style="width: 200px;">Source</th>
 								<th>Details</th>
 							</tr>
 						</thead>
