@@ -374,17 +374,30 @@
 			$("#process-table").DataTable({
 				columns: [
 					{
-						data: { id: "id", key: "key" },
+						data: { suspended: "suspended", id: "id", key: "key" },
 						render: function(data, type) {
 							if (type !== 'display') {
-								return "";
+								return data.id;
 							} else {
-								return `<div class="proc-name-btns">`
-									+ `<a href="/${base}/modeler?procDefKey=` + data.key + `" target="_blank">`
+
+								var returnVal = `<div class="proc-name-btns">`;
+								if (data.suspended == "true") {
+									returnVal += `<a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="resumeProcDef('` + data.id + `', '` + data.key + `')">`
+									+ `<span style="cursor: pointer; float: right; color: green;" id="suspend-` 
+									+ data.key + `" class="glyphicon glyphicon-play"></span></a>`;
+								} else {
+									returnVal += `<a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="suspendProcDef('` + data.id + `', '` + data.key + `')">`
+									+ `<span style="cursor: pointer; float: right; color: #d9534f;" id="suspend-` 
+									+ data.key + `" class="glyphicon glyphicon-pause"></span></a>`;
+								}
+								
+								returnVal += `<a href="/${base}/modeler?procDefKey=` + data.key + `" target="_blank">`
 									+ `<span style="float: right;" id="edit-` + data.key + `" class="glyphicon glyphicon-pencil"></span></a>`
-									+ `<a data-proc-key="` + data.key + `" onClick="handleDeleteProcDef('` + data.key + `')"><span style="cursor: pointer; float: right; color: #d9534f; padding-left: 7;" id="delete-` 
-									+ data.key + `" class="glyphicon glyphicon-remove-sign"></span></a>`
-									+ `</div>`;
+									+ `<a data-proc-key="` + data.key + `" onClick="handleDeleteProcDef('` + data.key + `')"><span style="cursor: pointer; float: right; color: #d9534f;" id="delete-` 
+									+ data.key + `" class="glyphicon glyphicon-trash"></span></a>`;
+
+								returnVal += `</div>`;
+								return returnVal;
 							}
 						}
 					},
@@ -442,7 +455,7 @@
 						}
 					},
 					{
-						data: { suspended: "suspended", key: "key", id: "id" },
+						data: { suspended: "suspended", key: "key" },
 						render: function (data, type) {
 							if (type !== 'display') {
 								if (data.suspended === "true") {
@@ -455,16 +468,10 @@
 								var status = "";
 								var html = "";
 								if (data.suspended == "true") {
-									html = `<div class="status-div-flex"><div class="pause-btn-div"><a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="resumeProcDef('` + data.id + `', '` + data.key + `')">`
-									+ `<span style="cursor: pointer; float: right; padding-left: 7; color: green;" id="suspend-` 
-									+ data.key + `" class="glyphicon glyphicon-play"></span></a></div>`
-									+ `<div class="status-div-text" id="status-txt-` + data.key + `">Suspended</div></div>`;
+									html =`<div class="status-div-text" id="status-txt-` + data.key + `"><i style="color: dimgray;">Suspended</i></div>`;
 								}
 								else {
-									html = `<div class="status-div-flex"><div class="pause-btn-div"><a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="suspendProcDef('` + data.id + `', '` + data.key + `')">`
-									+ `<span style="cursor: pointer; float: right; padding-left: 7; color: #d9534f;" id="suspend-` 
-									+ data.key + `" class="glyphicon glyphicon-pause"></span></a></div>`
-									+ `<div class="status-div-text" id="status-txt-` + data.key + `">Active</div></div>`;
+									html = `<div class="status-div-text" id="status-txt-` + data.key + `">Active</div></div>`;
 								}
 								return html;
 							}
@@ -513,6 +520,7 @@
 						}
 					}
 				],
+				rowId: "key",
 				columnDefs: [
 					{ orderable: false, targets: 0},
 					{ orderable: false, targets: 6 },
@@ -542,10 +550,36 @@
 				if ($(this).prop("checked")) {
 					$("#process-table").DataTable().column(5).search("Active", false, true).draw();
 					localStorage.setItem(hideSuspendedProcVar, "1");
+					refreshStats();
 				}
 				else {
 					$("#process-table").DataTable().column(5).search("").draw();
+					refreshStats();
 				}
+				$("#process-table").DataTable().rows().every(function () {
+						$("#process-table").DataTable().rows().every( function (rowIdx, tableLoop, rowLoop) {
+							var status = this.data()["suspended"];
+							var procDefKey = this.data()["key"];
+							var procDefId = this.data()["id"];
+							if (status == "false") {
+								$("#suspend-" + procDefKey).removeClass("glyphicon-play");
+								$("#suspend-" + procDefKey).addClass("glyphicon-pause");
+								$("#suspend-" + procDefKey).css("color", "#d9534f");
+								$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
+								$("#status-txt-" + procDefKey).html("Active");
+								$("#" + procDefKey).removeClass("disabled");
+								$("#pv-" + procDefKey).removeClass("disabled");
+							} else {
+								$("#suspend-" + procDefKey).removeClass("glyphicon-pause");
+								$("#suspend-" + procDefKey).addClass("glyphicon-play");
+								$("#suspend-" + procDefKey).css("color", "green");
+								$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
+								$("#status-txt-" + procDefKey).html("Suspended");
+								$("#" + procDefKey).addClass("disabled");
+								$("#pv-" + procDefKey).addClass("disabled");
+							}
+						});
+					});
 			});
 
 			if (parseInt(localStorage.getItem(hideSuspendedProcVar)) == 0) {
@@ -687,6 +721,8 @@
 					$("#suspend-" + procDefKey).css("color", "green");
 					$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
 					$("#status-txt-" + procDefKey).html("Suspended");
+					$("#" + procDefKey).addClass("disabled");
+					$("#pv-" + procDefKey).addClass("disabled");
 				},
 				error: function(data) {
 					console.log("error suspending");
@@ -711,6 +747,8 @@
 					$("#suspend-" + procDefKey).css("color", "#d9534f");
 					$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
 					$("#status-txt-" + procDefKey).html("Active");
+					$("#" + procDefKey).removeClass("disabled");
+					$("#pv-" + procDefKey).removeClass("disabled");
 				},
 				error: function(data) {
 					console.log("error activating");
