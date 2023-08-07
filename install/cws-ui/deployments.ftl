@@ -554,6 +554,7 @@
 				}
 				else {
 					$("#process-table").DataTable().column(5).search("").draw();
+					localStorage.setItem(hideSuspendedProcVar, "0");
 					refreshStats();
 				}
 				$("#process-table").DataTable().rows().every(function () {
