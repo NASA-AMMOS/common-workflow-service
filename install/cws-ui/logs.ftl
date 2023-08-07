@@ -513,6 +513,30 @@
 			todayHighlight: true
 		});
 
+		$("#search-text").keypress(function(e){
+			if(e.which==13){
+				console.log("enter pressed");
+				e.preventDefault();
+				$("#filter-submit-btn").click();
+			}
+		});
+
+		$("#pi-text").keypress(function(e){
+			if(e.which==13){
+				console.log("enter pressed");
+				e.preventDefault();
+				$("#filter-submit-btn").click();
+			}
+		});
+
+		$("#worker-id-text").keypress(function(e){
+			if(e.which==13){
+				console.log("enter pressed");
+				e.preventDefault();
+				$("#filter-submit-btn").click();
+			}
+		});
+
 		$("#filter-submit-btn").click(function(e){
 			e.preventDefault();
 			window.location="/${base}/logs"+getFilterQString();
