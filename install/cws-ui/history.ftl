@@ -489,16 +489,22 @@
   			+ '</div>').appendTo(".above-table-buttons");
 
 		$('<div id="hide-log-lines" style="display: inline;">'
-			+ '<input type="checkbox" id="hide-log-lines-checkbox" checked>'
-			+ '<label style="margin-left: 8px;" for="hide-log-lines-checkbox">Hide Command Output Log Lines</label>'
+			+ `<input id="showall" type="radio" value="showall" name="log-line-control">`
+			+ `<label style="margin-left: 8px;" for="showall">Show All</label>`
+			+ `<input id="logonly" style="margin-left: 10px;" type="radio" value="logonly" name="log-line-control">`
+			+ `<label style="margin-left: 8px;" for="hide">Log Lines Only</label>`
+			+ `<input id="nolog" style="margin-left: 10px;" type="radio" value="nolog" name="log-line-control" checked>`
+			+ `<label style="margin-left: 8px;" for="hide">Exclude Log Lines</label>`
 			+ '</div>').appendTo(".above-table-buttons");
 
-		if (localStorage.getItem(hideLogLinesVar) === "true") {
-			$("#hide-log-lines-checkbox").attr("checked", true);
-		} else if (localStorage.getItem(hideLogLinesVar) === "false") {
-			$("#hide-log-lines-checkbox").attr("checked", false);
+		if (localStorage.getItem(hideLogLinesVar) === "showall") {
+			$("#showall").attr("checked", true);
+		} else if (localStorage.getItem(hideLogLinesVar) === "logonly") {
+			$("#logonly").attr("checked", true);
+		} else if (localStorage.getItem(hideLogLinesVar) === "nolog") {
+			$("#nolog").attr("checked", true);
 		} else {
-			$("#hide-log-lines-checkbox").attr("checked", true);
+			$("#nolog").attr("checked", true);
 		}
 
 		// Get query string values
@@ -532,24 +538,35 @@
 			downloadLogCSV();
 		});
 
-		//if the checkbox is checked, hide the log lines
-		if ($("#hide-log-lines-checkbox").is(":checked")) {
+		//if the checkbox is checked, hide the corresponding log lines
+		if ($("#showall").is(":checked")) {
+			$("#logData").DataTable().column(3).search("").draw();
+		} else if ($("#logonly").is(":checked")) {
+			$("#logData").DataTable().column(3).search("LINE: ", true, false).draw();
+		} else if ($("#nolog").is(":checked")) {
 			$("#logData").DataTable().column(3).search("^(?!LINE: )", true, false).draw();
 		} else {
 			$("#logData").DataTable().column(3).search("").draw();
 		}
-		
-		$("#hide-log-lines-checkbox").change(function() {
+
+		$("#showall").change(function() {
 			if(this.checked) {
-				$("#logData").DataTable().column(3).search("^(?!LINE: )", true, false).draw();
-				localStorage.setItem(hideLogLinesVar, "true");
-			} else {
 				$("#logData").DataTable().column(3).search("").draw();
-				localStorage.setItem(hideLogLinesVar, "false");
+				localStorage.setItem(hideLogLinesVar, "showall");
 			}
 		});
-
-
+		$("#logonly").change(function() {
+			if(this.checked) {
+				$("#logData").DataTable().column(3).search("LINE: ", true, false).draw();
+				localStorage.setItem(hideLogLinesVar, "logonly");
+			}
+		});
+		$("#nolog").change(function() {
+			if(this.checked) {
+				$("#logData").DataTable().column(3).search("^(?!LINE: )", true, false).draw();
+				localStorage.setItem(hideLogLinesVar, "nolog");
+			}
+		});
 	}); //END OF DOCUMENT.READY
 
 	function downloadFile(data, name) {
