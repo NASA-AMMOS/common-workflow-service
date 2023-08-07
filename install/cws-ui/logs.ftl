@@ -703,7 +703,7 @@
 					</div>
 				</div>
 				<div class="filter-div-submit">
-					<b style="margin-top: auto; margin-bottom: auto; color: red;" id="warning-msg">Warning: Only the first 10,000 entries are displayed. Please narrow your search criteria.</b>
+					<b style="margin-top: auto; margin-bottom: auto; color: red; display: none;" id="warning-msg">Warning: Only the first 10,000 entries are displayed. Please narrow your search criteria.</b>
 					<a id="filter-submit-btn" class="btn btn-info" href="#">Filter</a>
 				</div>
 			</div>
