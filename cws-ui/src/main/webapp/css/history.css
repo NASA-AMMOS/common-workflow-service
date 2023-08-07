@@ -74,3 +74,7 @@ summary {
     margin-top: auto; 
     margin-bottom: auto;
 }
+
+#logDataNest {
+    font-size: 95%;
+}
