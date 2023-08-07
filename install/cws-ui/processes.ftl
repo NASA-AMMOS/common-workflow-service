@@ -546,6 +546,23 @@
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div></div><br>";
+                                        } else if (key.includes("{")) {
+                                            var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
+                                            tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
+                                                + '<i>' + fileName + '</i>'
+                                                + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                + "<span aria-label=\"Download\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-downloadValue=\"" + tempVal + "\" data-downloadName=\"" + fileName + "\" onClick=''>"
+                                                + "<img src=\"images/download.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div></div><br>";
+                                        } else if (checkforImageURL(tempVal)) {
+                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
+                                                + '<br><img class="grow" src="' + tempVal + '">'
+                                                + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div></div><br>";
                                         } else if (checkForURL(tempVal)) {
                                             tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                             temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + "<a href=\"" + tempVal + "\">" + tempVal + "</a>" + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
@@ -630,14 +647,12 @@
                                     return "None";
                                 }
                                 if (type === 'display') {
-                                    console.log("we have atleast one output variable");
                                     var output = "";
                                     var before = "";
                                     var after = "";
                                     var count = 0;
                                     if (Object.keys(data).includes("output_display_order (object)")) {
                                         //we have an order array
-                                        console.log("we have an order array");
                                         var orderTruncated = data["output_display_order (object)"].substring(1, data["output_display_order (object)"].length - 1).split(", ");
                                         var fullKeys = Object.keys(data);
                                         var fullKeysInOrder = [];
@@ -647,18 +662,34 @@
                                                 fullKeysInOrder.push(fullKeys[result]);
                                             }
                                         }
-                                        console.log("Full keys in order: " + fullKeysInOrder);
                                         //the orderTruncated array now contains the full keys in the order they should be displayed
                                         for (key in fullKeysInOrder) {
                                             var temp = "";
                                             var tempVal = data[fullKeysInOrder[key]];
                                             var tempKey = fullKeysInOrder[key].substring(7);
-                                            if (fullKeysInOrder[key].includes("(file, image")) {
+                                            if (tempKey.includes("(file, image")) {
                                                 tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                                 temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
                                                     + '<br><img class="grow" src="' + tempVal + '">'
                                                     + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
                                                     + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                    + "</span></div></div><br>";
+                                            } else if (tempKey.includes("{")) {
+                                                var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
+                                                tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
+                                                    + '<i>' + fileName + '</i>'
+                                                    + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                    + "<span aria-label=\"Download\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-downloadValue=\"" + tempVal + "\" data-downloadName=\"" + fileName + "\" onClick=''>"
+                                                    + "<img src=\"images/download.svg\" class=\"copy-icon clipboard\">"
+                                                    + "</span></div></div><br>";
+                                            } else if (checkforImageURL(tempVal)) {
+                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
+                                                    + '<br><img class="grow" src="' + tempVal + '">'
+                                                    + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                     + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                     + "</span></div></div><br>";
                                             } else if (checkForURL(tempVal)) {
@@ -696,7 +727,7 @@
                                             if (tempKey === "workerId") {
                                                 continue;
                                             }
-                                            if (key.includes("(file, image")) {
+                                            if (tempKey.includes("(file, image")) {
                                                 tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                                 temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
                                                     + '<br><img class="grow" src="' + tempVal + '">'
@@ -704,27 +735,29 @@
                                                     + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                     + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                     + "</span></div></div><br>";
-                                                if (key.toUpperCase().includes("THUMBNAIL")) {
-                                                    after = before + after;
-                                                    before = temp;
-                                                    count += 2;
-                                                    continue;
-                                                }
+                                            } else if (tempKey.includes("{")) {
+                                                var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
+                                                tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
+                                                    + '<i>' + fileName + '</i>'
+                                                    + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                    + "<span aria-label=\"Download\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-downloadValue=\"" + tempVal + "\" data-downloadName=\"" + fileName + "\" onClick=''>"
+                                                    + "<img src=\"images/download.svg\" class=\"copy-icon clipboard\">"
+                                                    + "</span></div></div><br>";
+                                            } else if (checkforImageURL(tempVal)) {
+                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
+                                                    + '<br><img class="grow" src="' + tempVal + '">'
+                                                    + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                    + "</span></div></div><br>";
                                             } else if (checkForURL(tempVal)) {
                                                 tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                                 temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + "<a href=\"" + tempVal + "\">" + tempVal + "</a>" + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
                                                     + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                     + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                     + "</span></div></div><br>";
-                                            } else if (tempKey.toUpperCase().includes("SUMMARY")){
-                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                    + "</span></div></div><br>";
-                                                before = before + temp;
-                                                count++;
-                                                continue;
                                             } else {
                                                 if (tempKey.toUpperCase().includes("(STRING)")) {
                                                     tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
@@ -737,7 +770,7 @@
                                             if (tempKey === "startedOnWorkerId") {
                                                 after = after + temp;
                                                 count += 2;
-                                            } else if (count < 2) {
+                                            } else if (count <= 2) {
                                                 before = before + temp;
                                             } else {
                                                 after = after + temp;
@@ -880,6 +913,12 @@
                 //when we click the copy button next to an input/output variable, we want to copy the value to the clipboard
                 $(document).on('click', '.copy', function (e) {
                     e.preventDefault();
+                    if ($(this).attr("data-downloadValue") !== undefined && $(this).attr("data-downloadValue") !== false && $(this).attr("data-downloadValue") !== null) {
+                        var downloadValue = $(this).attr('data-downloadValue');
+                        var downloadName = $(this).attr('data-downloadName');
+                        downloadFile(downloadValue, downloadName);
+                        return;
+                    }
                     var copyValue = $(this).attr('data-copyValue');
                     var isImage = $(this).attr('data-isImage');
                     console.log(isImage);
@@ -923,6 +962,30 @@
                 fetchAndDisplayProcesses();
             });
             //DOCUMENT.READY END
+
+            function downloadFile(data, name) {
+                var decodedData = atob(data);
+                $.fn.dataTable.fileSave(
+                    new Blob([decodedData]), name
+                );
+            }
+
+            function checkforImageURL(potentialURL) {
+                if (potentialURL === undefined || potentialURL === null || potentialURL === "") {
+                    return false;
+                } else if (potentialURL.startsWith("www.") || potentialURL.startsWith("http://") || potentialURL.startsWith("https://") || potentialURL.startsWith("s3://")) {
+                    if (potentialURL.endsWith(".png") || potentialURL.endsWith(".jpg") || potentialURL.endsWith(".jpeg") || potentialURL.endsWith(".gif")) {
+                        return true;
+                    }
+                }
+                try {
+                    new URL(potentialURL);
+                    return true;
+                }
+                catch (e) {
+                    return false;
+                }
+            }
 
             //fetches processes from server (using filters if provided) and displays them in the datatable
             function fetchAndDisplayProcesses() {

@@ -618,7 +618,7 @@ public class CwsConsoleService {
                     }
                 } else {
                     //the variable is a file.
-                    //we need to get the file name and the contents of the file and put them in the outputVarMap
+                    //we need to get the file name and the contents of the file and put them in the inputVarMap
                     TypedValue typedValue = historicVariableInstance.getTypedValue();
                     if (typedValue instanceof FileValue) {
                         FileValue fileValue = (FileValue) typedValue;
@@ -632,15 +632,22 @@ public class CwsConsoleService {
                                     byte[] sourceBytes = IOUtils.toByteArray(fileInputStream);
                                     encodedString += Base64.getEncoder().encodeToString(sourceBytes);
                                 } catch (IOException e) {
-                                    throw new RuntimeException(e);
+                                    log.error("Error converting image to Base64");
                                 }
                                 inputVarMap.put(varName + " (" + varType + ", " + mimeType + ")", encodedString);
                             } else {
                                 inputVarMap.put(varName + " (" + varType + ")", fileName);
                             }
                         } else {
-                            log.error("PROCESSES PAGE: Encountered an error when trying to detect the mime type of an image. Did you add a mimeType to the file when creating it?");
-                            inputVarMap.put(varName + "(" + varType + ")", "ERROR: File does not have a mime type.");
+                            InputStream fileInputStream = fileValue.getValue();
+                            String encodedString = "";
+                            try {
+                                byte[] sourceBytes = IOUtils.toByteArray(fileInputStream);
+                                encodedString += Base64.getEncoder().encodeToString(sourceBytes);
+                            } catch (IOException e) {
+                                log.error("Error converting file to Base64");
+                            }
+                            inputVarMap.put(varName + "(" + varType + ") {" + fileName + "}", encodedString);
                         }
                     }
                 }
@@ -688,15 +695,22 @@ public class CwsConsoleService {
                                     byte[] sourceBytes = IOUtils.toByteArray(fileInputStream);
                                     encodedString += Base64.getEncoder().encodeToString(sourceBytes);
                                 } catch (IOException e) {
-                                    throw new RuntimeException(e);
+                                    log.error("Error converting image to Base64");
                                 }
                                 outputVarMap.put(varName + " (" + varType + ", " + mimeType + ")", encodedString);
                             } else {
                                 outputVarMap.put(varName + " (" + varType + ")", fileName);
                             }
                         } else {
-                            log.error("PROCESSES PAGE: Encountered an error when trying to detect the mime type of an image. Did you add a mimeType to the file when creating it?");
-                            outputVarMap.put(varName + "(" + varType + ")", "ERROR: File does not have a mime type.");
+                            InputStream fileInputStream = fileValue.getValue();
+                            String encodedString = "";
+                            try {
+                                byte[] sourceBytes = IOUtils.toByteArray(fileInputStream);
+                                encodedString += Base64.getEncoder().encodeToString(sourceBytes);
+                            } catch (IOException e) {
+                                log.error("Error converting file to Base64");
+                            }
+                            outputVarMap.put(varName + "(" + varType + ") {" + fileName + "}", encodedString);
                         }
                     }
                 }
