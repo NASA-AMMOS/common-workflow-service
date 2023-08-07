@@ -956,7 +956,7 @@ function convertMillis(millis) {
 		
 		<h2 class="sub-header">History</h2>
 		<div class="row">
-			<table align="center" class="table table-bordered " style="width: fit-content; font-size: 95%;">
+			<table align="center" class="table table-bordered " style="width: 60%; font-size: 95%;">
 				<thead>
 					<tr>
 						<th colspan="2" style="text-align: center;">Process Details</th>
@@ -964,28 +964,44 @@ function convertMillis(millis) {
 				</thead>
 				<tbody>
 					<tr>
-						<td style="font-weight:bold;">Process Definition</td><td id="procDefKey">Unknown</td>
+						<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 0px;">
+							<td style="font-weight:bold; max-width: 50%; min-width: 200px;">Process Definition</td><td id="procDefKey" style="flex-grow: 4;">Unknown</td>
+						</div>
 					</tr>
 					<tr>
-						<td style="font-weight:bold;">Process Instance ID</td><td id="procInstId">Unknown</td>
+						<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 0px;"></div>
+							<td style="font-weight:bold;">Process Instance ID</td><td id="procInstId" style="flex-grow: 4;">Unknown</td>
+						</div>
 					</tr>
 					<tr>
-						<td style="font-weight:bold;">Start Time</td><td id="procStartTime">N/A</td>
+						<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 0px;"></div>
+							<td style="font-weight:bold;">Start Time</td><td id="procStartTime" style="flex-grow: 4;">N/A</td>
+						</div>
 					</tr>
 					<tr>
-						<td style="font-weight:bold;">End Time</td><td id="procEndTime">N/A</td>
+						<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 0px;"></div>
+							<td style="font-weight:bold;">End Time</td><td id="procEndTime" style="flex-grow: 4;">N/A</td>
+						</div>
 					</tr>
 					<tr>
-						<td style="font-weight:bold;">Duration</td><td id="procDuration">N/A</td>
+						<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 0px;"></div>
+							<td style="font-weight:bold;">Duration</td><td id="procDuration" style="flex-grow: 4;">N/A</td>
+						</div>
 					</tr>
 					<tr>
-						<td style="font-weight:bold;">Input Variables</td><td id="inputVariables"></td>
+						<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 0px;"></div>
+							<td style="font-weight:bold;">Input Variables</td><td id="inputVariables" style="flex-grow: 4;"></td>
+						</div>
 					</tr>
 					<tr>
-						<td style="font-weight: bold;">Output Variables<br><i style="font-weight: normal;">All output variables start with "output_"</i></td><td id="outputVariables"></td>
+						<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 0px;"></div>
+							<td style="font-weight: bold;">Output Variables<br><i style="font-weight: normal;">All output variables start with "output_"</i></td><td id="outputVariables" style="flex-grow: 4;"></td>
+						</div>
 					</tr>
 					<tr>
-						<td style="font-weight:bold;">Status</td><td id="procStatus"></td>
+						<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 0px;"></div>
+							<td style="font-weight:bold;">Status</td><td id="procStatus" style="flex-grow: 4;"></td>
+						</div>
 					</tr>
 				</tbody>
 			</table>
