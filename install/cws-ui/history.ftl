@@ -223,8 +223,21 @@
 	
 			$('#procDefKey').html(data.procDefKey);
 			$('#procInstId').html(data.procInstId);
-			$('#procStartTime').html(data.startTime);
-			$('#procEndTime').html(data.endTime);
+			var momentStart;
+			var momentEnd;
+			if (data.startTime !== null && data.startTime !== undefined && data.startTime !== "") {
+				momentStart = moment(data.startTime);
+				$('#procStartTime').html(momentStart.format('MMM D, YYYY, h:mm:ss A'));
+			} else {
+				$('#procStartTime').html("");
+			}
+			if (data.endTime !== null && data.startTime !== undefined && data.startTime !== "") {
+				momentEnd = moment(data.endTime);
+				var procDuration = "<br><i>(~" + moment.duration(momentEnd.diff(momentStart)).humanize() + ")</i>";
+				$('#procEndTime').html(momentEnd.format('MMM D, YYYY, h:mm:ss A') + procDuration);
+			} else {
+				$('#procEndTime').html("");
+			}
 			
 			if (data.duration !== 0) {
 				$('#procDuration').html(convertMillis(data.duration));
@@ -943,31 +956,38 @@ function convertMillis(millis) {
 		
 		<h2 class="sub-header">History</h2>
 		<div class="row">
-			<table align="center" class="table table-bordered " style="width: 50%; font-size:95%">
-				<tr>
-					<td style="font-weight:bold;">Process Definition</td><td id="procDefKey">Unknown</td>
-				</tr>
-				<tr>
-					<td style="font-weight:bold;">Process Instance ID</td><td id="procInstId">Unknown</td>
-				</tr>
-				<tr>
-					<td style="font-weight:bold;">Start Time</td><td id="procStartTime">N/A</td>
-				</tr>
-				<tr>
-					<td style="font-weight:bold;">End Time</td><td id="procEndTime">N/A</td>
-				</tr>
-				<tr>
-					<td style="font-weight:bold;">Duration</td><td id="procDuration">N/A</td>
-				</tr>
-				<tr>
-					<td style="font-weight:bold;">Status</td><td id="procStatus"></td>
-				</tr>
-				<tr>
-					<td style="font-weight:bold;">Input Variables</td><td id="inputVariables"></td>
-				</tr>
-				<tr>
-					<td style="font-weight: bold;">Output Variables<br><i style="font-weight: normal;">All output variables start with "output_"</i></td><td id="outputVariables"></td>
-				</tr>
+			<table align="center" class="table table-bordered " style="width: fit-content; font-size: 95%;">
+				<thead>
+					<tr>
+						<th colspan="2" style="text-align: center;">Process Details</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td style="font-weight:bold;">Process Definition</td><td id="procDefKey">Unknown</td>
+					</tr>
+					<tr>
+						<td style="font-weight:bold;">Process Instance ID</td><td id="procInstId">Unknown</td>
+					</tr>
+					<tr>
+						<td style="font-weight:bold;">Start Time</td><td id="procStartTime">N/A</td>
+					</tr>
+					<tr>
+						<td style="font-weight:bold;">End Time</td><td id="procEndTime">N/A</td>
+					</tr>
+					<tr>
+						<td style="font-weight:bold;">Duration</td><td id="procDuration">N/A</td>
+					</tr>
+					<tr>
+						<td style="font-weight:bold;">Input Variables</td><td id="inputVariables"></td>
+					</tr>
+					<tr>
+						<td style="font-weight: bold;">Output Variables<br><i style="font-weight: normal;">All output variables start with "output_"</i></td><td id="outputVariables"></td>
+					</tr>
+					<tr>
+						<td style="font-weight:bold;">Status</td><td id="procStatus"></td>
+					</tr>
+				</tbody>
 			</table>
 		</div>
       <div id="resolveButtonDiv" class="row" style="text-align: center; display: none;">
