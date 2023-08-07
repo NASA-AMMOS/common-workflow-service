@@ -51,14 +51,23 @@
 	}
 
 	$(document).on('click', '.copy', function (e) {
-			e.preventDefault();
-			var copyValue = $(this).attr('data-copyValue');
-			copyInput(copyValue);
-			$(this).attr('aria-label', 'Copied!');
-			setTimeout(function () {
-				$('.copy').attr('aria-label', 'Copy');
-			}, 2000);
-		});
+		e.preventDefault();
+		if ($(this).attr("data-downloadValue") !== undefined && $(this).attr("data-downloadValue") !== false && $(this).attr("data-downloadValue") !== null) {
+			var downloadValue = $(this).attr('data-downloadValue');
+			var downloadName = $(this).attr('data-downloadName');
+			downloadFile(downloadValue, downloadName);
+			return;
+		}
+		var copyValue = $(this).attr('data-copyValue');
+		var isImage = $(this).attr('data-isImage');
+		console.log(isImage);
+		copyInput(copyValue, isImage);
+		$(this).attr('aria-label', 'Copied!');
+		setTimeout(function () {
+			$('.copy').attr('aria-label', 'Copy');
+		}, 2000);
+		console.log("fire");
+	});
 		
 	function getMoreLogData(scrollId) {
 
@@ -543,6 +552,30 @@
 
 	}); //END OF DOCUMENT.READY
 
+	function downloadFile(data, name) {
+		var decodedData = atob(data);
+		$.fn.dataTable.fileSave(
+			new Blob([decodedData]), name
+		);
+	}
+
+	function checkforImageURL(potentialURL) {
+		if (potentialURL === undefined || potentialURL === null || potentialURL === "") {
+			return false;
+		} else if (potentialURL.startsWith("www.") || potentialURL.startsWith("http://") || potentialURL.startsWith("https://") || potentialURL.startsWith("s3://")) {
+			if (potentialURL.endsWith(".png") || potentialURL.endsWith(".jpg") || potentialURL.endsWith(".jpeg") || potentialURL.endsWith(".gif")) {
+				return true;
+			}
+		}
+		try {
+			new URL(potentialURL);
+			return true;
+		}
+		catch (e) {
+			return false;
+		}
+	}
+
 	function setInputVariableTable(data) {
 		if (jQuery.isEmptyObject(data)) {
 			$("#inputVariables").html("None");
@@ -555,6 +588,13 @@
 				if (key.includes("(file, image")) {
 					tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+				} else if (key.includes("{")) {
+					var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
+					tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><i>` + fileName + `</i></div><div class="proc-var-flex-btn"><span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick=''><img src="images/download.svg" class="copy-icon clipboard"></span></div></div>`;
+				} else if (checkforImageURL(tempVal)) {
+					tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 				} else if (checkForURL(tempVal)) {
 					tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
@@ -595,14 +635,21 @@
 					var temp = "";
 					var tempVal = data[fullKeysInOrder[key]];
 					var tempKey = fullKeysInOrder[key].substring(7);
-					if (fullKeysInOrder[key].includes("(file, image")) {
+					if (tempKey.includes("(file, image")) {
 						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else if (tempKey.includes("{")) {
+						var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
+						tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><i>` + fileName + `</i></div><div class="proc-var-flex-btn"><span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick=''><img src="images/download.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else if (checkforImageURL(tempVal)) {
+						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 					} else if (checkForURL(tempVal)) {
 						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 					} else {
-						if (key.includes("(string)")) {
+						if (tempKey.includes("(string)")) {
 							tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						}
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
@@ -622,14 +669,21 @@
 					var temp = "";
 					var tempVal = data[keysNotInOrder[key]];
 					var tempKey = keysNotInOrder[key].substring(7);
-					if (keysNotInOrder[key].includes("(file, image")) {
+					if (tempKey.includes("(file, image")) {
 						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else if (tempKey.includes("{")) {
+						var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
+						tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><i>` + fileName + `</i></div><div class="proc-var-flex-btn"><span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick=''><img src="images/download.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else if (checkforImageURL(tempVal)) {
+						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 					} else if (checkForURL(tempVal)) {
 						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 					} else {
-						if (key.includes("(string)")) {
+						if (tempKey.includes("(string)")) {
 							tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						}
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
@@ -643,14 +697,21 @@
 					var temp = "";
 					var tempVal = value;
 					var tempKey = key.substring(7);
-					if (key.includes("(file, image")) {
+					if (tempKey.includes("(file, image")) {
 						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else if (tempKey.includes("{")) {
+						var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
+						tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><i>` + fileName + `</i></div><div class="proc-var-flex-btn"><span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick=''><img src="images/download.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else if (checkforImageURL(tempVal)) {
+						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 					} else if (checkForURL(tempVal)) {
 						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 					} else {
-						if (key.includes("(string)")) {
+						if (tempKey.includes("(string)")) {
 							tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						}
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
