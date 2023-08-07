@@ -71,14 +71,6 @@
                                     <label for="hide-subprocs">Hide Subprocesses</label>
                                     <input name="hide-subprocs" id="hide-subprocs-btn" type="checkbox">
                                 </div>
-                                <div id="output-proc-filter-div">
-                                    <h4>Output Variables:</h4>
-                                    <input id="output-var-name-filter" style="width: 90%" type="text"
-                                        class="form-control" placeholder="Variable Name" />
-                                    <input id="output-var-value-filter" style="width: 90%; margin-top: 1em" type="text"
-                                        class="form-control" placeholder="Variable Value" />
-
-                                </div>
                             </div>
                             <div class="col-md-4">
                                 <h4>Status:</h4>
@@ -305,12 +297,6 @@
                     } else {
                         $("#max-return-num").prop('disabled', false);
                     }
-                });
-                $("#output-var-name-filter").change(function () {
-                    getNumMatchingProcesses();
-                });
-                $("#output-var-value-filter").change(function () {
-                    getNumMatchingProcesses();
                 });
 
                 //display message if we received one from the server
@@ -1153,12 +1139,6 @@
                     localParams["superProcInstId"] = "null";
                 } else {
                     delete localParams["superProcInstId"];
-                }
-                if ($("#output-var-name-filter").val() != "") {
-                    localParams["outputVarName"] = $("#output-var-name-filter").val();
-                }
-                if ($("#output-var-value-filter").val() != "") {
-                    localParams["outputVarValue"] = $("#output-var-value-filter").val();
                 }
                 var qstring = "?";
                 if (localParams != null) {
