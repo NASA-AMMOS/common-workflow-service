@@ -910,7 +910,7 @@
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
-                    + `<li id="action_open_selected_new_tabs" class="disabled" role="presentation"><a id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)</a></li>`
+                    + `<li id="action_open_selected_new_tabs" class="disabled" role="presentation"><a id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)<span style="margin-left: 10px;" class="label label-info">Requires Pop-ups to be enabled</span></a></li>`
                     + `<li id="action_copy_all_selected_history_links" class="disabled" role="presentation"><a id="action_copy_all_selected_history_links_atag" role="menuitem">Copy all selected history links (must not be pending)</a></li>`
                     + '<li role="separator" class="divider"></li>'
                     + `<li id="action_delete_selected" class="disabled" role="presentation"><a id="action_delete_selected_atag" role="menuitem">Stop running selected rows (all rows selected must be 'running')</a></li>`
@@ -1432,9 +1432,7 @@
                 var selectedRows = table.rows({ selected: true });
                 selectedRows.every(function (rowIdx, tableLoop, rowLoop) {
                     var data = this.data();
-                    setTimeout(function () {
-                        window.open("/${base}/history?procInstId=" + data["procInstId"], "_blank");
-                    }, 200 * rowLoop);
+                    window.open("/${base}/history?procInstId=" + data["procInstId"], "_blank");
                 });
             }
 
