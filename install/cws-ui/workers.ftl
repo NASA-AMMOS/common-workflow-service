@@ -21,7 +21,10 @@
 	<script>
 
 		//STATE PERSISTANCE CONSTS
-		const username = "username"; //temporary, hardcoded value for now
+		var username = document.cookie.substring(document.cookie.indexOf("cwsUsername=") + 12);
+		if (username.indexOf(";") > 0) {
+			username = username.substring(0, username.indexOf(";"));
+		}
 		const hideDownWorkersVar = "CWS_DASH_WORKERS_HIDE_DOWN-" + username;
 	
 		var numProcDefs = ${procDefs?size};

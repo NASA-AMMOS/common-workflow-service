@@ -191,7 +191,10 @@
         <script type="text/javascript">
 
             //STATE PERSISTANCE CONSTS
-            const username = "username"; //temporary, hardcoded value for now
+            var username = document.cookie.substring(document.cookie.indexOf("cwsUsername=") + 12);
+            if (username.indexOf(";") > 0) {
+                username = username.substring(0, username.indexOf(";"));
+            }
             const hideSubProcsVar = "CWS_DASH_PROCS_HIDE_SUBPROCS-" + username;
             const qStringVar = "CWS_DASH_PROCS_QSTRING-" + username;
             //GLOBAL VARS

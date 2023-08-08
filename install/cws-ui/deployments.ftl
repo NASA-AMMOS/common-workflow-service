@@ -16,7 +16,10 @@
 	<script>
 
 		//STATE PERSISTANCE CONSTS
-		const username = "username"; //temporary, hardcoded value for now
+		var username = document.cookie.substring(document.cookie.indexOf("cwsUsername=") + 12);
+		if (username.indexOf(";") > 0) {
+			username = username.substring(0, username.indexOf(";"));
+		}
 		const lastNumHoursVar = "CWS_DASH_DEPLOY_LAST_NUM_HOURS-" + username;
 		const refreshRateVar = "CWS_DASH_DEPLOY_REFRESH_RATE-" + username;
 		const hideSuspendedProcVar = "CWS_DASH_DEPLOY_HIDE_SUS-" + username;

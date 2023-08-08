@@ -20,7 +20,10 @@
 	<script>
 
 	//STATE PERSISTANCE VARS
-	var username = "username";
+	var username = document.cookie.substring(document.cookie.indexOf("cwsUsername=") + 12);
+	if (username.indexOf(";") > 0) {
+		username = username.substring(0, username.indexOf(";"));
+	}
 	var downloadFileTypeVar = "CWS_DASH_HISTORY_DOWNLOAD_FILE_TYPE-" + username;
 	var datatableStateVar = "CWS_DASH_HISTORY_DATATABLE_STATE-" + username;
 	var hideLogLinesVar = "CWS_DASH_HISTORY_HIDE_LOG_LINES-" + username;
