@@ -215,7 +215,7 @@
                         //if we have a cache param, we don't want to load from cache
                         if(!(isEqual(parseQueryString(qString), getQueryString()))){
                             applyParamsToFilters(parseQueryString(qString));
-                            updateLocation(false);
+                            updateLocation(false, 0);
                         }
                     }
                 }
@@ -244,7 +244,7 @@
 
                 //Catch click on filter submit button
                 $("#filter-submit-btn").click(function () {
-                    updateLocation(false);
+                    updateLocation(false, 1);
                 });
 
                 //Hide div that displays superprocess ID by default
@@ -277,10 +277,10 @@
                     getNumMatchingProcesses();
                 });
                 $("#filter-submit-btn").click(function () {
-                    updateLocation(false);
+                    updateLocation(false, 1);
                 });
                 $("#hide-subprocs-btn").click(function () {
-                    updateLocation(true);
+                    updateLocation(true, 1);
                     if (!($("#hide-subprocs-btn")).is(":checked")) {
                         $("#super-proc-inst-id-in").hide();
                     } else {
@@ -868,14 +868,6 @@
                             responsivePriority: 8
                         },
                     ],
-                    //tells datatables that we want to save the state of the table (search, page, etc.) in the browser's local storage
-                    "stateSave": true,
-                    //tells datatables what to do before it applys what it fetches from browser's local storage (in this case, clear the search box)
-                    "stateLoadParams": function (settings, data) {
-                        data.columns.forEach(function (column) {
-                            column.search.search = "";
-                        });
-                    },
                     //tells datatables to put specific elements in divs it creates (quotes are classes)
                     dom: "Q<'above-table-div'<'above-table-buttons'B><'above-table-length'l><'above-table-filler'><'above-table-filter'f>>"
                         + "t"
@@ -1050,6 +1042,14 @@
                         $(".ajax-spinner").hide();
                     }
                 }, 250);
+
+                setTimeout(function () {
+                    //apply our local filter
+                    if (params != null && params["searchBuilder"] != null && params["searchBuilder"] !== undefined) {
+                        var sbState = JSON.parse(decodeURIComponent(decodeURIComponent(params["searchBuilder"])));
+                        $("#processes-table").DataTable().searchBuilder.rebuild(sbState);
+                    }
+                }, 250);
             }
 
             //Update the text of the select dropdown to reflect number of rows loaded/in datatable
@@ -1126,7 +1126,7 @@
             }
 
             //applies filters given by user & refreshes the page to apply to URL
-            function updateLocation(changeHideSubs) {
+            function updateLocation(changeHideSubs, sbDetailCheck) {
                 var localParams = {};
 
                 if ($("#pd-select").val() != "def") {
@@ -1159,6 +1159,13 @@
                 } else if (!($("#hide-subprocs-btn").prop("checked"))) {
                     delete localParams["superProcInstId"];
                 }
+                if (sbDetailCheck == 1) {
+                    var sbDetails = $("#processes-table").DataTable().searchBuilder.getDetails();
+                    if (sbDetails !== {}) {
+                        localParams["searchBuilder"] = encodeURIComponent(JSON.stringify(sbDetails));
+                    }
+                }
+
                 var qstring = "?";
                 if (localParams != null) {
                     for (p in localParams) {
