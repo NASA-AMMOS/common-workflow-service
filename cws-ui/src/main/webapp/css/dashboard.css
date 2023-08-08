@@ -92,9 +92,31 @@ label{
   background-color: #428bca;
 }
 
+/* Sidebar toggle */
+#toggleSidebar {
+  position: fixed;
+  top: 60px;
+  left: 300px;
+  display: inline;
+  color: #000000
+;
+  padding: 2px 4px;
+}
+
 .nav-sidebar .active > a:hover, .nav-sidebar .active > a:focus{
   background-color: #428bca;
 }
+
+#toggle-button {
+  top: 20px;
+  left: calc(200px + 100px);
+  z-index: -1;
+  position:relative;
+  font-size: 20px;
+}
+
+
+
 /*
  * Main content
  */

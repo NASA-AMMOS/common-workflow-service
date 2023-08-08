@@ -149,25 +149,44 @@ function autocomplete(inp, arr) {
     });
 }
 
-function addActive(x) {
-    if (!x) return false;
-    removeActive(x);
-    if (currentFocus >= x.length) currentFocus = 0;
-    if (currentFocus < 0) currentFocus = (x.length - 1);
-    x[currentFocus].classList.add("autocomplete-active");
-}
+// function addActive(x) {
+//     if (!x) return false;
+//     removeActive(x);
+//     if (currentFocus >= x.length) currentFocus = 0;
+//     if (currentFocus < 0) currentFocus = (x.length - 1);
+//     x[currentFocus].classList.add("autocomplete-active");
+// }
+//
+// function removeActive(x) {
+//     for (var i = 0; i < x.length; i++) {
+//         x[i].classList.remove("autocomplete-active");
+//     }
+// }
+//
+// function closeAllLists(elmnt, inp) {
+//     var x = document.getElementsByClassName("autocomplete-items-cws");
+//     for (var i = 0; i < x.length; i++) {
+//         if (elmnt !== x[i]) {
+//             x[i].parentNode.removeChild(x[i]);
+//         }
+//     }
+// }
 
-function removeActive(x) {
-    for (var i = 0; i < x.length; i++) {
-        x[i].classList.remove("autocomplete-active");
-    }
-}
+//sidebar.js
+// function togglesidebar(){
+//     const sidebartest = document.querySelector('#sidebar0');
+//     const toggleButton = document.querySelector('#toggle-button');
+//     //
+//     // toggleButton.addEventListener('click', () => {
+//          print("has toggled");
+//
+//         if (sidebartest.style.left === '20px') {
+//             sidebartest.style.left = '-200px';
+//             toggleButton.style.left = '20px';
+//         } else {
+//             sidebartest.style.left = '0';
+//             toggleButton.style.left = 'calc(200px + 20px)';
+//         }
+//
+// }
 
-function closeAllLists(elmnt, inp) {
-    var x = document.getElementsByClassName("autocomplete-items-cws");
-    for (var i = 0; i < x.length; i++) {
-        if (elmnt !== x[i]) {
-            x[i].parentNode.removeChild(x[i]);
-        }
-    }
-}
