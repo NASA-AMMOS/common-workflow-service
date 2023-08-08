@@ -211,8 +211,7 @@
                     var qString = localStorage.getItem(qStringVar);
                     var qStringObj = getQueryString();
                     if (qStringObj["cache"] == null || qStringObj["cache"] == undefined) {
-                        console.log("no cache param");
-                        //if we have a cache param, we don't want to load from cache
+                        //we have no cache param - load from cache
                         if(!(isEqual(parseQueryString(qString), getQueryString()))){
                             applyParamsToFilters(parseQueryString(qString));
                             updateLocation(false, 0);
