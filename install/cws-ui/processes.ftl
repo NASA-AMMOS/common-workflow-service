@@ -583,10 +583,7 @@
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div></div><br>";
                                         }
-                                        if (tempKey === "startedOnWorkerId") {
-                                            after = after + temp;
-                                            putAllAfter = 1;
-                                        } else if (putAllAfter === 0) {
+                                        if (putAllAfter === 0) {
                                             before = before + temp;
                                         } else {
                                             after = after + temp;
