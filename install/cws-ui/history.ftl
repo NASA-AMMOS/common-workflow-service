@@ -1003,7 +1003,7 @@ function formatMsg(msg) {
     var first = msg.substring(0, index).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
     var rest = msg.substring(index).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
 
-    return first + '<details><summary>Show All</summary>' + rest + '</details>'
+    return `<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: flex-start; gap: 0px;"><div>` + first + '<details><summary>Show All</summary>' + rest + `</details></div><div><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + msg + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span><div>`
 }
 
 function convertMillis(millis) {
