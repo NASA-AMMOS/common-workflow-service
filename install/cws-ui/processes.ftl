@@ -71,14 +71,6 @@
                                     <label for="hide-subprocs">Hide Subprocesses</label>
                                     <input name="hide-subprocs" id="hide-subprocs-btn" type="checkbox">
                                 </div>
-                                <div id="output-proc-filter-div">
-                                    <h4>Output Variables:</h4>
-                                    <input id="output-var-name-filter" style="width: 90%" type="text"
-                                        class="form-control" placeholder="Variable Name" />
-                                    <input id="output-var-value-filter" style="width: 90%; margin-top: 1em" type="text"
-                                        class="form-control" placeholder="Variable Value" />
-
-                                </div>
                             </div>
                             <div class="col-md-4">
                                 <h4>Status:</h4>
@@ -219,11 +211,10 @@
                     var qString = localStorage.getItem(qStringVar);
                     var qStringObj = getQueryString();
                     if (qStringObj["cache"] == null || qStringObj["cache"] == undefined) {
-                        console.log("no cache param");
-                        //if we have a cache param, we don't want to load from cache
+                        //we have no cache param - load from cache
                         if(!(isEqual(parseQueryString(qString), getQueryString()))){
                             applyParamsToFilters(parseQueryString(qString));
-                            updateLocation(false);
+                            updateLocation(false, 0);
                         }
                     }
                 }
@@ -252,7 +243,7 @@
 
                 //Catch click on filter submit button
                 $("#filter-submit-btn").click(function () {
-                    updateLocation(false);
+                    updateLocation(false, 1);
                 });
 
                 //Hide div that displays superprocess ID by default
@@ -285,10 +276,10 @@
                     getNumMatchingProcesses();
                 });
                 $("#filter-submit-btn").click(function () {
-                    updateLocation(false);
+                    updateLocation(false, 1);
                 });
                 $("#hide-subprocs-btn").click(function () {
-                    updateLocation(true);
+                    updateLocation(true, 1);
                     if (!($("#hide-subprocs-btn")).is(":checked")) {
                         $("#super-proc-inst-id-in").hide();
                     } else {
@@ -305,12 +296,6 @@
                     } else {
                         $("#max-return-num").prop('disabled', false);
                     }
-                });
-                $("#output-var-name-filter").change(function () {
-                    getNumMatchingProcesses();
-                });
-                $("#output-var-value-filter").change(function () {
-                    getNumMatchingProcesses();
                 });
 
                 //display message if we received one from the server
@@ -531,10 +516,10 @@
                             }
                         },
                         {
-                            data: "inputVariables",
+                            data: { inputVariables: "inputVariables", procStartTime: "procStartTime"},
                             render: function (data, type) {
-                                if (jQuery.isEmptyObject(data)) {
-                                    return "";
+                                if (jQuery.isEmptyObject(data.inputVariables)) {
+                                    return "None";
                                 }
                                 if (type === 'display') {
                                     var output = "";
@@ -542,10 +527,15 @@
                                     var after = "";
                                     var putAllAfter = 0;
                                     var count = 0;
-                                    for (const [key, value] of Object.entries(data)) {
+                                    var timeStart = moment(data.procStartTime);
+                                    for (const [key, value] of Object.entries(data.inputVariables)) {
                                         var temp = "";
+                                        var varTimeSet = key.substring(key.indexOf("[")+1, key.indexOf("]"));
+                                        if (moment(varTimeSet).diff(timeStart, "seconds") > 1) {
+                                            continue;
+                                        }
                                         var tempVal = value;
-                                        var tempKey = key;
+                                        var tempKey = key.substring(key.indexOf("]") + 1);
                                         if (tempKey === "workerId") {
                                             continue;
                                         }
@@ -558,6 +548,23 @@
                                                 + '<br><img class="grow" src="' + tempVal + '">'
                                                 + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
                                                 + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div></div><br>";
+                                        } else if (key.includes("{")) {
+                                            var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
+                                            tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
+                                                + '<i>' + fileName + '</i>'
+                                                + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                + "<span aria-label=\"Download\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-downloadValue=\"" + tempVal + "\" data-downloadName=\"" + fileName + "\" onClick=''>"
+                                                + "<img src=\"images/download.svg\" class=\"copy-icon clipboard\">"
+                                                + "</span></div></div><br>";
+                                        } else if (checkforImageURL(tempVal)) {
+                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
+                                                + '<br><img class="grow" src="' + tempVal + '">'
+                                                + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div></div><br>";
                                         } else if (checkForURL(tempVal)) {
@@ -575,10 +582,7 @@
                                                 + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                 + "</span></div></div><br>";
                                         }
-                                        if (tempKey === "startedOnWorkerId") {
-                                            after = after + temp;
-                                            putAllAfter = 1;
-                                        } else if (putAllAfter === 0) {
+                                        if (putAllAfter === 0) {
                                             before = before + temp;
                                         } else {
                                             after = after + temp;
@@ -641,17 +645,15 @@
                             data: "outputVariables",
                             render: function (data, type) {
                                 if (jQuery.isEmptyObject(data)) {
-                                    return "";
+                                    return "None";
                                 }
                                 if (type === 'display') {
-                                    console.log("we have atleast one output variable");
                                     var output = "";
                                     var before = "";
                                     var after = "";
                                     var count = 0;
                                     if (Object.keys(data).includes("output_display_order (object)")) {
                                         //we have an order array
-                                        console.log("we have an order array");
                                         var orderTruncated = data["output_display_order (object)"].substring(1, data["output_display_order (object)"].length - 1).split(", ");
                                         var fullKeys = Object.keys(data);
                                         var fullKeysInOrder = [];
@@ -661,18 +663,34 @@
                                                 fullKeysInOrder.push(fullKeys[result]);
                                             }
                                         }
-                                        console.log("Full keys in order: " + fullKeysInOrder);
                                         //the orderTruncated array now contains the full keys in the order they should be displayed
                                         for (key in fullKeysInOrder) {
                                             var temp = "";
                                             var tempVal = data[fullKeysInOrder[key]];
                                             var tempKey = fullKeysInOrder[key].substring(7);
-                                            if (fullKeysInOrder[key].includes("(file, image")) {
+                                            if (tempKey.includes("(file, image")) {
                                                 tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                                 temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
                                                     + '<br><img class="grow" src="' + tempVal + '">'
                                                     + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
                                                     + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                    + "</span></div></div><br>";
+                                            } else if (tempKey.includes("{")) {
+                                                var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
+                                                tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
+                                                    + '<i>' + fileName + '</i>'
+                                                    + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                    + "<span aria-label=\"Download\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-downloadValue=\"" + tempVal + "\" data-downloadName=\"" + fileName + "\" onClick=''>"
+                                                    + "<img src=\"images/download.svg\" class=\"copy-icon clipboard\">"
+                                                    + "</span></div></div><br>";
+                                            } else if (checkforImageURL(tempVal)) {
+                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
+                                                    + '<br><img class="grow" src="' + tempVal + '">'
+                                                    + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                     + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                     + "</span></div></div><br>";
                                             } else if (checkForURL(tempVal)) {
@@ -710,7 +728,7 @@
                                             if (tempKey === "workerId") {
                                                 continue;
                                             }
-                                            if (key.includes("(file, image")) {
+                                            if (tempKey.includes("(file, image")) {
                                                 tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                                 temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
                                                     + '<br><img class="grow" src="' + tempVal + '">'
@@ -718,27 +736,29 @@
                                                     + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                     + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                     + "</span></div></div><br>";
-                                                if (key.toUpperCase().includes("THUMBNAIL")) {
-                                                    after = before + after;
-                                                    before = temp;
-                                                    count += 2;
-                                                    continue;
-                                                }
+                                            } else if (tempKey.includes("{")) {
+                                                var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
+                                                tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
+                                                    + '<i>' + fileName + '</i>'
+                                                    + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                    + "<span aria-label=\"Download\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-downloadValue=\"" + tempVal + "\" data-downloadName=\"" + fileName + "\" onClick=''>"
+                                                    + "<img src=\"images/download.svg\" class=\"copy-icon clipboard\">"
+                                                    + "</span></div></div><br>";
+                                            } else if (checkforImageURL(tempVal)) {
+                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
+                                                    + '<br><img class="grow" src="' + tempVal + '">'
+                                                    + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
+                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
+                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                                    + "</span></div></div><br>";
                                             } else if (checkForURL(tempVal)) {
                                                 tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                                 temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + "<a href=\"" + tempVal + "\">" + tempVal + "</a>" + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
                                                     + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
                                                     + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
                                                     + "</span></div></div><br>";
-                                            } else if (tempKey.toUpperCase().includes("SUMMARY")){
-                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                    + "</span></div></div><br>";
-                                                before = before + temp;
-                                                count++;
-                                                continue;
                                             } else {
                                                 if (tempKey.toUpperCase().includes("(STRING)")) {
                                                     tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
@@ -751,7 +771,7 @@
                                             if (tempKey === "startedOnWorkerId") {
                                                 after = after + temp;
                                                 count += 2;
-                                            } else if (count < 2) {
+                                            } else if (count <= 2) {
                                                 before = before + temp;
                                             } else {
                                                 after = after + temp;
@@ -784,6 +804,7 @@
                         style: 'multi+shift',
                         selector: 'td:first-child'
                     },
+                    order: [[2, 'asc']],
                     //set configuration of the columns (width, visibility order, etc.)
                     columnDefs: [
                         {
@@ -846,14 +867,6 @@
                             responsivePriority: 8
                         },
                     ],
-                    //tells datatables that we want to save the state of the table (search, page, etc.) in the browser's local storage
-                    "stateSave": true,
-                    //tells datatables what to do before it applys what it fetches from browser's local storage (in this case, clear the search box)
-                    "stateLoadParams": function (settings, data) {
-                        data.columns.forEach(function (column) {
-                            column.search.search = "";
-                        });
-                    },
                     //tells datatables to put specific elements in divs it creates (quotes are classes)
                     dom: "Q<'above-table-div'<'above-table-buttons'B><'above-table-length'l><'above-table-filler'><'above-table-filter'f>>"
                         + "t"
@@ -893,6 +906,12 @@
                 //when we click the copy button next to an input/output variable, we want to copy the value to the clipboard
                 $(document).on('click', '.copy', function (e) {
                     e.preventDefault();
+                    if ($(this).attr("data-downloadValue") !== undefined && $(this).attr("data-downloadValue") !== false && $(this).attr("data-downloadValue") !== null) {
+                        var downloadValue = $(this).attr('data-downloadValue');
+                        var downloadName = $(this).attr('data-downloadName');
+                        downloadFile(downloadValue, downloadName);
+                        return;
+                    }
                     var copyValue = $(this).attr('data-copyValue');
                     var isImage = $(this).attr('data-isImage');
                     console.log(isImage);
@@ -909,7 +928,7 @@
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
-                    + `<li id="action_open_selected_new_tabs" class="disabled" role="presentation"><a id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)</a></li>`
+                    + `<li id="action_open_selected_new_tabs" class="disabled" role="presentation"><a id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)<span style="margin-left: 10px;" class="label label-info">Requires Pop-ups to be enabled</span></a></li>`
                     + `<li id="action_copy_all_selected_history_links" class="disabled" role="presentation"><a id="action_copy_all_selected_history_links_atag" role="menuitem">Copy all selected history links (must not be pending)</a></li>`
                     + '<li role="separator" class="divider"></li>'
                     + `<li id="action_delete_selected" class="disabled" role="presentation"><a id="action_delete_selected_atag" role="menuitem">Stop running selected rows (all rows selected must be 'running')</a></li>`
@@ -936,6 +955,30 @@
                 fetchAndDisplayProcesses();
             });
             //DOCUMENT.READY END
+
+            function downloadFile(data, name) {
+                var decodedData = atob(data);
+                $.fn.dataTable.fileSave(
+                    new Blob([decodedData]), name
+                );
+            }
+
+            function checkforImageURL(potentialURL) {
+                if (potentialURL === undefined || potentialURL === null || potentialURL === "") {
+                    return false;
+                } else if (potentialURL.startsWith("www.") || potentialURL.startsWith("http://") || potentialURL.startsWith("https://") || potentialURL.startsWith("s3://")) {
+                    if (potentialURL.endsWith(".png") || potentialURL.endsWith(".jpg") || potentialURL.endsWith(".jpeg") || potentialURL.endsWith(".gif")) {
+                        return true;
+                    }
+                }
+                try {
+                    new URL(potentialURL);
+                    return true;
+                }
+                catch (e) {
+                    return false;
+                }
+            }
 
             //fetches processes from server (using filters if provided) and displays them in the datatable
             function fetchAndDisplayProcesses() {
@@ -996,6 +1039,14 @@
                         updateSelectDropDown();
                         //hide ajax spinner
                         $(".ajax-spinner").hide();
+                    }
+                }, 250);
+
+                setTimeout(function () {
+                    //apply our local filter
+                    if (params != null && params["searchBuilder"] != null && params["searchBuilder"] !== undefined) {
+                        var sbState = JSON.parse(decodeURIComponent(decodeURIComponent(params["searchBuilder"])));
+                        $("#processes-table").DataTable().searchBuilder.rebuild(sbState);
                     }
                 }, 250);
             }
@@ -1074,7 +1125,7 @@
             }
 
             //applies filters given by user & refreshes the page to apply to URL
-            function updateLocation(changeHideSubs) {
+            function updateLocation(changeHideSubs, sbDetailCheck) {
                 var localParams = {};
 
                 if ($("#pd-select").val() != "def") {
@@ -1107,6 +1158,13 @@
                 } else if (!($("#hide-subprocs-btn").prop("checked"))) {
                     delete localParams["superProcInstId"];
                 }
+                if (sbDetailCheck == 1) {
+                    var sbDetails = $("#processes-table").DataTable().searchBuilder.getDetails();
+                    if (sbDetails !== {}) {
+                        localParams["searchBuilder"] = encodeURIComponent(JSON.stringify(sbDetails));
+                    }
+                }
+
                 var qstring = "?";
                 if (localParams != null) {
                     for (p in localParams) {
@@ -1152,12 +1210,6 @@
                     localParams["superProcInstId"] = "null";
                 } else {
                     delete localParams["superProcInstId"];
-                }
-                if ($("#output-var-name-filter").val() != "") {
-                    localParams["outputVarName"] = $("#output-var-name-filter").val();
-                }
-                if ($("#output-var-value-filter").val() != "") {
-                    localParams["outputVarValue"] = $("#output-var-value-filter").val();
                 }
                 var qstring = "?";
                 if (localParams != null) {
@@ -1431,9 +1483,7 @@
                 var selectedRows = table.rows({ selected: true });
                 selectedRows.every(function (rowIdx, tableLoop, rowLoop) {
                     var data = this.data();
-                    setTimeout(function () {
-                        window.open("/${base}/history?procInstId=" + data["procInstId"], "_blank");
-                    }, 200 * rowLoop);
+                    window.open("/${base}/history?procInstId=" + data["procInstId"], "_blank");
                 });
             }
 

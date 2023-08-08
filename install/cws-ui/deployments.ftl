@@ -264,6 +264,9 @@
 			refreshing = true;
 			//grab the value here so we don't have to do it multiple times
 			var statsCookieValue = parseInt(localStorage.getItem(lastNumHoursVar));
+			if (statsCookieValue == -1) {
+				statsCookieValue = null;
+			}
 
 			$.ajax({
 				url: "/${base}/rest/stats/processInstanceStatsJSON",
@@ -371,17 +374,30 @@
 			$("#process-table").DataTable({
 				columns: [
 					{
-						data: { id: "id", key: "key" },
+						data: { suspended: "suspended", id: "id", key: "key" },
 						render: function(data, type) {
 							if (type !== 'display') {
-								return "";
+								return data.id;
 							} else {
-								return `<div class="proc-name-btns">`
-									+ `<a href="/${base}/modeler?procDefKey=` + data.key + `" target="_blank">`
+
+								var returnVal = `<div class="proc-name-btns">`;
+								if (data.suspended == "true") {
+									returnVal += `<a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="resumeProcDef('` + data.id + `', '` + data.key + `')">`
+									+ `<span style="cursor: pointer; float: right; color: green;" id="suspend-` 
+									+ data.key + `" class="glyphicon glyphicon-play"></span></a>`;
+								} else {
+									returnVal += `<a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="suspendProcDef('` + data.id + `', '` + data.key + `')">`
+									+ `<span style="cursor: pointer; float: right; color: #d9534f;" id="suspend-` 
+									+ data.key + `" class="glyphicon glyphicon-pause"></span></a>`;
+								}
+								
+								returnVal += `<a href="/${base}/modeler?procDefKey=` + data.key + `" target="_blank">`
 									+ `<span style="float: right;" id="edit-` + data.key + `" class="glyphicon glyphicon-pencil"></span></a>`
-									+ `<a data-proc-key="` + data.key + `" onClick="handleDeleteProcDef('` + data.key + `')"><span style="cursor: pointer; float: right; color: #d9534f; padding-left: 7;" id="delete-` 
-									+ data.key + `" class="glyphicon glyphicon-remove-sign"></span></a>`
-									+ `</div>`;
+									+ `<a data-proc-key="` + data.key + `" onClick="handleDeleteProcDef('` + data.key + `')"><span style="cursor: pointer; float: right; color: #d9534f;" id="delete-` 
+									+ data.key + `" class="glyphicon glyphicon-trash"></span></a>`;
+
+								returnVal += `</div>`;
+								return returnVal;
 							}
 						}
 					},
@@ -439,7 +455,7 @@
 						}
 					},
 					{
-						data: { suspended: "suspended", key: "key", id: "id" },
+						data: { suspended: "suspended", key: "key" },
 						render: function (data, type) {
 							if (type !== 'display') {
 								if (data.suspended === "true") {
@@ -452,16 +468,10 @@
 								var status = "";
 								var html = "";
 								if (data.suspended == "true") {
-									html = `<div class="status-div-flex"><div class="pause-btn-div"><a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="resumeProcDef('` + data.id + `', '` + data.key + `')">`
-									+ `<span style="cursor: pointer; float: right; padding-left: 7; color: green;" id="suspend-` 
-									+ data.key + `" class="glyphicon glyphicon-play"></span></a></div>`
-									+ `<div class="status-div-text" id="status-txt-` + data.key + `">Suspended</div></div>`;
+									html =`<div class="status-div-text" id="status-txt-` + data.key + `"><i style="color: dimgray;">Suspended</i></div>`;
 								}
 								else {
-									html = `<div class="status-div-flex"><div class="pause-btn-div"><a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="suspendProcDef('` + data.id + `', '` + data.key + `')">`
-									+ `<span style="cursor: pointer; float: right; padding-left: 7; color: #d9534f;" id="suspend-` 
-									+ data.key + `" class="glyphicon glyphicon-pause"></span></a></div>`
-									+ `<div class="status-div-text" id="status-txt-` + data.key + `">Active</div></div>`;
+									html = `<div class="status-div-text" id="status-txt-` + data.key + `">Active</div></div>`;
 								}
 								return html;
 							}
@@ -510,6 +520,7 @@
 						}
 					}
 				],
+				rowId: "key",
 				columnDefs: [
 					{ orderable: false, targets: 0},
 					{ orderable: false, targets: 6 },
@@ -539,10 +550,37 @@
 				if ($(this).prop("checked")) {
 					$("#process-table").DataTable().column(5).search("Active", false, true).draw();
 					localStorage.setItem(hideSuspendedProcVar, "1");
+					refreshStats();
 				}
 				else {
 					$("#process-table").DataTable().column(5).search("").draw();
+					localStorage.setItem(hideSuspendedProcVar, "0");
+					refreshStats();
 				}
+				$("#process-table").DataTable().rows().every(function () {
+						$("#process-table").DataTable().rows().every( function (rowIdx, tableLoop, rowLoop) {
+							var status = this.data()["suspended"];
+							var procDefKey = this.data()["key"];
+							var procDefId = this.data()["id"];
+							if (status == "false") {
+								$("#suspend-" + procDefKey).removeClass("glyphicon-play");
+								$("#suspend-" + procDefKey).addClass("glyphicon-pause");
+								$("#suspend-" + procDefKey).css("color", "#d9534f");
+								$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
+								$("#status-txt-" + procDefKey).html("Active");
+								$("#" + procDefKey).removeClass("disabled");
+								$("#pv-" + procDefKey).removeClass("disabled");
+							} else {
+								$("#suspend-" + procDefKey).removeClass("glyphicon-pause");
+								$("#suspend-" + procDefKey).addClass("glyphicon-play");
+								$("#suspend-" + procDefKey).css("color", "green");
+								$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
+								$("#status-txt-" + procDefKey).html("Suspended");
+								$("#" + procDefKey).addClass("disabled");
+								$("#pv-" + procDefKey).addClass("disabled");
+							}
+						});
+					});
 			});
 
 			if (parseInt(localStorage.getItem(hideSuspendedProcVar)) == 0) {
@@ -684,6 +722,8 @@
 					$("#suspend-" + procDefKey).css("color", "green");
 					$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
 					$("#status-txt-" + procDefKey).html("Suspended");
+					$("#" + procDefKey).addClass("disabled");
+					$("#pv-" + procDefKey).addClass("disabled");
 				},
 				error: function(data) {
 					console.log("error suspending");
@@ -708,6 +748,8 @@
 					$("#suspend-" + procDefKey).css("color", "#d9534f");
 					$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
 					$("#status-txt-" + procDefKey).html("Active");
+					$("#" + procDefKey).removeClass("disabled");
+					$("#pv-" + procDefKey).removeClass("disabled");
 				},
 				error: function(data) {
 					console.log("error activating");
@@ -786,7 +828,7 @@
 										<option value="72">Show stats for last 3 Days</option>
 										<option value="168">Show stats for last 1 Week</option>
 										<option value="336">Show stats for last 2 Weeks</option>
-										<option value="null">Show stats for All Time</option>
+										<option value="-1">Show stats for All Time</option>
 									</select>
 								</div>
 							</div>
@@ -1041,7 +1083,7 @@
 			});
 
 			$("#stats-last-num-hours").on('change', function () {
-				lastNumHours = parseInt($(this).val()) | null;
+				lastNumHours = parseInt($(this).val());
 				localStorage.setItem(lastNumHoursVar, lastNumHours.toString());
 				refreshStats();
 			});
@@ -1111,25 +1153,23 @@
 
 				dt.rows().every(function (rowIdx, tableLoop, rowLoop) {
 					var thisModelJson = {};
-					var modelName = this.data()[0].replace(/<a.*?>/g, '');
-					modelName = modelName.substring(0, modelName.indexOf("</a>"));
-
-					var modelId = this.data()[1];
+					this.data().get
+					var modelName = this.data()["name"];
+					console.log(this.data());
+					var modelId = this.data()["key"];
 					//modelId = modelId.substring(modelId.indexOf("id=\"") + 4);
 					//modelId = modelId.substring(0, modelId.indexOf("\""));
 
-					var version = this.data()[2];
+					var version = this.data()["version"];
 
-					var status = this.data()[4];
-					//check if active is in str
-					if (status.indexOf("active") > -1) {
-						status = "active";
+					if (this.data["suspended"] == "true") {
+						status = "Suspended";
 					}
 					else {
-						status = "inactive";
+						status = "Active";
 					}
 
-					var hasAssignedWorkers = $("#pv-" + modelId).hasClass("btn-danger") ? "false" : "true";
+					var hasAssignedWorkers = !$("#pv-" + modelId).hasClass("btn-danger");
 
 					var statPending = 0;
 					var statDisabled = 0;

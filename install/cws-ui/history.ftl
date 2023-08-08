@@ -51,14 +51,23 @@
 	}
 
 	$(document).on('click', '.copy', function (e) {
-			e.preventDefault();
-			var copyValue = $(this).attr('data-copyValue');
-			copyInput(copyValue);
-			$(this).attr('aria-label', 'Copied!');
-			setTimeout(function () {
-				$('.copy').attr('aria-label', 'Copy');
-			}, 2000);
-		});
+		e.preventDefault();
+		if ($(this).attr("data-downloadValue") !== undefined && $(this).attr("data-downloadValue") !== false && $(this).attr("data-downloadValue") !== null) {
+			var downloadValue = $(this).attr('data-downloadValue');
+			var downloadName = $(this).attr('data-downloadName');
+			downloadFile(downloadValue, downloadName);
+			return;
+		}
+		var copyValue = $(this).attr('data-copyValue');
+		var isImage = $(this).attr('data-isImage');
+		console.log(isImage);
+		copyInput(copyValue, isImage);
+		$(this).attr('aria-label', 'Copied!');
+		setTimeout(function () {
+			$('.copy').attr('aria-label', 'Copy');
+		}, 2000);
+		console.log("fire");
+	});
 		
 	function getMoreLogData(scrollId) {
 
@@ -223,8 +232,21 @@
 	
 			$('#procDefKey').html(data.procDefKey);
 			$('#procInstId').html(data.procInstId);
-			$('#procStartTime').html(data.startTime);
-			$('#procEndTime').html(data.endTime);
+			var momentStart;
+			var momentEnd;
+			if (data.startTime !== null && data.startTime !== undefined && data.startTime !== "") {
+				momentStart = moment(data.startTime);
+				$('#procStartTime').html(momentStart.format('MMM D, YYYY, h:mm:ss A'));
+			} else {
+				$('#procStartTime').html("");
+			}
+			if (data.endTime !== null && data.startTime !== undefined && data.startTime !== "") {
+				momentEnd = moment(data.endTime);
+				var procDuration = "<br><i>(~" + moment.duration(momentEnd.diff(momentStart)).humanize() + ")</i>";
+				$('#procEndTime').html(momentEnd.format('MMM D, YYYY, h:mm:ss A') + procDuration);
+			} else {
+				$('#procEndTime').html("");
+			}
 			
 			if (data.duration !== 0) {
 				$('#procDuration').html(convertMillis(data.duration));
@@ -467,16 +489,22 @@
   			+ '</div>').appendTo(".above-table-buttons");
 
 		$('<div id="hide-log-lines" style="display: inline;">'
-			+ '<input type="checkbox" id="hide-log-lines-checkbox" checked>'
-			+ '<label style="margin-left: 8px;" for="hide-log-lines-checkbox">Hide Command Output Log Lines</label>'
+			+ `<input id="showall" type="radio" value="showall" name="log-line-control">`
+			+ `<label style="margin-left: 8px;" for="showall">Show All</label>`
+			+ `<input id="logonly" style="margin-left: 10px;" type="radio" value="logonly" name="log-line-control">`
+			+ `<label style="margin-left: 8px;" for="hide">Log Lines Only</label>`
+			+ `<input id="nolog" style="margin-left: 10px;" type="radio" value="nolog" name="log-line-control" checked>`
+			+ `<label style="margin-left: 8px;" for="hide">Exclude Log Lines</label>`
 			+ '</div>').appendTo(".above-table-buttons");
 
-		if (localStorage.getItem(hideLogLinesVar) === "true") {
-			$("#hide-log-lines-checkbox").attr("checked", true);
-		} else if (localStorage.getItem(hideLogLinesVar) === "false") {
-			$("#hide-log-lines-checkbox").attr("checked", false);
+		if (localStorage.getItem(hideLogLinesVar) === "showall") {
+			$("#showall").attr("checked", true);
+		} else if (localStorage.getItem(hideLogLinesVar) === "logonly") {
+			$("#logonly").attr("checked", true);
+		} else if (localStorage.getItem(hideLogLinesVar) === "nolog") {
+			$("#nolog").attr("checked", true);
 		} else {
-			$("#hide-log-lines-checkbox").attr("checked", true);
+			$("#nolog").attr("checked", true);
 		}
 
 		// Get query string values
@@ -510,38 +538,85 @@
 			downloadLogCSV();
 		});
 
-		//if the checkbox is checked, hide the log lines
-		if ($("#hide-log-lines-checkbox").is(":checked")) {
+		//if the checkbox is checked, hide the corresponding log lines
+		if ($("#showall").is(":checked")) {
+			$("#logData").DataTable().column(3).search("").draw();
+		} else if ($("#logonly").is(":checked")) {
+			$("#logData").DataTable().column(3).search("LINE: ", true, false).draw();
+		} else if ($("#nolog").is(":checked")) {
 			$("#logData").DataTable().column(3).search("^(?!LINE: )", true, false).draw();
 		} else {
 			$("#logData").DataTable().column(3).search("").draw();
 		}
-		
-		$("#hide-log-lines-checkbox").change(function() {
+
+		$("#showall").change(function() {
 			if(this.checked) {
-				$("#logData").DataTable().column(3).search("^(?!LINE: )", true, false).draw();
-				localStorage.setItem(hideLogLinesVar, "true");
-			} else {
 				$("#logData").DataTable().column(3).search("").draw();
-				localStorage.setItem(hideLogLinesVar, "false");
+				localStorage.setItem(hideLogLinesVar, "showall");
 			}
 		});
-
-
+		$("#logonly").change(function() {
+			if(this.checked) {
+				$("#logData").DataTable().column(3).search("LINE: ", true, false).draw();
+				localStorage.setItem(hideLogLinesVar, "logonly");
+			}
+		});
+		$("#nolog").change(function() {
+			if(this.checked) {
+				$("#logData").DataTable().column(3).search("^(?!LINE: )", true, false).draw();
+				localStorage.setItem(hideLogLinesVar, "nolog");
+			}
+		});
 	}); //END OF DOCUMENT.READY
+
+	function downloadFile(data, name) {
+		var decodedData = atob(data);
+		$.fn.dataTable.fileSave(
+			new Blob([decodedData]), name
+		);
+	}
+
+	function checkforImageURL(potentialURL) {
+		if (potentialURL === undefined || potentialURL === null || potentialURL === "") {
+			return false;
+		} else if (potentialURL.startsWith("www.") || potentialURL.startsWith("http://") || potentialURL.startsWith("https://") || potentialURL.startsWith("s3://")) {
+			if (potentialURL.endsWith(".png") || potentialURL.endsWith(".jpg") || potentialURL.endsWith(".jpeg") || potentialURL.endsWith(".gif")) {
+				return true;
+			}
+		}
+		try {
+			new URL(potentialURL);
+			return true;
+		}
+		catch (e) {
+			return false;
+		}
+	}
 
 	function setInputVariableTable(data) {
 		if (jQuery.isEmptyObject(data)) {
 			$("#inputVariables").html("None");
 		} else {
 			var output = "";
+			var timeStart = $("#procStartTime").html();
 			for (const [key, value] of Object.entries(data).reverse()) {
 				var temp = "";
+				var varTimeSet = key.substring(key.indexOf("[")+1, key.indexOf("]"));
+				if (moment(varTimeSet).diff(timeStart, "seconds") > 1) {
+					continue;
+				}
 				var tempVal = value;
-				var tempKey = key;
+				var tempKey = key.substring(key.indexOf("]")+1);
 				if (key.includes("(file, image")) {
 					tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+				} else if (key.includes("{")) {
+					var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
+					tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><i>` + fileName + `</i></div><div class="proc-var-flex-btn"><span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick=''><img src="images/download.svg" class="copy-icon clipboard"></span></div></div>`;
+				} else if (checkforImageURL(tempVal)) {
+					tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 				} else if (checkForURL(tempVal)) {
 					tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 					temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
@@ -582,14 +657,21 @@
 					var temp = "";
 					var tempVal = data[fullKeysInOrder[key]];
 					var tempKey = fullKeysInOrder[key].substring(7);
-					if (fullKeysInOrder[key].includes("(file, image")) {
+					if (tempKey.includes("(file, image")) {
 						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else if (tempKey.includes("{")) {
+						var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
+						tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><i>` + fileName + `</i></div><div class="proc-var-flex-btn"><span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick=''><img src="images/download.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else if (checkforImageURL(tempVal)) {
+						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 					} else if (checkForURL(tempVal)) {
 						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 					} else {
-						if (key.includes("(string)")) {
+						if (tempKey.includes("(string)")) {
 							tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						}
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
@@ -609,14 +691,21 @@
 					var temp = "";
 					var tempVal = data[keysNotInOrder[key]];
 					var tempKey = keysNotInOrder[key].substring(7);
-					if (keysNotInOrder[key].includes("(file, image")) {
+					if (tempKey.includes("(file, image")) {
 						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else if (tempKey.includes("{")) {
+						var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
+						tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><i>` + fileName + `</i></div><div class="proc-var-flex-btn"><span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick=''><img src="images/download.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else if (checkforImageURL(tempVal)) {
+						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 					} else if (checkForURL(tempVal)) {
 						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 					} else {
-						if (key.includes("(string)")) {
+						if (tempKey.includes("(string)")) {
 							tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						}
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
@@ -630,14 +719,21 @@
 					var temp = "";
 					var tempVal = value;
 					var tempKey = key.substring(7);
-					if (key.includes("(file, image")) {
+					if (tempKey.includes("(file, image")) {
 						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else if (tempKey.includes("{")) {
+						var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
+						tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><i>` + fileName + `</i></div><div class="proc-var-flex-btn"><span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick=''><img src="images/download.svg" class="copy-icon clipboard"></span></div></div>`;
+					} else if (checkforImageURL(tempVal)) {
+						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 					} else if (checkForURL(tempVal)) {
 						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
 					} else {
-						if (key.includes("(string)")) {
+						if (tempKey.includes("(string)")) {
 							tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
 						}
 						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
@@ -907,7 +1003,7 @@ function formatMsg(msg) {
     var first = msg.substring(0, index).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
     var rest = msg.substring(index).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>")
 
-    return first + '<details><summary>Show All</summary>' + rest + '</details>'
+    return `<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: flex-start; gap: 0px;"><div>` + first + '<details><summary>Show All</summary>' + rest + `</details></div><div><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + msg + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span><div>`
 }
 
 function convertMillis(millis) {
@@ -943,31 +1039,54 @@ function convertMillis(millis) {
 		
 		<h2 class="sub-header">History</h2>
 		<div class="row">
-			<table align="center" class="table table-bordered " style="width: 50%; font-size:95%">
-				<tr>
-					<td style="font-weight:bold;">Process Definition</td><td id="procDefKey">Unknown</td>
-				</tr>
-				<tr>
-					<td style="font-weight:bold;">Process Instance ID</td><td id="procInstId">Unknown</td>
-				</tr>
-				<tr>
-					<td style="font-weight:bold;">Start Time</td><td id="procStartTime">N/A</td>
-				</tr>
-				<tr>
-					<td style="font-weight:bold;">End Time</td><td id="procEndTime">N/A</td>
-				</tr>
-				<tr>
-					<td style="font-weight:bold;">Duration</td><td id="procDuration">N/A</td>
-				</tr>
-				<tr>
-					<td style="font-weight:bold;">Status</td><td id="procStatus"></td>
-				</tr>
-				<tr>
-					<td style="font-weight:bold;">Input Variables</td><td id="inputVariables"></td>
-				</tr>
-				<tr>
-					<td style="font-weight: bold;">Output Variables<br><i style="font-weight: normal;">All output variables start with "output_"</i></td><td id="outputVariables"></td>
-				</tr>
+			<table align="center" class="table table-bordered " style="width: 60%; font-size: 95%;">
+				<thead>
+					<tr>
+						<th colspan="2" style="text-align: center;">Process Details</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 0px;">
+							<td style="font-weight:bold; max-width: 50%; min-width: 200px;">Process Definition</td><td id="procDefKey" style="flex-grow: 4;">Unknown</td>
+						</div>
+					</tr>
+					<tr>
+						<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 0px;"></div>
+							<td style="font-weight:bold;">Process Instance ID</td><td id="procInstId" style="flex-grow: 4;">Unknown</td>
+						</div>
+					</tr>
+					<tr>
+						<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 0px;"></div>
+							<td style="font-weight:bold;">Start Time</td><td id="procStartTime" style="flex-grow: 4;">N/A</td>
+						</div>
+					</tr>
+					<tr>
+						<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 0px;"></div>
+							<td style="font-weight:bold;">End Time</td><td id="procEndTime" style="flex-grow: 4;">N/A</td>
+						</div>
+					</tr>
+					<tr>
+						<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 0px;"></div>
+							<td style="font-weight:bold;">Duration</td><td id="procDuration" style="flex-grow: 4;">N/A</td>
+						</div>
+					</tr>
+					<tr>
+						<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 0px;"></div>
+							<td style="font-weight:bold;">Input Variables</td><td id="inputVariables" style="flex-grow: 4;"></td>
+						</div>
+					</tr>
+					<tr>
+						<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 0px;"></div>
+							<td style="font-weight: bold;">Output Variables<br><i style="font-weight: normal;">All output variables start with "output_"</i></td><td id="outputVariables" style="flex-grow: 4;"></td>
+						</div>
+					</tr>
+					<tr>
+						<div style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 0px;"></div>
+							<td style="font-weight:bold;">Status</td><td id="procStatus" style="flex-grow: 4;"></td>
+						</div>
+					</tr>
+				</tbody>
 			</table>
 		</div>
       <div id="resolveButtonDiv" class="row" style="text-align: center; display: none;">
@@ -986,8 +1105,8 @@ function convertMillis(millis) {
 						<thead>
 							<tr>
 								<th id="timeStampColumn" style="width: 185px">Time Stamp</th>
-								<th>Type</th>
-								<th>Source</th>
+								<th style="width: 125px;">Type</th>
+								<th style="width: 200px;">Source</th>
 								<th>Details</th>
 							</tr>
 						</thead>

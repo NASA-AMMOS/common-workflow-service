@@ -195,16 +195,15 @@
     justify-content: flex-start;
     align-content: space-between;
     align-items: center;
-    gap: 15px;
 }
 
 .proc-name-btns {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
     align-items: stretch;
     align-content: space-between;
-    gap: 5px;
+    gap: 10px;
 }
 
 .status-div-flex {
@@ -218,5 +217,9 @@
 }
 
 .glyphicon-pause {
-    scale: 1.5;
+    scale: 1.25;
+}
+
+.disabled td {
+    font-style: italic;
 }

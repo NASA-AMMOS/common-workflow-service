@@ -82,7 +82,7 @@ public class HistoryTestIT extends WebTestUtil {
 
 			findOnPage("CWS - History");
 
-			WebElement hideLineCheckbox = findElByXPath("//input[@id='hide-log-lines-checkbox']");
+			WebElement hideLineCheckbox = findElByXPath("//input[@id='showall']");
 			waitForElement(hideLineCheckbox);
 
 			sleep(10000);
