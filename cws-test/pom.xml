@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 		<artifactId>common-workflow-service</artifactId>
-		<version>2.1.0-pre.4</version><!-- update this each CWS release -->
+		<version>2.4.0</version><!-- update this each CWS release -->
 	</parent>
 	<artifactId>cws-test</artifactId>
 	
@@ -12,18 +12,11 @@
 	</properties>
 	
 	<dependencies>
-		
-		<!-- LOGGING:  [Spring/JCL to log4j],  [CWS/slf4j to log4j] -->
+
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
 			<scope>provided</scope>
-		</dependency>
-						
-		<!-- https://mvnrepository.com/artifact/log4j/apache-log4j-extras -->
-		<dependency>
-		    <groupId>log4j</groupId>
-		    <artifactId>apache-log4j-extras</artifactId>
 		</dependency>
 		
 		<dependency>
@@ -98,9 +91,8 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>org.camunda.bpm.extension</groupId>
-			<artifactId>camunda-bpm-assert</artifactId>
-			<scope>test</scope>
+            <groupId>org.camunda.bpm.assert</groupId>
+            <artifactId>camunda-bpm-assert</artifactId>
 			<exclusions>
 				<exclusion>
 					<artifactId>*</artifactId>
@@ -108,13 +100,24 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+        </dependency>
 		
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>io.github.bonigarcia</groupId>
+			<artifactId>webdrivermanager</artifactId>
+			<version>5.2.0</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -270,6 +273,8 @@
                 <argLine>${testArgLine}</argLine>
                 <excludes>
                     <exclude>**/*UT*.java</exclude>
+					<exclude>**/LoadTestIT.java</exclude>	<!-- run separately as an advanced test -->
+					<exclude>**/LdapTestIT.java</exclude>	<!-- run separately using LDAP security -->
                 </excludes>
                 <includes>
                 	<include>**/*IT.java</include>
@@ -386,7 +391,7 @@
                            </execution>
                    </executions>
            </plugin>
-		</plugins>
+        </plugins>
 	</build>
 
 </project>

@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 public class CwsEmailerService implements InitializingBean {
 
 	private static final Logger log = LoggerFactory.getLogger(CwsEmailerService.class);
-	
+	@Value("${cws.admin.firstname}") private String prop_cwsAdminFirstName;
+	@Value("${cws.admin.lastname}") private String prop_cwsAdminLastName;
+	@Value("${cws.admin.email}") private String prop_cwsAdminEmail;
 	@Value("${cws.notification.emails}") private String prop_cwsNotificationEmails;
 	@Value("${cws.smtp.hostname}") private String prop_cwsSMTPHostname;
 	@Value("${cws.smtp.port}") private String prop_cwsSMTPPort;
@@ -43,14 +45,14 @@ public class CwsEmailerService implements InitializingBean {
 			
 			email.setHostName(prop_cwsSMTPHostname);		// TODO: make this configurable as well?
 			email.setSmtpPort(Integer.parseInt(prop_cwsSMTPPort));
-			email.setFrom("cws_admin@locahost");
+			email.setFrom(prop_cwsAdminEmail);
 			email.setSubject(emailSubject);
 			
 			for (String recip : recipients) {
 				email.addTo(recip.trim());
 				log.debug("About to send email to " + recip + "...");
 			}
-
+			log.debug("From: " + prop_cwsAdminEmail + " (" + prop_cwsAdminLastName + ", " + prop_cwsAdminFirstName + ")");
 			log.debug(" +-----------------------------------------------");
 			log.debug(" | SUBJECT     : " + emailSubject);
 			log.debug(" | BODY        : " + emailBody);

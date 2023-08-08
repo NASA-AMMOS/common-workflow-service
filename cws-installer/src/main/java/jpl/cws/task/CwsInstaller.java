@@ -24,6 +24,25 @@ import static jpl.cws.task.CwsInstallerUtils.serverListening;
 import static jpl.cws.task.CwsInstallerUtils.writeToFile;
 import static jpl.cws.task.UnzipUtility.unzipFile;
 
+import java.lang.*;
+import java.util.Hashtable;
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import java.nio.file.Files;
+import java.io.StringReader;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+import org.w3c.dom.*;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -179,7 +198,10 @@ public class CwsInstaller {
 	private static String cws_security_filter_class;
 	private static String startup_autoregister_process_defs;
 	private static String cws_token_expiration_hours;
+	private static String elasticsearch_protocol;
+	private static String elasticsearch_protocol_init;
 	private static String elasticsearch_host;
+	private static String elasticsearch_host_init;
 	private static String elasticsearch_port;
 	private static String elasticsearch_use_auth;
 	private static String elasticsearch_username;
@@ -187,6 +209,8 @@ public class CwsInstaller {
 	private static String user_provided_logstash;
 	private static String history_level;
 	private static String history_days_to_live;
+	private static String worker_max_num_running_procs;
+	private static String worker_abandoned_days;
 
 	private static String aws_default_region;
 	private static String aws_sqs_dispatcher_sqsUrl;
@@ -246,6 +270,8 @@ public class CwsInstaller {
 				setupCloudAutoscaling();
 				setupAwsSqs();
 			}
+			setupLimitToRemoveAbandonedWorkersByDays();
+			setupMaxLimitForNumberOfProcessesPerWorker();
 			genUniqueWorkerId();
 			setupStartupAutoregisterProcessDefs();
 			showInstallationInfo();
@@ -871,6 +897,79 @@ public class CwsInstaller {
 	}
 
 
+	private static void setupMaxLimitForNumberOfProcessesPerWorker() {
+		worker_max_num_running_procs = getPreset("worker_max_num_running_procs");
+
+		if (worker_max_num_running_procs == null) {
+			worker_max_num_running_procs = getPreset("default_worker_max_num_running_procs");
+		}
+		if (worker_max_num_running_procs == null) {
+			worker_max_num_running_procs = CORES + "";
+		}
+
+		// make sure preset is valid positive integer
+		try {
+			if (Integer.parseInt(worker_max_num_running_procs) <= 0) {
+				log.warn("Processes per worker value must be a positive integer. Got: " + worker_max_num_running_procs + ". Defaulting to number of processing cores on machine.");
+				worker_max_num_running_procs = CORES + "";
+			}
+		} catch (NumberFormatException e) {
+			log.warn("Processes per worker value failed to parse as an integer. Got: " + worker_max_num_running_procs + ". Defaulting to number of processing cores on machine.");
+			worker_max_num_running_procs = CORES + "";
+		}
+
+		if (cws_installer_mode.equals("interactive")) {
+			boolean done = false;
+			while (!done) {
+				worker_max_num_running_procs = readLine("Enter the maximum number of processes that run on worker(s). " +
+					"Default is " + CORES + "" + ": ", worker_max_num_running_procs);
+
+				// make sure input was valid
+				try {
+					done = Integer.parseInt(worker_max_num_running_procs) >= 1;
+				} catch (NumberFormatException e) {
+					// bad input, try again
+				}
+			}
+		}
+	}
+
+
+	private static void setupLimitToRemoveAbandonedWorkersByDays() {
+		worker_abandoned_days = getPreset("worker_abandoned_days");
+
+		if (worker_abandoned_days == null) {
+			worker_abandoned_days = getPreset("default_worker_abandoned_days");
+		}
+
+		// make sure preset is valid positive integer
+		try {
+			if (Integer.parseInt(worker_abandoned_days) <= 0) {
+				log.warn("Worker abandoned days must be a positive integer. Got: " + worker_abandoned_days + ". Defaulting to 1.");
+				worker_abandoned_days = "1";
+			}
+		} catch (NumberFormatException e) {
+			log.warn("Worker abandoned days failed to parse as an integer. Got: " + worker_abandoned_days + ". Defaulting to 1.");
+			worker_abandoned_days = "1";
+		}
+
+		if (cws_installer_mode.equals("interactive")) {
+			boolean done = false;
+			while (!done) {
+				worker_abandoned_days = readLine("Enter the number of days after worker(s) are abandoned to remove worker(s) from the database. " +
+						"Default is " + worker_abandoned_days + ": ", worker_abandoned_days);
+
+				// make sure input was valid
+				try {
+					done = Integer.parseInt(worker_abandoned_days) >= 1;
+				} catch (NumberFormatException e) {
+					// bad input, try again
+				}
+			}
+		}
+	}
+
+
 	private static void setupPorts() {
 		// PROMPT USER FOR CWS WEB PORT
 		cws_tomcat_connector_port = getPreset("cws_web_port");
@@ -1038,24 +1137,84 @@ public class CwsInstaller {
 
 	private static void setupElasticsearch() {
 
+		// PROMPT USER FOR ELASTICSEARCH PROTOCOL
+		elasticsearch_protocol = getPreset("elasticsearch_protocol");
+
+		if (cws_installer_mode.equals("interactive")) {
+			if (elasticsearch_protocol == null) {
+
+				String read_elasticsearch_protocol = "";
+				while (!read_elasticsearch_protocol.toLowerCase().startsWith("https") &&
+					!read_elasticsearch_protocol.toLowerCase().startsWith("http")) {
+					read_elasticsearch_protocol = readRequiredLine("Enter the Elasticsearch protocol (be sure to use HTTP or HTTPS):  ",
+						"You must enter a protocol");
+				}
+
+				elasticsearch_protocol_init = read_elasticsearch_protocol;
+				elasticsearch_protocol = read_elasticsearch_protocol.toLowerCase();
+				if (elasticsearch_protocol.startsWith("https")) {
+					elasticsearch_protocol = "https";
+				}
+				if (elasticsearch_protocol.startsWith("http")) {
+					elasticsearch_protocol = "http";
+				}
+			} else {
+				elasticsearch_protocol = readLine("Enter the Elasticsearch protocol. " + "Default is " + elasticsearch_protocol + ": ", elasticsearch_protocol);
+			}
+		} else {
+			if (elasticsearch_protocol == null) {
+				bailOutMissingOption("elasticsearch_protocol");
+			}
+
+			elasticsearch_protocol_init = elasticsearch_protocol;
+			elasticsearch_protocol = elasticsearch_protocol.toLowerCase();
+			if (elasticsearch_protocol.startsWith("https")) {
+				elasticsearch_protocol = "https";
+			} else if (elasticsearch_protocol.startsWith("http")) {
+				elasticsearch_protocol = "http";
+			} else {
+				bailOutWithMessage("ERROR: elasticsearch_protocol config input is '" +  elasticsearch_protocol
+					+ "' ... Be sure to use 'HTTP' or 'HTTPS' for elasticsearch_protocol configuration.");
+			}
+		}
+
+		log.debug("elasticsearch_protocol: " + elasticsearch_protocol);
+
+
 		// PROMPT USER FOR ELASTICSEARCH HOST
 		elasticsearch_host = getPreset("elasticsearch_host");
 
 		if (cws_installer_mode.equals("interactive")) {
 			if (elasticsearch_host == null) {
-				elasticsearch_host = readRequiredLine("Enter the Elasticsearch host: ",
-						"You must enter a hostname");
+
+				String read_elasticsearch_host = "";
+				read_elasticsearch_host = readRequiredLine("Enter the Elasticsearch host:  ",
+							"You must enter a hostname");
+
+				elasticsearch_host_init = read_elasticsearch_host;
+				elasticsearch_host = read_elasticsearch_host.toLowerCase();
+				if (elasticsearch_host.startsWith("http:/") || elasticsearch_host.startsWith("http://") ||
+					elasticsearch_host.startsWith("https:/") || elasticsearch_host.startsWith("https://")) {
+					elasticsearch_host = elasticsearch_host.replaceAll("http://", "").replaceAll("http:/","").replaceAll("https://","").replaceAll("https:/","");
+				}
 			} else {
-				elasticsearch_host = readLine("Enter the Elasticsearch host. " +
-						"Default is " + elasticsearch_host + ": ", elasticsearch_host);
+				elasticsearch_host = readLine("Enter the Elasticsearch host. " + "Default is " + elasticsearch_host + ": ", elasticsearch_host);
 			}
 		} else {
 			if (elasticsearch_host == null) {
 				bailOutMissingOption("elasticsearch_host");
 			}
+
+			elasticsearch_host_init = elasticsearch_host;
+			elasticsearch_host = elasticsearch_host.toLowerCase();
+			if (elasticsearch_host.startsWith("http:/") || elasticsearch_host.startsWith("http://") ||
+				elasticsearch_host.startsWith("https:/") || elasticsearch_host.startsWith("https://")) {
+				elasticsearch_host = elasticsearch_host.replaceAll("http://", "").replaceAll("http:/","").replaceAll("https://","").replaceAll("https:/","");
+			}
 		}
 
 		log.debug("elasticsearch_host: " + elasticsearch_host);
+
 
 		// PROMPT USER FOR ELASTICSEARCH PORT
 		elasticsearch_port = getPreset("elasticsearch_port");
@@ -1088,7 +1247,7 @@ public class CwsInstaller {
 								"ERROR: Must specify either 'Y' or 'N'");
 			}
 
-			user_provided_logstash = read_elasticsearch_use_auth.toLowerCase();
+			elasticsearch_use_auth = read_elasticsearch_use_auth.toLowerCase();
 		}
 
 		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
@@ -1241,7 +1400,7 @@ public class CwsInstaller {
 
 		if (cws_installer_mode.equals("interactive")) {
 			cws_brand_header = readLine("Enter the brand header text that will display at the top of the web console. " +
-							"Default is \"" + cws_brand_header + "\": ", cws_brand_header);
+					"Default is \"" + cws_brand_header + "\": ", cws_brand_header);
 		}
 	}
 
@@ -1483,7 +1642,8 @@ public class CwsInstaller {
 		print("SMTP host                     = " + cws_smtp_hostname);
 		print("SMTP port                     = " + cws_smtp_port);
 		print("....................................................................................");
-		print("Elasticsearch URL             = " + elasticsearch_host);
+		print("Elasticsearch Protocol        = " + elasticsearch_protocol);
+		print("Elasticsearch Host            = " + elasticsearch_host);
 		print("Elasticsearch Port            = " + elasticsearch_port);
 		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 			print("Elasticsearch User            = " + elasticsearch_username);
@@ -1500,6 +1660,8 @@ public class CwsInstaller {
 		print("CWS Notification Emails       = " + cws_notification_emails);
 		print("CWS Token Expiration In Hours = " + cws_token_expiration_hours);
 		print("History Level                 = " + history_level);
+		print("Processes per Worker          = " + worker_max_num_running_procs);
+		print("Days Remove Abandoned Workers = " + worker_abandoned_days);
 		if (installConsole) {
 			print("History Days to Live          = " + history_days_to_live);
 			print("....................................................................................");
@@ -1847,14 +2009,32 @@ public class CwsInstaller {
 	 *
 	 */
 	private static int validateElasticsearch() {
-		print("checking that user provided Elasticsearch (" + elasticsearch_host + ":" + elasticsearch_port + ") is running...");
+		print("checking that user provided Elasticsearch (" + elasticsearch_protocol + "://" + elasticsearch_host + ":" + elasticsearch_port + ") is running...");
 
 		try {
-			String[] cmdArray = new String[] {"curl", "--fail", "http://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+			if (!(elasticsearch_protocol.startsWith("http") || elasticsearch_protocol.startsWith("https")) ) {
+				print("   [WARNING]");
+				print("       It was determined that the user provided Elasticsearch endpoint protocol '" + elasticsearch_protocol + "' did not properly set or protocol to 'HTTP' OR 'HTTPS'");
+				print("");
+				return 1;
+			}
+
+			if (elasticsearch_protocol == "http" && elasticsearch_host_init.toLowerCase().startsWith("https") ||
+				elasticsearch_protocol == "https" && elasticsearch_host_init.toLowerCase().startsWith("http")) {
+				print("   [SETUP RESOLUTION]");
+				print("       It was determined that the user provided elasticsearch_protocol and elasticsearch_host have mismatched protocol identifiers.");
+				print("          elasticsearch_protocol=" + elasticsearch_protocol_init + "  ");
+				print("          elasticsearch_host=" + elasticsearch_host_init + "  ");
+				print("");
+				print("       CWS Installation will default to using given elasticsearch_protocol value: " + elasticsearch_protocol_init + " ");
+				print("");
+			}
+
+			String[] cmdArray = new String[] {"curl", "--fail", elasticsearch_protocol + "://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 
 			if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 				// Add auth to curl
-				cmdArray = new String[] {"curl", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, "https://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
+				cmdArray = new String[] {"curl", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, elasticsearch_protocol + "://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 			}
 
 			Process p = Runtime.getRuntime().exec(cmdArray);
@@ -1866,12 +2046,20 @@ public class CwsInstaller {
 			if (p.exitValue() != 0) {
 				print("   [WARNING]");
 				print("       It was determined that the user provided Elasticsearch is not running or is inaccessible.");
+				print("       .........................................................................................");
+				print("           [ELASTICSEARCH]: Configuration Details");
+				print("               elasticsearch_protocol=" + elasticsearch_protocol_init + "  ");
+				print("               elasticsearch_host=" + elasticsearch_host_init + "  ");
+				print("               elasticsearch_port=" + elasticsearch_port + "  ");
+				print("       .........................................................................................");
 				print("");
+
 				return 1;
 			}
 
 			print("   [OK]");
 			print("");
+
 			return 0; // no warnings
 
 		} catch (Exception e) {
@@ -2120,9 +2308,11 @@ public class CwsInstaller {
 			content = content.replace("__CWS_ADMIN_EMAIL__",      	   cws_user_email);
 		}
 		else {
-			content = content.replace("__CWS_ADMIN_FIRSTNAME__",       "N/A");
-			content = content.replace("__CWS_ADMIN_LASTNAME__",        "N/A");
-			content = content.replace("__CWS_ADMIN_EMAIL__",      	   "N/A");
+			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
+			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
+			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
+			content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
+			content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
 		}
 		writeToFile(filePath, content);
 		copy(
@@ -2199,6 +2389,19 @@ public class CwsInstaller {
 		content = content.replace("__CWS_TOMCAT_WEBAPPS__",                cws_tomcat_webapps);
 		content = content.replace("__CWS_AUTH_SCHEME__",                   cws_auth_scheme);
 		content = content.replace("__STARTUP_AUTOREGISTER_PROCESS_DEFS__", startup_autoregister_process_defs);
+
+		if (cws_auth_scheme.equalsIgnoreCase("CAMUNDA")) {
+			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		cws_user_firstname);
+			content = content.replace("__CWS_ADMIN_LASTNAME__",         			cws_user_lastname);
+			content = content.replace("__CWS_ADMIN_EMAIL__",         			cws_user_email);
+		} else {
+			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
+			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
+			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
+			content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
+			content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
+		}
+
 		content = content.replace("__CWS_NOTIFICATION_EMAILS__",           cws_notification_emails);
 		content = content.replace("__CWS_TOKEN_EXPIRATION_HOURS__",        cws_token_expiration_hours);
 		content = content.replace("__CWS_SMTP_HOSTNAME__",                 cws_smtp_hostname);
@@ -2210,6 +2413,7 @@ public class CwsInstaller {
 		content = content.replace("__CWS_DB_PASSWORD__",                   cws_db_password);
 		content = content.replace("__CAMUNDA_EXEC_SVC_MAX_POOL_SIZE__",    CORES+"");
 		content = content.replace("__AWS_DEFAULT_REGION__", 				  aws_default_region);
+		content = content.replace("__CWS_WORKER_MAX_NUM_RUNNING_PROCS__",		worker_max_num_running_procs);
 
 		// S3 Initiator might not be in use
 		if(aws_sqs_dispatcher_sqsUrl != null) {
@@ -2269,7 +2473,7 @@ public class CwsInstaller {
 		content = content.replace("__CWS_AMQ_HOST__", cws_amq_host);
 		content = content.replace("__CWS_AMQ_PORT__", cws_amq_port);
 
-        content = updateIdentityPluginContent(content);
+	content = updateIdentityPluginContent(content);
 
 		writeToFile(filePath, content);
 		copy(
@@ -2298,6 +2502,7 @@ public class CwsInstaller {
 		content = content.replace("__CWS_DB_USERNAME__",                 cws_db_username);
 		content = content.replace("__CWS_DB_PASSWORD__",                 cws_db_password);
 		content = content.replace("__CWS_CONSOLE_SSL_PORT__",            cws_console_ssl_port);
+		content = content.replace("__CWS_ES_PROTOCOL__",                 elasticsearch_protocol);
 		content = content.replace("__CWS_ES_HOST__",                     elasticsearch_host);
 		content = content.replace("__CWS_ES_PORT__",                     elasticsearch_port);
 		content = content.replace("__CWS_ES_USE_AUTH__",                 elasticsearch_use_auth);
@@ -2311,6 +2516,19 @@ public class CwsInstaller {
 		content = content.replace("__CWS_TOMCAT_HOME__",                    cws_tomcat_root);
 		content = content.replace("__CWS_TOMCAT_WEBAPPS__",                    cws_tomcat_webapps);
 		content = content.replace("__CWS_PROJECT_WEBAPP_ROOT__",         (cws_project_webapp_root == null || cws_project_webapp_root.equals("none")) ? "" : cws_project_webapp_root);
+
+		if (cws_auth_scheme.equalsIgnoreCase("CAMUNDA")) {
+			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		cws_user_firstname);
+			content = content.replace("__CWS_ADMIN_LASTNAME__",         			cws_user_lastname);
+			content = content.replace("__CWS_ADMIN_EMAIL__",         			cws_user_email);
+		} else {
+			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
+			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
+			content = content.replace("__CWS_ADMIN_FIRSTNAME__",         		identityAttr[0]);
+			content = content.replace("__CWS_ADMIN_LASTNAME__",         			identityAttr[1]);
+			content = content.replace("__CWS_ADMIN_EMAIL__",         			identityAttr[2]);
+		}
+
 		content = content.replace("__CWS_NOTIFICATION_EMAILS__",         cws_notification_emails);
 		content = content.replace("__CWS_TOKEN_EXPIRATION_HOURS__",      cws_token_expiration_hours);
 		content = content.replace("__CWS_SMTP_HOSTNAME__",               cws_smtp_hostname);
@@ -2318,6 +2536,8 @@ public class CwsInstaller {
 		content = content.replace("__CWS_AUTH_SCHEME__",                 cws_auth_scheme);
 		content = content.replace("__CWS_HISTORY_DAYS_TO_LIVE__",        history_days_to_live);
 		content = content.replace("__CWS_HISTORY_LEVEL__",     		     history_level);
+		content = content.replace("__CWS_WORKER_MAX_NUM_RUNNING_PROCS__", worker_max_num_running_procs);
+		content = content.replace("__CWS_WORKER_ABANDONED_DAYS__",		worker_abandoned_days);
 		content = content.replace("__AWS_DEFAULT_REGION__", 				  aws_default_region);
 
 		// ES auth might not be in use
@@ -2361,6 +2581,8 @@ public class CwsInstaller {
 		content = content.replace("__CWS_DB_PASSWORD__", cws_db_password);
 		content = content.replace("__JOB_EXECUTOR_ACTIVATE__", "false");
 		content = content.replace("__HISTORY_LEVEL__", history_level);
+		content = content.replace("__CWS_WORKER_MAX_NUM_RUNNING_PROCS__", worker_max_num_running_procs);
+		content = content.replace("__CWS_WORKER_ABANDONED_DAYS__", worker_abandoned_days);
 
 		content = content.replace("__CWS_AMQ_HOST__",     cws_amq_host);
 		content = content.replace("__CWS_AMQ_PORT__",     cws_amq_port);
@@ -2385,9 +2607,9 @@ public class CwsInstaller {
 		}
 		content = content.replace("__UNIQUE_BROKER_GROUP_NAME__", unique_broker_group_name);
 
-        content = updateIdentityPluginContent(content);
+	content = updateIdentityPluginContent(content);
 
-        writeToFile(path, content);
+	writeToFile(path, content);
 
 		copy(path,
 			Paths.get(cws_tomcat_webapps + SEP + "cws-ui" + SEP + "WEB-INF" + SEP + "applicationContext.xml"));
@@ -2396,12 +2618,16 @@ public class CwsInstaller {
 		// Update clean_es_history.sh file
 		path = Paths.get(config_work_dir + SEP + "clean_es_history.sh");
 		content = getFileContents(path);
+		content = content.replace("__ES_PROTOCOL__",      			elasticsearch_protocol);
 		content = content.replace("__ES_HOST__",      				elasticsearch_host);
 		content = content.replace("__ES_PORT__",  					elasticsearch_port);
 		content = content.replace("__ES_USE_AUTH__",                 elasticsearch_use_auth);
 		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 			content = content.replace("__ES_USERNAME__",             elasticsearch_username);
 			content = content.replace("__ES_PASSWORD__",             elasticsearch_password);
+		} else {
+			content = content.replace("__ES_USERNAME__",             "na");
+			content = content.replace("__ES_PASSWORD__",             "na");
 		}
 		content = content.replace("__CWS_HISTORY_DAYS_TO_LIVE__", 	history_days_to_live);
 		writeToFile(path, content);
@@ -2455,47 +2681,133 @@ public class CwsInstaller {
 	}
 
 
-    private static String updateIdentityPluginContent(String content) throws IOException {
-        //
-        // Update identity plugin content
-        //
-        if (cws_auth_scheme.equals("LDAP")) {
-            // Erase the __CUSTOM_IDENTITY_PLUGIN_XML__token
-            content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", "");
+	private static String[] getIdentityPluginAttribute(Path beanFilePath, String user, String ldapURL) throws IOException {
+		//
+		// Get identity plugin properties and attributes
+		//
+		String propertyBase = "";
+		String propertySearchBase = "";
+		String[] identityAttributes = new String[3];
+		String[] attributeFilter = {"givenName", "sn", "mail"};
 
-            // Fill in the __LDAP_PLUGIN_BEAN__
-            String ldapBeanContent = getFileContents(
-            		Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml"));
+		try {
+			String fileContent = new String(Files.readAllBytes(beanFilePath));
+			String repl = "";
+			String replContent = fileContent.substring(0, fileContent.indexOf("<bean id=\"ldapIdentityProviderPlugin\""));
+			fileContent = fileContent.replace(replContent, repl);
+
+			// Turn file content from string to document
+			String xmlContent = fileContent;
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder;
+			builder = factory.newDocumentBuilder();
+			Document docx = builder.parse(new InputSource(new StringReader(xmlContent)));
+
+			NodeList bean = docx.getElementsByTagName("property");
+
+			for(int i = 0; i < bean.getLength(); i++) {
+				Element beanElement = (Element) bean.item(i);
+				if (beanElement.getAttribute("name").equalsIgnoreCase("baseDn")) {
+					if (beanElement.getAttribute("value").equals("")) {
+						propertyBase = beanElement.getTextContent();
+					} else {
+						propertyBase = beanElement.getAttribute("value");
+					}
+				}
+				if (beanElement.getAttribute("name").equalsIgnoreCase("userSearchBase")) {
+					if (beanElement.getAttribute("value").equals("")) {
+						propertySearchBase = beanElement.getTextContent();
+					} else {
+						propertySearchBase = beanElement.getAttribute("value");
+					}
+				}
+			}
+
+			Hashtable env = new Hashtable();
+			String cxtFactory = "com.sun.jndi.ldap.LdapCtxFactory";
+			env.put(Context.INITIAL_CONTEXT_FACTORY, cxtFactory);
+			env.put(Context.PROVIDER_URL, ldapURL);
+			DirContext dirCxt = new InitialDirContext(env);
+
+			String base = propertySearchBase + "," + propertyBase;
+
+			SearchControls ctrl = new SearchControls();
+			ctrl.setReturningAttributes(attributeFilter);
+			ctrl.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+			String filter = "(&(uid=" + user + "))";
+			NamingEnumeration results = dirCxt.search(base, filter, ctrl);
+			while (results.hasMore()) {
+				SearchResult result = (SearchResult) results.next();
+				Attributes attrs = result.getAttributes();
+				// First name attribute - givenName
+				Attribute attr = attrs.get("givenName");
+				identityAttributes[0] = attr.get().toString();
+				// Last name attribute - sn
+				attr = attrs.get("sn");
+				identityAttributes[1] = attr.get().toString();
+				// Email attribute - mail
+				attr = attrs.get("mail");
+				identityAttributes[2] = attr.get().toString();
+			}
+			dirCxt.close();
+		} catch (Exception e) {
+			print("+----------------------------------------------------------------------------------+");
+			print("CWS Installer ERROR: LDAP API failed to retrieve CWS user's " + Arrays.toString(attributeFilter));
+			print("     to set in CWS properties files and utilize for CWS services. Make sure 'ldap_plugin_bean.xml' is ");
+			print("     properly configured. Refer to the template /tomcat_conf/ldap_plugin_bean.xml");
+			print("ERROR: " + e);
+			print("+----------------------------------------------------------------------------------+");
+			// JNDI LDAP retrieval failed.
+			identityAttributes[0] = "__CWS_ADMIN_FIRSTNAME__";
+			identityAttributes[1] = "__CWS_ADMIN_LASTNAME__";
+			identityAttributes[2] = "__CWS_ADMIN_EMAIL__";
+		}
+		return identityAttributes;
+	}
+
+
+	private static String updateIdentityPluginContent(String content) throws IOException {
+		//
+		// Update identity plugin content
+		//
+		if (cws_auth_scheme.equals("LDAP")) {
+			// Erase the __CUSTOM_IDENTITY_PLUGIN_XML__token
+			content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", "");
+
+			// Fill in the __LDAP_PLUGIN_BEAN__
+			String ldapBeanContent = getFileContents(
+					Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml"));
 			content = content.replace("__LDAP_PLUGIN_BEAN__", ldapBeanContent);
 
 			String ldapRefContent = getFileContents(
 					Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_ref.xml"));
 			content = content.replace("__LDAP_PLUGIN_REF__", ldapRefContent);
 
-            content = content.replace("__CWS_IDENTITY_PLUGIN_CLASS__", cws_identity_plugin_class);
-            content = content.replace("__CWS_LDAP_URL__",              cws_ldap_url);
-        }
-        else if (cws_auth_scheme.equals("CAMUNDA")) {
-            // Erase the unneeded tokens
-            content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", "<!-- CUSTOM_IDENTITY_PLUGIN_XML -->"); // erase token
-            content = content.replace("__LDAP_PLUGIN_BEAN__",    "<!-- LDAP_PLUGIN_BEAN -->"); // erase token
+			content = content.replace("__CWS_IDENTITY_PLUGIN_CLASS__", cws_identity_plugin_class);
+			content = content.replace("__CWS_LDAP_URL__",              cws_ldap_url);
+		}
+		else if (cws_auth_scheme.equals("CAMUNDA")) {
+			// Erase the unneeded tokens
+			content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", "<!-- CUSTOM_IDENTITY_PLUGIN_XML -->"); // erase token
+			content = content.replace("__LDAP_PLUGIN_BEAN__",    "<!-- LDAP_PLUGIN_BEAN -->"); // erase token
 			content = content.replace("__LDAP_PLUGIN_REF__",     "<!-- LDAP_PLUGIN_REF -->"); // erase token
-        }
-        else {  // cws_auth_scheme.equals("CUSTOM")
-            // Erase the __LDAP_PLUGIN_*__ tokens
+		}
+		else {  // cws_auth_scheme.equals("CUSTOM")
+			// Erase the __LDAP_PLUGIN_*__ tokens
 			content = content.replace("__LDAP_PLUGIN_BEAN__", "<!-- LDAP_PLUGIN_BEAN -->"); // erase token
 			content = content.replace("__LDAP_PLUGIN_REF__",  "<!-- LDAP_PLUGIN_REF -->"); // erase token
-            // Fill in the __CUSTOM_IDENTITY_PLUGIN_XML__
-            //There is no custom_identity_plugin.xml file now.
-            Path replaceFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "custom_identity_plugin.xml");
-            String replaceContent = getFileContents(replaceFilePath);
-            content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", replaceContent);
-        }
+			// Fill in the __CUSTOM_IDENTITY_PLUGIN_XML__
+			//There is no custom_identity_plugin.xml file now.
+			Path replaceFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "custom_identity_plugin.xml");
+			String replaceContent = getFileContents(replaceFilePath);
+			content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", replaceContent);
+		}
 
 		content = content.replace("__CWS_LDAP_USER__",             cws_user);
 
 		return content;
-    }
+	}
 
 
 	private static void deleteCwsUiWebApp() {
@@ -2538,6 +2850,7 @@ public class CwsInstaller {
 		catalinaLogPath = catalinaLogPath.replace("\\", "/");
 		logstashContent = logstashContent.replace("__CWS_CATALINA_OUT_PATH__", catalinaLogPath);
 
+		logstashContent = logstashContent.replace("__CWS_ES_PROTOCOL__", elasticsearch_protocol);
 		logstashContent = logstashContent.replace("__CWS_ES_HOST__", elasticsearch_host);
 		logstashContent = logstashContent.replace("__CWS_ES_PORT__", elasticsearch_port);
 		if (elasticsearch_use_auth.equalsIgnoreCase(("Y"))) {
@@ -2565,7 +2878,7 @@ public class CwsInstaller {
 			Paths.get(logstash_root   + SEP + "cws-logstash.conf"));
 	}
 
-	private static void writeOutConfigurationFile() {
+	private static void writeOutConfigurationFile() throws IOException {
 		InstallerPresets presets = CwsInstallerUtils.getInstallerPresets();
 
 		setPreset("hostname", this_hostname);
@@ -2578,9 +2891,19 @@ public class CwsInstaller {
 		setPreset("database_username", cws_db_username);
 		setPreset("database_password", cws_db_password);
 		setPreset("admin_user", cws_user);
-		setPreset("admin_firstname", cws_user_firstname);
-		setPreset("admin_lastname", cws_user_lastname);
-		setPreset("admin_email", cws_user_email);
+
+		if (cws_auth_scheme.equalsIgnoreCase("CAMUNDA")) {
+			setPreset("admin_firstname", cws_user_firstname);
+			setPreset("admin_lastname", cws_user_lastname);
+			setPreset("admin_email", cws_user_email);
+		} else {
+			Path pluginBeanFilePath = Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml");
+			String[] identityAttr = getIdentityPluginAttribute(pluginBeanFilePath, cws_user, cws_ldap_url);
+			setPreset("admin_firstname", identityAttr[0]);
+			setPreset("admin_lastname", identityAttr[1]);
+			setPreset("admin_email", identityAttr[2]);
+		}
+
 		setPreset("cws_web_port", cws_tomcat_connector_port);
 		setPreset("cws_ssl_port", cws_tomcat_ssl_port);
 		setPreset("cws_ajp_port", cws_tomcat_ajp_port);
@@ -2606,14 +2929,17 @@ public class CwsInstaller {
 		setPreset("metrics_publishing_interval", metrics_publishing_interval);
 		setPreset("cws_notification_emails", cws_notification_emails);
 		setPreset("cws_token_expiration_hours", cws_token_expiration_hours);
+		setPreset("elasticsearch_protocol", elasticsearch_protocol);
 		setPreset("elasticsearch_host", elasticsearch_host);
 		setPreset("elasticsearch_port", elasticsearch_port);
 		setPreset("elasticsearch_use_auth", elasticsearch_use_auth);
 		setPreset("elasticsearch_username", elasticsearch_username);
-		setPreset("elasticsearcH_password", elasticsearch_password);
+		setPreset("elasticsearch_password", elasticsearch_password);
 		setPreset("user_provided_logstash", user_provided_logstash);
 		setPreset("history_level", history_level);
 		setPreset("history_days_to_live", history_days_to_live);
+		setPreset("worker_max_num_running_procs", worker_max_num_running_procs);
+		setPreset("worker_abandoned_days", worker_abandoned_days);
 		setPreset("aws_default_region", aws_default_region);
 		setPreset("aws_sqs_dispatcher_sqsUrl", aws_sqs_dispatcher_sqsUrl);
 		setPreset("aws_sqs_dispatcher_msgFetchLimit", aws_sqs_dispatcher_msgFetchLimit);

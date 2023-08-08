@@ -9,6 +9,7 @@ ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source ${ROOT}/utils.sh
 
+ES_PROTOCOL='__ES_PROTOCOL__'
 ES_HOST='__ES_HOST__'
 ES_PORT='__ES_PORT__'
 ES_USE_AUTH='__ES_USE_AUTH__'

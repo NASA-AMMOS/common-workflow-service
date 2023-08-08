@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 		<artifactId>common-workflow-service</artifactId>
-		<version>2.1.0-pre.4</version><!-- update this each CWS release -->
+		<version>2.4.0</version><!-- update this each CWS release -->
 	</parent>
 	<artifactId>cws-adaptation-engine</artifactId>
 	
@@ -19,21 +19,14 @@
 			</exclusions>
 		</dependency>
 
-		<!-- LOGGING:  [Spring/JCL to log4j],  [CWS/slf4j to log4j] -->
- 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<scope>provided</scope>
- 		</dependency>
-						
-		<!-- https://mvnrepository.com/artifact/log4j/apache-log4j-extras -->
 		<dependency>
-		    <groupId>log4j</groupId>
-		    <artifactId>apache-log4j-extras</artifactId>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		
 		<dependency>
-			<groupId>org.camunda.bpm.extension</groupId>
+			<groupId>org.camunda.bpm.assert</groupId>
 			<artifactId>camunda-bpm-assert</artifactId>
 			<exclusions>
 				<exclusion>
@@ -41,6 +34,10 @@
 					<groupId>org.springframework</groupId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
 		</dependency>
 		
 		<dependency>

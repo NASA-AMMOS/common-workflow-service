@@ -17,20 +17,14 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.github.bonigarcia.wdm.WebDriverManager;
 
 /**
  *
@@ -119,14 +113,22 @@ public class WebTestUtil {
 
 	protected void initChromeDriver() {
 
-		  ChromeOptions chromeOptions = new ChromeOptions();
+		ChromeOptions chromeOptions = new ChromeOptions();
 
-		  // Turn on headless mode for Bamboo
-		  chromeOptions.setHeadless(true);
+		// Turn on headless mode for Bamboo
+		chromeOptions.setHeadless(true);
+		chromeOptions.setAcceptInsecureCerts(true);
+		chromeOptions.addArguments("--window-size=1920,1080");
+		chromeOptions.addArguments("--no-sandbox");
+		chromeOptions.addArguments("--disable-gpu");
+		chromeOptions.addArguments("--disable-dev-shm-usage");
 
-		  driver = new ChromeDriver(chromeOptions);
+		WebDriverManager.chromedriver().setup();
+		driver = new ChromeDriver(chromeOptions);
 
-		  log.info("Driver initialized: " + driver);
+		log.info("Driver initialized: " + driver);
+
+		driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
 	}
 
 	protected WebElement findElById(String id) {
@@ -141,7 +143,7 @@ public class WebTestUtil {
 		boolean found = driver.getPageSource().contains(text);
 		int tries = 0;
 		long sleepTime = 4;
-		while (!found && tries++ < 10) {
+		while (!found && tries++ < 13) {
 			sleepTime *= 2;
 			log.warn("'" + text + "' not found ("+tries+", "+sleepTime+")");
 			sleep(sleepTime);
@@ -172,10 +174,11 @@ public class WebTestUtil {
 	protected void gotoLoginPage() {
 		log.info("navigating to the login page...");
 
-		driver.get("http://"+HOSTNAME+":"+PORT);
-		driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
+		driver.get("http://"+HOSTNAME+":"+PORT + "/cws-ui/login");
+		driver.manage().window().setSize(new Dimension(1024, 768));
+		driver.manage().timeouts().pageLoadTimeout(60, TimeUnit.SECONDS);
 		// Verify we have made it to the Login page
-		findOnPage("<title>Login</title>");
+		findOnPage("Login");
 	}
 
 
@@ -197,16 +200,17 @@ public class WebTestUtil {
 		WebElement submitBtn = findElById("submit");
 		submitBtn.click();
 
-		waitForElementClass("sub-header");
+		// waitForElementClass("sub-header");
 
 		// Verify we have moved past the login page to the Dashboard
-		findOnPage("<title>CWS - Deployments</title>");
+		findOnPage("CWS - Deployments");
 	}
 
 	protected void logout() {
 		waitForElementID("logoutLink");
-		WebElement submitBtn = driver.findElement(By.id("logoutLink")); //findElById("logoutLink");
-		submitBtn.click();
+		// WebElement submitBtn = driver.findElement(By.id("logoutLink")); //findElById("logoutLink");
+		// submitBtn.click();
+		driver.get("http://"+HOSTNAME+":"+PORT + "/cws-ui/logout");
 
 		// Verify we have moved to the login page
 		findOnPage("Please log in");
@@ -234,36 +238,17 @@ public class WebTestUtil {
 		waitForElementID("pv-"+fileName);
 	}
 
-	public void startProcDef(String procDef, String procName) {
+	public void startProcDef(String procDef, String procName, long procTime) {
 		deployFile(procDef);
 		WebDriverWait wait = new WebDriverWait(driver,30);
 
-		wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
-		WebElement enable = findElById("pv-"+procDef);
-		enable.click();
-		sleep(1000);
-
-		WebElement allWorkers = findElById("all-workers");
-		WebElement allWorkersDone = findElById("done-workers-btn");
-		log.info("Enabling workers.");
-
-		if(allWorkers.isSelected()) {
-			allWorkersDone.click();
-			sleep(1000);
-		} else {
-			allWorkers.click();
-			sleep(1000);
-			allWorkersDone.click();
-			sleep(1000);
-		}
-
-		sleep(2000);
+		enableWorkers(procDef);
 
 		log.info("Clicking Tasklist button.");
 		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@href='/camunda/app/tasklist']")));
 		WebElement tasks = driver.findElement(By.xpath("//a[@href='/camunda/app/tasklist']"));
 		tasks.click();
-		findOnPage("<title>Camunda Tasklist</title>");
+		findOnPage("Camunda Tasklist");
 
 		waitForElementXPath("//*[contains(@class,'start-process-action')]");
 
@@ -292,11 +277,61 @@ public class WebTestUtil {
 
 		goToPage("deployments");
 		//Wait explicitly for process to finish running.
-		sleep(90000);
+		sleep(procTime);
 
 		procCounter = procCounter + 1;
 		log.info("-----------TOTAL PROCS: "+procCounter);
 		postLogging(procDef, "Successfully started ");
+	}
+
+	public void enableWorkers(String procDef) {
+		WebDriverWait wait = new WebDriverWait(driver,30);
+
+		wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
+		WebElement enable = findElById("pv-"+procDef);
+		enable.click();
+		sleep(1000);
+
+		WebElement allWorkers = findElById("all-workers");
+		WebElement allWorkersDone = findElById("done-workers-btn");
+		log.info("Enabling workers.");
+
+		if(allWorkers.isSelected()) {
+			allWorkersDone.click();
+			sleep(1000);
+		} else {
+			allWorkers.click();
+			sleep(1000);
+			allWorkersDone.click();
+			sleep(1000);
+		}
+
+		sleep(2000);
+	}
+
+	public void disableWorkers(String procDef) {
+		WebDriverWait wait = new WebDriverWait(driver,30);
+
+		wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
+		WebElement enable = findElById("pv-"+procDef);
+		enable.click();
+		sleep(1000);
+
+		WebElement allWorkers = findElById("all-workers");
+		WebElement allWorkersDone = findElById("done-workers-btn");
+		log.info("Disabling workers.");
+
+		if(allWorkers.isSelected()) {
+			allWorkers.click();
+			sleep(1000);
+			allWorkersDone.click();
+			sleep(1000);
+		} else {
+			allWorkersDone.click();
+			sleep(1000);
+		}
+
+		sleep(2000);
 	}
 
 	public void modifyFile(String filePath, String oldString, String newString)
@@ -412,23 +447,7 @@ public class WebTestUtil {
 		goToPage("deployments");
 
 		if(driver.getPageSource().contains(procName)) {
-			wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procName)));
-			WebElement enable = findElById("pv-"+procName);
-			enable.click();
-			sleep(1000);
-
-			WebElement allWorkers = findElById("all-workers");
-			WebElement allWorkersDone = findElById("done-workers-btn");
-
-			if(allWorkers.isSelected()) {
-				allWorkers.click();
-				sleep(1000);
-				allWorkersDone.click();
-				sleep(1000);
-			} else {
-				allWorkersDone.click();
-				sleep(1000);
-			}
+			disableWorkers(procName);
 
 			wait.until(ExpectedConditions.elementToBeClickable(By.id("delete-"+procName)));
 			WebElement delButton = driver.findElement(By.id("delete-"+procName));
@@ -462,6 +481,18 @@ public class WebTestUtil {
 			log.info("Sleeping " + millis + "ms.");
 		} catch (InterruptedException e) {
 			log.error("InterruptedException during sleep", e);
+		}
+	}
+
+	public void checkIdle() {
+		try {
+			WebDriverWait wait = new WebDriverWait(driver,0);
+			wait.until(ExpectedConditions.elementToBeClickable(By.id("resume-refresh")));
+			WebElement resume = driver.findElement(By.id("resume-refresh"));
+			resume.click();
+			log.info("Processes had been paused due to browser being idle more than 10 minutes. Resuming...");
+		} catch (TimeoutException e) {
+			log.info("Browser remains not idle.");
 		}
 	}
 }

@@ -124,7 +124,7 @@ public class ProcessStarterThread implements Runnable {
 			//
 			procVars.put("procDefKey", procDefKey == null ? "unknown" : procDefKey);
 			procVars.put("startedOnWorkerId", workerService.getWorkerId());
-			
+			// FUTURE WORK: Condense these into one JSON object (string)  Do in v2.3
 			
 			String procBusinessKey = procReq.get("proc_business_key").toString();
 			if (procBusinessKey == null) {

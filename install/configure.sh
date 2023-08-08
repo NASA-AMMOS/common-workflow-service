@@ -6,14 +6,86 @@
 
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+echo ROOT=${ROOT}
+
+# ================
+# DECLARE ARGUMENT VARIABLES
+# ================
+CONF_FILE=${1}
+PROMPT_VALUE=${2}
+
+# logic for repeat configure runs
+
+# if this is the very first time configure has been run:
+#  - save the clean CWS distribution code to .backups/clean
+# if this is a repeat run (check if .backups/clean exists)
+#  - create a timestamp-named backup of the current CWS distribution code under ./backups/backup_YYYYMMDD_hhmmss
+#  - remove everything in the current distribution except for user-configured items:
+#    * BPMN models (saved in /path/to/bpmn)
+#    * Code Snippets (saved in the database)
+#    * Initiators (saved in /path/to/cws-process-initiators.xml)
+#  - rsync the ./backups/clean dir back into the current distribution, EXCLUDING the above items
+
+BACKUP_DIR=${ROOT}/.backups
+BACKUP_CLEAN=${BACKUP_DIR}/clean
+
+if [ ! -d "${BACKUP_CLEAN}" ]; then
+    echo "Initializing CWS backup directory... "
+    mkdir -p "${BACKUP_CLEAN}"
+
+    # Save clean CWS before configure.sh is run and directory is modified
+    rsync -a --exclude='.backups' "${ROOT}/" "${BACKUP_CLEAN}/"
+else
+    echo "Detected re-run of configure.sh, backing up current distribution..."
+
+    # Make .backups folder for current CWS property version
+    BACKUP_CURR=${BACKUP_DIR}/backup_$(date '+%Y%m%d_%H%M%S') # .backups/backup_YYYYMMDD_hhmmss format
+
+    # Copy a backup, (excluding the backups dir, we don't want recursive backups)
+    echo -n "Saving backup of current CWS distribution to ${BACKUP_CURR}..."
+    mkdir -p "${BACKUP_CURR}"
+    rsync -a --exclude=".backups" "${ROOT}/" "${BACKUP_CURR}/"
+    echo "done."
+
+    if [[ "${CONF_FILE}" == "" ]]; then
+        CONFIG_FILE_BASENAME=""
+    else
+        CONFIG_FILE_BASENAME=$(basename ${CONF_FILE})
+    fi
+
+    CONFIG_FILE_DIR="$(cd "$(dirname "${CONF_FILE}")"; pwd)/$(basename "${CONF_FILE}")"
+    echo "${CONFIG_FILE_DIR}"
+
+    # Due to quirks in MacOS file deletion, this is actually the safest way to delete everything
+    echo -n "Cleaning out CWS distribution files (this may take a while)..."
+    find "${ROOT}/" -mindepth 1 \
+      -not -name "configure.sh" \
+      -not -name "configuration.properties" \
+      -not -name "*cws-process-initiators*" \
+      -not -path "*.backups" \
+      -not -path "*.backups/*" \
+      -not -path "*bpmn/*" \
+      -not -path "*bpmn" \
+      -type f \
+      -exec rm -r {} \; &> /dev/null
+    echo "done."
+
+    # Sync CONFIG_FILE used from inside ROOT/
+    if [[ ${CONFIG_FILE_BASENAME} != "" && "${CONFIG_FILE_DIR}" == "${ROOT}/${CONFIG_FILE_BASENAME}" ]]; then
+        echo "Found config props file in cws root: '${CONFIG_FILE_BASENAME}' "
+        rsync -a --ignore-existing "${BACKUP_CURR}/${CONFIG_FILE_BASENAME}" "${ROOT}/"
+    fi
+
+    # Sync files back in from clean CWS distribution, but don't overwrite anything we left intentionally
+    rsync -a --ignore-existing "${BACKUP_CLEAN}/" "${ROOT}/"
+fi
+
+
 source ${ROOT}/utils.sh
 
 # ================
 # SETUP VARIABLES
 # ================
-CONF_FILE=${1}
-PROMPT_VALUE=${2}
-
 export CWS_HOME=${ROOT}
 export CWS_TOMCAT_HOME=${ROOT}/server/apache-tomcat-${TOMCAT_VER}
 export CWS_INSTALLER_PRESET_FILE=${ROOT}/configuration.properties
@@ -69,12 +141,12 @@ else
         exit 1
     fi
 
-	print "Using installation presets provided from ${CONF_FILE}..."
+	  print "Using installation presets provided from ${CONF_FILE}..."
 
     if [[ ! "${CONF_FILE}" -ef "${CWS_INSTALLER_PRESET_FILE}" ]]; then
 	    # Merge provided configuration with installer presets (defaults)
 	    cat ${CONF_FILE} ${ROOT}/config/installerPresets.properties | awk -F= '!a[$1]++' > ${CWS_INSTALLER_PRESET_FILE}
-	fi
+	  fi
 fi
 
 # --------------------------------------------

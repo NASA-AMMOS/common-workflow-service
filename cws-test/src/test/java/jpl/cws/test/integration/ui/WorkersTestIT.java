@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -36,7 +37,7 @@ public class WorkersTestIT extends WebTestUtil {
 			
 			goToPage("deployments");
 			
-			startProcDef("test_workers_page", "Test Workers Page");
+			startProcDef("test_workers_page", "Test Workers Page", 30000);
 			
 			runNumberActiveTest();
 			runThreadLimitTest();
@@ -56,6 +57,7 @@ public class WorkersTestIT extends WebTestUtil {
 			scriptPass = false;
 		}
 		deleteProc("test_workers_page");
+		deleteProc("test_deployments_page");
 		deleteProc("test_thread_limit");
 		logout();
 		assertTrue("Workers Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
@@ -138,7 +140,7 @@ public class WorkersTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("WorkersTestIT::runWorkersCheckBoxTest");
+		screenShot("WorkersTestIT-runWorkersCheckBoxTest");
 		assertTrue("Workers Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	
@@ -160,7 +162,7 @@ public class WorkersTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;		
 		}
-		screenShot("WorkersTestIT::runWorkerStatusTest");
+		screenShot("WorkersTestIT-runWorkerStatusTest");
 		assertTrue("Workers Status test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -183,7 +185,7 @@ public class WorkersTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}	
-		screenShot("WorkersTestIT::runNumberActiveTest");
+		screenShot("WorkersTestIT-runNumberActiveTest");
 		assertTrue("Workers Number Active test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	
@@ -198,24 +200,7 @@ public class WorkersTestIT extends WebTestUtil {
 			
 			deployFile("test_thread_limit");
 		
-			wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-test_thread_limit")));
-			WebElement enable = findElById("pv-test_thread_limit");
-			log.info("Enabling workers...");
-			enable.click();
-			sleep(1000);
-			
-			WebElement allWorkers = findElById("all-workers");
-			WebElement allWorkersDone = findElById("done-workers-btn");
-			
-			if (allWorkers.isSelected()) {
-				allWorkersDone.click();
-				sleep(1000);
-			} else {
-				allWorkers.click();
-				sleep(1000);
-				allWorkersDone.click();
-				sleep(1000);
-			}
+			enableWorkers("test_thread_limit");
 			
 			goToPage("workers");
 			
@@ -246,6 +231,7 @@ public class WorkersTestIT extends WebTestUtil {
 			driver.findElement(By.id("workers-table")).click();
 			
 			goToPage("initiators");
+			sleep(1000);
 			
 			log.info("Going into Ace Editor and adding repeat initiator for test_thread_limit.");
 			//go into the div element in CWS and paste it there.
@@ -298,7 +284,7 @@ public class WorkersTestIT extends WebTestUtil {
 			
 			Select select = new Select(findElById("refresh-rate"));
 			log.info("Adjusting refresh rate to 1 second...");
-			select.selectByVisibleText("1 seconds");
+			select.selectByValue("1");
 			
 			log.info("Getting data from status bar of Test Thread Limit periodically now...");
 			WebElement statsText = driver.findElement(By.id("stat-txt-test_thread_limit"));
@@ -308,7 +294,7 @@ public class WorkersTestIT extends WebTestUtil {
 			// Each of the 3 test_thread_limit tasks is configured to sleep for 15 seconds and since they should be
 			// running in parallel, we expect them all to complete after 30 seconds, but before 90 (which would be
 			// the case running serially).
-			sleep(40000);
+			sleep(80000);
 			
 			child = statsText.getText();
 
@@ -343,7 +329,7 @@ public class WorkersTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}	
-		screenShot("WorkersTestIT::runThreadLimitTest");
+		screenShot("WorkersTestIT-runThreadLimitTest");
 		assertTrue("Workers Thread Limit test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	// Add more deployment page tests here

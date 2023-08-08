@@ -258,7 +258,9 @@ print "Waiting for CWS Server to startup..."
 #print "  E = ERROR"
 #print "  e = Error"
 #print "  x = Exception"
-tail -f ${CWS_TOMCAT_HOME}/logs/catalina.out | while read LOGLINE
+# wait for cws.log to come up (won't exist until CWS is running & log4j2 is loaded)
+while [ ! -f ${CWS_TOMCAT_HOME}/logs/cws.log ]; do sleep 1; done
+tail -f ${CWS_TOMCAT_HOME}/logs/cws.log | while read LOGLINE
 do
    printf "."
    #if [[ "${LOGLINE}" == *"WARN"* ]]; then
@@ -273,7 +275,7 @@ do
    #if [[ "${LOGLINE}" == *"Exception"* ]]; then
    #   printf "x"
    #fi
-   [[ "${LOGLINE}" == *"org.apache.catalina.startup.Catalina.start Server startup in"* ]] && pkill -P $$ tail
+   [[ "${LOGLINE}" == *"Server startup in"* ]] && pkill -P $$ tail
 done
 
 echo ""
@@ -299,7 +301,6 @@ fi
 # =======================
 # REMOVE UNUSED LOG FILES
 # =======================
-rm `ls ${CWS_TOMCAT_HOME}/logs/*manager*`
 
 if [[ "${INSTALL_TYPE}" = "3" ]]; then
 	rm ${CWS_TOMCAT_HOME}/logs/localhost*

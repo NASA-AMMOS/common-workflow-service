@@ -3,6 +3,7 @@ package jpl.cws.test;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -24,13 +25,13 @@ public class InstallerTest {
 	private static final String NL  = System.getProperty("line.separator");
 	
 	@Before
-	public void setup() {
-		
+	public void setup() throws IOException {
+		shutdownConsole();
 	}
 	
 	@After
-	public void tearDown() {
-		
+	public void tearDown() throws IOException {
+		startConsole();
 	}
 	
 	/**
@@ -105,6 +106,48 @@ public class InstallerTest {
 	
 	public static void writeToFile(Path filePath, String content) throws IOException {
 		Files.write(filePath, content.getBytes(charset));
+	}
+
+	public static void shutdownConsole() throws IOException {
+		try {
+			String cwsDir = new File(System.getProperty("user.dir")).getParent();
+			System.out.println(cwsDir);
+			String stopConsoleScript = cwsDir + "/dist/console-only/cws/stop_cws.sh";
+			String[] command = {"bash", "-c", "bash " + stopConsoleScript};
+
+			Process proc = Runtime.getRuntime().exec(command);
+			proc.waitFor();
+			StringBuffer output = new StringBuffer();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+			String line = "";
+			while ((line = reader.readLine())!= null) {
+				output.append(line + "\n");
+			}
+			System.out.println("### " + output);
+		}
+		catch (Throwable e) {
+			System.out.println(e.toString());
+		}
+	}
+
+	public static void startConsole() throws IOException {
+		try {
+			String startConsoleScript = new File(System.getProperty("user.dir")).getParent() + "/dist/console-only/cws/start_cws.sh";
+			String commandStart = "bash " + startConsoleScript;
+
+			Process procStart = Runtime.getRuntime().exec(commandStart);
+			procStart.waitFor();
+			StringBuffer outputStart = new StringBuffer();
+			BufferedReader readerStart = new BufferedReader(new InputStreamReader(procStart.getInputStream()));
+			String lineStart = "";
+			while ((lineStart = readerStart.readLine())!= null) {
+				outputStart.append(lineStart + "\n");
+			}
+			System.out.println("### " + outputStart);
+		}
+		catch (Throwable e) {
+			System.out.println(e.toString());
+		}
 	}
 
 }

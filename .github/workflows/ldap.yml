@@ -1,0 +1,122 @@
+name: CWS CI LDAP
+
+# Triggers the workflow on push
+on:
+  push:
+  schedule:
+    # trigger a build and test of CWS weekly on Monday at 5 AM PST / 12 PM UTC
+    - cron: '0 12 * * 1'
+
+env:
+  TEAM: ("jamesfwood" "voxparcxls" "galenhollins" "galenatjpl" "jeffreypon")
+
+jobs:
+
+  build-and-test-cws:
+
+    runs-on: ubuntu-latest
+    env:
+      SECURITY: "LDAP"
+      WORKERS: 1
+
+    services:
+      mdb103:
+        image: mariadb:10.3
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_DATABASE: cws_dev
+          MYSQL_ROOT_PASSWORD: adminpw
+        options: >-
+          --name mdb103
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Create open-source certs
+        run: |
+          cd cws-certs
+          chmod +x generate-certs.sh
+          ./generate-certs.sh
+
+      - name: Download Logstash
+        uses: carlosperate/download-file-action@v1
+        with:
+          file-url: https://artifacts.elastic.co/downloads/logstash/logstash-oss-7.16.2-windows-x86_64.zip
+          file-name: logstash-7.16.2.zip
+          location: install/logging/
+
+      - name: Check for Logstash
+        run: |
+          cd install/logging/
+          ls -l
+
+      - name: Set up Elasticsearch
+        run: |
+          cd install/docker/es-only
+          docker-compose up -d
+
+      - name: Set up CWS LDAP Server
+        run: |
+          cd cws-opensource-ldap
+          docker-compose up -d
+
+      - name: Show Docker containers
+        run: |
+          sleep 5s
+          docker ps -a
+
+      - name: Build CWS
+        id: build
+        run:  |
+          cd ci
+          chmod +x run_ci.sh
+          ./run_ci.sh $SECURITY $WORKERS
+        shell: bash
+
+      - name: Show CWS Log
+        run: |
+          cd dist/console-only/cws/server/apache-tomcat-9.0.33/logs
+          ls -al
+
+      - name: Set up Google Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get --only-upgrade install google-chrome-stable
+
+      - name: Display Google Chrome version
+        run: google-chrome --version
+
+      - name: Run LDAP Integration Tests
+        id: ldap
+        run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars, -Dit.test=LdapTestIT verify -DskipTests
+        shell: bash
+
+      - name: Send custom JSON data to Slack workflow
+        if: ${{ always() && contains(env.TEAM, github.actor) }}
+        id: slack
+        uses: slackapi/slack-github-action@v1.19.0
+        with:
+          # This data can be any valid JSON from a previous step in the GitHub Action
+          payload: |
+            {
+              "status": "CWS CI LDAP build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nBuild result: ${{ steps.build.outcome }}\nLDAP integration test result: ${{ steps.ldap.outcome }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "CWS CI LDAP build and test result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}\nBuild result: ${{ steps.build.outcome }}\nLDAP integration test result: ${{ steps.ldap.outcome }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

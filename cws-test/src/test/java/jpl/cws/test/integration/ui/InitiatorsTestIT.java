@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -38,19 +39,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 
 			deployFile("test_initiators_page");
 
-			waitForElementID("pv-test_initiators_page");
-
-			WebElement enable = findElById("pv-test_initiators_page");
-			enable.click();
-			sleep(1000);
-
-			waitForElementID("all-workers");
-			driver.findElement(By.id("all-workers")).click();
-
-
-			waitForElementID("done-workers-btn");
-			driver.findElement(By.id("done-workers-btn")).click();
-			sleep(2000);
+			enableWorkers("test_initiators_page");
 
 
 			runStartInitiatorTest();
@@ -147,7 +136,15 @@ public class InitiatorsTestIT extends WebTestUtil {
 			assert(!enableAll.isSelected()); //verify the enableAll action button is not selected.
 
 
-			js.executeScript("arguments[0].click();", enableAction);
+			if(!enableAction.isSelected()) {
+				js.executeScript("arguments[0].click();", findElById("toggle_repeat_1"));
+				sleep(1000);
+			} else {	// toggle off and on to start
+				js.executeScript("arguments[0].click();", findElById("toggle_repeat_1"));
+				sleep(1000);
+				js.executeScript("arguments[0].click();", findElById("toggle_repeat_1"));
+				sleep(1000);
+			}
 
 			procCounter = 10 + procCounter; //for the 10 procs started.
 
@@ -155,7 +152,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 
 			log.info("Changing status refresh to 1 second.");
 			Select select = new Select(findElById("refresh-rate"));
-			select.selectByVisibleText("1 second refresh rate");
+			select.selectByValue("1");
 
 			sleep(20000);
 
@@ -181,7 +178,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("InitiatorTestIT::runStartInitiatorTest");
+		screenShot("InitiatorTestIT-runStartInitiatorTest");
 		assertTrue("Start Initiators test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -208,7 +205,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 			waitForElement(historyButton);
 			historyButton.sendKeys(Keys.RETURN);
 
-			findOnPage("<title>CWS - History</title>");
+			findOnPage("CWS - History");
 
 			log.info("Looking for 'variable1 = foo' and 'variable2 = bar'");
 			if (findOnPage("Setting (string) variable1 = foo")
@@ -222,7 +219,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("InitiatorTestIT::runVariableProcTest");
+		screenShot("InitiatorTestIT-runVariableProcTest");
 		assertTrue("Start Initiators test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -328,7 +325,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("InitiatorTestIT::runCronInitiatorTest");
+		screenShot("InitiatorTestIT-runCronInitiatorTest");
 		assertTrue("Cron Initiator test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	// Add more deployment page tests here

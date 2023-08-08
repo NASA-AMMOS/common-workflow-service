@@ -1,4 +1,4 @@
-package jpl.cws.engine;
+package jpl.cws.core;
 
 public class CmdLineInputFields {
 

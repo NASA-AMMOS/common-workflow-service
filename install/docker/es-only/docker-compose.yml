@@ -1,16 +1,14 @@
 version: '3.2'
 
 services:
-
-  es:
+  elasticsearch:
     labels:
       com.example.service: "es"
       com.example.description: "For searching and indexing data"
-    image: elasticsearch:7.9.0
-    container_name: cws-es
+    image: elasticsearch:7.16.2
+    container_name: cws-es-only
     networks:
-      - frontend
-      - backend
+      - es-net
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -32,24 +30,21 @@ services:
         #soft: 65536
         #hard: 65536
     #mem_limit: 2g
-  kibana:
-    labels:
-      com.example.service: "kibana"
-      com.example.description: "Data visualisation and for log aggregation"
-    image: kibana:7.9.0
-    container_name: cws-kibana
-    ports:
-      - "5601:5601"
-    networks:
-      - frontend
-      - backend
-    environment:
-      - ELASTICSEARCH_URL=http://es:9200
-    depends_on:
-      - es
+#  kibana:
+#    labels:
+#      com.example.service: "kibana"
+#      com.example.description: "Data visualisation and for log aggregation"
+#    image: kibana:7.16.2
+#    container_name: cws-kibana
+#    ports:
+#      - "5601:5601"
+#    networks:
+#      - es-net
+#    environment:
+#      - ELASTICSEARCH_HOSTS=http://cws-es:9200
+#    depends_on:
+#      - elasticsearch
 
 networks:
-  frontend:
-    driver: bridge         
-  backend:
+  es-net:
     driver: bridge

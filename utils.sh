@@ -5,10 +5,10 @@
 # Shell utility functions and environment settings used throughout CWS setup scripts
 
 # Update versions as necessary
-export CWS_VER='2.1.0-pre.4'  # update this each CWS release
+export CWS_VER='2.4.0'    # update this each CWS release
 export CAMUNDA_VER='7.13.0'
 export TOMCAT_VER='9.0.33'
-export LOGSTASH_VER='7.9.0'
+export LOGSTASH_VER='7.16.2'
 
 # Prints the provided string, tagging with the script that called it
 function print () {
@@ -189,25 +189,28 @@ function auto_conf_data () {
     DB_NAME=${7}
     DB_USER=${8}
     DB_PASS=${9}
-    ES_HOST=${10}
-    ES_PORT=${11}
-    ES_USE_AUTH=${12}
-    ES_USERNAME=${13}
-    ES_PASSWORD=${14}
-    ENABLE_CLOUD_AS=${15}
-    SECURITY_SCHEME=${16}
-    THIS_HOSTNAME=${17}
-    NOTIFICATION_EMAILS=${18}
-    ADMIN_FIRSTNAME=${19}
-    ADMIN_LASTNAME=${20}
-    ADMIN_EMAIL=${21}
-    NUM_WORKERS=${22}
+    ES_PROTOCOL=${10}
+    ES_HOST=${11}
+    ES_PORT=${12}
+    ES_USE_AUTH=${13}
+    ES_USERNAME=${14}
+    ES_PASSWORD=${15}
+    ENABLE_CLOUD_AS=${16}
+    SECURITY_SCHEME=${17}
+    THIS_HOSTNAME=${18}
+    NOTIFICATION_EMAILS=${19}
+    ADMIN_FIRSTNAME=${20}
+    ADMIN_LASTNAME=${21}
+    ADMIN_EMAIL=${22}
+    NUM_WORKERS=${23}
+    WORKER_MAX_NUM_RUNNING_PROCS=${24}
+    WORKER_ABANDONED_DAYS=${25}
 
-    OUTPUT_FILE=${23}
+    OUTPUT_FILE=${26}
 
     source ${ROOT}/utils.sh
 
-    LDAP_SERVER_URL="ldaps://localhost:636"
+    LDAP_SERVER_URL="ldap://localhost:389"
 
     CWS_CONSOLE_SSL_PORT=38443
     AMQ_PORT=31616
@@ -274,6 +277,7 @@ function auto_conf_data () {
     database_name=${DB_NAME}
     database_username=${DB_USER}
     database_password=${DB_PASS}
+    elasticsearch_protocol=${ES_PROTOCOL}
     elasticsearch_host=${ES_HOST}
     elasticsearch_port=${ES_PORT}
     elasticsearch_use_auth=${ES_USE_AUTH}
@@ -293,7 +297,9 @@ function auto_conf_data () {
     amq_port=${AMQ_PORT}
     cws_amq_jmx_port=${CWS_AMQ_JMX_PORT}
     cws_jmx_port=${CWS_JMX_PORT}
-    history_days_to_live=2
+    history_days_to_live=1
+    worker_max_num_running_procs=${WORKER_MAX_NUM_RUNNING_PROCS}
+    worker_abandoned_days=${WORKER_ABANDONED_DAYS}
     notify_users_email=y
     email_subject=[CWS] You have been assigned a task (CWS_TASK_NAME)
     email_body=fn:CWS_USER_FIRSTNAME<br/>ln:CWS_USER_LASTNAME,<br/>tn:(CWS_TASK_NAME), em:CWS_USER_EMAIL
@@ -310,6 +316,6 @@ function auto_conf_data () {
     startup_autoregister_process_defs=false
     cws_notification_emails=${NOTIFICATION_EMAILS}
     cws_token_expiration_hours=240
+    user_provided_logstash=n
 EOF
-
 }
