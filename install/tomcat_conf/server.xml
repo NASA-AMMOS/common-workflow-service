@@ -55,7 +55,7 @@
               factory="com.zaxxer.hikari.HikariJNDIFactory"
               poolName="camunda-pool"
 
-              maximumPoolSize="5"
+              maximumPoolSize="10"
               connectionTimeout="300000"
 
               driverClassName="__CWS_DB_DRIVER__"
@@ -65,13 +65,15 @@
 
               transactionIsolation="TRANSACTION_READ_COMMITTED" />
 
+     __ADAPTATION_SERVER_RESOURCE__
+   
     <Resource name="jdbc/cws"
               auth="Container"
               type="javax.sql.DataSource"
               factory="com.zaxxer.hikari.HikariJNDIFactory"
               poolName="cws-pool"
 
-              maximumPoolSize="5"
+              maximumPoolSize="10"
               connectionTimeout="300000"
 
               driverClassName="__CWS_DB_DRIVER__"
@@ -80,8 +82,6 @@
               password="__CWS_DB_PASSWORD__"
 
               transactionIsolation="TRANSACTION_READ_COMMITTED" />
-
-    __ADAPTATION_SERVER_RESOURCE__
 
     <Resource name="global/camunda-bpm-platform/process-engine/ProcessEngineService!org.camunda.bpm.ProcessEngineService" auth="Container"
               type="org.camunda.bpm.ProcessEngineService"

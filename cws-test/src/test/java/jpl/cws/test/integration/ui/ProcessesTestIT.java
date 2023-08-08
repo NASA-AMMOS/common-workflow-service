@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -34,7 +35,7 @@ public class ProcessesTestIT extends WebTestUtil {
 			
 			goToPage("deployments");
 			
-			startProcDef("test_processes_page", "Test Processes Page");
+			startProcDef("test_processes_page", "Test Processes Page", 90000);
 			
 			runStatusCompleteTest();
 			
@@ -98,7 +99,7 @@ public class ProcessesTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("ProcessesTestIT::runStatusCompleteTest");
+		screenShot("ProcessesTestIT-runStatusCompleteTest");
 		assertTrue("Processes Status Complete test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 

@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jpl.cws.core.CmdLineOutputFields;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecuteResultHandler;
 import org.apache.commons.exec.DefaultExecutor;
@@ -31,6 +32,8 @@ import com.google.gson.Gson;
 import edu.rice.cs.util.ArgumentTokenizer;
 import jersey.repackaged.com.google.common.base.Function;
 import jersey.repackaged.com.google.common.collect.Collections2;
+import org.camunda.spin.plugin.variable.SpinValues;
+import org.camunda.spin.plugin.variable.value.JsonValue;
 
 /**
  * Built-in task that executes a command-line program.
@@ -122,7 +125,7 @@ public class CmdLineExecTask extends CwsTask {
 				log.trace("Added token: " + token);
 				cmdLine.addArgument(token, false);
 			}
-			log.debug("parsed command: '" + cmdLineString + "' into: " + cmdLine);
+			log.debug("Parsed command: '" + cmdLineString + "' into: " + cmdLine);
 			
 			DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
 			
@@ -165,7 +168,6 @@ public class CmdLineExecTask extends CwsTask {
 			
 			// Execute and wait for the process to complete
 			//
-			log.info("About to execute '" + cmdLine + "'");
 			long t0 = System.currentTimeMillis();
 			executor.execute(cmdLine, env, resultHandler);
 			resultHandler.waitFor();
@@ -174,11 +176,14 @@ public class CmdLineExecTask extends CwsTask {
 			// Get the exit value, log it, and put it in return map
 			//
 			int exitValue = resultHandler.getExitValue();
-			log.info("Command '" + cmdLineString + "' exit value:" + exitValue + ". Ran in: " + (t1 - t0) + " ms.");
-			
+			log.info("Command '" + cmdLineString + "' exit value: " + exitValue + "\nRan in: " + (t1 - t0) + " ms.");
+
+			CmdLineOutputFields cmdOutputFields = new CmdLineOutputFields();
+
 			// putting redundant names here on purpose to reduce operator error
 			setOutputVariable("exitValue", exitValue + "");
 			setOutputVariable("exitCode", exitValue + "");
+			cmdOutputFields.exitCode = exitValue;
 
 			// Set "success" variable based on comparison with successExitValue
 			//
@@ -194,12 +199,14 @@ public class CmdLineExecTask extends CwsTask {
 				log.warn("Exit value " + exitValue + " determined to be a FAILURE");
 			}
 			setOutputVariable("success", success.toString());
+			cmdOutputFields.success = success;
 
 			// Detect whether a certain event case applies (based on exit code)
 			//
 			for (String eventCode : exitCodeEventsMap.keySet()) {
 				if (new Boolean(Integer.parseInt(eventCode) == exitValue)) {
 					setOutputVariable("event", exitCodeEventsMap.get(eventCode));
+					cmdOutputFields.event = exitCodeEventsMap.get(eventCode);
 					break; // can only be one event
 				}
 			}
@@ -225,16 +232,22 @@ public class CmdLineExecTask extends CwsTask {
 
 			// Set stdout output into variable
 			//
-			setOutputVariable("stdout",
-					StringUtils.join(Collections2.transform(stdOutLines, new StripOrderId<String, String>()), '\n'));
+			String stdoutStr = StringUtils.join(Collections2.transform(stdOutLines, new StripOrderId<String, String>()), '\n');
+			setOutputVariable("stdout", stdoutStr);
+			cmdOutputFields.stdout = stdoutStr;
 
 			// Set stderr output into variable
 			//
-			setOutputVariable("stderr",
-					StringUtils.join(Collections2.transform(stdErrLines, new StripOrderId<String, String>()), '\n'));
+			String stderrStr = StringUtils.join(Collections2.transform(stdErrLines, new StripOrderId<String, String>()), '\n');
+			setOutputVariable("stderr", stderrStr);
+			cmdOutputFields.stderr = stderrStr;
 
 			setStdOutVariables(stdOutLines);
 			//log.debug("-------- TASK TIME = " +(System.currentTimeMillis()-t0) + " --------------");
+
+			// Write all outputs into one variable
+			JsonValue jsonValue = SpinValues.jsonValue(new Gson().toJson(cmdOutputFields)).create();
+			setOutputVariable("out", jsonValue);
 		} catch (BpmnError e) {
 			// Pass these along
 			throw e;

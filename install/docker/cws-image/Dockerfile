@@ -1,7 +1,7 @@
-FROM centos:7
+FROM oraclelinux:8
 
 RUN yum update -y && \
-    yum install -y mariadb-server mariadb-client java-1.8.0-openjdk java-1.8.0-openjdk-devel && \
+    yum install -y mysql java-1.8.0-openjdk java-1.8.0-openjdk-devel rsync which && \
     yum clean all
 
 ENV JAVA_HOME /usr/lib/jvm/java-1.8.0
@@ -9,20 +9,14 @@ ENV JAVA_HOME /usr/lib/jvm/java-1.8.0
 ENV TZ=America/Los_Angeles
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN useradd -ms /bin/bash cws_user && usermod -aG wheel cws_user
-
 WORKDIR /home/cws_user
 
 ADD cws_server.tar.gz .
 ADD startup.sh .
-ADD wait_for_mariadb.sh .
+ADD wait_for_db_es_console.sh .
 
 # For time check
 ADD getTime.java .
 ADD joda-time-2.1.jar .
 
-RUN chown -R cws_user:cws_user cws
-
-USER cws_user
-
-ENTRYPOINT [ "./wait_for_mariadb.sh" ]
+ENTRYPOINT [ "./wait_for_db_es_console.sh" ]

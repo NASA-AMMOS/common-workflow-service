@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -102,7 +103,7 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			goToPage("deployments");
 
-			startProcDef("test_snippets_page", "Test Snippets Page");
+			startProcDef("test_snippets_page", "Test Snippets Page", 90000);
 
 			goToPage("processes");
 
@@ -124,7 +125,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			scrollTo(historyButton);
 			historyButton.click();
 
-			findOnPage("<title>CWS - History</title>");
+			findOnPage("CWS - History");
 
 			log.info("Looking for 'This is our world: Hello World.");
 			if(findOnPage("This is our world: Hello World")) {
@@ -139,7 +140,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("SnippetsTestIT::runSnippetsModelTest");
+		screenShot("SnippetsTestIT-runSnippetsModelTest");
 		assertTrue("Snippets Model test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -226,7 +227,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("SnippetsTestIT::runUpdateSnippetsTest");
+		screenShot("SnippetsTestIT-runUpdateSnippetsTest");
 		assertTrue("Snippets Model test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -262,7 +263,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("SnippetsTestIT::runUpdateErrorTest");
+		screenShot("SnippetsTestIT-runUpdateErrorTest");
 		assertTrue("Snippets Model test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -271,6 +272,7 @@ public class SnippetsTestIT extends WebTestUtil {
 		try {
 			log.info("------ START SnippetsTestIT:ReloadEditorTest ------");
 			driver.navigate().refresh();
+			sleep(2000);
 
 			WebElement aceEditor = driver.findElement(By.cssSelector("textarea.ace_text-input"));
 			log.info("Updating snippets through Ace Editor.");
@@ -312,7 +314,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("SnippetsTestIT::runReloadEditorTest");
+		screenShot("SnippetsTestIT-runReloadEditorTest");
 		assertTrue("Snippets Model test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	// Add more deployment page tests here

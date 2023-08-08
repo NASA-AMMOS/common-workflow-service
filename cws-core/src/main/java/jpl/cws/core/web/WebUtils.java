@@ -56,7 +56,7 @@ public class WebUtils {
 	 * Performs an unauthenticated REST call
 	 */
 	public static RestCallResult restCall(String urlString, String method, String data, String cookie, String acceptType, String contentType) throws Exception {
-		return restCall(urlString, method, data, cookie, acceptType, contentType, true, null, null);
+		return restCall(urlString, method, data, cookie, acceptType, contentType, urlString.startsWith("https") ? false : true, null, null);
 	}
 
 	/**

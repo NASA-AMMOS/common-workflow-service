@@ -70,7 +70,7 @@ public class ProcessEventListener implements MessageListener, InitializingBean {
 							boolean endedOnThisWorker = 
 								workerService.processEndedActions(procDefKey, uuid);
 							if (endedOnThisWorker) {
-								workerService.procStartReqAction(procDefKey, "processEndEventDetected message received");
+								workerService.procStartReqAction(null, "processEndEventDetected message received");
 							}
 						}
 						else if (eventType.equals("sync")) {
@@ -78,10 +78,7 @@ public class ProcessEventListener implements MessageListener, InitializingBean {
 
 							if (processCounterStateChanged) {
 								log.trace(eventType + " :: state changed");
-								
-								// If the process counter state changed, then we potentially have more bandwidth to
-								// execute more processes of the type that was just completed/failed.
-								workerService.procStartReqAction(procDefKey, "sync message received");
+								workerService.procStartReqAction(null, "sync message received");
 							}
 						}
 					}

@@ -1,0 +1,15 @@
+version: 1
+changeType: add
+dn: olcDatabase={2}mdb,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcMdbConfig
+olcDatabase: {2}mdb
+olcDbDirectory: /var/lib/ldap
+olcSuffix: dc=example,dc=com
+olcAccess: {0}to attrs=userPassword,shadowLastChange by self write by anonymous auth by dn="cn=admin,dc=example,dc=com" write by * none
+olcAccess: {1}to dn.base="" by * read
+olcAccess: {2}to * by self write by dn="cn=admin,dc=example,dc=com" write by * read
+olcLastMod: TRUE
+olcRootDN: cn=admin,dc=example,dc=com
+olcRootPW: password
+olcDbIndex: objectClass eq

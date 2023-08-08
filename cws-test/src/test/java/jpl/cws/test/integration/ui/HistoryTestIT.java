@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -33,7 +34,7 @@ public class HistoryTestIT extends WebTestUtil {
 
 			goToPage("deployments");
 
-			startProcDef("test_history_page", "Test History Page");
+			startProcDef("test_history_page", "Test History Page", 90000);
 
 			runResultsTest();
 
@@ -80,13 +81,13 @@ public class HistoryTestIT extends WebTestUtil {
 			scrollTo(historyButton);
 			historyButton.click();
 
-			findOnPage("<title>CWS - History</title>");
+			findOnPage("CWS - History");
 
 			if (findOnPage("History Page")
-					&& findOnPage("Command 'mkdir Test' exit value:0.")
-					&& findOnPage("Command 'ls' exit value:0.")
+					&& findOnPage("Command 'mkdir Test' exit code: 0")
+					&& findOnPage("Command 'ls' exit code: 0")
 					&& findOnPage("LINE: Test")
-					&& findOnPage("Command 'rmdir Test' exit value:0.")) {
+					&& findOnPage("Command 'rmdir Test' exit code: 0")) {
 				scriptPass = true;
 				testCasesCompleted++;
 			}
@@ -96,7 +97,7 @@ public class HistoryTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("HistoryTestIT::runResultsTest");
+		screenShot("HistoryTestIT-runResultsTest");
 		assertTrue("Deployments Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	// Add more deployment page tests here

@@ -47,8 +47,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 	
 	public static final int DEFAULT_WORKER_PROC_DEF_MAX_INSTANCES = 1;
 	public static final int PROCESSES_PAGE_SIZE = 100;
-	
-	// KEY FOR THIS IS:  KEY `claimKey` (`status`,`proc_def_key`,`priority`,`created_time`)
+
 	public static final String FIND_CLAIMABLE_ROWS_SQL = 
 			"SELECT uuid FROM cws_sched_worker_proc_inst " +
 			"WHERE " +
@@ -243,17 +242,24 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		return numUpdated;
 	}
 	
-	
+
+
+
 	/**
 	 * Attempt to claim a process start request in the database.
 	 * 
-	 * @param procDefKey -- only attempt to claim rows for this process definition
+	 * @param workerProcsList -- attempts to claim rows for the active set of process definition(s)
 	 * @return mappings of claimUuids and claimedRowUuids
 	 *
 	 */
-	public Map<String,List<String>> claimHighestPriorityStartReq(String workerId, String procDefKey, int limit) {
+
+	public Map<String,List<String>> claimHighestPriorityStartReq(String workerId, Map<String,Integer> workerProcsList, Map<String,Integer> limitsPerProcs, int limit) {
 		List<String> claimUuids = new ArrayList<String>();
 		List<String> rowUuids = new ArrayList<String>();
+		List<String> rowUuidsPerProcDefKey = new ArrayList<String>();
+		LinkedHashMap<String, String> uuidAndProcDefKeyPair = new LinkedHashMap<String, String>();
+		List<String> clearOutUnclaimedInst = new ArrayList<String>();
+		List<String> unfilteredRowUuids = new ArrayList<String>();
 		List<String> claimedRowUuids = new ArrayList<String>();
 		long t0 = System.currentTimeMillis();
 		int numClaimed = 0;
@@ -266,11 +272,45 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			try {
 				// Find claimable rows
 				//
-				rowUuids = jdbcTemplate.queryForList(
-						FIND_CLAIMABLE_ROWS_SQL, String.class,
-						new Object[] {procDefKey,
-								limit*2}); // over-find because some workers might compete with this set
+				for (Map.Entry<String, Integer> procs : limitsPerProcs.entrySet()) {
+					rowUuidsPerProcDefKey = jdbcTemplate.queryForList(FIND_CLAIMABLE_ROWS_SQL, String.class,
+						new Object[] {procs.getKey(), procs.getValue()*2});
+					// get list of uuids using array of procdefkeys IN (keys)
+					unfilteredRowUuids.addAll(rowUuidsPerProcDefKey);
+				}
+				
+				Collections.sort(unfilteredRowUuids);
+				for (String id : unfilteredRowUuids) {
+					String procDefKeyString = getProcDefKeyFromUuid(id);
+					uuidAndProcDefKeyPair.put(id, procDefKeyString);
+				}
 
+				for (Map.Entry<String,Integer> procLimit : limitsPerProcs.entrySet()) {
+					Set<String> keys = uuidAndProcDefKeyPair.keySet();
+					int applyPerProcsCap = 0;
+					for (String key : keys) {
+
+						if (uuidAndProcDefKeyPair.get(key).equals(procLimit.getKey())) {
+							applyPerProcsCap = applyPerProcsCap + 1;
+							if (applyPerProcsCap > procLimit.getValue()) {
+								clearOutUnclaimedInst.add(key);
+							}
+						}
+					}
+				}
+
+				for (String removeUuidFromList : clearOutUnclaimedInst) {
+					uuidAndProcDefKeyPair.remove(removeUuidFromList);
+				}
+
+				Set<String> uuidKeys = uuidAndProcDefKeyPair.keySet();
+				// after its filtered add the uuids to rowUuids arraylist
+				for (String key : uuidKeys) {
+					rowUuids.add(key);
+				}
+
+				// make query that uses multi limit per ProcDefkey (JOIN)
+				// iterate to grab 30
 				if (!rowUuids.isEmpty()) {
 					// Found some claimable rows, so now try to claim them..
 					//
@@ -283,7 +323,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 							numClaimed++;
 							claimUuids.add(claimUuid);
 							claimedRowUuids.add(uuid);
-							log.debug("CLAIMED " + claimUuid + " (uuid=" +uuid+") for procDefKey '" + procDefKey + "'");
+							//log.debug("CLAIMED " + claimUuid + " (uuid=" +uuid+") for procDefKey '" + procDefKeyList + "'");
 						}
 
 						if (numClaimed == limit) {
@@ -293,12 +333,12 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 
 					if (numClaimed == 0) {
 						// other workers beat us to claiming the rows
-						log.warn("Attempted to claim " + rowUuids.size() + " rows for procDefKey '" + procDefKey + "', but claimed none! " +
+						log.warn("Attempted to claim " + rowUuids.size() + " rows for procDefKeys '" + workerProcsList.keySet() + "', but claimed none! " +
 								(attempts < 10 ? "Retrying..." : "GIVING UP!"));
 						continue; // retry finding claimable rows
 					}
 					else {
-						log.debug("Claimed (" + numClaimed + " of " + rowUuids.size() + ") for procDefKey '" + procDefKey + "'");
+						log.debug("Claimed (" + numClaimed + " of " + rowUuids.size() + ") for procDefKeys '" + workerProcsList.keySet() + "'");
 					}
 				}
 				else if (log.isTraceEnabled()) {
@@ -335,11 +375,11 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		if (numClaimed != claimUuids.size()) {
 			log.error("numUpdated != claimUuids.size()" );
 		}
-		
+
 		Map<String,List<String>> ret = new HashMap<String,List<String>>();
 		ret.put("claimUuids", claimUuids);
 		ret.put("claimedRowUuids", claimedRowUuids);
-		
+
 		return ret;
 	}
 	
@@ -356,8 +396,25 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			return null;
 		}
 	}
-	
-	
+
+	public int getMaxProcsValueForWorker(String workerId) {
+		return jdbcTemplate.queryForObject(
+			"SELECT max_num_running_procs FROM cws_worker WHERE id=?",
+			new Object[] {workerId}, Integer.class);
+	}
+
+	public int getCountForClaimedProcInstPerKey(String procDefKey, List<String> claimedUuids) {
+		String listOfClaimUuid = "\"" + String.join("\", \"", claimedUuids) + "\"" ;
+		String query = "SELECT count(*) FROM cws_sched_worker_proc_inst " + "WHERE proc_def_key='" + procDefKey + "' " + "AND claim_uuid IN (" + listOfClaimUuid + ")";
+		return jdbcTemplate.queryForObject(query, Integer.class);
+	}
+
+
+	public String getProcDefKeyFromUuid(String uuid) {
+		String query = "SELECT proc_def_key FROM cws_sched_worker_proc_inst " + "WHERE uuid='" + uuid + "'";
+		return jdbcTemplate.queryForObject(query, String.class);
+	}
+
 	public Map<String,Object> getProcInstRow(String uuid) {
 		List<Map<String,Object>> list = jdbcTemplate.queryForList(
 			"SELECT * FROM cws_sched_worker_proc_inst " +
@@ -569,6 +626,26 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			throw e;
 		}
 	}
+
+
+	/**
+	 * Gets a list of abandoned workers.
+	 *
+	 */
+	public List<Map<String,Object>> detectAbandonedWorkers(int daysToAbandoned) {
+		try {
+			Timestamp thresholdTimeAgo = new Timestamp(DateTime.now().minusDays(daysToAbandoned).getMillis());
+
+			String query = "SELECT * FROM cws_worker WHERE last_heartbeat_time < ? AND status = 'down'";
+			return jdbcTemplate.queryForList(query, new Object[] { thresholdTimeAgo });
+		}
+		catch (Throwable e) {
+			cwsEmailerService.sendNotificationEmails("CWS Database Error", "Severe Error!\n\nCould not query database for abandoned workers.\n\nDetails: " + e.getMessage());
+			log.error("Problem occurred while querying the database for abandoned workers.", e);
+
+			throw e;
+		}
+	}
 	
 	
 	/**
@@ -605,6 +682,29 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 				"where proc_def_key=?",
 				new Object[] {procDefKey});
 	}
+
+
+
+	/**
+	 * Delete an abandoned worker
+	 * Deletes entries from both cws_worker_proc_def and cws_worker
+	 */
+	public void deleteAbandonedWorker(String workerId) {
+
+		// Disable the worker for all process definitions (might not be necessary)
+		String query =  "UPDATE cws_worker_proc_def " + "SET max_instances=0, accepting_new=0 " + "WHERE worker_id=?";
+		jdbcTemplate.update(query, new Object[] {workerId});
+
+		// Delete the (worker, proc_def) entries from the proc def table
+		query = "DELETE FROM cws_worker_proc_def WHERE worker_id=?";
+		jdbcTemplate.update(query, new Object[] {workerId});
+
+		// Delete worker from cws_worker table
+		query = "DELETE FROM cws_worker WHERE id=?";
+		jdbcTemplate.update(query, new Object[] {workerId});
+	}
+
+
 	
 	/**
 	*

@@ -1,6 +1,6 @@
 package jpl.cws.test;
 
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineAssertions.assertThat;
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.*;
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.runtimeService;
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.junit.Assert.assertTrue;
@@ -12,10 +12,7 @@ import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
+import org.junit.*;
 
 import com.dumbster.smtp.SimpleSmtpServer;
 import com.dumbster.smtp.SmtpMessage;
@@ -49,8 +46,7 @@ public class EmailTaskTest {
 	 * Tests BPMN process that sends an email using EmailTask.
 	 * 
 	 */
-	//@Test
-	@Ignore
+	@Test
 	@Deployment(resources = {"bpmn/test_email_task.bpmn"})
 	public void testCase1() {
 		try {
@@ -80,8 +76,8 @@ public class EmailTaskTest {
 		assertTrue(email.getBody().contains("this<br/>has<br/>line<br/>breaks!"));
 		
 		// verify to/from
-		assertTrue(email.getHeaderValue("From").equals("user@localhost"));
-		assertTrue(email.getHeaderValue("To").equals("user@localhost"));
+		assertTrue(email.getHeaderValue("From").equals("user@domain.com"));
+		assertTrue(email.getHeaderValue("To").equals("user@domain.org"));
 	}
 
 }

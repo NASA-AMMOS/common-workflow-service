@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # --------
 # dev.sh
 # --------
@@ -12,19 +12,22 @@ DB_PORT=${5}
 DB_NAME=${6}
 DB_USER=${7}
 DB_PASS=${8}
-ES_HOST=${9}
-ES_PORT=${10}
-ES_USE_AUTH=${11}
-ES_USERNAME=${12}
-ES_PASSWORD=${13}
-ENABLE_CLOUD_AS=${14}
-SECURITY_SCHEME=${15}
-THIS_HOSTNAME=${16}
-NOTIFICATION_EMAILS=${17}
-ADMIN_FIRSTNAME=${18}
-ADMIN_LASTNAME=${19}
-ADMIN_EMAIL=${20}
-NUM_WORKERS=${21}
+ES_PROTOCOL=${9}
+ES_HOST=${10}
+ES_PORT=${11}
+ES_USE_AUTH=${12}
+ES_USERNAME=${13}
+ES_PASSWORD=${14}
+ENABLE_CLOUD_AS=${15}
+SECURITY_SCHEME=${16}
+THIS_HOSTNAME=${17}
+NOTIFICATION_EMAILS=${18}
+ADMIN_FIRSTNAME=${19}
+ADMIN_LASTNAME=${20}
+ADMIN_EMAIL=${21}
+NUM_WORKERS=${22}
+WORKER_MAX_NUM_RUNNING_PROCS=${23}
+WORKER_ABANDONED_DAYS=${24}
 
 source ${ROOT}/utils.sh
 
@@ -65,13 +68,19 @@ print "Done configuring console installation."
 # --------------
 # START CONSOLE
 # --------------
-LOG_FILE="server/apache-tomcat-${TOMCAT_VER}/logs/catalina.out"
+LOG_FILE="server/apache-tomcat-${TOMCAT_VER}/logs/cws.log"
 BASE_PORT=8000
 
 tab ${DIST}/console-only/cws "./start_cws.sh -d $BASE_PORT; tail -f $LOG_FILE"
 
 print "Waiting for console startup..."
-sleep 100
+cws_console_host=$(grep cws_console_host ${ROOT}/auto_conf_console.dat | cut -d '=' -f2)
+cws_console_ssl_port=$(grep cws_console_ssl_port ${ROOT}/auto_conf_console.dat | cut -d '=' -f2)
+while ! curl -k -s https://${cws_console_host}:${cws_console_ssl_port}/cws-ui/login > /dev/null 2>&1; do
+	sleep 5
+	print "Retry wait for console"
+done
+print "Console is now running!"
 
 # -----------------
 # CONFIGURE WORKERS

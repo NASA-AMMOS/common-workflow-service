@@ -14,6 +14,7 @@ cws-service/src/main/resources/camunda/bpmn/*.bpmn
 
 .keystore
 cws_truststore.jks
+cws.crt
 
 cookies.txt
 creds.txt
@@ -21,7 +22,16 @@ creds.txt
 cws-test/newCWSDir
 
 .DS_Store
-install/logging/logstash-7.9.0.zip
-install/logging/logstash-6.4.2.zip
+install/logging/logstash-*.zip
+
 *personal_dev.sh
 
+# CWS backups
+.backups/
+
+# JaCoCo Reports
+/target
+/jacoco-reports
+/test-screenshots
+
+*.cnf

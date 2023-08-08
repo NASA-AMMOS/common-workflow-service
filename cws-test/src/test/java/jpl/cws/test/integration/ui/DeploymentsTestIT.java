@@ -53,7 +53,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			if (Integer.toString(testCasesCompleted).equals("8")) {
 				scriptPass = true;
 			} else {
-				log.info("Not all test cases passed. Only " + testCasesCompleted + "/9 passed.");
+				log.info("Not all test cases passed. Only " + testCasesCompleted + "/8 passed.");
 			}
 
 			log.info("------ END DeploymentsTestIT:runDeploymentsPageTest ------");
@@ -75,7 +75,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			// Fill in more here
 
 			goToPage("deployments");
-			startProcDef("test_deployments_page", "Test Deploy Page");
+			startProcDef("test_deployments_page", "Test Deploy Page", 90000);
 			completedCount++;
 
 			WebElement statsText = driver.findElement(By.id("stat-txt-test_deployments_page"));
@@ -100,7 +100,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT::runProcessCompletedTest");
+		screenShot("DeploymentsTestIT-runProcessCompletedTest");
 		assertTrue("Deployments Process Completed test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -145,7 +145,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT:runEnableDisableButtonTest");
+		screenShot("DeploymentsTestIT-runEnableDisableButtonTest");
 		assertTrue("Deployments Enable/Disable Button test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -169,7 +169,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT:runDeployFileTest");
+		screenShot("DeploymentsTestIT-runDeployFileTest");
 		assertTrue("Deployments Deploy file test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -195,7 +195,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT:runBrowseFileTest");
+		screenShot("DeploymentsTestIT-runBrowseFileTest");
 		assertTrue("Deployments Browse file test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -260,7 +260,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT:runFileVersionTest");
+		screenShot("DeploymentsTestIT-runFileVersionTest");
 		assertTrue("Deployment File Version test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -272,24 +272,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 
 			goToPage("deployments");
 
-			log.info("Disabling workers.");
-			wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-test_deployments_page")));
-			WebElement enable = findElById("pv-test_deployments_page");
-			enable.click();
-			sleep(1000);
-
-			WebElement allWorkers = findElById("all-workers");
-			WebElement allWorkersDone = findElById("done-workers-btn");
-
-			if(allWorkers.isSelected()) {
-				allWorkers.click();
-				sleep(1000);
-				allWorkersDone.click();
-				sleep(1000);
-			} else {
-				allWorkersDone.click();
-				sleep(1000);
-			}
+			disableWorkers("test_deployments_page");
 
 			log.info("Deleting process definition");
 			wait.until(ExpectedConditions.elementToBeClickable(By.id("delete-test_deployments_page")));
@@ -319,7 +302,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT:runDeleteProcTest");
+		screenShot("DeploymentsTestIT-runDeleteProcTest");
 		assertTrue("Deployment Delete Proc test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -328,7 +311,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 		try {
 			log.info("------ START DeploymentsTestIT:runTotalStatusTest ------");
 
-			startProcDef("test_hello_world", "Test Hello World"); //no need to increment completedCount for HelloWorld.
+			startProcDef("test_hello_world", "Test Hello World", 90000); //no need to increment completedCount for HelloWorld.
 			completedCount++;
 			WebElement statsText = driver.findElement(By.id("stat-txt-cws-reserved-total"));
 			String child = statsText.getText();
@@ -346,7 +329,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT:runTotalStatusTest");
+		screenShot("DeploymentsTestIT-runTotalStatusTest");
 		assertTrue("Deployment Total Status test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -371,7 +354,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT:runStatusRefreshTest");
+		screenShot("DeploymentsTestIT-runStatusRefreshTest");
 		assertTrue("Deployment Status Refresh test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -380,14 +363,15 @@ public class DeploymentsTestIT extends WebTestUtil {
 		WebDriverWait wait = new WebDriverWait(driver,30);
 		try {
 			log.info("------ START DeploymentsTestIT:runOneWorkerTest ------");
+			disableWorkers("test_deployments_page");
 			WebElement enable = findElById("pv-test_deployments_page");
 			waitForElement(enable);
 			enable.click();
 
 			log.info("Enabling one worker.");
-			waitForElementXPath("//label[contains(text(),'worker0001')]");
-			WebElement worker0001 = driver.findElement(By.xpath("//label[contains(text(),'worker0001')]"));
-			worker0001.click();
+			waitForElementXPath("//label[contains(text(),'worker0000')]");
+			WebElement worker0000 = driver.findElement(By.xpath("//label[contains(text(),'worker0000')]"));
+			worker0000.click();
 
 			WebElement oneWorkerDone = findElById("done-workers-btn");
 			waitForElement(oneWorkerDone);
@@ -413,7 +397,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			    }
 			}
 
-			driver.findElement(By.xpath("//label[contains(text(),'worker0001')]")).click();
+			driver.findElement(By.xpath("//label[contains(text(),'worker0000')]")).click();
 			sleep(1000);
 		    oneWorkerDone.click();
 		    wait.until(ExpectedConditions.invisibilityOf(oneWorkerDone));
@@ -423,7 +407,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("DeploymentsTestIT:runOneWorkerTest");
+		screenShot("DeploymentsTestIT-runOneWorkerTest");
 		assertTrue("Deployment One Worker test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	// Add more deployment page tests here

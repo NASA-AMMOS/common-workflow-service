@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 	<artifactId>common-workflow-service</artifactId>
-	<version>2.1.0-pre.4</version><!-- update this each CWS release -->
+	<version>2.4.0</version>    <!-- update this each CWS release -->
 	<packaging>pom</packaging>
 	<name>cws</name>
 	<description>CWS</description>
@@ -74,7 +74,9 @@
 		<quartz.version>2.3.2</quartz.version>
 		<selenium.version>3.14.0</selenium.version>
 		<servlet-api.version>3.1.0</servlet-api.version>
-		<slf4j.version>1.7.26</slf4j.version>
+<!--		<slf4j.version>1.7.32</slf4j.version>-->
+		<log4j.version>2.17.1</log4j.version>
+		<slf4j-log4j2-bind.version>2.17.1</slf4j-log4j2-bind.version>
 		<skip.integration.tests>false</skip.integration.tests>
 		<spring.framework.version>4.3.23.RELEASE</spring.framework.version>
 		<surefire.version>2.22.0</surefire.version>
@@ -404,19 +406,20 @@
 				<version>${commons-configuration.version}</version>
 			</dependency>
 
-			<!-- LOGGING:  [Spring/JCL to log4j],  [CWS/slf4j to log4j] -->
+			<!-- LOGGING:  Log4j2 SLF4J bindings, appserver binding for tomcat -->
+			<!--	Need to use version for slf4j 1.7.x or older, see: https://logging.apache.org/log4j/2.x/log4j-slf4j-impl/	-->
+			<!--	This binding allows older projects written for the SLF4J api to bind to Log4J2		-->
 			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-log4j12</artifactId>
-				<version>${slf4j.version}</version>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-slf4j-impl</artifactId>
+				<version>${slf4j-log4j2-bind.version}</version>
 				<scope>provided</scope>
 			</dependency>
 
-			<!-- https://mvnrepository.com/artifact/log4j/apache-log4j-extras -->
 			<dependency>
-			    <groupId>log4j</groupId>
-			    <artifactId>apache-log4j-extras</artifactId>
-			    <version>1.2.17</version>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-appserver</artifactId>
+				<version>${log4j.version}</version>
 			</dependency>
 
 			<!-- Spring Framework -->
@@ -507,9 +510,9 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.camunda.bpm.extension</groupId>
+				<groupId>org.camunda.bpm.assert</groupId>
 				<artifactId>camunda-bpm-assert</artifactId>
-				<version>1.1</version>
+				<version>7.0.0</version> <!-- for Camunda 7.13 w/ AssertJ 3.16.1 -->
 				<scope>test</scope>
 				<!--<exclusions>-->
 					<!--<exclusion>-->
@@ -517,6 +520,12 @@
 						<!--<groupId>org.springframework</groupId>-->
 					<!--</exclusion>-->
 				<!--</exclusions>-->
+			</dependency>
+			<dependency>
+				<groupId>org.assertj</groupId>
+				<artifactId>assertj-core</artifactId>
+				<version>3.16.1</version> <!-- for Camunda 7.13 w/ Camunda BPM Assert 7.0.0 -->
+				<scope>test</scope>
 			</dependency>
 
 			<dependency>

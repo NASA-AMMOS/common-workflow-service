@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -35,7 +36,7 @@ public class LogsTestIT extends WebTestUtil {
 			
 			goToPage("deployments");
 			
-			startProcDef("test_logs_page", "Test Logs Page");
+			startProcDef("test_logs_page", "Test Logs Page", 90000);
 			
 			runOutputTest();
 			runTableColumnTest();
@@ -54,7 +55,7 @@ public class LogsTestIT extends WebTestUtil {
 			scriptPass = false;	
 		}
 		deleteProc("test_logs_page");
-		deleteProc("output_refresh_test");
+		// deleteProc("output_refresh_test");
 		logout();
 		assertTrue("Logs Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
@@ -64,13 +65,13 @@ public class LogsTestIT extends WebTestUtil {
 		
 		try {
 			log.info("------ START LogsTestIT:runOutputTest ------");
-			
+
 			goToPage("logs");
 			
-			log.info("Looking for text, 'Graphite', 'Command ls exit value:0', and 'Deployed process definitions: test_logs_page.bpmn'.");
-			
+			log.info("Looking for text, 'Graphite', 'Command ls exit exit code: 0', and 'Deployed process definitions: test_logs_page.bpmn'.");
+
 			if (findOnPage("Graphite")
-					&& findOnPage("Command 'ls' exit value:0.") 
+					&& findOnPage("Command 'ls' exit code: 0")
 					&& findOnPage("Deployed process definition: 'test_logs_page.bpmn'")) {
 				scriptPass = true;
 				testCasesCompleted++;
@@ -83,7 +84,7 @@ public class LogsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;	
 		}
-		screenShot("LogsTestIT::runOutputTest");
+		screenShot("LogsTestIT-runOutputTest");
 		assertTrue("Logs Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	
@@ -98,26 +99,32 @@ public class LogsTestIT extends WebTestUtil {
 			waitForElementID("cwshost-chkbox");
 			log.info("Checking CWS Host.");
 			findElById("cwshost-chkbox").click();
+			sleep(1000);
 			
 			waitForElementID("cwswid-chkbox");
 			log.info("Checking CWS ID.");
 			findElById("cwswid-chkbox").click();
+			sleep(1000);
 			
 			waitForElementID("loglvl-chkbox");
 			log.info("Checking Log Level.");
 			findElById("loglvl-chkbox").click();
+			sleep(1000);
 			
 			waitForElementID("thn-chkbox");
 			log.info("Checking Thread Name.");
 			findElById("thn-chkbox").click();
+			sleep(1000);
 			
 			waitForElementID("pdk-chkbox");
 			log.info("Checking Process Definition Key.");
 			findElById("pdk-chkbox").click();
+			sleep(1000);
 			
 			waitForElementID("pid-chkbox");
 			log.info("Checking Process ID.");
 			findElById("pid-chkbox").click();
+			sleep(1000);
 			
 			wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.tagName("table")));
 			WebElement myTable = driver.findElement(By.tagName("table"));
@@ -136,7 +143,7 @@ public class LogsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;	
 		}
-		screenShot("LogsTestIT::runTableColumnTest");
+		screenShot("LogsTestIT-runTableColumnTest");
 		assertTrue("Table Column Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	
@@ -175,7 +182,7 @@ public class LogsTestIT extends WebTestUtil {
 			wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@href='/camunda/app/tasklist']")));
 			WebElement tasks = driver.findElement(By.xpath("//a[@href='/camunda/app/tasklist']"));
 			tasks.click();		
-			findOnPage("<title>Camunda Tasklist</title>");
+			findOnPage("Camunda Tasklist");
 			
 			waitForElementXPath("//*[contains(@class,'start-process-action')]");
 			
@@ -238,7 +245,7 @@ public class LogsTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;	
 		}
-		screenShot("LogsTestIT::runOutputRefreshTest");
+		screenShot("LogsTestIT-runOutputRefreshTest");
 		assertTrue("Output Refresh Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	// Add more deployment page tests here

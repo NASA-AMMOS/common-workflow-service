@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.jms.Session;
 
 import com.google.gson.Gson;
+import jpl.cws.core.CmdLineInputFields;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.HtmlEmail;
 import org.camunda.bpm.application.PostDeploy;
@@ -67,6 +68,7 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 	//@Autowired private ExternalTaskService externalTaskService;
 	
 	@Value("${camunda.executor.service.max.pool.size}") private Integer EXEC_SERVICE_MAX_POOL_SIZE;
+	@Value("${cws.admin.email}") private String cwsAdminEmail;
 	@Value("${cws.smtp.hostname}") private String cwsSMTPHostname;
 	@Value("${cws.smtp.port}") private String cwsSMTPPort;
 	@Value("${send.user.task.assignment.emails}") private String sendUserTaskAssignmentEmails;
@@ -295,7 +297,7 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 							"VARIABLE [" + varKey + " = " + variables.get(varKey) + "]");
 					}
 				}
-				
+
 				// If this is an event in a subprocess, then this doesn't count.
 				// We only want to count events of the parent process.
 				//
@@ -318,11 +320,11 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 									log.error("procDefKey unable to be determined!");
 								}
 								log.trace("sendProcEventTopicMessageWithRetries");
-								
-								//String startedOnWorkerId = execution.getVariable("startedOnWorkerId").toString();
-								//if (startedOnWorkerId != null && !startedOnWorkerId.equals(workerId)) {
-								//	log.trace("Started on worker != ended on worker");
-								//}
+
+								if (execution.getVariable("uuid") != null && execution.getVariable("startedOnWorkerId") != null && !execution.getVariable("startedOnWorkerId").toString().equals(workerId)) {
+									log.debug("PROCESS '" + procDefKey + "' (uuid=" + execution.getVariable("uuid").toString() + ") - Started on worker[" +
+										execution.getVariable("startedOnWorkerId").toString() + "] != ended[" + workerId + "] on worker");
+								}
 								// FIXME: UUID might not be right
 								if (execution.getVariable("uuid") != null) {
 									processService.sendProcEventTopicMessageWithRetries(
@@ -331,6 +333,8 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 										procDefKey,
 										repositoryService.getProcessDefinition(execution.getProcessDefinitionId()).getDeploymentId(),
 										"processEndEventDetected");
+								} else {
+									log.warn("WARNING: UUID of an instance of procDef '" + procDefKey + "' cannot be found. ");
 								}
 							}
 						}
@@ -428,7 +432,7 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 									cmdFields.retryDelay = Integer.parseInt(getFieldValue(fieldName, fields, expressionManager, execution));
 
 									JsonValue jsonValue = SpinValues.jsonValue(new Gson().toJson(cmdFields)).create();
-									execution.setVariable(activityId + "_input", jsonValue);
+									execution.setVariable(activityId + "_in", jsonValue);
 								}
 								catch (Throwable t) {
 									log.error("Error parsing cmdLine fields", t);
@@ -464,8 +468,7 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 			}
 		};
 	}
-	
-	
+
 	/**
 	 * Helper method to get procDefKey from execution object, using multiple methods.
 	 */
@@ -519,14 +522,15 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 			
 			email.setHostName(cwsSMTPHostname);
 			email.setSmtpPort(Integer.parseInt(cwsSMTPPort));
-			email.setFrom("cws_admin@localhost"); // TODO: make this configurable as well?
+			email.setFrom(cwsAdminEmail);
 			email.setSubject(emailSubject);
 			
 			for (String recip : recipients) {
 				email.addTo(recip.trim());
 				log.debug("About to send email to " + recip + "...");
 			}
-			
+
+			log.debug("  FROM   : " + cwsAdminEmail);
 			log.debug("  SUBJECT: " + emailSubject);
 			log.debug("  BODY   : " + emailBody);
 			

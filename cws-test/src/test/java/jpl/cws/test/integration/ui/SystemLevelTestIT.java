@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -67,8 +68,8 @@ public class SystemLevelTestIT extends WebTestUtil {
 				WebElement myTable = driver.findElement(By.id("workers-table"));
 				List<WebElement> myRows = myTable.findElements(By.tagName("td"));
 				log.info("Getting info from Worker table...");
-				log.info("Checking if the worker table has 'worker0001'");
-				if (myRows.get(0).getText().contains("worker0001")) {
+				log.info("Checking if the worker table has 'worker-#############'");
+				if (myRows.get(0).getText().contains("worker-")) {
 					log.info("SUCCESS: Found at least one worker up.");
 					scriptPass = true;
 					testCasesCompleted++;
@@ -82,7 +83,7 @@ public class SystemLevelTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("SystemLevelTestIT::runWorkerTest");
+		screenShot("SystemLevelTestIT-runWorkerTest");
 		assertTrue("System Level Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
@@ -124,7 +125,7 @@ public class SystemLevelTestIT extends WebTestUtil {
 	            	
 	            	//start the worker back so it doesn't affect the rest of the test cases.
 					String startWorkerScript = new File(System.getProperty("user.dir")).getParent() + "/dist/worker1/cws/start_cws.sh";
-					String commandStart = "sh " + startWorkerScript;
+					String commandStart = "bash " + startWorkerScript;
 					log.info("Starting script: 'start_cws.sh' to start the worker again.");
 					
 					Process procStart = Runtime.getRuntime().exec(commandStart);
@@ -156,7 +157,7 @@ public class SystemLevelTestIT extends WebTestUtil {
 			System.out.println(e.toString());
 			scriptPass = false;
 		}
-		screenShot("SystemLevelTestIT::runShutdownWorkerTest");
+		screenShot("SystemLevelTestIT-runShutdownWorkerTest");
 		assertTrue("Shutdown Worker Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 	// Add more deployment page tests here
