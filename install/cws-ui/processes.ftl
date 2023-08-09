@@ -191,7 +191,10 @@
         <script type="text/javascript">
 
             //STATE PERSISTANCE CONSTS
-            const username = "username"; //temporary, hardcoded value for now
+            var username = document.cookie.substring(document.cookie.indexOf("cwsUsername=") + 12);
+            if (username.indexOf(";") > 0) {
+                username = username.substring(0, username.indexOf(";"));
+            }
             const hideSubProcsVar = "CWS_DASH_PROCS_HIDE_SUBPROCS-" + username;
             const qStringVar = "CWS_DASH_PROCS_QSTRING-" + username;
             //GLOBAL VARS
@@ -544,43 +547,60 @@
                                         }
                                         if (key.includes("(file, image")) {
                                             tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
-                                                + '<br><img class="grow" src="' + tempVal + '">'
-                                                + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                + "</span></div></div><br>";
+                                            temp = `<div class="var-row-div-flex">`
+                                                + `<div class="var-row-div-flex-sub-1">`
+                                                + `<b>` + tempKey + `: </b>`
+                                                + `<img class="grow" src="` + tempVal + `"></div>`
+                                                + `<div class="var-row-div-flex-sub-2"></div>`
+                                                + `<div class="copySpan" style="width: 30px;">`
+                                                + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick="">`
+                                                + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                                + `</span></div></div>`;
                                         } else if (key.includes("{")) {
                                             var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
                                             tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
-                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
-                                                + '<i>' + fileName + '</i>'
-                                                + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                + "<span aria-label=\"Download\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-downloadValue=\"" + tempVal + "\" data-downloadName=\"" + fileName + "\" onClick=''>"
-                                                + "<img src=\"images/download.svg\" class=\"copy-icon clipboard\">"
-                                                + "</span></div></div><br>";
+                                            temp = `<div class="var-row-div-flex">`
+                                                + `<div class="var-row-div-flex-sub-1">`
+                                                + `<b>` + tempKey + `: </b>`
+                                                + `<i>` + fileName + `</i></div>`
+                                                + `<div class="var-row-div-flex-sub-2"></div>`
+                                                + `<div class="copySpan" style="width: 30px;">`
+                                                + `<span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick="">`
+                                                + `<img src="images/download.svg" class="copy-icon clipboard">`
+                                                + `</span></div></div>`;
                                         } else if (checkforImageURL(tempVal)) {
                                             tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
-                                                + '<br><img class="grow" src="' + tempVal + '">'
-                                                + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                + "</span></div></div><br>";
+                                            temp = `<div class="var-row-div-flex">`
+                                                + `<div class="var-row-div-flex-sub-1">`
+                                                + `<b>` + tempKey + `: </b>`
+                                                + `<img class="grow" src="` + tempVal + `"></div>`
+                                                + `<div class="var-row-div-flex-sub-2"></div>`
+                                                + `<div class="copySpan" style="width: 30px;">`
+                                                + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
+                                                + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                                + `</span></div></div>`;
                                         } else if (checkForURL(tempVal)) {
                                             tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + "<a href=\"" + tempVal + "\">" + tempVal + "</a>" + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                + "</span></div></div><br>";
+                                            temp = `<div class="var-row-div-flex">`
+                                                + `<div class="var-row-div-flex-sub-1">`
+                                                + `<b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div>`
+                                                + `<div class="var-row-div-flex-sub-2"></div>`
+                                                + `<div class="copySpan" style="width: 30px;">`
+                                                + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
+                                                + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                                + `</span></div></div>`;
                                         } else {
                                             if (tempKey.toUpperCase().includes("(STRING)")) {
                                                 tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                             }
-                                            temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                + "</span></div></div><br>";
+                                            temp = `<div class="var-row-div-flex">`
+                                                    + `<div class="var-row-div-flex-sub-1">`
+                                                    + `<b>` + tempKey + `: </b><p style="margin-bottom: 0px;">` + tempVal + `</p></div>`
+                                                    + `<div class="var-row-div-flex-sub-2"></div>`
+                                                    + `<div class="copySpan" style="width: 30px;">`
+                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
+                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                                    + `</span></div></div>`;
                                         }
                                         if (putAllAfter === 0) {
                                             before = before + temp;
@@ -670,43 +690,60 @@
                                             var tempKey = fullKeysInOrder[key].substring(7);
                                             if (tempKey.includes("(file, image")) {
                                                 tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
-                                                    + '<br><img class="grow" src="' + tempVal + '">'
-                                                    + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                    + "</span></div></div><br>";
+                                                temp = `<div class="var-row-div-flex">`
+                                                    + `<div class="var-row-div-flex-sub-1">`
+                                                    + `<b>` + tempKey + `: </b>`
+                                                    + `<img class="grow" src="` + tempVal + `"></div>`
+                                                    + `<div class="var-row-div-flex-sub-2"></div>`
+                                                    + `<div class="copySpan" style="width: 30px;">`
+                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick="">`
+                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                                    + `</span></div></div>`;
                                             } else if (tempKey.includes("{")) {
                                                 var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
-                                                tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
-                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
-                                                    + '<i>' + fileName + '</i>'
-                                                    + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                    + "<span aria-label=\"Download\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-downloadValue=\"" + tempVal + "\" data-downloadName=\"" + fileName + "\" onClick=''>"
-                                                    + "<img src=\"images/download.svg\" class=\"copy-icon clipboard\">"
-                                                    + "</span></div></div><br>";
+                                                tempKey = tempKey.substring(tempKey.indexOf("[")+1, tempKey.indexOf(" {"));
+                                                temp = `<div class="var-row-div-flex">`
+                                                    + `<div class="var-row-div-flex-sub-1">`
+                                                    + `<b>` + tempKey + `: </b>`
+                                                    + `<i>` + fileName + `</i></div>`
+                                                    + `<div class="var-row-div-flex-sub-2"></div>`
+                                                    + `<div class="copySpan" style="width: 30px;">`
+                                                    + `<span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick="">`
+                                                    + `<img src="images/download.svg" class="copy-icon clipboard">`
+                                                    + `</span></div></div>`;
                                             } else if (checkforImageURL(tempVal)) {
                                                 tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
-                                                    + '<br><img class="grow" src="' + tempVal + '">'
-                                                    + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                    + "</span></div></div><br>";
+                                                temp = `<div class="var-row-div-flex">`
+                                                    + `<div class="var-row-div-flex-sub-1">`
+                                                    + `<b>` + tempKey + `: </b>`
+                                                    + `<img class="grow" src="` + tempVal + `"></div>`
+                                                    + `<div class="var-row-div-flex-sub-2"></div>`
+                                                    + `<div class="copySpan" style="width: 30px;">`
+                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
+                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                                    + `</span></div></div>`;
                                             } else if (checkForURL(tempVal)) {
                                                 tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + "<a href=\"" + tempVal + "\">" + tempVal + "</a>" + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                    + "</span></div></div><br>";
+                                                temp = `<div class="var-row-div-flex">`
+                                                    + `<div class="var-row-div-flex-sub-1">`
+                                                    + `<b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div>`
+                                                    + `<div class="var-row-div-flex-sub-2"></div>`
+                                                    + `<div class="copySpan" style="width: 30px;">`
+                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
+                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                                    + `</span></div></div>`;
                                             } else {
                                                 if (tempKey.toUpperCase().includes("(STRING)")) {
                                                     tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                                 }
-                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                    + "</span></div></div><br>";
+                                                temp = `<div class="var-row-div-flex">`
+                                                    + `<div class="var-row-div-flex-sub-1">`
+                                                    + `<b>` + tempKey + `: </b><p style="margin-bottom: 0px;">` + tempVal + `</p></div>`
+                                                    + `<div class="var-row-div-flex-sub-2"></div>`
+                                                    + `<div class="copySpan" style="width: 30px;">`
+                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
+                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                                    + `</span></div></div>`;
                                             }
                                             if (count > 2) {
                                                 after += temp;
@@ -730,43 +767,61 @@
                                             }
                                             if (tempKey.includes("(file, image")) {
                                                 tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
-                                                    + '<br><img class="grow" src="' + tempVal + '">'
-                                                    + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"true\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                    + "</span></div></div><br>";
+                                                temp = `<div class="var-row-div-flex">`
+                                                    + `<div class="var-row-div-flex-sub-1">`
+                                                    + `<b>` + tempKey + `: </b>`
+                                                    + `<img class="grow" src="` + tempVal + `"></div>`
+                                                    + `<div class="var-row-div-flex-sub-2"></div>`
+                                                    + `<div class="copySpan" style="width: 30px;">`
+                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick="">`
+                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                                    + `</span></div></div>`;
                                             } else if (tempKey.includes("{")) {
                                                 var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
-                                                tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
-                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
-                                                    + '<i>' + fileName + '</i>'
-                                                    + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                    + "<span aria-label=\"Download\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-downloadValue=\"" + tempVal + "\" data-downloadName=\"" + fileName + "\" onClick=''>"
-                                                    + "<img src=\"images/download.svg\" class=\"copy-icon clipboard\">"
-                                                    + "</span></div></div><br>";
+                                                tempKey = tempKey.substring(tempKey.indexOf("]")+1, tempKey.indexOf(" {"));
+                                                console.log(tempKey);
+                                                temp = `<div class="var-row-div-flex">`
+                                                    + `<div class="var-row-div-flex-sub-1">`
+                                                    + `<b>` + tempKey + `: </b>`
+                                                    + `<i>` + fileName + `</i></div>`
+                                                    + `<div class="var-row-div-flex-sub-2"></div>`
+                                                    + `<div class="copySpan" style="width: 30px;">`
+                                                    + `<span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick="">`
+                                                    + `<img src="images/download.svg" class="copy-icon clipboard">`
+                                                    + `</span></div></div>`;
                                             } else if (checkforImageURL(tempVal)) {
                                                 tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> "
-                                                    + '<br><img class="grow" src="' + tempVal + '">'
-                                                    + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                    + "</span></div></div><br>";
+                                                temp = `<div class="var-row-div-flex">`
+                                                    + `<div class="var-row-div-flex-sub-1">`
+                                                    + `<b>` + tempKey + `: </b>`
+                                                    + `<img class="grow" src="` + tempVal + `"></div>`
+                                                    + `<div class="var-row-div-flex-sub-2"></div>`
+                                                    + `<div class="copySpan" style="width: 30px;">`
+                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
+                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                                    + `</span></div></div>`;
                                             } else if (checkForURL(tempVal)) {
                                                 tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + "<a href=\"" + tempVal + "\">" + tempVal + "</a>" + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                    + "</span></div></div><br>";
+                                                temp = `<div class="var-row-div-flex">`
+                                                    + `<div class="var-row-div-flex-sub-1">`
+                                                    + `<b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div>`
+                                                    + `<div class="var-row-div-flex-sub-2"></div>`
+                                                    + `<div class="copySpan" style="width: 30px;">`
+                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
+                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                                    + `</span></div></div>`;
                                             } else {
                                                 if (tempKey.toUpperCase().includes("(STRING)")) {
                                                     tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
                                                 }
-                                                temp = "<div><div style=\"width: 85%; max-width: 300px; min-height: 25px; float:left; overflow-wrap: break-word;\"><b>" + tempKey + ":</b> " + tempVal + "</div><div class=\"copySpan\" style=\"width: 30px; float:right\">"
-                                                    + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-isImage=\"false\" data-copyValue=\"" + tempVal + "\" onClick=''>"
-                                                    + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                    + "</span></div></div><br>";
+                                                temp = `<div class="var-row-div-flex">`
+                                                    + `<div class="var-row-div-flex-sub-1">`
+                                                    + `<b>` + tempKey + `: </b><p style="margin-bottom: 0px;">` + tempVal + `</p></div>`
+                                                    + `<div class="var-row-div-flex-sub-2"></div>`
+                                                    + `<div class="copySpan" style="width: 30px;">`
+                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
+                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                                    + `</span></div></div>`;
                                             }
                                             if (tempKey === "startedOnWorkerId") {
                                                 after = after + temp;

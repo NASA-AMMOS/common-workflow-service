@@ -636,7 +636,15 @@ public class CwsConsoleService {
                                 }
                                 inputVarMap.put("[" + historicVariableInstance.getCreateTime().toString() + "]" + varName + " (" + varType + ", " + mimeType + ")", encodedString);
                             } else {
-                                inputVarMap.put("[" + historicVariableInstance.getCreateTime().toString() + "]" + varName + " (" + varType + ")", fileName);
+                                InputStream fileInputStream = fileValue.getValue();
+                                String encodedString = "";
+                                try {
+                                    byte[] sourceBytes = IOUtils.toByteArray(fileInputStream);
+                                    encodedString += Base64.getEncoder().encodeToString(sourceBytes);
+                                } catch (IOException e) {
+                                    log.error("Error converting file to Base64");
+                                }
+                                inputVarMap.put("[" + historicVariableInstance.getCreateTime().toString() + "]" + varName + "(" + varType + ") {" + fileName + "}", encodedString);
                             }
                         } else {
                             InputStream fileInputStream = fileValue.getValue();
@@ -647,7 +655,7 @@ public class CwsConsoleService {
                             } catch (IOException e) {
                                 log.error("Error converting file to Base64");
                             }
-                            inputVarMap.put("[" + historicVariableInstance.getCreateTime().toString() + "]" + varName + "(" + varType + ") {" + fileName + "}", encodedString);
+                            inputVarMap.put("[" + historicVariableInstance.getCreateTime().toString() + "]" + varName + " (" + varType + ") {" + fileName + "}", encodedString);
                         }
                     }
                 }
@@ -699,7 +707,16 @@ public class CwsConsoleService {
                                 }
                                 outputVarMap.put(varName + " (" + varType + ", " + mimeType + ")", encodedString);
                             } else {
-                                outputVarMap.put(varName + " (" + varType + ")", fileName);
+                                InputStream fileInputStream = fileValue.getValue();
+                                String encodedString = "";
+                                try {
+                                    byte[] sourceBytes = IOUtils.toByteArray(fileInputStream);
+                                    encodedString += Base64.getEncoder().encodeToString(sourceBytes);
+                                } catch (IOException e) {
+                                    log.error("Error converting file to Base64");
+                                }
+                                outputVarMap.put("[" + historicVariableInstance.getCreateTime().toString() + "]" + varName + " (" + varType + ") {" + fileName + "}", encodedString);
+
                             }
                         } else {
                             InputStream fileInputStream = fileValue.getValue();
@@ -710,7 +727,7 @@ public class CwsConsoleService {
                             } catch (IOException e) {
                                 log.error("Error converting file to Base64");
                             }
-                            outputVarMap.put(varName + "(" + varType + ") {" + fileName + "}", encodedString);
+                            outputVarMap.put(varName + " (" + varType + ") {" + fileName + "}", encodedString);
                         }
                     }
                 }

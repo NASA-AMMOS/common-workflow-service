@@ -35,7 +35,10 @@
 	<script type="text/javascript">
 
 		//STATE PERSISTANCE CONSTS
-		const username="username"; //temporary, hardcoded value for now
+		var username = document.cookie.substring(document.cookie.indexOf("cwsUsername=") + 12);
+		if (username.indexOf(";") > 0) {
+			username = username.substring(0, username.indexOf(";"));
+		}
 		const refreshRateVar="CWS_DASH_LOGS_REFRESH_RATE-"+username;
 		const refreshVar="CWS_DASH_LOGS_REFRESH-"+username;
 		const qstringVar="CWS_DASH_LOGS_QSTRING-"+username;

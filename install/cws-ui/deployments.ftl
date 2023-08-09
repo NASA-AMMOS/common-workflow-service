@@ -12,11 +12,15 @@
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<link href="/${base}/css/deployments.css" rel="stylesheet">
+	<link href="/${base}/css/microtip.css" rel="stylesheet">
 
 	<script>
 
 		//STATE PERSISTANCE CONSTS
-		const username = "username"; //temporary, hardcoded value for now
+		var username = document.cookie.substring(document.cookie.indexOf("cwsUsername=") + 12);
+		if (username.indexOf(";") > 0) {
+			username = username.substring(0, username.indexOf(";"));
+		}
 		const lastNumHoursVar = "CWS_DASH_DEPLOY_LAST_NUM_HOURS-" + username;
 		const refreshRateVar = "CWS_DASH_DEPLOY_REFRESH_RATE-" + username;
 		const hideSuspendedProcVar = "CWS_DASH_DEPLOY_HIDE_SUS-" + username;
@@ -382,18 +386,20 @@
 
 								var returnVal = `<div class="proc-name-btns">`;
 								if (data.suspended == "true") {
-									returnVal += `<a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="resumeProcDef('` + data.id + `', '` + data.key + `')">`
+									returnVal += `<a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="resumeProcDef('` + data.id + `', '` + data.key + `')" aria-label="Resume" data-microtip-position="top-right" role="tooltip">`
 									+ `<span style="cursor: pointer; float: right; color: green;" id="suspend-` 
-									+ data.key + `" class="glyphicon glyphicon-play"></span></a>`;
+									+ data.key + `" class="glyphicon glyphicon-play"></span>`
+									+ `</a>`;
 								} else {
-									returnVal += `<a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="suspendProcDef('` + data.id + `', '` + data.key + `')">`
+									returnVal += `<a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="suspendProcDef('` + data.id + `', '` + data.key + `')" aria-label="Suspend" data-microtip-position="top-right" role="tooltip">`
 									+ `<span style="cursor: pointer; float: right; color: #d9534f;" id="suspend-` 
 									+ data.key + `" class="glyphicon glyphicon-pause"></span></a>`;
 								}
 								
-								returnVal += `<a href="/${base}/modeler?procDefKey=` + data.key + `" target="_blank">`
+								returnVal += `<a href="/${base}/modeler?procDefKey=` + data.key + `" target="_blank" aria-label="Edit" data-microtip-position="top-right" role="tooltip">`
 									+ `<span style="float: right;" id="edit-` + data.key + `" class="glyphicon glyphicon-pencil"></span></a>`
-									+ `<a data-proc-key="` + data.key + `" onClick="handleDeleteProcDef('` + data.key + `')"><span style="cursor: pointer; float: right; color: #d9534f;" id="delete-` 
+									+ `<a data-proc-key="` + data.key + `" onClick="handleDeleteProcDef('` + data.key + `')" aria-label="Delete" data-microtip-position="top-right" role="tooltip">`
+									+ `<span style="cursor: pointer; float: right; color: #d9534f;" id="delete-` 
 									+ data.key + `" class="glyphicon glyphicon-trash"></span></a>`;
 
 								returnVal += `</div>`;

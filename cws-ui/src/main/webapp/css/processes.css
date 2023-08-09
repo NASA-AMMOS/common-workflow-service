@@ -137,3 +137,24 @@ summary {
     align-items: flex-start;
     gap: 0px;
 }
+
+.var-row-div-flex {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    align-content: center;
+}
+
+.var-row-div-flex-sub-1 {
+    width: 85%;
+    max-width: 300px;
+    min-height: 25px;
+    float:left;
+    overflow-wrap: break-word;
+}
+
+.var-row-div-flex-sub-2 {
+    flex-grow: 1;
+}

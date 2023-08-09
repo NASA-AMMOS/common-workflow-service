@@ -212,6 +212,15 @@ public class WebUtils {
 		Cookie cookie = constructCookie(name, value, domain, path);
 		resp.addCookie(cookie);
 	}
+
+	public static void addUnsecureCookie(String name, String value, String domain, String path, HttpServletResponse resp) {
+		if (!isValidCookieString(name) || !isValidCookieString(value)) {
+			throw new IllegalArgumentException("Cookie name and/or value is invalid (contains unacceptable characters)!");
+		}
+		Cookie cookie = constructCookie(name, value, domain, path);
+		cookie.setHttpOnly(false);
+		resp.addCookie(cookie);
+	}
 	
 
 	
