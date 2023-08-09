@@ -628,7 +628,7 @@
 				var tempVal = value;
 				var tempKey = key.substring(key.indexOf("]")+1);
 				if (key.includes("(file, image")) {
-					tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+					tempKey = tempKey.replace("file, ", "");
 					temp = `<div class="proc-var-flex-main">`
 						+ `<div class="proc-var-flex-main-sub-1">`
 						+ `<div class="proc-var-flex-main-sub-2"><b>` + tempKey + `: </b></div>`
@@ -651,7 +651,7 @@
 						+ `<img src="images/download.svg" class="copy-icon clipboard">`
 						+ `</span></div></div>`;
 				} else if (checkforImageURL(tempVal)) {
-					tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+					tempKey = tempKey.replace("string", "url");
 					temp = `<div class="proc-var-flex-main">`
 						+ `<div class="proc-var-flex-main-sub-1">`
 						+ `<div class="proc-var-flex-main-sub-2">`
@@ -663,7 +663,7 @@
 						+ `<img src="images/copy.svg" class="copy-icon clipboard">`
 						+ `</span></div></div>`;
 				} else if (checkForURL(tempVal)) {
-					tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+					tempKey = tempKey.replace("string", "url");
 					temp = `<div class="proc-var-flex-main">`
 						+ `<div class="proc-var-flex-main-sub-1">`
 						+ `<div class="proc-var-flex-main-sub-2">`
@@ -717,7 +717,7 @@
 					var tempVal = data[fullKeysInOrder[key]];
 					var tempKey = fullKeysInOrder[key].substring(7);
 					if (tempKey.includes("(file, image")) {
-						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						tempKey = tempKey.replace("file, ", "");
 						temp = `<div class="proc-var-flex-main">`
 							+ `<div class="proc-var-flex-main-sub-1">`
 							+ `<div class="proc-var-flex-main-sub-2"><b>` + tempKey + `: </b></div>`
@@ -740,7 +740,7 @@
 							+ `<img src="images/download.svg" class="copy-icon clipboard">`
 							+ `</span></div></div>`;
 					} else if (checkforImageURL(tempVal)) {
-						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						tempKey = tempKey.replace("string", "url");
 						temp = `<div class="proc-var-flex-main">`
 							+ `<div class="proc-var-flex-main-sub-1">`
 							+ `<div class="proc-var-flex-main-sub-2">`
@@ -752,7 +752,7 @@
 							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
 							+ `</span></div></div>`;
 					} else if (checkForURL(tempVal)) {
-						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						tempKey = tempKey.replace("string", "url");
 						temp = `<div class="proc-var-flex-main">`
 							+ `<div class="proc-var-flex-main-sub-1">`
 							+ `<div class="proc-var-flex-main-sub-2">`
@@ -764,9 +764,6 @@
 							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
 							+ `</span></div></div>`;
 					} else {
-						if (tempKey.includes("(string)")) {
-							tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-						}
 						temp = `<div class="proc-var-flex-main">`
 							+ `<div class="proc-var-flex-main-sub-1">`
 							+ `<div class="proc-var-flex-main-sub-2">`
@@ -792,7 +789,7 @@
 					var tempVal = data[keysNotInOrder[key]];
 					var tempKey = keysNotInOrder[key].substring(7);
 					if (tempKey.includes("(file, image")) {
-						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						tempKey = tempKey.replace("file, ", "");
 						temp = `<div class="proc-var-flex-main">`
 							+ `<div class="proc-var-flex-main-sub-1">`
 							+ `<div class="proc-var-flex-main-sub-2"><b>` + tempKey + `: </b></div>`
@@ -815,7 +812,7 @@
 							+ `<img src="images/download.svg" class="copy-icon clipboard">`
 							+ `</span></div></div>`;
 					} else if (checkforImageURL(tempVal)) {
-						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						tempKey = tempKey.replace("string", "url");
 						temp = `<div class="proc-var-flex-main">`
 							+ `<div class="proc-var-flex-main-sub-1">`
 							+ `<div class="proc-var-flex-main-sub-2">`
@@ -827,7 +824,7 @@
 							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
 							+ `</span></div></div>`;
 					} else if (checkForURL(tempVal)) {
-						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
+						tempKey = tempKey.replace("string", "url");
 						temp = `<div class="proc-var-flex-main">`
 							+ `<div class="proc-var-flex-main-sub-1">`
 							+ `<div class="proc-var-flex-main-sub-2">`
@@ -839,9 +836,6 @@
 							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
 							+ `</span></div></div>`;
 					} else {
-						if (tempKey.includes("(string)")) {
-							tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-						}
 						temp = `<div class="proc-var-flex-main">`
 							+ `<div class="proc-var-flex-main-sub-1">`
 							+ `<div class="proc-var-flex-main-sub-2">`

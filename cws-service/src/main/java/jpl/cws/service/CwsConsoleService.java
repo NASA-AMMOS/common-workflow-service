@@ -727,7 +727,7 @@ public class CwsConsoleService {
                             } catch (IOException e) {
                                 log.error("Error converting file to Base64");
                             }
-                            outputVarMap.put(varName + "(" + varType + ") {" + fileName + "}", encodedString);
+                            outputVarMap.put(varName + " (" + varType + ") {" + fileName + "}", encodedString);
                         }
                     }
                 }
