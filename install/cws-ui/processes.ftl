@@ -561,7 +561,7 @@
                                             tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
                                             temp = `<div class="var-row-div-flex">`
                                                 + `<div class="var-row-div-flex-sub-1">`
-                                                + `<b>"` + tempKey + `": </b>`
+                                                + `<b>` + tempKey + `: </b>`
                                                 + `<i>` + fileName + `</i></div>`
                                                 + `<div class="var-row-div-flex-sub-2"></div>`
                                                 + `<div class="copySpan" style="width: 30px;">`
@@ -701,10 +701,10 @@
                                                     + `</span></div></div>`;
                                             } else if (tempKey.includes("{")) {
                                                 var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
-                                                tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+                                                tempKey = tempKey.substring(tempKey.indexOf("[")+1, tempKey.indexOf(" {"));
                                                 temp = `<div class="var-row-div-flex">`
                                                     + `<div class="var-row-div-flex-sub-1">`
-                                                    + `<b>"` + tempKey + `": </b>`
+                                                    + `<b>` + tempKey + `: </b>`
                                                     + `<i>` + fileName + `</i></div>`
                                                     + `<div class="var-row-div-flex-sub-2"></div>`
                                                     + `<div class="copySpan" style="width: 30px;">`
@@ -778,10 +778,11 @@
                                                     + `</span></div></div>`;
                                             } else if (tempKey.includes("{")) {
                                                 var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
-                                                tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+                                                tempKey = tempKey.substring(tempKey.indexOf("]")+1, tempKey.indexOf(" {"));
+                                                console.log(tempKey);
                                                 temp = `<div class="var-row-div-flex">`
                                                     + `<div class="var-row-div-flex-sub-1">`
-                                                    + `<b>"` + tempKey + `": </b>`
+                                                    + `<b>` + tempKey + `: </b>`
                                                     + `<i>` + fileName + `</i></div>`
                                                     + `<div class="var-row-div-flex-sub-2"></div>`
                                                     + `<div class="copySpan" style="width: 30px;">`
