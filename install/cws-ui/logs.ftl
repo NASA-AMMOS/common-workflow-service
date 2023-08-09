@@ -250,7 +250,6 @@
 				//we need to support sorting
 				//get the column # and direction we are sorting
 				var sortCol = data.order[0].column;
-				console.log("sortCol: " + sortCol);
 				var sortDir = data.order[0].dir;
 
 				//get the column name
@@ -297,11 +296,8 @@
 
 				var returnData;
 				var fetchError = "";
-				//console.log("STRINGIFIED: " + JSON.stringify(esReq));
-				//console.log("ENCODED: " + encodeURIComponent(JSON.stringify(esReq)));
 
 				var local_esReq = JSON.stringify(mainEsReq);
-				console.log("STRINGIFIED: " + local_esReq);
 				local_esReq = encodeURIComponent(local_esReq);
 				//sometimes double quotes get left here? replace double quotes with url encoded
 				local_esReq = local_esReq.replace(/"/g, "%22");
@@ -313,7 +309,6 @@
 					async: false,
 					success: function (ajaxData) {
 						returnData = ajaxData;
-						console.log(returnData);
 						//we should have our data now. We need to format it for the table
 						var formattedData = [];
 						for (hit in returnData.hits.hits) {
@@ -518,7 +513,6 @@
 
 		$("#search-text").keypress(function(e){
 			if(e.which==13){
-				console.log("enter pressed");
 				e.preventDefault();
 				$("#filter-submit-btn").click();
 			}
@@ -526,7 +520,6 @@
 
 		$("#pi-text").keypress(function(e){
 			if(e.which==13){
-				console.log("enter pressed");
 				e.preventDefault();
 				$("#filter-submit-btn").click();
 			}
@@ -534,7 +527,6 @@
 
 		$("#worker-id-text").keypress(function(e){
 			if(e.which==13){
-				console.log("enter pressed");
 				e.preventDefault();
 				$("#filter-submit-btn").click();
 			}
