@@ -512,9 +512,9 @@
 			+ `<input id="showall" type="radio" value="showall" name="log-line-control">`
 			+ `<label style="margin-left: 8px;" for="showall">Show All</label>`
 			+ `<input id="logonly" style="margin-left: 10px;" type="radio" value="logonly" name="log-line-control">`
-			+ `<label style="margin-left: 8px;" for="hide">Log Lines Only</label>`
+			+ `<label style="margin-left: 8px;" for="hide">CmdLine Log Lines Only</label>`
 			+ `<input id="nolog" style="margin-left: 10px;" type="radio" value="nolog" name="log-line-control" checked>`
-			+ `<label style="margin-left: 8px;" for="hide">Exclude Log Lines</label>`
+			+ `<label style="margin-left: 8px;" for="hide">Exclude CmdLine Log Lines</label>`
 			+ '</div>').appendTo(".above-table-buttons");
 
 		if (localStorage.getItem(hideLogLinesVar) === "showall") {
