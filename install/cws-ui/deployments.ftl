@@ -1,12 +1,11 @@
+<!DOCTYPE html>
 <html>
-
 <head>
 	<meta charset="utf-8">
 	<title>CWS - Deployments</title>
 
 	<!-- JAVASCRIPT LINKS -->
 	<script src="/${base}/js/jquery.min.js"></script>
-	<script src="/${base}/js/bootstrap.min.js"></script>
 	<script src="/${base}/js/bootstrap-toggle.min.js"></script>
 	<script src="/${base}/js/DataTables/datatables.js"></script>
 	<script src="/${base}/js/cws.js"></script>
@@ -571,7 +570,7 @@
 				listWorkersInModal(dataProcKey);
 			});
 			//HANDLES HIDE SUSPENDED PROC DEF CHECKBOX BEHAVIOR
-			$("#hide-sus-btn").click(function () {
+			$("#hide-sus-btn").on("click", function () {
 				if ($(this).prop("checked")) {
 					$("#process-table").DataTable().column(5).search("Active", false, true).draw();
 					localStorage.setItem(hideSuspendedProcVar, "1");
@@ -627,20 +626,20 @@
 			idleTimer = setInterval(idleMode, idleInterval);
 
 			//HANDLES HIDING INACTIVITY MODAL
-			$("#resume-refresh").click(function () {
+			$("#resume-refresh").on("click", function () {
 				$("#page-ref-modal").modal('hide');
 				idling = false;
 			});
 
 			//HANDLES DELETE PROC DEF BUTTON
-			$("#delete-proc-def").click(function () {
+			$("#delete-proc-def").on("click", function () {
 				$("#delete-proc-def").prop('disabled', true);
 				$("#deleting-message-container").css("display", "flex");
 				deleteProcDef(deleteProcDefName);
 			});
 
-			$("#open-file-div").click(function () {
-				$("#file-input").click();
+			$("#open-file-div").on("click", function () {
+				$("#file-input").trigger("click");
 			});
 			$("#file-input").on('change', function () {
 				//console.log($("#file-input").val());
@@ -653,7 +652,7 @@
 				idleTimer = setInterval(idleMode, idleInterval);
 			});
 
-			$(".bar-error").click(function () {
+			$(".bar-error").on("click", function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
 					window.location = "/${base}/processes?procDefKey=" + id + "&status=fail&cache=false";
@@ -662,7 +661,7 @@
 					window.location = "/${base}/processes?status=fail&cache=false";
 				}
 			});
-			$(".bar-completed").click(function () {
+			$(".bar-completed").on("click", function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
 					window.location = "/${base}/processes?procDefKey=" + id + "&status=complete,resolved&cache=false";
@@ -671,7 +670,7 @@
 					window.location = "/${base}/processes?status=complete,resolved&cache=false";
 				}
 			});
-			$(".bar-pending").click(function () {
+			$(".bar-pending").on("click", function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
 					window.location = "/${base}/processes?procDefKey=" + id + "&status=pending&cache=false";
@@ -680,7 +679,7 @@
 					window.location = "/${base}/processes?status=pending&cache=false";
 				}
 			});
-			$(".bar-disabled").click(function () {
+			$(".bar-disabled").on("click", function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
 					window.location = "/${base}/processes?procDefKey=" + id + "&status=disabled&cache=false";
@@ -689,7 +688,7 @@
 					window.location = "/${base}/processes?status=disabled&cache=false";
 				}
 			});
-			$(".bar-active").click(function () {
+			$(".bar-active").on("click", function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
 					window.location = "/${base}/processes?procDefKey=" + id + "&status=running&cache=false";
@@ -698,7 +697,7 @@
 					window.location = "/${base}/processes?status=running&cache=false";
 				}
 			});
-			$(".bar-failedToStart").click(function () {
+			$(".bar-failedToStart").on("click", function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
 					window.location = "/${base}/processes?procDefKey=" + id + "&status=failedToStart&cache=false";
@@ -707,7 +706,7 @@
 					window.location = "/${base}/processes?status=failedToStart&cache=false";
 				}
 			});
-			$(".bar-incident").click(function () {
+			$(".bar-incident").on("click", function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
 					window.location = "/${base}/processes?procDefKey=" + id + "&status=incident&cache=false";
@@ -787,11 +786,6 @@
 			})
 
 		}
-
-		$(function () {
-			$('[data-toggle="tooltip"]').tooltip()
-		})
-
 	</script>
 
 	<!-- Just for debugging purposes. Don't actually copy this line! -->
@@ -1041,6 +1035,8 @@
 				</div> <!-- modal-content -->
 			</div> <!-- modal-dialog -->
 		</div> <!-- .modal .fade -->
+
+		<script src="/${base}/js/bootstrap.min.js"></script>
 		
 		<script type="text/javascript">
 			var dataProcKey;
@@ -1082,17 +1078,17 @@
 			// CLICK ACTION FOR
 			// "Select All Workers" checkbox in modal
 			//
-			$("#all-workers").click(function () {
+			$("#all-workers").on("click", function () {
 				if ($(this).prop("checked")) {
 					$(".worker-checkbox").each(function () {
 						if (!$(this).prop("checked"))
-							$(this).click();
+							$(this).trigger("click");
 					});
 				}
 				else {
 					$(".worker-checkbox").each(function () {
 						if ($(this).prop("checked"))
-							$(this).click();
+							$(this).trigger("click");
 					});
 				}
 			});
@@ -1115,7 +1111,7 @@
 
 
 			// Done button closes the modal (as does clicking outside or pressing esc)
-			$("#done-workers-btn").click(function () {
+			$("#done-workers-btn").on("click", function () {
 				$("#workers-modal").modal('hide');
 			});
 
