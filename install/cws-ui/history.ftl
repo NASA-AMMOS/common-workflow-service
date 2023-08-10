@@ -625,7 +625,7 @@
 						+ `</span></div></div>`;
 				} else if (key.includes("{")) {
 					var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
-					tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+					tempKey = tempKey.substring(tempKey.indexOf("]") + 1, tempKey.indexOf(" {"));
 					temp = `<div class="proc-var-flex-main">`
 						+ `<div class="proc-var-flex-main-sub-1">`
 						+ `<div class="proc-var-flex-main-sub-2"><b>` + tempKey + `: </b></div>`
@@ -714,7 +714,7 @@
 							+ `</span></div></div>`;
 					} else if (tempKey.includes("{")) {
 						var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
-						tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+						tempKey = tempKey.substring(tempKey.indexOf("]")+1, tempKey.indexOf(" {"));
 						temp = `<div class="proc-var-flex-main">`
 							+ `<div class="proc-var-flex-main-sub-1">`
 							+ `<div class="proc-var-flex-main-sub-2"><b>` + tempKey + `: </b></div>`
@@ -786,7 +786,7 @@
 							+ `</span></div></div>`;
 					} else if (tempKey.includes("{")) {
 						var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
-						tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+						tempKey = tempKey.substring(tempKey.indexOf("]")+1, tempKey.indexOf(" {"));
 						temp = `<div class="proc-var-flex-main">`
 							+ `<div class="proc-var-flex-main-sub-1">`
 							+ `<div class="proc-var-flex-main-sub-2"><b>` + tempKey + `: </b></div>`
@@ -841,23 +841,63 @@
 					var tempVal = value;
 					var tempKey = key.substring(7);
 					if (tempKey.includes("(file, image")) {
-						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+						tempKey = tempKey.replace("file, ", "");
+						temp = `<div class="proc-var-flex-main">`
+							+ `<div class="proc-var-flex-main-sub-1">`
+							+ `<div class="proc-var-flex-main-sub-2"><b>` + tempKey + `: </b></div>`
+							+ `<div class="proc-var-flex-main-sub-3">`
+							+ `<img class="grow historyLimitSize" src='` + tempVal + `'></div></div>`
+							+ `<div class="proc-var-flex-btn">`
+							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''>`
+							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
+							+ `</span></div></div>`;
 					} else if (tempKey.includes("{")) {
 						var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
-						tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
-						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><i>` + fileName + `</i></div><div class="proc-var-flex-btn"><span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick=''><img src="images/download.svg" class="copy-icon clipboard"></span></div></div>`;
+						tempKey = tempKey.substring(tempKey.indexOf("]")+1, tempKey.indexOf(" {"));
+						temp = `<div class="proc-var-flex-main">`
+							+ `<div class="proc-var-flex-main-sub-1">`
+							+ `<div class="proc-var-flex-main-sub-2"><b>` + tempKey + `: </b></div>`
+							+ `<div class="proc-var-flex-main-sub-3">`
+							+ `<i>` + fileName + `</i></div></div>`
+							+ `<div class="proc-var-flex-btn">`
+							+ `<span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick=''>`
+							+ `<img src="images/download.svg" class="copy-icon clipboard">`
+							+ `</span></div></div>`;
 					} else if (checkforImageURL(tempVal)) {
-						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><img class="grow historyLimitSize" src="` + tempVal + `"></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+						tempKey = tempKey.replace("string", "url");
+						temp = `<div class="proc-var-flex-main">`
+							+ `<div class="proc-var-flex-main-sub-1">`
+							+ `<div class="proc-var-flex-main-sub-2">`
+							+ `<b>` + tempKey + `: </b></div>`
+							+ `<div class="proc-var-flex-main-sub-3">`
+							+ `<img class="grow historyLimitSize" src="` + tempVal + `"></div></div>`
+							+ `<div class="proc-var-flex-btn">`
+							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''>`
+							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
+							+ `</span></div></div>`;
 					} else if (checkForURL(tempVal)) {
-						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+						tempKey = tempKey.replace("string", "url");
+						temp = `<div class="proc-var-flex-main">`
+							+ `<div class="proc-var-flex-main-sub-1">`
+							+ `<div class="proc-var-flex-main-sub-2">`
+							+ `<b>` + tempKey + `: </b></div>`
+							+ `<div class="proc-var-flex-main-sub-3">`
+							+ `<a href="` + tempVal + `">` + tempVal + `</a></div></div>`
+							+ `<div class="proc-var-flex-btn">`
+							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''>`
+							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
+							+ `</span></div></div>`;
 					} else {
-						if (tempKey.includes("(string)")) {
-							tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-						}
-						temp = `<div class="proc-var-flex-main"><div style="align-self: start"><b>` + tempKey + `: </b>` + tempVal + `</a></div><div class="proc-var-flex-btn"><span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''><img src="images/copy.svg" class="copy-icon clipboard"></span></div></div>`;
+						temp = `<div class="proc-var-flex-main">`
+							+ `<div class="proc-var-flex-main-sub-1">`
+							+ `<div class="proc-var-flex-main-sub-2">`
+							+ `<b>` + tempKey + `: </b></div>`
+							+ `<div class="proc-var-flex-main-sub-3">`
+							+ tempVal + `</div></div>`
+							+ `<div class="proc-var-flex-btn">`
+							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''>`
+							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
+							+ `</span></div></div>`;
 					}
 					output = output + temp;
 				}
