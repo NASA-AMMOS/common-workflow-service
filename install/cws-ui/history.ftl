@@ -59,6 +59,10 @@
 			var downloadValue = $(this).attr('data-downloadValue');
 			var downloadName = $(this).attr('data-downloadName');
 			downloadFile(downloadValue, downloadName);
+			$(this).attr('aria-label', 'Downloaded!');
+			setTimeout(function () {
+				$('.copy').attr('aria-label', 'Download');
+			}, 2000);
 			return;
 		}
 		var copyValue = $(this).attr('data-copyValue');
@@ -249,27 +253,8 @@
 			} else {
 				$('#procEndTime').html("");
 			}
-			if (momentStart !== undefined && momentEnd !== undefined) {
-				var procDuration = moment.duration(momentEnd.diff(momentStart));
-				var procDurationStr = ""
-				if (procDuration.days() > 0) {
-					procDurationStr += procDuration.days() + "d ";
-				}
-				if (procDuration.hours() > 0) {
-					procDurationStr += procDuration.hours() + "h ";
-				}
-				if (procDuration.minutes() > 0) {
-					procDurationStr += procDuration.minutes() + "m ";
-				}
-				if (procDuration.seconds() > 0) {
-					procDurationStr += procDuration.seconds() + "s ";
-				}
-				if (procDuration.milliseconds() > 0) {
-					procDurationStr += procDuration.milliseconds() + "ms ";
-				}
-				$('#procDuration').html(procDurationStr);
-			} else {
-				$('#procDuration').html("N/A");
+			if (data.duration !== 0) {
+				$('#procDuration').html(convertMillis(data.duration));
 			}
 			
 			$.ajax({
