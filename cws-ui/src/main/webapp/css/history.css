@@ -94,3 +94,7 @@ summary {
 #logDataNest {
     font-size: 95%;
 }
+
+.procInstId-cell {
+    width: 300px;
+}
