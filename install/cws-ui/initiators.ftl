@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+
 <html>
 <head>
 	<meta charset="utf-8">
@@ -194,23 +196,23 @@
 			console.log( "window loaded" );
 		});*/
 
-	$("#saveXmlBtn").click(function(){
+	$("#saveXmlBtn").on("click", function(){
 		$("#saveMsg").modal();
 	});
 
-	$("#saveConfirmBtn").click(function() {
+	$("#saveConfirmBtn").on("click", function() {
 		$("#beans-table .ajax-spinner").show();
 		setTimeout(function(){ refreshInitiators(); }, 1000);
 		$("#saveMsg").modal('hide');
 	});
 	
-	$("#done-workers-btn").click(function(){
+	$("#done-workers-btn").on("click", function(){
 		$("#beans-table .ajax-spinner").show();
 		setTimeout(function(){ refreshInitiators(); }, 750);
 		$("#workers-modal").modal('hide');
 	});
 	
-	$("#cancel-workers-btn").click(function(){
+	$("#cancel-workers-btn").on("click", function(){
 		$("#workers-modal").modal('hide');
 		$("#cancelledByUserMsg").modal('show');
 	});
@@ -466,17 +468,17 @@
 	// CLICK ACTION FOR
 	// "Select All Workers" checkbox in modal
 	//
-	$("#all-workers").click(function() {
+	$("#all-workers").on("click", function() {
 		if($(this).prop("checked")) {
 			$(".worker-checkbox").each(function() {
 				if(!$(this).prop("checked") )
-					$(this).click();
+					$(this).trigger("click");
 			});
 		}
 		else{
 			$(".worker-checkbox").each(function() {
 				if($(this).prop("checked") )
-					$(this).click();
+					$(this).trigger("click");
 			});
 		}
 	});

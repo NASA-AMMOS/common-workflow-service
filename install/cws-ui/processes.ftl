@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+
 <html>
 
 <head>
@@ -236,7 +238,7 @@
                 });
 
                 //Toggle direction of chevron on filter visiblity toggle button
-                $("#filters-btn").click(function () {
+                $("#filters-btn").on("click", function () {
                     if ($("#filters-div").is(":visible"))
                         $("#filter-arrow").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
                     else
@@ -245,7 +247,7 @@
                 });
 
                 //Catch click on filter submit button
-                $("#filter-submit-btn").click(function () {
+                $("#filter-submit-btn").on("click", function () {
                     updateLocation(false, 1);
                 });
 
@@ -278,10 +280,10 @@
                 $("#super-proc-inst-id-in").change(function () {
                     getNumMatchingProcesses();
                 });
-                $("#filter-submit-btn").click(function () {
+                $("#filter-submit-btn").on("click", function () {
                     updateLocation(false, 1);
                 });
-                $("#hide-subprocs-btn").click(function () {
+                $("#hide-subprocs-btn").on("click", function () {
                     updateLocation(true, 1);
                     if (!($("#hide-subprocs-btn")).is(":checked")) {
                         $("#super-proc-inst-id-in").hide();
@@ -1740,7 +1742,7 @@
             }
 
             //intercepts the click event on the download json button
-            $("#json-bttn").click(function (e) {
+            $("#json-bttn").on("click", function (e) {
                 e.preventDefault();
                 downloadListJSON();
             });

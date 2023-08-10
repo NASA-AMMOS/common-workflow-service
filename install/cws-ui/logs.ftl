@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+
 <html>
 <head>
 	<meta charset="utf-8">
@@ -514,25 +516,25 @@
 		$("#search-text").keypress(function(e){
 			if(e.which==13){
 				e.preventDefault();
-				$("#filter-submit-btn").click();
+				$("#filter-submit-btn").trigger("click");
 			}
 		});
 
 		$("#pi-text").keypress(function(e){
 			if(e.which==13){
 				e.preventDefault();
-				$("#filter-submit-btn").click();
+				$("#filter-submit-btn").trigger("click");
 			}
 		});
 
 		$("#worker-id-text").keypress(function(e){
 			if(e.which==13){
 				e.preventDefault();
-				$("#filter-submit-btn").click();
+				$("#filter-submit-btn").trigger("click");
 			}
 		});
 
-		$("#filter-submit-btn").click(function(e){
+		$("#filter-submit-btn").on("click", function(e){
 			e.preventDefault();
 			window.location="/${base}/logs"+getFilterQString();
 		});
@@ -541,7 +543,7 @@
 			$(this).attr("href","/${base}/logs"+getFilterQString(false));
 		});
 
-		$("#filters-btn").click(function(){
+		$("#filters-btn").on("click", function(){
 			if($("#filters-div-flex").is(":visible"))
 				$("#filter-arrow").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
 			else
