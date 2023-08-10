@@ -238,7 +238,7 @@
 			}
 	
 			$('#procDefKey').html(data.procDefKey);
-			$('#procInstId').html(data.procInstId);
+			$('#procInstId').html(`<div class="procInstId-cell">` + data.procInstId + `</div>`);
 			var momentStart;
 			var momentEnd;
 			if (data.startTime !== null && data.startTime !== undefined && data.startTime !== "") {
