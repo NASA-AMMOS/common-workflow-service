@@ -30,6 +30,8 @@
 		<constructor-arg ref="cwsDataSource"/>
 	</bean>
 
+	__CWS_ADAPTATION_BEAN__
+
 	<bean id="cwsConfig"            class="jpl.cws.core.CwsConfig" />
 
 	<!-- CWS SERVICES -->

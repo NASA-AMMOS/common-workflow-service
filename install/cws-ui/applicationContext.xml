@@ -33,6 +33,8 @@
 		<constructor-arg ref="dbDataSource"/>
 	</bean>
 
+	__CWS_ADAPTATION_BEAN__
+
 	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dbDataSource" />
 	</bean>
