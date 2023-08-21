@@ -12,6 +12,7 @@ import java.util.Map;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.python.jline.internal.Log;
 import org.slf4j.Logger;
 
 import de.ruedigermoeller.serialization.FSTObjectInput;
@@ -57,7 +58,10 @@ public class ProcessStarterThread implements Runnable {
 		
 		String procStartReqUuid = procReq.get("uuid").toString();
 		String procDefKey = procReq.get("proc_def_key").toString();
-		
+
+		Log.info("Tag: " + "procStartReqUuid " + procStartReqUuid);
+		Log.info("Tag: " + "procDefKey " + procDefKey);
+
 		try {
 			long t0 = System.currentTimeMillis();
 
@@ -107,6 +111,7 @@ public class ProcessStarterThread implements Runnable {
 			FSTObjectInput in = new FSTObjectInput(new ByteArrayInputStream(procVarsAsBytes));
 			Map<String,Object> procVars = (Map<String,Object>)in.readObject();
 			in.close();
+			log.info("Tag: " + "procVars" + procVars);
 			if (procVars == null) {
 				procVars = new HashMap<String,Object>();
 			}
@@ -125,8 +130,11 @@ public class ProcessStarterThread implements Runnable {
 			procVars.put("procDefKey", procDefKey == null ? "unknown" : procDefKey);
 			procVars.put("startedOnWorkerId", workerService.getWorkerId());
 			// FUTURE WORK: Condense these into one JSON object (string)  Do in v2.3
-			
+			log.info("Tag: " + "procDefKey" + procDefKey);
+			log.info("Tag: " + "startedOnWorkerId" + workerService.getWorkerId());
+
 			String procBusinessKey = procReq.get("proc_business_key").toString();
+			log.info("Tag: " + "procBusinessKey" + procBusinessKey);
 			if (procBusinessKey == null) {
 				log.error("setting procBusinessKey to procStartRequeUuid because it was null.  This should never be null!");
 				procBusinessKey = procStartReqUuid;
@@ -139,7 +147,7 @@ public class ProcessStarterThread implements Runnable {
 			while (procInstId == null && waitTime < 5000) {
 
 				try {
-
+					log.info("");
 					// Start process on this engine, and get process instance ID back
 					//
 					procInstId = runtimeService.startProcessInstanceByKey(procDefKey, procBusinessKey, procVars).getId();
