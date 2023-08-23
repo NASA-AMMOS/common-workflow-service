@@ -3,13 +3,23 @@ package jpl.cws.test.integration.ui;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
 
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.logging.LogType;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,21 +116,18 @@ public class SnippetsTestIT extends WebTestUtil {
 			startProcDef("test_snippets_page", "Test Snippets Page", 90000);
 
 			goToPage("processes");
+			sleep(8000);
 
-			waitForElementID("pd-select");
-			log.info("Filter for Test Snippets Page results.");
-			Select select = new Select(findElById("pd-select"));
-			select.selectByVisibleText("Test Snippets Page");
+			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
 
-			waitForElementID("filter-submit-btn");
-
-			WebElement filterSubmit = findElById("filter-submit-btn");
-			filterSubmit.click();
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_snippets_page");
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 
 			log.info("Clicking on Test Snippets Page history.");
-			WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
+			WebElement historyButton = findElByXPath("//a[contains(text(),'History')]");
 			waitForElement(historyButton);
 			scrollTo(historyButton);
 			historyButton.click();

@@ -2,6 +2,7 @@ package jpl.cws.controller;
 import java.util.List;
 import java.util.Set;
 
+import jpl.cws.core.db.SchedulerDbService;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,7 +114,8 @@ public class MvcCore {
 			// Add list of (the latest) process definitions to the model
 			//
 			model.addObject("procDefs", cwsExecutionService.listProcessDefinitions());
-			
+			model.addObject("workerIds", cwsConsoleService.getAllWorkerIds());
+
 			log.trace("MODEL for Logs page: "+model.getModel());
 		}
 		catch (Throwable t) {

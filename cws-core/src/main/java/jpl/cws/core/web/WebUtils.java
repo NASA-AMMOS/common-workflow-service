@@ -71,7 +71,7 @@ public class WebUtils {
 	 * 
 	 */
 	public static RestCallResult restCall(String urlString, String method, String data, String cookie, String acceptType, String contentType, Boolean allowInsecureRequests, String username, String password) throws Exception {
-		log.trace("urlString = " + urlString);
+		log.debug("urlString = " + urlString);
 		HttpURLConnection connection = null;
 		try {
 			
@@ -210,6 +210,15 @@ public class WebUtils {
 			throw new IllegalArgumentException("Cookie name and/or value is invalid (contains unacceptable characters)!");
 		}
 		Cookie cookie = constructCookie(name, value, domain, path);
+		resp.addCookie(cookie);
+	}
+
+	public static void addUnsecureCookie(String name, String value, String domain, String path, HttpServletResponse resp) {
+		if (!isValidCookieString(name) || !isValidCookieString(value)) {
+			throw new IllegalArgumentException("Cookie name and/or value is invalid (contains unacceptable characters)!");
+		}
+		Cookie cookie = constructCookie(name, value, domain, path);
+		cookie.setHttpOnly(false);
 		resp.addCookie(cookie);
 	}
 	

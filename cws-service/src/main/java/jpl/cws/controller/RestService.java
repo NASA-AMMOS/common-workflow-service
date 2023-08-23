@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -35,11 +36,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.google.gson.*;
 import org.apache.commons.io.IOUtils;
 import org.camunda.bpm.engine.ExternalTaskService;
 import org.camunda.bpm.engine.ManagementService;
 import org.camunda.bpm.engine.RepositoryService;
-import com.google.gson.JsonArray;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -54,23 +55,9 @@ import org.springframework.jms.core.MessageCreator;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 
 import jpl.cws.core.db.SchedulerDbService;
 import jpl.cws.core.db.SchedulerJob;
@@ -237,6 +224,23 @@ public class RestService extends MvcCore {
 		// Success!
 		return buildModel("login", "updated initiator enabled to " + enabled);
 	}
+
+	@RequestMapping(value = "/initiators/all/enabled", method = POST)
+	public @ResponseBody ModelAndView setAllInitiatorsEnabled(
+			@RequestParam("enabled") boolean enabled) {
+
+		try {
+			if (enabled) {
+				cwsInitiatorsService.enableAndStartAllInitiators();
+			} else {
+				cwsInitiatorsService.disableAndStopAllInitiators();
+			}
+		} catch (Exception e) {
+			log.error("A problem occured when setting enabled status to " + enabled, e);
+			return buildModel("initiators", e.getMessage());
+		}
+		return buildModel("login", "updated initiator enabled to " + enabled);
+	}
 	
 	
 	/**
@@ -260,6 +264,32 @@ public class RestService extends MvcCore {
 			log.error("isInitiatorEnabled exception", e);
 		}
 		return "error";
+	}
+
+	/**
+	 * Gets all process initiators enabled flag.
+	 *
+	 */
+	@RequestMapping(value = "initiators/all/enabled", method = GET)
+	public @ResponseBody Map<String, String> areAllInitiatorsEnabled () {
+		try {
+			log.trace("REST::areAllInitiatorsEnabled");
+			List<CwsProcessInitiator> initiators = cwsConsoleService.getAllProcessInitiators();
+			Map<String, String> statusMap = new HashMap<>();
+			for (int i = 0; i < initiators.size(); i++) {
+				String status = "";
+				if (initiators.get(i).isEnabled()) {
+					status = "true";
+				} else {
+					status = "false";
+				}
+				statusMap.put(initiators.get(i).getInitiatorId(), status);
+			}
+			return statusMap;
+		} catch (Exception e) {
+			log.error("areAllInitiatorsEnabled exception", e);
+		}
+		return null;
 	}
 	
 	
@@ -653,8 +683,72 @@ public class RestService extends MvcCore {
 
 		return "ERROR";
 	}
-	
-	
+
+	/**
+	 * REST method used to get the total number of log rows
+	 *
+	 */
+	@RequestMapping(value="/logs/get/count", method = GET, produces="application/json")
+	public @ResponseBody String getNumLogs() {
+		String urlString = constructElasticsearchUrl("/_count");
+
+		log.trace("REST getNumLogs query = " + urlString);
+
+		try {
+			RestCallResult restCallResult;
+			if (elasticsearchUseAuth()) {
+				// Authenticated call
+				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, "application/json; charset=utf-8", elasticsearchUsername, elasticsearchPassword);
+			} else {
+				// Unauthenticated call
+				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, "application/json; charset=utf-8");
+			}
+			if (restCallResult.getResponseCode() != 200) {
+				return "ERROR";
+			}
+			return restCallResult.getResponse();
+		} catch (Exception e) {
+			log.error("Problem performing REST call to get count of log data (URL=" + urlString + ")", e);
+		}
+
+		return "ERROR";
+	}
+
+	/**
+	 * REST method used to get logs on the logs page (shorter scroll timer)
+	 *
+	 */
+	@RequestMapping(value = "/logs/get/noScroll", method = GET, produces="application/json")
+	public @ResponseBody String getLogsNoScroll(
+			@RequestParam(value = "source") String source) {
+		String urlString = constructElasticsearchUrl("/_search");
+
+		log.debug("REST logs/get/noScroll query = " + urlString);
+
+		try {
+			String result = source;
+
+			log.debug("logs/get/noScroll: result: " + result);
+			RestCallResult restCallResult;
+			if (elasticsearchUseAuth()) {
+				// Authenticated call
+				restCallResult = WebUtils.restCall(urlString, "POST", result, null, null, "application/json; charset=utf-8", elasticsearchUsername, elasticsearchPassword);
+			} else {
+				// Unauthenticated call
+				restCallResult = WebUtils.restCall(urlString, "POST", result, null, null, "application/json; charset=utf-8");
+			}
+			if (restCallResult.getResponseCode() != 200) {
+				log.error("Error with /logs/get/noScroll: " + restCallResult.getResponse() + "; " + restCallResult.getResponseMessage());
+				return "ERROR: " + restCallResult.getResponse() + "; " + restCallResult.getResponseMessage();
+			}
+			return restCallResult.getResponse();
+		} catch (Exception e) {
+			log.error("Problem performing REST call to get log data (URL=" + urlString + ")", e);
+		}
+
+		return "ERROR";
+	}
+
 	/**
 	 * REST method used to get logs
 	 * 
@@ -662,7 +756,7 @@ public class RestService extends MvcCore {
 	@RequestMapping(value = "/logs/get", method = GET, produces="application/json")
 	public @ResponseBody String getLogs(
 			@RequestParam(value = "source") String source) {
-		String urlString = constructElasticsearchUrl("/_search?scroll=1m&source=" + source + "&source_content_type=application/json");
+		String urlString = constructElasticsearchUrl("/_search?scroll=5m&source=" + source + "&source_content_type=application/json");
 		
 		log.trace("REST getLogs query = " + urlString);
 		
@@ -717,18 +811,18 @@ public class RestService extends MvcCore {
 				throw new Exception(restCallResult.getResponse());
 			}
 			
-			response.setStatus(HttpServletResponse.SC_OK);
-			
-			return new JsonResponse(JsonResponse.Status.SUCCESS, restCallResult.getResponse()).toString();
+			String strResponse = "{\"status\": \"SUCCESS\"}";
+
+			return strResponse;
 		}
 		catch (Exception e) {
 			
 			String message = "A problem occurred while trying to delete log data (url=" + urlString + ", data=" + data + ", error=" + e.getMessage() + ")";
 			log.error(message, e);
-			
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			
-			return new JsonResponse(JsonResponse.Status.FAIL, e.getMessage()).toString();
+
+			String strResponse = "{\"status\": \"ERROR\"}";
+
+			return strResponse;
 		}
 	}
 	
@@ -1001,8 +1095,35 @@ public class RestService extends MvcCore {
 		
 		return "success";
 	}
-	
-	
+
+
+	/**
+	 * Inserts or updates worker tag with name and value
+	 *
+	 */
+	@RequestMapping(value = "/worker/{workerId}/updateTag/{name}", method = POST, produces="application/json")
+	public @ResponseBody String updateWorkerTag(
+			HttpServletResponse response,
+			@PathVariable String workerId,
+			@PathVariable String name,
+			@RequestParam(value = "value") String value) {
+
+		try {
+			dbService.updateWorkerTag(workerId, name, value);
+		} catch (Exception e) {
+			log.error("Unexpected error", e);
+
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
+			return new JsonResponse(JsonResponse.Status.FAIL, e.getMessage()).toString();
+		}
+
+		response.setStatus(HttpServletResponse.SC_OK);
+
+		return new JsonResponse(JsonResponse.Status.SUCCESS, "Updated worker '" + workerId + "' tag: " + name + "='" + value + "'").toString();
+	}
+
+
 	/**
 	 * Checks if procDefKey is deployed (exists)
 	 * 
@@ -1103,8 +1224,12 @@ public class RestService extends MvcCore {
 			@RequestParam(value = "procDefKey", required=false) String procDefKey,
 			@RequestParam(value = "status", required=false) String status,
 			@RequestParam(value = "minDate", required=false) String minDate,
-			@RequestParam(value = "maxDate", required=false) String maxDate
+			@RequestParam(value = "maxDate", required=false) String maxDate,
+			@RequestParam(value = "maxReturn", required=false, defaultValue="5000") String maxReturn
 			) {
+
+		Integer intMaxReturn = Integer.parseInt(maxReturn);
+
 		log.debug("REST:  getProcessInstancesSize (superProcInstId='" + superProcInstId +
 				"', procInstId='" + procInstId +
 				"', procDefKey='"+procDefKey+
@@ -1114,13 +1239,28 @@ public class RestService extends MvcCore {
 		try {
 			size = dbService.getFilteredProcessInstancesSize(
 					superProcInstId, procInstId, procDefKey, status, minDate, maxDate);
+			if (intMaxReturn > 0 && intMaxReturn < size) {
+				size = intMaxReturn;
+			}
 		}
 		catch (Exception e) {
 			log.error("Problem while getFilteredProcessInstancesSize", e);
 		}
 		return size;
 	}
-	
+
+	@RequestMapping(value="/history/getStatus/{procInstId}", method = GET)
+	public @ResponseBody String getStatusByProcInstId(
+			@PathVariable String procInstId) {
+		List<CwsProcessInstance> instances = null;
+		instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
+				null, procInstId, null, null, null, null, "DESC", 0);
+		if (instances.size() == 0) {
+			return null;
+		} else {
+			return instances.get(0).getStatus();
+		}
+	}
 	
 	/**
 	 * REST method used to get Processes table JSON
@@ -1135,13 +1275,16 @@ public class RestService extends MvcCore {
 			@RequestParam(value = "minDate",     required=false) String minDate,
 			@RequestParam(value = "maxDate",     required=false) String maxDate,
 			@RequestParam(value = "dateOrderBy", required=false, defaultValue="DESC") String dateOrderBy,
-			@RequestParam(value = "page",        required=false, defaultValue="0") String page
+			@RequestParam(value = "page", required=false, defaultValue="0") String page,
+			@RequestParam(value = "maxReturn", required=false, defaultValue="5000") String maxReturn
 			) {
 		
 		List<CwsProcessInstance> instances = null;
 		try {
+
 			Integer pageNum = Integer.parseInt(page);
-			
+			Integer intMaxReturn = Integer.parseInt(maxReturn);
+
 			dateOrderBy = dateOrderBy.toUpperCase();
 			if (!dateOrderBy.equals("DESC") && !dateOrderBy.equals("ASC")) {
 				log.error("Invalid dateOrderBy of " + dateOrderBy + "!  Forcing to be 'DESC'");
@@ -1152,17 +1295,22 @@ public class RestService extends MvcCore {
 					"', procInstId='" + procInstId +
 					"', procDefKey='"+procDefKey+
 					"', status='"+status+"', minDate="+minDate+", maxDate="+maxDate+
-					", dateOrderBy="+dateOrderBy+", page="+page+")");
+					", dateOrderBy="+dateOrderBy+")");
 
 			instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
 					superProcInstId, procInstId, procDefKey, status, minDate, maxDate, dateOrderBy, pageNum);
+
+			if ((intMaxReturn != -1) && (instances.size() > intMaxReturn)) {
+				instances = instances.subList(0, intMaxReturn);
+			}
+
 		}
 		catch (Exception e) {
 			log.error("Problem getting process instance information!", e);
 			// return an empty set
 			return new GsonBuilder().setPrettyPrinting().create().toJson(new ArrayList<CwsProcessInstance>());
 		}
-		return new GsonBuilder().setPrettyPrinting().create().toJson(instances);
+		return new GsonBuilder().serializeNulls().create().toJson(instances);
 	}
 	
 	
@@ -1300,7 +1448,6 @@ public class RestService extends MvcCore {
 		return ResponseEntity.ok("{ \"status\" : \"success\", \"message\" : \"Updated " + numRowsUpdated + " rows.\"}");
 	}
 	
-	
 	/**
 	 * 
 	 * 
@@ -1328,8 +1475,45 @@ public class RestService extends MvcCore {
 		
 		return "success";
 	}
-	
-	
+
+	/**
+	 * Suspends a process definition given its procDefId
+	 *
+	 */
+	@RequestMapping(value = "/deployments/suspend/{procDefId}", method = POST)
+	public @ResponseBody String suspendProcDefId(
+			@PathVariable String procDefId) {
+		log.info("*** REST CALL *** suspendProcDefId (procDefId=" + procDefId + ")");
+		String result = cwsConsoleService.suspendProcDefId(procDefId);
+		return result;
+	}
+
+	/**
+	 * Activates a suspended process definition given its procDefId
+	 *
+	 */
+	@RequestMapping(value = "/deployments/activate/{procDefId}", method = POST)
+	public @ResponseBody String activateProcDefId(
+			@PathVariable String procDefId ) {
+		log.info ("*** REST CALL *** activateProcDefId (procDefId" + procDefId + ")");
+		String result = cwsConsoleService.activateProcDefId(procDefId);
+		return result;
+	}
+
+	/**
+	 * Method that deletes a running process instance.
+	 *
+	 * Accepts an array of procInstIds and expects all of them to be running.
+	 */
+	@RequestMapping(value = "/processes/delete", method = POST)
+	public @ResponseBody String deleteRunningProcInsts(
+			final HttpSession session,
+			@RequestBody List<String> procInstIds) {
+		log.debug("*** REST CALL *** deleteRunningProcInsts");
+		String result = cwsConsoleService.deleteRunningProcInst(procInstIds);
+		return result;
+	}
+
 	/**
 	 * 
 	 * 
@@ -1527,4 +1711,5 @@ public class RestService extends MvcCore {
 		}
 		return restCallResult.getResponse();
 	}
+
 }
