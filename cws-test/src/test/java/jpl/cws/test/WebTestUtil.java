@@ -123,7 +123,7 @@ public class WebTestUtil {
 		chromeOptions.addArguments("--disable-gpu");
 		chromeOptions.addArguments("--disable-dev-shm-usage");
 
-		WebDriverManager.chromedriver().setup();
+		WebDriverManager.chromedriver().clearDriverCache().setup();
 		driver = new ChromeDriver(chromeOptions);
 
 		log.info("Driver initialized: " + driver);
