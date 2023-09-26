@@ -71,7 +71,7 @@
 		<phantomjsdriver.version>1.0.4</phantomjsdriver.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<quartz.version>2.3.2</quartz.version>
-		<selenium.version>4.11.0</selenium.version>
+		<selenium.version>4.13.0</selenium.version>
 		<servlet-api.version>3.1.0</servlet-api.version>
 		<!--		<slf4j.version>1.7.32</slf4j.version>-->
 		<log4j.version>2.17.1</log4j.version>
@@ -131,7 +131,6 @@
 				<version>${cws.tasks.version}</version>
 				<!-- <scope>provided</scope> -->
 			</dependency>
-
 			<dependency>
 				<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 				<artifactId>cws-service</artifactId>
@@ -551,6 +550,7 @@
 				<version>${selenium.version}</version>
 				<scope>test</scope>
 			</dependency>
+
 			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>
 				<artifactId>selenium-chrome-driver</artifactId>
@@ -597,6 +597,13 @@
 				<groupId>com.h2database</groupId>
 				<artifactId>h2</artifactId>
 				<version>${h2.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>io.github.bonigarcia</groupId>
+				<artifactId>webdrivermanager</artifactId>
+				<version>5.5.0</version>
 				<scope>test</scope>
 			</dependency>
 
