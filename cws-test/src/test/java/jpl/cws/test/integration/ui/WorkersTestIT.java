@@ -237,29 +237,54 @@ public class WorkersTestIT extends WebTestUtil {
 			WebElement aceEditor = driver.findElement(By.cssSelector("textarea.ace_text-input"));
 			js.executeScript("ace.edit('editorDiv').navigateFileEnd();");
 			js.executeScript("ace.edit('editorDiv').setValue('');");
-			aceEditor.sendKeys("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-					"<beans \n" + 
-					"	xmlns=\"http://www.springframework.org/schema/beans\"\n" + 
-					"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + 
-					"	xsi:schemaLocation=\"\n" + 
-					"		http://www.springframework.org/schema/beans\n" + 
-					"		http://www.springframework.org/schema/beans/spring-beans.xsd\"> \n" + 
-					"\n" + 
-					"<bean id=\"repeat_2\" class=\"jpl.cws.process.initiation.RepeatingDelayInitiator\"> \n" + 
-					"		<property name=\"procDefKey\" value=\"test_thread_limit\" />\n" + 
-					"		<property name=\"delayBetweenProcesses\" value=\"0\" />\n" + 
+			String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+					"<beans \n" +
+					"	xmlns=\"http://www.springframework.org/schema/beans\"\n" +
+					"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+					"	xsi:schemaLocation=\"\n" +
+					"		http://www.springframework.org/schema/beans\n" +
+					"		http://www.springframework.org/schema/beans/spring-beans.xsd\"> \n" +
+					"\n" +
+					"<bean id=\"repeat_2\" class=\"jpl.cws.process.initiation.RepeatingDelayInitiator\"> \n" +
+					"		<property name=\"procDefKey\" value=\"test_thread_limit\" />\n" +
+					"		<property name=\"delayBetweenProcesses\" value=\"0\" />\n" +
 					"		<property name=\"maxRepeats\" value=\"6\" />\n" +
-					"		<property name=\"procVariables\">\n" + 
-					"			<map>\n" + 
-					"				<entry key=\"variable1\" value=\"foo\"></entry>\n" + 
-					"				<entry key=\"variable2\" value=\"bar\"></entry>\n" + 
-					"			</map>\n" + 
-					"		</property>\n" + 
-					"	</bean>\n" + 
-					"</beans>\n" + 
-					"\n" + 
-					"\n" + 
-					"");
+					"		<property name=\"procVariables\">\n" +
+					"			<map>\n" +
+					"				<entry key=\"variable1\" value=\"foo\"></entry>\n" +
+					"				<entry key=\"variable2\" value=\"bar\"></entry>\n" +
+					"			</map>\n" +
+					"		</property>\n" +
+					"	</bean>\n" +
+					"</beans>\n" +
+					"\n" +
+					"\n" +
+					"";
+			log.info("TEMP: " + xmlString);
+			js.executeScript("ace.edit('editorDiv').setValue(xmlString);");
+//			aceEditor.sendKeys("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+//					"<beans \n" +
+//					"	xmlns=\"http://www.springframework.org/schema/beans\"\n" +
+//					"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+//					"	xsi:schemaLocation=\"\n" +
+//					"		http://www.springframework.org/schema/beans\n" +
+//					"		http://www.springframework.org/schema/beans/spring-beans.xsd\"> \n" +
+//					"\n" +
+//					"<bean id=\"repeat_2\" class=\"jpl.cws.process.initiation.RepeatingDelayInitiator\"> \n" +
+//					"		<property name=\"procDefKey\" value=\"test_thread_limit\" />\n" +
+//					"		<property name=\"delayBetweenProcesses\" value=\"0\" />\n" +
+//					"		<property name=\"maxRepeats\" value=\"6\" />\n" +
+//					"		<property name=\"procVariables\">\n" +
+//					"			<map>\n" +
+//					"				<entry key=\"variable1\" value=\"foo\"></entry>\n" +
+//					"				<entry key=\"variable2\" value=\"bar\"></entry>\n" +
+//					"			</map>\n" +
+//					"		</property>\n" +
+//					"	</bean>\n" +
+//					"</beans>\n" +
+//					"\n" +
+//					"\n" +
+//					"");
 			
 			waitForElementID("saveXmlBtn");
 			log.info("Clicking on 'Save XML' button.");

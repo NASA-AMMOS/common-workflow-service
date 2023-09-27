@@ -119,7 +119,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 				"</beans>",
 				"",
 				"");
-
+			log.info("TEMP: " + initiatorXML);
 			aceEditor.sendKeys(initiatorXML.replace("	", ""));
 
 			waitForElementID("saveXmlBtn");
