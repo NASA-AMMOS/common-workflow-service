@@ -119,9 +119,9 @@ public class InitiatorsTestIT extends WebTestUtil {
 				"</beans>",
 				"",
 				"");
-			log.info("TEMP: " + initiatorXML);
-			aceEditor.sendKeys(initiatorXML.replace("	", ""));
 
+			aceEditor.sendKeys(initiatorXML.replace("	", ""));
+			log.info("TEMP: " + initiatorXML);
 			waitForElementID("saveXmlBtn");
 			log.info("Saving changes..");
 			driver.findElement(By.id("saveXmlBtn")).click();
