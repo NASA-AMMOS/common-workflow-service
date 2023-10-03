@@ -33,13 +33,13 @@ public class HistoryTestIT extends WebTestUtil {
 			log.info("------ START HistoryTestIT:runResultsTest ------");
 			gotoLoginPage();
 			login();
-
+			log.info("------ TEMP: A ------");
 			goToPage("deployments");
-
+			log.info("------ TEMP: B ------");
 			startProcDef("test_history_page", "Test History Page", 90000);
-
+			log.info("------ TEMP: C ------");
 			runResultsTest();
-
+			log.info("------ TEMP: D ------");
 			if(Integer.toString(testCasesCompleted).equals("1")) {
 				scriptPass = true;
 			} else {
@@ -82,12 +82,14 @@ public class HistoryTestIT extends WebTestUtil {
 
 			findOnPage("CWS - History");
 
-			WebElement hideLineCheckbox = findElByXPath("//input[@id='showall']");
-			waitForElement(hideLineCheckbox);
-
-			sleep(10000);
-
-			hideLineCheckbox.click();
+			// this no longer makes sense
+//			log.info("TEMP: No Show all exists");
+//			WebElement hideLineCheckbox = findElByXPath("//input[@id='showall']");
+//			waitForElement(hideLineCheckbox);
+//
+//			sleep(10000);
+//
+//			hideLineCheckbox.click();
 
 			if (findOnPage("History Page.")
 					&& findOnPage("Command 'mkdir Test' exit code: 0")
