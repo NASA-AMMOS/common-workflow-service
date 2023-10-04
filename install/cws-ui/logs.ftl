@@ -622,7 +622,7 @@
 			$(".ajax-spinner").show();
 			//update timestamp to grab new logs
 			var oldNow = now;
-			now=moment().utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss.SSSSSS");
+			now=moment().utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss.SSSSSSZ");
 			
 			//find the condition with oldNow timestamp and update it to be now
 			for (var i = 0; i < mainEsReq.query.bool.must.length; i++) {
