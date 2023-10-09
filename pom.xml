@@ -54,7 +54,7 @@
 		<jms.version>1.1</jms.version>
 		<joda-time.version>2.1</joda-time.version>
 		<junit.version>4.13.1</junit.version>
-		<jython-standalone.version>2.7.1b3</jython-standalone.version>
+		<jython-standalone.version>2.7.2b3</jython-standalone.version>
 		<mariadb-java-client.version>2.7.2</mariadb-java-client.version>
 
 		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
