@@ -32,7 +32,7 @@
 		<commons-fileupload.version>1.3.3</commons-fileupload.version>
 		<commons-io.version>2.4</commons-io.version>
 		<commons-lang.version>2.6</commons-lang.version>
-		<commons-email.version>1.3.2</commons-email.version>
+		<commons-email.version>1.5</commons-email.version>
 		<cws.version>${project.version}</cws.version>
 		<cws.core.version>${cws.version}</cws.core.version>
 		<cws.tasks.version>${cws.version}</cws.tasks.version>
