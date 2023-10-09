@@ -66,7 +66,7 @@
 		<maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
 		<mockito.version>4.3.1</mockito.version>
 		<mybatis.version>3.5.3</mybatis.version>
-		<mysql-connector.version>8.0.16</mysql-connector.version>
+		<mysql-connector.version>8.0.28</mysql-connector.version>
 		<hikaricp.version>4.0.3</hikaricp.version>
 		<phantomjsdriver.version>1.0.4</phantomjsdriver.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
