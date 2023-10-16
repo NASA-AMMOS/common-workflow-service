@@ -77,14 +77,6 @@ public class LogsTestIT extends WebTestUtil {
 			
 			log.info("Looking for text, 'Graphite', 'Command ls exit exit code: 0', and 'Deployed process definitions: test_logs_page.bpmn'.");
 
-			LogEntries logs = driver.manage().logs().get(LogType.BROWSER);
-			List<LogEntry> allLogs = logs.getAll();
-			if (allLogs.size() > 0) {
-				for (int i = 0; i < allLogs.size(); i++) {
-					log.error(allLogs.get(i).toString());
-				}
-			}
-
 			if (findOnPage("Graphite")) {
 				log.info("Found Graphite on page.");
 				if (findOnPage("Command 'ls' exit code: 0")) {
