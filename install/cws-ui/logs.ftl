@@ -8,6 +8,7 @@
 	<!--Load JS Libraries-->
 
 	<script src="/${base}/js/jquery.min.js"></script>
+	<script src="/${base}/js/jquery.migrate.js"></script>
 	<script src="/${base}/js/docs.min.js"></script><!--What is this?Are we using this currently?TODO:Investigate/remove-->
 	<script src="/${base}/js/moment.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
