@@ -5,6 +5,7 @@
 	<meta charset="utf-8">
 	<title>CWS - Initiators</title>
 	<script src="/${base}/js/jquery.min.js"></script>
+	<script src="/${base}/js/jquery.migrate.js"></script>
 	<script src="/${base}/js/ace/ace.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<!-- Custom styles for this template -->
