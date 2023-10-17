@@ -11,6 +11,8 @@
 	<script src="/${base}/js/jquery.migrate.js"></script>
 	<script src="/${base}/js/docs.min.js"></script><!--What is this?Are we using this currently?TODO:Investigate/remove-->
 	<script src="/${base}/js/moment.js"></script>
+	<script src="/${base}/js/moment-timezone.js"></script>
+	<script src="/${base}/js/moment-timezone-with-data.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
 	<script src="/${base}/js/DataTables/datatables.js"></script>
     <script src="/${base}/js/DataTablesDateFilter.js"></script>
@@ -57,7 +59,7 @@
 			workerIdArr.push("${workerId}");
 		</#list>
 	
-		var now = moment().format("YYYY-MM-DDTHH:mm:ss.SSSSSS");
+		var now = moment().utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss.SSSSSS");
 
 		var refID;
 	
@@ -356,7 +358,7 @@
 							if (hitData["msgBody"] !== undefined) {
 								formattedRow["message"] = hitData["msgBody"];
 							} else {
-								formattedRow["messsage"] = "";
+								formattedRow["message"] = "";
 							}
 							if (Object.values(formattedRow).join("").toUpperCase().includes(data.search.value.toUpperCase())) {
 								formattedData.push(formattedRow);
@@ -615,7 +617,7 @@
 			$(".ajax-spinner").show();
 			//update timestamp to grab new logs
 			var oldNow = now;
-			now=moment().format("YYYY-MM-DDTHH:mm:ss.SSSSSSZ");
+			now=moment().utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss.SSSSSSZ");
 			
 			//find the condition with oldNow timestamp and update it to be now
 			for (var i = 0; i < mainEsReq.query.bool.must.length; i++) {

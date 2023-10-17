@@ -1654,9 +1654,6 @@
                 $.ajax({
                     type: "POST",
                     url: "/${base}/rest/processes/markResolved",
-                    Accept: "application/json",
-                    contentType: "application/json",
-                    dataType: "json",
                     data: JSON.stringify(getSelectedRowUuids())
                 })
                     .done(function (msg) {
