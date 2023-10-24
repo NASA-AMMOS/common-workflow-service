@@ -121,9 +121,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 				"",
 				"");
 
-			//aceEditor.sendKeys(initiatorXML.replace("	", ""));
-			//lets try and use the aceEditor api functions here and see if that solves it
-			js.executeScript("ace.edit('editorDiv').setValue(" + initiatorXML.replace("	", "") + ");");
+			driver.switchTo().activeElement().sendKeys(initiatorXML.replace("	", ""));
 			log.info("TEMP: " + initiatorXML);
 			waitForElementID("saveXmlBtn");
 			log.info("Saving changes..");
