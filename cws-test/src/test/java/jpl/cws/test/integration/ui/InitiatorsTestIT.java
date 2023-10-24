@@ -84,45 +84,48 @@ public class InitiatorsTestIT extends WebTestUtil {
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 			js.executeScript("ace.edit('editorDiv').navigateFileEnd();");
 			js.executeScript("ace.edit('editorDiv').setValue('');");
-			String initiatorXML = String.join(System.getProperty("line.separator"),
-				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
-				"<beans ",
-				"	xmlns=\"http://www.springframework.org/schema/beans\"",
-				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"",
-				"	xsi:schemaLocation=\"",
-				"		http://www.springframework.org/schema/beans",
-				"		http://www.springframework.org/schema/beans/spring-beans.xsd\">",
-				"",
-				"	<bean id=\"repeat_1\" class=\"jpl.cws.process.initiation.RepeatingDelayInitiator\">",
-				"		<property name=\"procDefKey\" value=\"test_initiators_page\" />",
-				"		<property name=\"delayBetweenProcesses\" value=\"1000\" />",
-				"		<property name=\"maxRepeats\" value=\"10\" />",
-				"		<property name=\"procVariables\">",
-				"			<map>",
-				"				<entry key=\"variable1\" value=\"foo\"></entry>",
-				"				<entry key=\"variable2\" value=\"bar\"></entry>",
-				"			</map>",
-				"		</property>",
-				"	</bean>",
-				"",
-				"",
-				"	<bean id=\"cron_initiator\" class=\"jpl.cws.process.initiation.cron.CronInitiator\">",
-				"		<property name=\"procDefKey\"  value=\"test_initiators_page\" />",
-				"		<property name=\"cronExpression\"  value=\" 0 0/1 * 1/1 * ? *\" />",
-				"		<property name=\"procVariables\">",
-				"			<map>",
-				"				<entry key=\"variable1\"   value=\"foo\"></entry>",
-				"				<entry key=\"variable2\"   value=\"bar\"></entry>",
-				"			</map>",
-				"		</property>",
-				"	</bean>",
-				"",
-				"</beans>",
-				"",
-				"");
+			String initiatorXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<beans \n" +
+				"	xmlns=\"http://www.springframework.org/schema/beans\"\n" +
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+				"	xsi:schemaLocation=\"\n" +
+				"		http://www.springframework.org/schema/beans\n" +
+				"		http://www.springframework.org/schema/beans/spring-beans.xsd\">\n" +
+				"\n" +
+				"	<bean id=\"repeat_1\" class=\"jpl.cws.process.initiation.RepeatingDelayInitiator\">\n" +
+				"		<property name=\"procDefKey\" value=\"test_initiators_page\" />\n" +
+				"		<property name=\"delayBetweenProcesses\" value=\"1000\" />\n" +
+				"		<property name=\"maxRepeats\" value=\"10\" />\n" +
+				"		<property name=\"procVariables\">\n" +
+				"			<map>\n" +
+				"				<entry key=\"variable1\" value=\"foo\"></entry>\n" +
+				"				<entry key=\"variable2\" value=\"bar\"></entry>\n" +
+				"			</map>\n" +
+				"		</property>\n" +
+				"	</bean>\n" +
+				"\n" +
+				"\n" +
+				"	<bean id=\"cron_initiator\" class=\"jpl.cws.process.initiation.cron.CronInitiator\">\n" +
+				"		<property name=\"procDefKey\"  value=\"test_initiators_page\" />\n" +
+				"		<property name=\"cronExpression\"  value=\" 0 0/1 * 1/1 * ? *\" />\n" +
+				"		<property name=\"procVariables\">\n" +
+				"			<map>\n" +
+				"				<entry key=\"variable1\"   value=\"foo\"></entry>\n" +
+				"				<entry key=\"variable2\"   value=\"bar\"></entry>\n" +
+				"			</map>\n" +
+				"		</property>\n" +
+				"	</bean>\n" +
+				"\n" +
+				"</beans>\n" +
+				"\n" +
+				"\n" +
+				"";
 
-			driver.switchTo().activeElement().sendKeys(initiatorXML.replace("	", ""));
 			log.info("TEMP: " + initiatorXML);
+			initiatorXML = initiatorXML.replace("\n", "\\n").replace("\"", "\\\"");
+			log.info("TEMP: post: " + initiatorXML);
+			js.executeScript("ace.edit('editorDiv').setValue(\"" + initiatorXML + "\");");
+
 			waitForElementID("saveXmlBtn");
 			log.info("Saving changes..");
 			driver.findElement(By.id("saveXmlBtn")).click();

@@ -91,82 +91,87 @@ public class LoadTestIT extends WebTestUtil {
             JavascriptExecutor js = (JavascriptExecutor) driver;
             js.executeScript("ace.edit('editorDiv').navigateFileEnd();");
             js.executeScript("ace.edit('editorDiv').setValue('');");
-            String initiatorXML = String.join(System.getProperty("line.separator"),
-                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
-                    "<beans ",
-                    "	xmlns=\"http://www.springframework.org/schema/beans\"",
-                    "	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"",
-                    "	xsi:schemaLocation=\"",
-                    "		http://www.springframework.org/schema/beans",
-                    "		http://www.springframework.org/schema/beans/spring-beans.xsd\">",
-                    "",
-                    "	<bean id=\"repeat_1\" class=\"jpl.cws.process.initiation.RepeatingDelayInitiator\">",
-                    "		<property name=\"procDefKey\" value=\"external_pwd\" />",
-                    "		<property name=\"delayBetweenProcesses\" value=\"10\" />",
-                    "		<property name=\"maxRepeats\" value=\"200\" />",
-                    "		<property name=\"procVariables\">",
-                    "			<map>",
-                    "				<entry key=\"variable1\" value=\"foo\"></entry>",
-                    "				<entry key=\"variable2\" value=\"bar\"></entry>",
-                    "			</map>",
-                    "		</property>",
-                    "	</bean>",
-                    "",
-                    "",
-                    "	<bean id=\"repeat_2\" class=\"jpl.cws.process.initiation.RepeatingDelayInitiator\">",
-                    "		<property name=\"procDefKey\" value=\"test_simplest\" />",
-                    "		<property name=\"delayBetweenProcesses\" value=\"10\" />",
-                    "		<property name=\"maxRepeats\" value=\"200\" />",
-                    "		<property name=\"procVariables\">",
-                    "			<map>",
-                    "				<entry key=\"variable1\" value=\"foo\"></entry>",
-                    "				<entry key=\"variable2\" value=\"bar\"></entry>",
-                    "			</map>",
-                    "		</property>",
-                    "	</bean>",
-                    "",
-                    "",
-                    "	<bean id=\"repeat_3\" class=\"jpl.cws.process.initiation.RepeatingDelayInitiator\">",
-                    "		<property name=\"procDefKey\" value=\"test_initiators_page\" />",
-                    "		<property name=\"delayBetweenProcesses\" value=\"10\" />",
-                    "		<property name=\"maxRepeats\" value=\"200\" />",
-                    "		<property name=\"procVariables\">",
-                    "			<map>",
-                    "				<entry key=\"variable1\" value=\"foo\"></entry>",
-                    "				<entry key=\"variable2\" value=\"bar\"></entry>",
-                    "			</map>",
-                    "		</property>",
-                    "	</bean>",
-                    "",
-                    "",
-                    "	<bean id=\"repeat_4\" class=\"jpl.cws.process.initiation.RepeatingDelayInitiator\">",
-                    "		<property name=\"procDefKey\" value=\"test_hello_world\" />",
-                    "		<property name=\"delayBetweenProcesses\" value=\"10\" />",
-                    "		<property name=\"maxRepeats\" value=\"200\" />",
-                    "		<property name=\"procVariables\">",
-                    "			<map>",
-                    "				<entry key=\"variable1\" value=\"foo\"></entry>",
-                    "				<entry key=\"variable2\" value=\"bar\"></entry>",
-                    "			</map>",
-                    "		</property>",
-                    "	</bean>",
-                    "",
-                    "",
-                    "	<bean id=\"repeat_5\" class=\"jpl.cws.process.initiation.RepeatingDelayInitiator\">",
-                    "		<property name=\"procDefKey\" value=\"test_logs_page\" />",
-                    "		<property name=\"delayBetweenProcesses\" value=\"10\" />",
-                    "		<property name=\"maxRepeats\" value=\"200\" />",
-                    "		<property name=\"procVariables\">",
-                    "			<map>",
-                    "				<entry key=\"variable1\" value=\"foo\"></entry>",
-                    "				<entry key=\"variable2\" value=\"bar\"></entry>",
-                    "			</map>",
-                    "		</property>",
-                    "	</bean>",
-                    "",
-                    "</beans>",
-                    "",
-                    "");
+            String initiatorXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                    "<beans \n" +
+                    "	xmlns=\"http://www.springframework.org/schema/beans\"\n" +
+                    "	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                    "	xsi:schemaLocation=\"\n" +
+                    "		http://www.springframework.org/schema/beans\n" +
+                    "		http://www.springframework.org/schema/beans/spring-beans.xsd\">\n" +
+                    "\n" +
+                    "	<bean id=\"repeat_1\" class=\"jpl.cws.process.initiation.RepeatingDelayInitiator\">\n" +
+                    "		<property name=\"procDefKey\" value=\"external_pwd\" />\n" +
+                    "		<property name=\"delayBetweenProcesses\" value=\"10\" />\n" +
+                    "		<property name=\"maxRepeats\" value=\"200\" />\n" +
+                    "		<property name=\"procVariables\">\n" +
+                    "			<map>\n" +
+                    "				<entry key=\"variable1\" value=\"foo\"></entry>\n" +
+                    "				<entry key=\"variable2\" value=\"bar\"></entry>\n" +
+                    "			</map>\n" +
+                    "		</property>\n" +
+                    "	</bean>\n" +
+                    "\n" +
+                    "\n" +
+                    "	<bean id=\"repeat_2\" class=\"jpl.cws.process.initiation.RepeatingDelayInitiator\">\n" +
+                    "		<property name=\"procDefKey\" value=\"test_simplest\" />\n" +
+                    "		<property name=\"delayBetweenProcesses\" value=\"10\" />\n" +
+                    "		<property name=\"maxRepeats\" value=\"200\" />\n" +
+                    "		<property name=\"procVariables\">\n" +
+                    "			<map>\n" +
+                    "				<entry key=\"variable1\" value=\"foo\"></entry>\n" +
+                    "				<entry key=\"variable2\" value=\"bar\"></entry>\n" +
+                    "			</map>\n" +
+                    "		</property>\n" +
+                    "	</bean>\n" +
+                    "\n" +
+                    "\n" +
+                    "	<bean id=\"repeat_3\" class=\"jpl.cws.process.initiation.RepeatingDelayInitiator\">\n" +
+                    "		<property name=\"procDefKey\" value=\"test_initiators_page\" />\n" +
+                    "		<property name=\"delayBetweenProcesses\" value=\"10\" />\n" +
+                    "		<property name=\"maxRepeats\" value=\"200\" />\n" +
+                    "		<property name=\"procVariables\">\n" +
+                    "			<map>\n" +
+                    "				<entry key=\"variable1\" value=\"foo\"></entry>\n" +
+                    "				<entry key=\"variable2\" value=\"bar\"></entry>\n" +
+                    "			</map>\n" +
+                    "		</property>\n" +
+                    "	</bean>\n" +
+                    "\n" +
+                    "\n" +
+                    "	<bean id=\"repeat_4\" class=\"jpl.cws.process.initiation.RepeatingDelayInitiator\">\n" +
+                    "		<property name=\"procDefKey\" value=\"test_hello_world\" />\n" +
+                    "		<property name=\"delayBetweenProcesses\" value=\"10\" />\n" +
+                    "		<property name=\"maxRepeats\" value=\"200\" />\n" +
+                    "		<property name=\"procVariables\">\n" +
+                    "			<map>\n" +
+                    "				<entry key=\"variable1\" value=\"foo\"></entry>\n" +
+                    "				<entry key=\"variable2\" value=\"bar\"></entry>\n" +
+                    "			</map>\n" +
+                    "		</property>\n" +
+                    "	</bean>\n" +
+                    "\n" +
+                    "\n" +
+                    "	<bean id=\"repeat_5\" class=\"jpl.cws.process.initiation.RepeatingDelayInitiator\">\n" +
+                    "		<property name=\"procDefKey\" value=\"test_logs_page\" />\n" +
+                    "		<property name=\"delayBetweenProcesses\" value=\"10\" />\n" +
+                    "		<property name=\"maxRepeats\" value=\"200\" />\n" +
+                    "		<property name=\"procVariables\">\n" +
+                    "			<map>\n" +
+                    "				<entry key=\"variable1\" value=\"foo\"></entry>\n" +
+                    "				<entry key=\"variable2\" value=\"bar\"></entry>\n" +
+                    "			</map>\n" +
+                    "		</property>\n" +
+                    "	</bean>\n" +
+                    "\n" +
+                    "</beans>\n" +
+                    "\n" +
+                    "";
+
+            log.info("TEMP: " + initiatorXML);
+
+            initiatorXML = initiatorXML.replace("\n", "\\n").replace("\"", "\\\"");
+            log.info("TEMP: post: " + initiatorXML);
+            js.executeScript("ace.edit('editorDiv').setValue(\"" + initiatorXML + "\");");
 
             aceEditor.sendKeys(initiatorXML.replace("	", ""));
 
