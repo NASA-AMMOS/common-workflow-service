@@ -169,9 +169,10 @@ public class LoadTestIT extends WebTestUtil {
 
             log.info("TEMP: " + initiatorXML);
 
-            js.executeScript("ace.edit('editorDiv').setValue(\"" + initiatorXML + "\");");
+            initiatorXML = initiatorXML.replace("\n", "\\n").replace("\"", "\\\"");
+            log.info("TEMP: post: " + initiatorXML);
 
-            aceEditor.sendKeys(initiatorXML.replace("	", ""));
+            js.executeScript("ace.edit('editorDiv').setValue(\"" + initiatorXML + "\");");
 
             waitForElementID("saveXmlBtn");
             log.info("Saving changes..");
