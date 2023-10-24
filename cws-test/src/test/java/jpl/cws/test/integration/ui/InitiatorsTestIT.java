@@ -1,6 +1,7 @@
 package jpl.cws.test.integration.ui;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -132,6 +133,14 @@ public class InitiatorsTestIT extends WebTestUtil {
 			driver.findElement(By.id("saveConfirmBtn")).click();
 
 			wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("saveConfirmBtn")));
+
+			try {
+				driver.findElement(By.id("xmlErrorMsg"));
+				log.info("*** FATAL ERROR: New XML failed to parse.");
+				fail();
+			} catch (org.openqa.selenium.NoSuchElementException e) {
+				log.info("XML was parsed successfully, no errors found.");
+			}
 
 			wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.id("toggle_repeat_1")));
 
