@@ -83,13 +83,13 @@ public class HistoryTestIT extends WebTestUtil {
 			findOnPage("CWS - History");
 
 			// this no longer makes sense
-//			log.info("TEMP: No Show all exists");
-//			WebElement hideLineCheckbox = findElByXPath("//input[@id='showall']");
-//			waitForElement(hideLineCheckbox);
-//
-//			sleep(10000);
-//
-//			hideLineCheckbox.click();
+			log.info("TEMP: No Show all exists");
+			WebElement hideLineCheckbox = findElByXPath("//input[@id='showall']");
+			waitForElement(hideLineCheckbox);
+
+			sleep(10000);
+
+			hideLineCheckbox.click();
 
 			if (findOnPage("History Page.")
 					&& findOnPage("Command 'mkdir Test' exit code: 0")
