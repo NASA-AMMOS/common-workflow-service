@@ -34,17 +34,11 @@ public class WorkersTestIT extends WebTestUtil {
 			log.info("------ START WorkersTestIT:runWorkersPageTest ------");
 			gotoLoginPage();
 			login();
-			log.info("------ TEMP: 1 ------");
 			goToPage("deployments");
-			log.info("------ TEMP: 2 ------");
 			startProcDef("test_workers_page", "Test Workers Page", 30000);
-			log.info("------ TETMP: 3 ------");
 			runNumberActiveTest();
-			log.info("------ TETMP: 4 ------");
 			runThreadLimitTest();
-			log.info("------ TETMP: 5 ------");
 			runWorkersCheckBoxTest();
-			log.info("------ TETMP: 6 ------");
 			runWorkersStatusTest();
 			
 			if (Integer.toString(testCasesCompleted).equals(expectedTestsCompleted)) {
@@ -240,7 +234,7 @@ public class WorkersTestIT extends WebTestUtil {
 			WebElement aceEditor = driver.findElement(By.cssSelector("textarea.ace_text-input"));
 			js.executeScript("ace.edit('editorDiv').navigateFileEnd();");
 			js.executeScript("ace.edit('editorDiv').setValue('');");
-			//ToDO: upgrade to java 15 and get rid of this mess with multiline string litteral
+			//ToDO: upgrade to java 15 and get rid of this mess with multiline string literal
 			String xmltestString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 					"<beans \n" +
 					"	xmlns=\"http://www.springframework.org/schema/beans\"\n" +
@@ -265,10 +259,7 @@ public class WorkersTestIT extends WebTestUtil {
 					"\n" +
 					"";
 
-			log.info("TEMP: " + xmltestString);
-
 			xmltestString = xmltestString.replace("\n", "\\n").replace("\"", "\\\"");
-			log.info("TEMP: post: " + xmltestString);
 			js.executeScript("ace.edit('editorDiv').setValue(\"" + xmltestString + "\");");
 
 			waitForElementID("saveXmlBtn");

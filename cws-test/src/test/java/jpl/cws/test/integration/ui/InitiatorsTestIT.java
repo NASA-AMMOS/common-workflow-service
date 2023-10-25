@@ -1,7 +1,6 @@
 package jpl.cws.test.integration.ui;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -121,10 +120,8 @@ public class InitiatorsTestIT extends WebTestUtil {
 				"\n" +
 				"";
 
-			log.info("TEMP: " + initiatorXML);
 
 			initiatorXML = initiatorXML.replace("\n", "\\n").replace("\"", "\\\"");
-			log.info("TEMP: post: " + initiatorXML);
 
 			js.executeScript("ace.edit('editorDiv').setValue(\"" + initiatorXML + "\");");
 
