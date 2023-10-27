@@ -33,13 +33,9 @@ public class HistoryTestIT extends WebTestUtil {
 			log.info("------ START HistoryTestIT:runResultsTest ------");
 			gotoLoginPage();
 			login();
-
 			goToPage("deployments");
-
 			startProcDef("test_history_page", "Test History Page", 90000);
-
 			runResultsTest();
-
 			if(Integer.toString(testCasesCompleted).equals("1")) {
 				scriptPass = true;
 			} else {
