@@ -5,7 +5,7 @@ services:
 #    labels:
 #      com.example.service: "logstash"
 #      com.example.description: "For logging data"
-#    image: docker.elastic.co/logstash/logstash:7.16.2
+#    image: docker.elastic.co/logstash/logstash:8.8.0
 #    container_name: cws-worker-logstash
 #    volumes:
 #      - logs-volume:/cws_logs:ro
@@ -28,7 +28,7 @@ services:
     labels:
       com.example.service: "cws-worker2"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.4.0    # update this each CWS release
+    image: nasa-ammos/common-workflow-service:2.5.0    # update this each CWS release
     #depends_on:
     #  - logstash
     hostname: cws-worker2
@@ -41,10 +41,10 @@ services:
       - ES_PORT=9200
     volumes:
       - ./config.properties:/home/cws_user/config.properties:ro
-      - logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.33/logs
+      - worker2-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.72/logs
 
 volumes:
-  logs-volume:
+  worker2-logs-volume:
 
 networks:
   default:

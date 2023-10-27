@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 		<artifactId>common-workflow-service</artifactId>
-		<version>2.4.0</version><!-- update this each CWS release -->
+		<version>2.5.0</version><!-- update this each CWS release -->
 	</parent>
 	<artifactId>cws-adaptation-engine</artifactId>
 	
@@ -26,7 +26,7 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>org.camunda.bpm.assert</groupId>
+			<groupId>org.camunda.bpm</groupId>
 			<artifactId>camunda-bpm-assert</artifactId>
 			<exclusions>
 				<exclusion>
@@ -48,6 +48,10 @@
 		<dependency>
 			<groupId>javax.jms</groupId>
 			<artifactId>jms</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.jms</groupId>
+			<artifactId>javax.jms-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>javax.activation</groupId>
@@ -151,8 +155,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
+					<release>${java.version}</release>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -8,8 +8,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,28 +64,32 @@ public class HistoryTestIT extends WebTestUtil {
 
 			goToPage("processes");
 
-			log.info("Filtering Test History Page results.");
-			waitForElementID("pd-select");
-			Select select = new Select(findElById("pd-select"));
-			select.selectByVisibleText("Test History Page");
+			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
 
-			waitForElementID("filter-submit-btn");
+			sleep(5000);
 
-			log.info("Clicking 'Submit' button.");
-			WebElement filterSubmit = findElById("filter-submit-btn");
-			filterSubmit.click();
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_history_page");
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 
 			log.info("Verifying the header and output from the model.");
-			WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
+			WebElement historyButton = findElByXPath("//a[contains(text(),'History')]");
 			waitForElement(historyButton);
 			scrollTo(historyButton);
 			historyButton.click();
 
 			findOnPage("CWS - History");
 
-			if (findOnPage("History Page")
+			WebElement hideLineCheckbox = findElByXPath("//input[@id='showall']");
+			waitForElement(hideLineCheckbox);
+
+			sleep(10000);
+
+			hideLineCheckbox.click();
+
+			if (findOnPage("History Page.")
 					&& findOnPage("Command 'mkdir Test' exit code: 0")
 					&& findOnPage("Command 'ls' exit code: 0")
 					&& findOnPage("LINE: Test")

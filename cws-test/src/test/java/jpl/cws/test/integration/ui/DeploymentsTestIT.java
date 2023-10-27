@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 
 import org.junit.Test;
@@ -106,7 +107,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 
 	public void runEnableDisableButtonTest() throws IOException {
 		Boolean scriptPass = false;
-		WebDriverWait wait = new WebDriverWait(driver,30);
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 		try {
 			log.info("------ START DeploymentsTestIT:runEnableDisableButtonTest ------");
 
@@ -266,7 +267,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 
 	public void runDeleteProcTest() throws IOException {
 		Boolean scriptPass = false;
-		WebDriverWait wait = new WebDriverWait(driver,30);
+		WebDriverWait wait = new WebDriverWait(driver,Duration.ofSeconds(30));
 		try {
 			log.info("------ START DeploymentsTestIT:runDeleteProcTest ------");
 
@@ -343,7 +344,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 			select.selectByVisibleText("1 second refresh rate");
 
 			if (driver.getPageSource().contains("1 second refresh rate")) {
-				log.info("Found the seledcted Status Refresh Rate.");
+				log.info("Found the selected Status Refresh Rate.");
 				scriptPass = true;
 				testCasesCompleted++;
 			}
@@ -360,7 +361,7 @@ public class DeploymentsTestIT extends WebTestUtil {
 
 	public void runOneWorkerTest() throws IOException {
 		Boolean scriptPass = false;
-		WebDriverWait wait = new WebDriverWait(driver,30);
+		WebDriverWait wait = new WebDriverWait(driver,Duration.ofSeconds(30));
 		try {
 			log.info("------ START DeploymentsTestIT:runOneWorkerTest ------");
 			disableWorkers("test_deployments_page");

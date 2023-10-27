@@ -214,6 +214,7 @@
 		$("#workers-modal").modal('hide');
 		$("#cancelledByUserMsg").modal('show');
 	});
+
 	
 	//
 	// Sets the enabled flag on a process initiator
@@ -239,15 +240,27 @@
 		});
 	}
 
+	//
+	// Sets the enabled flag on all initiators
+	//
+	function setAllEnabled() {
+		$.ajax({
+			type: "POST",
+			url: "/${base}/rest/initiators/all/enabled",
+			data: { enabled: $("#active-all input").is(':checked') }
+		})
+		.done(function( msg ) {
+			//alert( "Data Saved: " + msg );
+			refreshIcons();
+			$("#beans-table .ajax-spinner").hide();
+		});
+	}
+
 	$("#active-all input").on('click',function(){
 		console.log('activate all');
+		$("#beans-table .ajax-spinner").show();
 		$(this).prop('disabled', true);
-		$("#inits-table div.slide-switch input").each(function(){
-			//$(this).prop('checked', $("#active-all input").prop('checked'));
-			if ($(this).prop('checked') !== $("#active-all input").prop('checked')) {
-				$(this).click();
-			}
-		});
+		setAllEnabled();
 		
 		setTimeout(function(){
 			$("#active-all input").prop("disabled",false);
@@ -294,20 +307,23 @@
 		// DETERMINE WHICH INITIATORS ARE ENABLED
 		//
 		initiatorEnabled = {};
-		$(".initiator_id").each(function() {
-			var id = $(this).html();
-			//console.log("id = " + id);
-			$.ajax({
-					type:     "GET",
-					url:      "/${base}/rest/initiators/" + id + "/enabled",
-					dataType: "text",
-					async:    false
-				})
-				.done(function( enabled ) {
-					//console.log( id + " Data got: " + enabled );
-					initiatorEnabled[id] = enabled;
-				});
+		$.ajax({
+			type:     "GET",
+			url:      "/${base}/rest/initiators/all/enabled",
+			dataType: "text",
+			async:    false
+		})
+		.done(function( enabled ) {
+			initiatorEnabled = JSON.parse(enabled);
 		});
+
+		//if there is no "false" in the list, then all are enabled.
+		if (Object.values(initiatorEnabled).indexOf("false") == -1) {
+			$("#active-all input").prop('checked', true);
+		}
+		else {
+			$("#active-all input").prop('checked', false);
+		}
 
 		//
 		// TURN ON SWITCHES FOR ENABLED INIATORS

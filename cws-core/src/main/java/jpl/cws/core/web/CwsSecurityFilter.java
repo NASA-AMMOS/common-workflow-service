@@ -41,6 +41,7 @@ public abstract class CwsSecurityFilter implements javax.servlet.Filter {
 	private static final Logger log = LoggerFactory.getLogger(CwsSecurityFilter.class);
 
 	public static final String CWS_TOKEN_COOKIE_NAME = "cwsToken";
+	public static final String CWS_USERNAME_COOKIE_NAME = "cwsUsername";
 	
 	static final String COOKIES_HEADER = "Set-Cookie";
 	
@@ -51,11 +52,19 @@ public abstract class CwsSecurityFilter implements javax.servlet.Filter {
 	protected AuthorizationService authorizationService;
 
 	protected String cwsSecurityScheme;
-	
+
+	private String cwsWebPort;
+	private String cwsSSLPort;
+
 	public void init(FilterConfig filterConfig) {
 		try {
 			cwsSecurityScheme = filterConfig.getInitParameter("identityPluginType");
+			cwsWebPort = filterConfig.getInitParameter("cwsWebPort");
+			cwsSSLPort = filterConfig.getInitParameter("cwsSSLPort");
 			log.debug("CWS Security scheme is: " + cwsSecurityScheme);
+			log.debug("CWS cwsWebPort is: " + cwsWebPort);
+			log.debug("CWS cwsSSLPort is: " + cwsSSLPort);
+
 
 			this.contextPath = filterConfig.getServletContext().getContextPath();
 			
@@ -303,8 +312,18 @@ public abstract class CwsSecurityFilter implements javax.servlet.Filter {
 		
 		return false;  // DON'T skip
 	}
-	
-	
+
+	// Simple override of http return for redirect code when http request is valid
+	protected void statusOverride(HttpServletResponse resp, HttpServletRequest req){
+		if (resp.getStatus() == 200){
+			resp.setStatus(301);
+			String newURL = getBaseUrl(req);
+			newURL = newURL.replaceFirst("http:", "https:");
+			newURL = newURL.replaceFirst(cwsWebPort, cwsSSLPort);
+			resp.setHeader("Location", newURL);
+		}
+	}
+
 	protected void logRequestInfo(HttpServletRequest req) {
 		// Log all of the headers
 		Enumeration<String> reqHeaderNames = req.getHeaderNames();
@@ -546,6 +565,7 @@ public abstract class CwsSecurityFilter implements javax.servlet.Filter {
 	protected void setCwsTokenCookie(HttpServletRequest req, HttpServletResponse resp) {
 		String cwsToken = req.getSession().getId();
 		WebUtils.addCookie(CWS_TOKEN_COOKIE_NAME, cwsToken, null, "/", resp);
+		WebUtils.addUnsecureCookie(CWS_USERNAME_COOKIE_NAME, getUsernameFromReq(req), null, "/", resp);
 		cwsSecurityService.addNewCwsTokenToDb(cwsToken, getUsernameFromReq(req));
 		//addCwsSessionId(getUsernameFromReq(req), req.getSession().getId());
 	}

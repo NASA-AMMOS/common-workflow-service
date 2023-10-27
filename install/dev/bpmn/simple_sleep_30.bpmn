@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_12f4c92" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.12.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_12f4c92" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.7.0">
   <bpmn:process id="simple_sleep_30" name="Simple Sleep 30" isExecutable="true">
     <bpmn:startEvent id="simple_sleep" camunda:asyncBefore="true">
       <bpmn:outgoing>SequenceFlow_0lw24on</bpmn:outgoing>
@@ -14,7 +14,9 @@
         <camunda:field name="cmdLine">
           <camunda:expression>sleep 30</camunda:expression>
         </camunda:field>
-        <camunda:field name="workingDir" />
+        <camunda:field name="workingDir">
+          <camunda:expression>.</camunda:expression>
+        </camunda:field>
         <camunda:field name="successExitValues">
           <camunda:expression>0</camunda:expression>
         </camunda:field>
@@ -53,6 +55,15 @@
           <dc:Bounds x="159" y="138" width="65" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_14u4yed_di" bpmnElement="EndEvent_14u4yed">
+        <dc:Bounds x="438" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="456" y="141" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_14zfj8d_di" bpmnElement="Task_0fa9zs3">
+        <dc:Bounds x="268" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0lw24on_di" bpmnElement="SequenceFlow_0lw24on">
         <di:waypoint x="209" y="120" />
         <di:waypoint x="268" y="120" />
@@ -60,12 +71,6 @@
           <dc:Bounds x="238.5" y="98.5" width="0" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="EndEvent_14u4yed_di" bpmnElement="EndEvent_14u4yed">
-        <dc:Bounds x="438" y="102" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="456" y="141" width="0" height="13" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0wo0mo8_di" bpmnElement="SequenceFlow_0wo0mo8">
         <di:waypoint x="368" y="120" />
         <di:waypoint x="438" y="120" />
@@ -73,9 +78,6 @@
           <dc:Bounds x="403" y="98.5" width="0" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ServiceTask_14zfj8d_di" bpmnElement="Task_0fa9zs3">
-        <dc:Bounds x="268" y="80" width="100" height="80" />
-      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

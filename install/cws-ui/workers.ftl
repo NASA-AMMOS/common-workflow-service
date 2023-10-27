@@ -5,9 +5,27 @@
 	<script src="/${base}/js/jquery.min.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<script src="/${base}/js/adaptation-workers.js"></script>
+	<script src="/${base}/js/DataTables/datatables.js"></script>
+	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
+	<script src="/${base}/js/cws.js"></script>
+	<link href="/${base}/css/microtip.css" rel="stylesheet">
+	<link href="/${base}/css/workers.css" rel="stylesheet">
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
+	<style>
+		.tag_value {
+			max-width: 175px;
+			word-wrap: normal;
+		}
+	</style>
 	<script>
+
+		//STATE PERSISTANCE CONSTS
+		var username = document.cookie.substring(document.cookie.indexOf("cwsUsername=") + 12);
+		if (username.indexOf(";") > 0) {
+			username = username.substring(0, username.indexOf(";"));
+		}
+		const hideDownWorkersVar = "CWS_DASH_WORKERS_HIDE_DOWN-" + username;
 	
 		var numProcDefs = ${procDefs?size};
 		
@@ -153,7 +171,27 @@
 			$("#"+workerId+"_configTable").hide();
 			$("#"+workerId+"_configOverview").html("show details");
 		}
-		
+
+		//
+		//	CALLED WHEN USER CLICKS ON TAGS '+' ICON
+		//
+		function expandTags(workerId) {
+			$("#"+workerId+"_plus_tags").hide();
+			$("#"+workerId+"_minus_tags").show();
+			$("#"+workerId+"_tagsTable").show();
+			$("#"+workerId+"_tagsOverview").html("hide tags");
+		}
+
+		//
+		//	CALLED WHEN USER CLICKS ON TAGS '-' ICON
+		//
+		function collapseTags(workerId) {
+			$("#"+workerId+"_plus_tags").show();
+			$("#"+workerId+"_minus_tags").hide();
+			$("#"+workerId+"_tagsTable").hide();
+			$("#"+workerId+"_tagsOverview").html("show tags");
+		}
+
 		//
 		// FUNCTION THAT REFRESHES UI "N / M enabled" COUNTS
 		//
@@ -184,6 +222,7 @@
 			<#list workers as w>
 				$("#${w.id}_minus_procDefs").hide();
 				$("#${w.id}_minus_config").hide();
+				$("#${w.id}_minus_tags").hide();
 			</#list>
 			
 			<!--Call any potential adaptation specific updates -->
@@ -191,6 +230,37 @@
 			
 			refreshStats();
 			pageRefId  = setInterval(pageRefresh, refreshRate);
+
+			$("#workers-table").DataTable({
+				columnDefs: [
+					{ orderable: false, targets: 3 },
+					{ orderable: false, targets: 4 }
+				],
+				order: [[0, 'asc']],
+			});
+			$("#ext-workers-table").DataTable({
+				order: [[0, 'asc']]
+			});
+			$("#amq-clients-table").DataTable({
+				order: [[0, 'asc']]
+			});
+			
+			if(localStorage.getItem(hideDownWorkersVar) === "1") {
+				$("#hide-down-btn").prop("checked", true);
+				var table = $('#workers-table').DataTable();
+				table.columns(1).search("up").draw();
+			} else {
+				$("#hide-down-btn").prop("checked", false);
+				var table = $('#workers-table').DataTable();
+				table.columns(1).search("").draw();
+			}
+
+			$(".tag_value").each(function(i, obj) {
+				var tagValue = $(this).html();
+				if (checkForURL(tagValue)) {
+					$(this).html("<a href='" + tagValue + "' target='_blank'>" + tagValue + "</a>");
+				}
+			});
 		});
 	
 		function pageRefresh(){
@@ -208,6 +278,16 @@
 		$( window ).load(function() {
 			console.log( "window loaded" );
 		});
+
+		$(document).on('click', '.copy', function (e) {
+                    e.preventDefault();
+                    var copyValue = $(this).attr('data-copyValue');
+                    copyInput(copyValue, false);
+                    $(this).attr('aria-label', 'Copied!');
+                    setTimeout(function () {
+                        $('.copy').attr('aria-label', 'Copy');
+                    }, 2000);
+                });
 	</script>
 	
 	<!-- Just for debugging purposes. Don''t actually copy this line! -->
@@ -250,11 +330,12 @@
 				<table id="workers-table" class="table table-striped table-bordered" border="1">
 					<thead>
 						<tr>
-							<th width="20%">Name</th>
+							<th width="15%">Name</th>
 							<th width="5%">Status</th>
 							<th width="10%"># Active</th>
-							<th width="35%">Configuration</th>
-							<th width="30%">Process Definitions</th>
+							<th width="20%">Tags</th>
+							<th width="30%">Configuration</th>
+							<th width="20%">Process Definitions</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -264,6 +345,40 @@
 								<td>${w.name}<#if w.cwsWorkerType == "run_models_only"><sup>M</sup></#if><#if w.cwsWorkerType == "run_external_tasks_only"><sup>E</sup></#if></td>
 								<td>${w.status}</td>
 								<td><div id="${w.id}_numRunningProcs" data-maxThreads="${w.jobExecutorMaxPoolSize}"></div></td>
+								<td>
+									<image id="${w.id}_plus_tags" src="/${base}/images/plus2.png" onclick="expandTags('${w.id}');" />
+									<image id="${w.id}_minus_tags" src="/${base}/images/minus2.png" onclick="collapseTags('${w.id}');" />
+									<span id="${w.id}_tagsOverview">show tags</span>
+									<div id="${w.id}_updateTagsStatus"></div>
+									<table id="${w.id}_tagsTable" class="table table-striped table-bordered" style="display:none">
+										<thead>
+											<tr>
+												<th width="50%">Name</th>
+												<th width="50%">Value</th>
+											</tr>
+										</thead>
+										<tbody>
+											<#list w.workerTags as tag>
+												<#list tag as key, value>
+													<tr>
+														<td>${key}</td>
+														<td>
+															<div class="value_flexbox">
+																<div class="tag_value">
+																	${value}
+																</div>
+																<div class="copySpan copy_flexbox">
+																	<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy copy_span" data-isImage="true" data-copyValue="${value}" onClick=''>
+																		<img src="images/copy.svg" class="copy-icon clipboard">
+																	</span>
+																</div>
+															</div>
+														</td>
+													</tr>
+												</#list>
+											</#list>
+									</table>
+								</td>
 								<td>
 									<image id="${w.id}_plus_config"  src="/${base}/images/plus2.png" onclick="expandConfig('${w.id}');" />
 									<image id="${w.id}_minus_config" src="/${base}/images/minus2.png" onclick="collapseConfig('${w.id}');" />
@@ -371,7 +486,7 @@
 			
 			<h3 class="sub-header">AMQ Clients</h3>
 			<div class="table-responsive">
-				<table class="table table-striped table-bordered">
+				<table id="amq-clients-table" class="table table-striped table-bordered">
 					<thead>
 						<tr>
 							<th>Remote Address</th>
@@ -408,14 +523,14 @@
 <script type="text/javascript">
 	$("#hide-down-btn").click(function() {
 		if ($(this).prop("checked")) {
-			$('#workers-table tbody tr').filter(function () {
-		        return $.trim($(this).find('td').eq(1).text()) === "down"
-		    }).hide();
+			var table = $('#workers-table').DataTable();
+			table.columns(1).search("up").draw();
+			localStorage.setItem(hideDownWorkersVar, "1");
 		}
 		else {
-			$('#workers-table tbody tr').filter(function () {
-		        return $.trim($(this).find('td').eq(1).text()) === "down"
-		    }).show();
+			var table = $('#workers-table').DataTable();
+			table.columns(1).search("").draw();
+			localStorage.setItem(hideDownWorkersVar, "0");
 		}
 	});
 </script>

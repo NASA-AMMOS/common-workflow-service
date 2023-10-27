@@ -15,44 +15,21 @@
  * limitations under the License.
  */
 
-window.camWelcomeConf = {
-  // app: {
-  //   name: 'Todos',
-  //   vendor: 'Company'
-  // },
-  //
-  // configure the date format
-  // "dateFormat": {
-  //   "normal": "LLL",
-  //   "long":   "LLLL"
-  // },
-  //
-  // "locales": {
-  //    "availableLocales": ["en", "de"],
-  //    "fallbackLocale": "en"
-  //  },
-  // links: [
-  //   {
-  //     label: 'Angular.js Docs',
-  //     href: 'https://code.angularjs.org/1.2.16/docs',
-  //     description: 'Almost interesting'
-  //   },
-  //   {
-  //     label: 'XKCD',
-  //     href: 'http://xkcd.org',
-  //     description: 'Nerdy comic'
-  //   },
-  //   {
-  //     label: 'Slashdot',
-  //     href: 'https://slashdot.org',
-  //     description: 'News for nerds, stuff that matter'
-  //   }
-  // ],
-    customScripts: {
+export default {
+    // app: {
+    //   name: 'Todos',
+    //   vendor: 'Company'
+    // },
+    // customScripts: [
+    //   // If you have a folder called 'my-custom-script' (in the 'welcome' folder)
+    //   // with a file called 'customScript.js' in it
+    //   // 'my-custom-script/customScript'
+    // ],
+    requireJsConfig: {
         // AngularJS module names
         ngDeps: [],
-        //   // RequireJS configuration for a complete configuration documentation see:
-        //   // http://requirejs.org/docs/api.html#config
+        // RequireJS configuration for a complete configuration documentation see:
+        // http://requirejs.org/docs/api.html#config
         deps: ['jquery', 'cws'],
         paths: {
             // if you have a folder called `custom-ui` (in the `scripts` folder)
@@ -60,6 +37,33 @@ window.camWelcomeConf = {
             'cws': 'cws/scripts'
         }
     },
-  // csrfCookieName: 'XSRF-TOKEN',
-  // disableWelcomeMessage: false
+    // configure the date format
+    // "dateFormat": {
+    //   "normal": "LLL",
+    //   "long":   "LLLL"
+    // },
+    //
+    // "locales": {
+    //    "availableLocales": ["en", "de"],
+    //    "fallbackLocale": "en"
+    //  },
+    // links: [
+    //   {
+    //     label: 'Angular.js Docs',
+    //     href: 'https://code.angularjs.org/1.2.16/docs',
+    //     description: 'Almost interesting'
+    //   },
+    //   {
+    //     label: 'XKCD',
+    //     href: 'http://xkcd.org',
+    //     description: 'Nerdy comic'
+    //   },
+    //   {
+    //     label: 'Slashdot',
+    //     href: 'https://slashdot.org',
+    //     description: 'News for nerds, stuff that matter'
+    //   }
+    // ],
+    // csrfCookieName: 'XSRF-TOKEN',
+    // disableWelcomeMessage: false
 };

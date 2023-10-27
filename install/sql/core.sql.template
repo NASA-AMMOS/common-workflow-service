@@ -16,6 +16,15 @@ CREATE TABLE IF NOT EXISTS `cws_worker` (
 	UNIQUE KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE IF NOT EXISTS `cws_worker_tags` (
+	`worker_id` varchar(255) COLLATE utf8_bin NOT NULL,
+	`name` varchar(255) COLLATE utf8_bin NOT NULL,
+	`value` varchar(1000) COLLATE utf8_bin DEFAULT NULL,
+	`created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+	`updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+	PRIMARY KEY (`worker_id`, `name`),
+	CONSTRAINT `FK_cws_worker_tags` FOREIGN KEY (`worker_id`) REFERENCES `cws_worker` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE IF NOT EXISTS `cws_external_worker` (
 	`id` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
@@ -36,7 +45,8 @@ CREATE TABLE IF NOT EXISTS `cws_log_usage` (
 	`worker_id` varchar(255) COLLATE utf8_bin NOT NULL,
 	`filename` varchar(255) COLLATE utf8_bin NOT NULL,
 	`size_bytes` bigint NOT NULL,
-	PRIMARY KEY (`worker_id`, `filename`)
+	PRIMARY KEY (`worker_id`, `filename`),
+	CONSTRAINT `FK_cws_worker_log_usage` FOREIGN KEY (`worker_id`) REFERENCES `cws_worker` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 

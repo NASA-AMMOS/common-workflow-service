@@ -1,0 +1,196 @@
+#filters-table td {
+    width: 20%;
+}
+
+#pd-select {
+    width: 100%;
+}
+
+#log-level-sel {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+}
+
+#log-level-sel input {
+    margin-right: 5px
+}
+
+#log-level-sel label {
+    cursor: pointer;
+    font-weight: normal;
+}
+
+#logData {
+    font-size: 95%;
+}
+
+#logData tr td {
+    line-height: 1;
+}
+
+.messageStyle {
+    /*overflow: auto;*/
+    word-wrap: break-word;
+    word-break: break-all;
+    font-family: courier, consolas;
+    height: 50px;
+    overflow-y: auto;
+    margin-bottom: 0px !important;
+    /*white-space: normal !important;*/
+}
+
+tr.debug {
+    color: #777;
+}
+
+#sh-cols div {
+    display: inline-block;
+    border-right: 1px solid #eee;
+    padding: 4px 15px;
+}
+
+#sh-cols div input, #sh-cols div label {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+#sh-cols div:last-child {
+    border: none;
+}
+
+#start-date, #end-date {
+    width: 100%;
+}
+
+.textWrap {
+    text-wrap: normal;
+}
+
+div.dts tbody th, div.dts tbody td {
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+}
+
+.above-table-div {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+}
+
+.above-table-buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.above-table-filter {
+    margin-right: 15px;
+}
+
+.above-table-filler {
+    flex-grow: 1;
+}
+
+.btn-icon {
+    margin-right: 5px;
+}
+
+.below-table-div {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.dataTables_wrapper .dtsb-titleRow {
+    display: none;
+}
+
+.dataTables_wrapper .dtsb-group {
+    padding-bottom: -15px !important;
+    padding-top: 8px;
+}
+
+#filter-btn-refresh-flexbox {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    height: 50px;
+}
+
+.scrollTable {
+    overflow-y: auto;
+    clear: both;
+}
+
+#filters-div-flex {
+    border: 1px solid #eee;
+    margin: 10px auto;
+    margin-right: 15px;
+    padding: 10px;
+    /*display: none;*/
+    overflow: visible;
+}
+
+#filters-div-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    align-items: flex-start;
+    gap: 30px;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+#filters-div-col-1 {
+    flex-grow: 1;
+    width: 33%;
+}
+
+#filters-div-col-2 {
+    flex-grow: 1;
+    width: 33%;
+}
+
+#filters-div-col-3 {
+    flex-grow: 1;
+    width: 33%;
+}
+
+.filter-div-submit {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-top: 15px;
+}
+
+#logData_info.dataTables_info {
+    padding-top: 0px;
+}
+
+.ajax-spinner{
+    height: 100%;
+    width:100%;
+    position: absolute;
+    z-index: 10;
+    background: #fff url('../images/ajax-spin.gif') no-repeat center;
+    opacity: 0.8;
+    display: none;
+  }

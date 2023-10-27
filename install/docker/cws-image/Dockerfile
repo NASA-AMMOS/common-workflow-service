@@ -1,10 +1,10 @@
 FROM oraclelinux:8
 
 RUN yum update -y && \
-    yum install -y mysql java-1.8.0-openjdk java-1.8.0-openjdk-devel rsync which && \
+    yum install -y mysql java-11-openjdk java-11-openjdk-devel rsync which && \
     yum clean all
 
-ENV JAVA_HOME /usr/lib/jvm/java-1.8.0
+ENV JAVA_HOME /usr/lib/jvm/java-openjdk
 
 ENV TZ=America/Los_Angeles
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone

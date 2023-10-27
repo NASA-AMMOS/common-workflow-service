@@ -273,3 +273,110 @@ div[class*="bar-"]{
 #logData th:nth-child(1){width: 100px}
 #logData th:nth-child(3){width: 100px}
 .no-results{text-align: center; color:red; text-transform: uppercase;}
+
+.clipboard {
+  height: 15px; 
+  width: auto; 
+  opacity: 0.5;
+  transition: 0.3s;
+}
+
+.clipboard:hover {
+  opacity: 1;
+}
+
+.svgHolder {
+  float: right; 
+}
+
+.copy {
+  /* button */
+  --button-bg: #ffffff00;
+  --button-hover-bg: #ffffff00;
+  --button-text-color: #ffffff00;
+  --button-hover-text-color: #ffffff00;
+  --button-border-radius: px;
+  --button-diameter: 25px;
+  --button-outline-width: 1px;
+  --button-outline-color: rgb(141, 141, 141);
+}
+
+.copy {
+  box-sizing: border-box;
+  width: var(--button-diameter);
+  height: var(--button-diameter);
+  border-radius: var(--button-border-radius);
+  background-color: var(--button-bg);
+  color: var(--button-text-color);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  outline: none;
+  float: right;
+  text-align: end;
+}
+
+.copy svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.grow {
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  z-index: 5;
+  height:inherit;
+  border: 5px solid lightgray;
+  border-radius: 5px;
+  max-height: 150px;
+  max-width: 150px;
+}
+
+.grow:hover {
+  transform: scale(2) translateX(-15%);
+  z-index: 6;
+}
+
+.history-grow {
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  z-index: 5;
+  height:inherit;
+  border: 5px solid lightgray;
+  border-radius: 5px;
+}
+
+.history-grow:hover {
+  transform: scale(2) translateX(-15%);
+  z-index: 6;
+}
+
+.autocomplete {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.autocomplete-items {
+  position: absolute;
+  border: 1px solid #d4d4d4;
+  border-bottom: none;
+  border-top: none;
+  z-index: 99;
+  top: 100%;
+  left: 0;
+  right: 0;
+}
+
+.autocomplete-items div {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #fff; 
+  border-bottom: 1px solid #d4d4d4; 
+}
+
+.autocomplete-items div:hover {
+  background-color: #e9e9e9; 
+}

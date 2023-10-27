@@ -3,8 +3,11 @@ package jpl.cws.test.integration.ui;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -15,6 +18,9 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.logging.LogType;
 
 import jpl.cws.test.WebTestUtil;
 
@@ -65,7 +71,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 
 	public void runStartInitiatorTest() throws IOException {
 		Boolean scriptPass = false;
-		WebDriverWait wait = new WebDriverWait(driver,30);
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 		try {
 			log.info("------ START InitiatorsTestIT:runStartInitiatorTest ------");
 
@@ -189,19 +195,16 @@ public class InitiatorsTestIT extends WebTestUtil {
 			goToPage("processes");
 
 			log.info("Filtering results for Test Initiators Page test.");
-			waitForElementID("pd-select");
-			Select select = new Select(findElById("pd-select"));
-			select.selectByVisibleText("Test Initiators Page");
+			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
 
-			waitForElementID("filter-submit-btn");
-
-			WebElement filterSubmit = findElById("filter-submit-btn");
-			filterSubmit.click();
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_initiators_page");
+			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 
 			log.info("Clicking on Test Initiators Page history.");
-			WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
+			WebElement historyButton = findElByXPath("//a[contains(text(),'History')]");
 			waitForElement(historyButton);
 			historyButton.sendKeys(Keys.RETURN);
 
@@ -225,7 +228,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 
 	public void runCronInitiatorTest() throws IOException {
 		Boolean scriptPass = false;
-		WebDriverWait wait = new WebDriverWait(driver,30);
+		WebDriverWait wait = new WebDriverWait(driver,Duration.ofSeconds(30));
 		try {
 			log.info("------ START InitiatorsTestIT:runCronInitiatorTest ------");
 

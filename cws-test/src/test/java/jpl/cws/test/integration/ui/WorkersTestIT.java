@@ -3,8 +3,8 @@ package jpl.cws.test.integration.ui;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.time.Duration;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -57,7 +57,6 @@ public class WorkersTestIT extends WebTestUtil {
 			scriptPass = false;
 		}
 		deleteProc("test_workers_page");
-		deleteProc("test_deployments_page");
 		deleteProc("test_thread_limit");
 		logout();
 		assertTrue("Workers Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
@@ -191,7 +190,7 @@ public class WorkersTestIT extends WebTestUtil {
 	
 	public void runThreadLimitTest() throws IOException {
 		Boolean scriptPass = false;
-		WebDriverWait wait = new WebDriverWait(driver,30);
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 		JavascriptExecutor js = (JavascriptExecutor) driver;        
 		try {
 			log.info("------ START WorkersTestIT:runThreadLimitTest ------");
@@ -322,7 +321,7 @@ public class WorkersTestIT extends WebTestUtil {
 			correctThreadLimit.sendKeys(origThreadLimit);
 			
 			driver.findElement(By.id("workers-table")).click();
-			
+
 			log.info("------ END WorkersTestIT:runThreadLimitTest ------");
 		}
 		catch (Throwable e) {

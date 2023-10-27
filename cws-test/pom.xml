@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 		<artifactId>common-workflow-service</artifactId>
-		<version>2.4.0</version><!-- update this each CWS release -->
+		<version>2.5.0</version><!-- update this each CWS release -->
 	</parent>
 	<artifactId>cws-test</artifactId>
 	
@@ -78,6 +78,10 @@
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-chrome-driver</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-http-jdk-client</artifactId>
+		</dependency>
 		
 		<dependency>
 			<groupId>junit</groupId>
@@ -91,7 +95,7 @@
 		</dependency>
 		
 		<dependency>
-            <groupId>org.camunda.bpm.assert</groupId>
+            <groupId>org.camunda.bpm</groupId>
             <artifactId>camunda-bpm-assert</artifactId>
 			<exclusions>
 				<exclusion>
@@ -111,17 +115,17 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>io.github.bonigarcia</groupId>
-			<artifactId>webdrivermanager</artifactId>
-			<version>5.2.0</version>
-			<scope>test</scope>
-		</dependency>
-
 	</dependencies>
 
 	<build>
 		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<release>${java.version}</release>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>

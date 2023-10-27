@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 		<artifactId>common-workflow-service</artifactId>
-		<version>2.4.0</version><!-- update this each CWS release -->
+		<version>2.5.0</version><!-- update this each CWS release -->
 	</parent>
 	<artifactId>cws-service</artifactId>
 
@@ -55,6 +55,11 @@
 				</dependency>
 
 				<dependency>
+					<groupId>javax.annotation</groupId>
+					<artifactId>javax.annotation-api</artifactId>
+				</dependency>
+
+				<dependency>
 					<groupId>org.tuckey</groupId>
 					<artifactId>urlrewritefilter</artifactId>
 				</dependency>
@@ -71,7 +76,7 @@
 				</dependency>
 
 				<dependency> <!-- FOR TESTING -->
-					<groupId>org.camunda.bpm.assert</groupId>
+					<groupId>org.camunda.bpm</groupId>
 					<artifactId>camunda-bpm-assert</artifactId>
 					<exclusions>
 						<exclusion>
@@ -262,8 +267,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
+					<release>${java.version}</release>
 				</configuration>
 			</plugin>
 		</plugins>

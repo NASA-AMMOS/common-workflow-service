@@ -217,7 +217,7 @@ public class WorkerService implements InitializingBean {
 			@Override
 			public boolean accept(File dir, String name) {
 				
-				if (name.startsWith("catalina") || name.startsWith("localhost")) {
+				if (name.startsWith("catalina") || name.startsWith("localhost") || name.startsWith("cws")) {
 					return true;
 				}
 				
