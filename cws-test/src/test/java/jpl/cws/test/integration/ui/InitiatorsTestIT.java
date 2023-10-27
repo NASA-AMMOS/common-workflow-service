@@ -287,10 +287,8 @@ public class InitiatorsTestIT extends WebTestUtil {
 				"\n" +
 				"";
 
-			log.info("TEMP: " + initiatorXML);
 
 			initiatorXML = initiatorXML.replace("\n", "\\n").replace("\"", "\\\"");
-			log.info("TEMP: post: " + initiatorXML);
 
 			js.executeScript("ace.edit('editorDiv').setValue(\"" + initiatorXML + "\");");
 

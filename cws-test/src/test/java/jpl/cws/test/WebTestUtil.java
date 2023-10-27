@@ -151,7 +151,6 @@ public class WebTestUtil {
 		}
 
 		if (!found) {
-			log.info("TEMP: " + driver.getPageSource());
 			log.error("text '" + text + "' NOT FOUND on page");
 			Assert.fail("text '" + text + "' NOT FOUND on page");
 		}
