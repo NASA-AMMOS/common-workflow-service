@@ -6,6 +6,8 @@
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/${base}/css/bootstrap-toggle.min.css" rel="stylesheet">
 	<script src="/${base}/js/bootstrap-toggle.min.js"></script>
+	<!-- Custom js adaptation script; override this file from your adaptation project -->
+	<script src="/${base}/js/adaptation-workers-modal.js"></script>
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<script>
@@ -755,6 +757,7 @@
 				<div>
 					<input type="checkbox" id="all-workers" />&nbsp;
 					<label for="all-workers" id='selAll-label'>Select All Workers</label>
+					<#include "adaptation-workers-modal.ftl">
 				</div>
 				<hr/>
 				<div id="workers-div"></div>
@@ -883,6 +886,9 @@
 			$("#workers-div").html('');
 			//Returned JSON is an array of objects
 			var listWorkers = JSON.parse(data);
+			//-------Add potential extra adaptation info to each worker-----
+			addAdaptationWorkersInfo(dataProcKey, listWorkers);
+			//-------------
 			//$.each(JSON.parse(data), function(i) {
 			for(i in listWorkers){
 				var div = "<div>" +
@@ -891,7 +897,7 @@
 				" onClick=\'enableDisable(\""+listWorkers[i].id.toString()+"\");\' "+(listWorkers[i].accepting_new ? "checked" :"")+"/>"+
 				"<label for='"+listWorkers[i].id+"-box'"+( (listWorkers[i].status == 'down') ? " class='w-down'" : '')+">"+listWorkers[i].name+ 
 				(listWorkers[i].cws_install_type == 'console_only'? '*' : '') +"</label>"+
-				"<span id='"+listWorkers[i].id+"-msg'>"+
+				"<span id='"+listWorkers[i].id+"-msg'></span>" +			
 				"</div>";
 				$("#workers-div").append(div);
 			}
