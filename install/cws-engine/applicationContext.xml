@@ -60,6 +60,7 @@
         <property name="jobExecutorActivate" value="__JOB_EXECUTOR_ACTIVATE__" />
         <property name="history" value="__HISTORY_LEVEL__" />
         <property name="authorizationEnabled" value="true" />
+		<property name="enforceHistoryTimeToLive" value="false" />
         <property name="jobExecutorDeploymentAware" value="true" />
         <property name="jdbcBatchProcessing" value="false" />
         <property name="idGenerator">
