@@ -18,8 +18,12 @@
     <!-- settings the base path for relative links -->
     <base href="$BASE"
           admin-api="$APP_ROOT/api/admin/"
+          cockpit-api="$APP_ROOT/api/cockpit/"
+          tasklist-api="$APP_ROOT/api/tasklist/"
+          welcome-api="$APP_ROOT/api/welcome/"
           engine-api="$APP_ROOT/api/engine/"
-          app-root="$APP_ROOT" />
+          app-root="$APP_ROOT"
+          app-name="admin"/>
 
     <!-- an example of plugin/feature exclusion -->
     <!--
@@ -32,16 +36,16 @@
 
 
     <!-- styles -->
-    <link href="$APP_ROOT/app/admin/styles/styles.css?bust=7.20.0"
-          rel="stylesheet" />
+    <link rel="icon" href="$APP_ROOT/favicon.ico">
+    <script defer src="$APP_ROOT/lib/runtime.js?bust=7.20.0" $CSP_NONCE charset="UTF-8"></script>
+    <script defer src="$APP_ROOT/lib/deps.js?bust=7.20.0" $CSP_NONCE charset="UTF-8"></script>
+    <script defer src="$APP_ROOT/app/admin/camunda-admin-bootstrap.js?bust=7.20.0" $CSP_NONCE charset="UTF-8"></script>
+    <link href="$APP_ROOT/app/admin/camunda-admin-bootstrap.css?bust=7.20.0" rel="stylesheet">
+
     <link rel="stylesheet"
           type="text/css"
           href="$APP_ROOT/app/admin/styles/user-styles.css?bust=7.20.0">
 
-    <!-- favicon -->
-    <link rel="shortcut icon"
-          href="$APP_ROOT/app/admin/assets/images/favicon.ico"
-          type="image/x-icon" />
   </head>
   <body ng-controller="camAdminAppCtrl" ng-class="{'no-breadcrumbs': !$root.showBreadcrumbs}">
     <!-- navigation -->
@@ -49,7 +53,6 @@
          authentication="authentication"
          user-name="userFullName"
          current-app="admin"
-         brand-name="Camunda Admin"
          ng-cloak>
       <ul cam-if-logged-in
           ng-controller="NavigationController">
@@ -66,10 +69,7 @@
           <a href="#/tenants">{{ 'TENANTS_TENANTS' | translate }}</a>
         </li>
 
-        <li ng-class="activeClass('#/authorization')"
-            show-if-authorized
-            auth-permission="READ"
-            auth-resource-name="authorization">
+        <li ng-class="activeClass('#/authorization')">
           <a href="#/authorization?resource=0">{{ 'AUTHORIZATION_AUTHORIZATIONS' | translate }}</a>
         </li>
         <li ng-class="activeClass('#/system')">
