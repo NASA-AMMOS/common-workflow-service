@@ -120,6 +120,7 @@ echo "Generating cookies.txt for authentication tests..."
 # Generate cookies.txt for authentication tests
 AUTH_RESP=`curl -k -1 -c ./cookies.txt -s https://${CWS_CONSOLE_HOST}:${CWS_CONSOLE_SSL_PORT}/cws-ui/rest/authenticate -u ${CWS_USERNAME}:${CWS_PASSWORD}`
 echo "AUTH_RESP = $AUTH_RESP"
+echo "CONTENTS OF cookies.txt: $(<./cookies.txt)"
 
 #AUTH tests
 run_test "cws-ui/configuration" 200
