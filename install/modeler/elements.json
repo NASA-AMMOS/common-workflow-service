@@ -443,6 +443,30 @@
 				}
 			},
 			{
+				"label": "User Name",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "authUser",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
+				"label": "Password",
+				"type": "String",
+				"binding": {
+					"type": "camunda:field",
+					"name": "authPwd",
+					"expression": true
+				},
+				"constraints": {
+					"notEmpty": true
+				}
+			},
+			{
 				"label": "To",
 				"type": "String",
 				"binding": {
@@ -508,7 +532,7 @@
 			{
 				"label": "SMTP Port",
 				"type": "String",
-				"value": "25",
+				"value": "587",
 				"binding": {
 					"type": "camunda:field",
 					"name": "smtpPort",

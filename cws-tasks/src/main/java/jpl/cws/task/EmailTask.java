@@ -3,6 +3,7 @@ package jpl.cws.task;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.mail.SimpleEmail;
+import org.apache.commons.mail.DefaultAuthenticator;
 import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.bpm.engine.delegate.Expression;
 
@@ -25,6 +26,8 @@ public class EmailTask extends CwsTask {
 	private static final String MAIL_FAILURE = "mailFailure";
 
 	private Expression from;
+	private Expression authuser;
+	private Expression authpwd;
 	private Expression to;
 	private Expression subject;
 	// either 'html' or 'text'
@@ -33,6 +36,8 @@ public class EmailTask extends CwsTask {
 	private Expression smtpHost;
 	private Expression smtpPort;
 	private String fromString;
+	private String authuserString;
+	private String authpwdString;
 	private String toString;
 	private String subjectString;
 	private String bodyTypeString;
@@ -47,6 +52,8 @@ public class EmailTask extends CwsTask {
 	@Override
 	public void initParams() throws Exception {
 		fromString = getStringParam(from, "from", DEFAULT_FROM);
+		authuserString = getStringParam(authuser, "authUser", null);
+		authpwdString = getStringParam(authpwd, "authPwd", null);
 		toString = getStringParam(to, "to");
 		subjectString = getStringParam(subject, "subject", null);
 		bodyTypeString = getStringParam(bodyType, "bodyType", DEFAULT_BODY_TYPE);
@@ -82,10 +89,13 @@ public class EmailTask extends CwsTask {
 				((SimpleEmail) email).setMsg(bodyString);
 			}
 
+
+
 			email.setHostName(smtpHostString);
 			email.setSmtpPort(smtpPortInt);
 			email.setFrom(fromString);
 			email.setSubject(subjectString);
+			email.setAuthenticator(new DefaultAuthenticator(authuserString, authpwdString));
 
 			String[] recipients = toString.split(",");
 			for (String recip : recipients) {
@@ -111,6 +121,10 @@ public class EmailTask extends CwsTask {
 	public void setFrom(Expression from) {
 		this.from = from;
 	}
+
+	public Expression getAuthUser() { return authuser; }
+
+	public void setAuthUser(Expression authUser) { this.authuser = authuser; }
 
 	public Expression getTo() {
 		return to;
