@@ -1,23 +1,27 @@
+<!DOCTYPE html>
 <html>
-
 <head>
 	<meta charset="utf-8">
 	<title>CWS - Deployments</title>
+
+	<!-- JAVASCRIPT LINKS -->
 	<script src="/${base}/js/jquery.min.js"></script>
+	<script src="/${base}/js/bootstrap-toggle.min.js"></script>
+	<script src="/${base}/js/DataTables/datatables.js"></script>
+	<script src="/${base}/js/cws.js"></script>
+	<script src="/${base}/js/adaptation-workers-modal.js"></script>
+	<!-- CSS LINKS -->
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/${base}/css/bootstrap-toggle.min.css" rel="stylesheet">
 	<script src="/${base}/js/bootstrap-toggle.min.js"></script>
-	<!-- Custom js adaptation script; override this file from your adaptation project -->
-	<script src="/${base}/js/adaptation-workers-modal.js"></script>
 	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
-	<script src="/${base}/js/DataTables/datatables.js"></script>
 	<!-- Custom styles for this template -->
+	<link href="/${base}/js/DataTables/datatables.css" rel="stylesheet">
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<link href="/${base}/css/deployments.css" rel="stylesheet">
 	<link href="/${base}/css/microtip.css" rel="stylesheet">
 
 	<script>
-
 		//STATE PERSISTANCE CONSTS
 		var username = document.cookie.substring(document.cookie.indexOf("cwsUsername=") + 12);
 		if (username.indexOf(";") > 0) {
@@ -27,10 +31,11 @@
 		const refreshRateVar = "CWS_DASH_DEPLOY_REFRESH_RATE-" + username;
 		const hideSuspendedProcVar = "CWS_DASH_DEPLOY_HIDE_SUS-" + username;
 
+		//GLOBAL VARIABLES
+
 		var statsVal = {};
 		var statsTotalVal = {};
 		var procDefArray = [];
-
 		var refreshing = false;
 		var pageRefId = 0;
 		var refreshRate = 5000;
@@ -40,6 +45,7 @@
 		var idleTimer = 0;
 		var idleInterval = 600000 // 10 minutes (10 * 60 * 1000)
 
+		//GET PROCESS DEFINITIONS AS AN ARRAY (USES FREEMARKER SYNTAX)
 		<#list procDefs as x>
 			statsVal.${x.key} = {pending:'...', disabled:'...', active:'...', completed:'...', error:'...', fts:'...', incident:'...'};
 			var procDef = {
@@ -52,10 +58,8 @@
 			procDefArray.push(procDef);
 		</#list>
 
+		// REFRESH THE TEXTUAL STATS SUMMARY
 		function refreshStatUI(name, statsCounts) {
-
-			// REFRESH THE TEXTUAL STATS SUMMARY
-			//
 			var statTotal =
 				statsCounts.pending +
 				statsCounts.disabled +
@@ -178,6 +182,7 @@
 			$("#stat-bar-" + name + " div.bar-incident").attr('data-original-title', statsCounts.incident + " Incidents");
 		}
 
+		//HANDLER FUNCTION FOR DELETING A PROCESS DEFINITION
 		function handleDeleteProcDef(proc_def_key) {
 
 			deleteProcDefName = proc_def_key;
@@ -192,21 +197,20 @@
 			$("#delete-proc-def-modal").modal('show');
 		}
 
+		//HANDLER FUNCTION FOR DELETING A PROCESS DEFINITION (ERROR STATE)
 		function getDeleteErrorMessage(message) {
-
 			if (message.indexOf("(Accepting new)") > 0) {
 				return "You must disable this process definition on all workers before deleting.";
-			}
-			else if (message.indexOf("(Not found)") > 0) {
+			} else if (message.indexOf("(Not found)") > 0) {
 				return "Process definition was not found.  Maybe it was already deleted.  Try refreshing the page...";
-			}
-			else if (message.indexOf("(Running)") > 0) {
+			} else if (message.indexOf("(Running)") > 0) {
 				return "Before deleting this process definition, you must wait for it to finish running or stop it, then disable it on all workers.";
+			} else { 
+				return "An unknown error occured.";
 			}
-
-			return "An unknown error occured.";
 		}
 
+		//FUNCTION FOR DELETING A PROCESS DEFINITION, MAKES AJAX CALL TO REST SERVICE
 		function deleteProcDef(proc_def_key) {
 			$.ajax({
 				url: "/${base}/rest/processes/processDefinition/" + proc_def_key + "/undeploy",
@@ -240,6 +244,7 @@
 			});
 		}
 
+		//DELETES LOGS OF A PROC DEF IN ELASTICSEARCH - MAKES AJAX CALL TO REST SERVICE
 		function deleteProcDefEsLogs(proc_def_key) {
 			$.ajax({
 				type: "DELETE",
@@ -263,6 +268,7 @@
 			});
 		}
 
+		//GRABS LATEST STATS FROM REST SERVICE AND UPDATES THE STATS
 		function refreshStats() {
 
 			if (refreshing) return;
@@ -350,13 +356,12 @@
 			});
 		}
 
+		//DOCUMENT.READY STARTS HERE
 		$(document).ready(function () {
-			// DISPLAY MESSAGE AT TOP OF PAGE
-			//
+			// DISPLAY MESSAGE AT TOP OF PAGE (IF THERE IS ONE)
 			if ($("#statusMessageDiv:contains('ERROR:')").length >= 1) {
 				$("#statusMessageDiv").css("color", "red");
-			}
-			else {
+			} else {
 				$("#statusMessageDiv").css("color", "green");
 				if ($('#statusMessageDiv').html().length > 9) {
 					$('#statusMessageDiv').fadeOut(refreshRate, "linear");
@@ -377,8 +382,12 @@
 				$("#stats-last-num-hours").val(24);
 			}
 
+			//DATATABLE INITIALIZATION FOR PROCESS DEFINITION TABLE
 			$("#process-table").DataTable({
+				//SET OPTIONS FOR DATATABLE HERE... ALL OPTIONS CAN BE FOUND HERE: https://datatables.net/reference/option/
+				//SET HOW DATA IS DISPLAYED IN EACH COLUMN (IN ORDER) (https://datatables.net/reference/option/columns)
 				columns: [
+					//ICONS COLUMN
 					{
 						data: { suspended: "suspended", id: "id", key: "key" },
 						render: function(data, type) {
@@ -409,6 +418,7 @@
 							}
 						}
 					},
+					//NAME COLUMN
 					{
 						data: { name: "name", id: "id", key: "key" },
 						render: function (data, type) {
@@ -420,6 +430,7 @@
 							}
 						}
 					},
+					//KEY COLUMN
 					{
 						data: "key",
 						render: function (data, type) {
@@ -435,6 +446,7 @@
 							}
 						}
 					},
+					//VERSION COLUMN
 					{
 						data: "version",
 						render: function (data, type) {
@@ -450,6 +462,7 @@
 							}
 						}
 					},
+					//WORKERS BUTTON COLUMN
 					{
 						data: "key",
 						render: function (data, type) {
@@ -462,6 +475,7 @@
 							}
 						}
 					},
+					//STATUS COLUMN
 					{
 						data: { suspended: "suspended", key: "key" },
 						render: function (data, type) {
@@ -485,6 +499,7 @@
 							}
 						}
 					},
+					//INSTANCE STATISTICS COLUMN
 					{
 						data: "key",
 						render: function (data, type) {
@@ -528,33 +543,38 @@
 						}
 					}
 				],
+				//SETS EACH ROW ID TO BE THE "KEY" DATA VALUE (https://datatables.net/reference/option/rowId)
 				rowId: "key",
+				//DISABLES ORDERING ON BUTTON, WORKER, AND INSTANCE STATISTICS COLUMNS (https://datatables.net/reference/option/columnDefs)
 				columnDefs: [
-					{ orderable: false, targets: 0},
-					{ orderable: false, targets: 6 },
-					{ orderable: false, targets: 4 },
+					{ orderable: false, targets: [ 0,6,4 ]}
 				],
+				//SETS DEFAULT ORDERING TO BE THE "NAME" COLUMN, ASCENDING (https://datatables.net/reference/option/order)
 				order: [[1, "asc"]],
+				//DISABLES PAGINATION (ONE LONG TABLE) (https://datatables.net/reference/option/paging)
 				"paging": false,
-				//filter is top left, length is top right, info is bottom left, pagination is bottom right
+				//SETS WHAT ELEMENTS ARE CREATED BY DATATABLE AND WHERE ELEMENTS ARE PUT (https://datatables.net/reference/option/dom)
 				dom: "<'above-table-div'<'above-table-buttons'>f>"
 					+ "t"
 					+ "<'below-table-div'i>",
-				//dom: "<'row'<'col-sm-2 download-button'><'col-sm-10 filter'f>>" + "tip",
 			});
 
+			//OUR DATA COMES FROM FREEMARKER TEMPLATE - ADD THAT ARRAY TO THE DATATABLE
 			$("#process-table").DataTable().rows.add(procDefArray);
+			//REDRAW THE TABLE TO REFLECT THE NEW DATA
 			$("#process-table").DataTable().draw();
 
+			//ADD DOWNLOAD BUTTON & HIDE SUSPENDED CHECKBOX TO DIVS CREATED BY DATATABLE (DOM OPTION)
 			$('<button id="download-btn" class="btn btn-primary" onclick="downloadJSON()"><i class="glyphicon glyphicon-save btn-icon"></i>Download</button>').appendTo(".above-table-buttons");
 			$('<input name="hide-suspended" id="hide-sus-btn" type="checkbox" style="align-self: center;"><label for="hide-sus-btn">Hide All Suspended Processes</label>').appendTo(".above-table-buttons");
 
+			//HANDLES MODAL POPUP FOR WORKER BUTTON
 			$(".worker-view-btn").on("click", function () {
 				dataProcKey = $(this).attr("data-proc-key");
 				listWorkersInModal(dataProcKey);
 			});
-
-			$("#hide-sus-btn").click(function () {
+			//HANDLES HIDE SUSPENDED PROC DEF CHECKBOX BEHAVIOR
+			$("#hide-sus-btn").on("click", function () {
 				if ($(this).prop("checked")) {
 					$("#process-table").DataTable().column(5).search("Active", false, true).draw();
 					localStorage.setItem(hideSuspendedProcVar, "1");
@@ -591,6 +611,7 @@
 					});
 			});
 
+			//INIT STATE OF HIDE SUSPENDED PROC DEF CHECKBOX
 			if (parseInt(localStorage.getItem(hideSuspendedProcVar)) == 0) {
 				$("#hide-sus-btn").prop("checked", false);
 				$("#process-table").DataTable().column(5).search("").draw();
@@ -599,28 +620,30 @@
 				$("#hide-sus-btn").prop("checked", true);
 				$("#process-table").DataTable().column(5).search("Active", false, true).draw();
 			}
-
+			//PULL LATEST STATS
 			refreshStats();
+			
+			//INIT STATE OF REFRESH RATE
 			if (parseInt(localStorage.getItem(refreshRateVar)) !== 0) {
 				pageRefId = setInterval(pageRefresh, parseInt(localStorage.getItem(refreshRateVar)));
 			}
 			idleTimer = setInterval(idleMode, idleInterval);
 
-			$("#resume-refresh").click(function () {
+			//HANDLES HIDING INACTIVITY MODAL
+			$("#resume-refresh").on("click", function () {
 				$("#page-ref-modal").modal('hide');
 				idling = false;
 			});
 
-			$("#delete-proc-def").click(function () {
-
+			//HANDLES DELETE PROC DEF BUTTON
+			$("#delete-proc-def").on("click", function () {
 				$("#delete-proc-def").prop('disabled', true);
 				$("#deleting-message-container").css("display", "flex");
-
 				deleteProcDef(deleteProcDefName);
 			});
 
-			$("#open-file-div").click(function () {
-				$("#file-input").click();
+			$("#open-file-div").on("click", function () {
+				$("#file-input").trigger("click");
 			});
 			$("#file-input").on('change', function () {
 				//console.log($("#file-input").val());
@@ -633,7 +656,7 @@
 				idleTimer = setInterval(idleMode, idleInterval);
 			});
 
-			$(".bar-error").click(function () {
+			$(".bar-error").on("click", function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
 					window.location = "/${base}/processes?procDefKey=" + id + "&status=fail&cache=false";
@@ -642,7 +665,7 @@
 					window.location = "/${base}/processes?status=fail&cache=false";
 				}
 			});
-			$(".bar-completed").click(function () {
+			$(".bar-completed").on("click", function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
 					window.location = "/${base}/processes?procDefKey=" + id + "&status=complete,resolved&cache=false";
@@ -651,7 +674,7 @@
 					window.location = "/${base}/processes?status=complete,resolved&cache=false";
 				}
 			});
-			$(".bar-pending").click(function () {
+			$(".bar-pending").on("click", function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
 					window.location = "/${base}/processes?procDefKey=" + id + "&status=pending&cache=false";
@@ -660,7 +683,7 @@
 					window.location = "/${base}/processes?status=pending&cache=false";
 				}
 			});
-			$(".bar-disabled").click(function () {
+			$(".bar-disabled").on("click", function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
 					window.location = "/${base}/processes?procDefKey=" + id + "&status=disabled&cache=false";
@@ -669,7 +692,7 @@
 					window.location = "/${base}/processes?status=disabled&cache=false";
 				}
 			});
-			$(".bar-active").click(function () {
+			$(".bar-active").on("click", function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
 					window.location = "/${base}/processes?procDefKey=" + id + "&status=running&cache=false";
@@ -678,7 +701,7 @@
 					window.location = "/${base}/processes?status=running&cache=false";
 				}
 			});
-			$(".bar-failedToStart").click(function () {
+			$(".bar-failedToStart").on("click", function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
 					window.location = "/${base}/processes?procDefKey=" + id + "&status=failedToStart&cache=false";
@@ -687,7 +710,7 @@
 					window.location = "/${base}/processes?status=failedToStart&cache=false";
 				}
 			});
-			$(".bar-incident").click(function () {
+			$(".bar-incident").on("click", function () {
 				id = $(this).parent().attr("data-pdk");
 				if (id) {
 					window.location = "/${base}/processes?procDefKey=" + id + "&status=incident&cache=false";
@@ -699,7 +722,9 @@
 
 			adjustWorkersButton();
 		});
+		//DOCUMENT.READY ENDS HERE
 
+		//THIS FUNCTION GETS CALLED BY AUTO REFRESH EVERY X SECONDS
 		function pageRefresh() {
 			if (!idling) {
 				refreshStats();
@@ -765,11 +790,6 @@
 			})
 
 		}
-
-		$(function () {
-			$('[data-toggle="tooltip"]').tooltip()
-		})
-
 	</script>
 
 	<!-- Just for debugging purposes. Don't actually copy this line! -->
@@ -1020,11 +1040,8 @@
 			</div> <!-- modal-dialog -->
 		</div> <!-- .modal .fade -->
 
-		<!-- Bootstrap core JavaScript
-================================================== -->
-		<!-- Placed at the end of the document so the pages load faster -->
 		<script src="/${base}/js/bootstrap.min.js"></script>
-		<script type="text/javascript" src="/${base}/js/cws.js"></script>
+		
 		<script type="text/javascript">
 			var dataProcKey;
 			var hideall = false;
@@ -1064,17 +1081,17 @@
 			// CLICK ACTION FOR
 			// "Select All Workers" checkbox in modal
 			//
-			$("#all-workers").click(function () {
+			$("#all-workers").on("click", function () {
 				if ($(this).prop("checked")) {
 					$(".worker-checkbox").each(function () {
 						if (!$(this).prop("checked"))
-							$(this).click();
+							$(this).trigger("click");
 					});
 				}
 				else {
 					$(".worker-checkbox").each(function () {
 						if ($(this).prop("checked"))
-							$(this).click();
+							$(this).trigger("click");
 					});
 				}
 			});
@@ -1162,7 +1179,7 @@
 				if($(this).prop("checked") )
 					$(this).click();
 			// Done button closes the modal (as does clicking outside or pressing esc)
-			$("#done-workers-btn").click(function () {
+			$("#done-workers-btn").on("click", function () {
 				$("#workers-modal").modal('hide');
 			});
 

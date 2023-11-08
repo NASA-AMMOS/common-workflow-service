@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+
 <html>
 <head>
 	<meta charset="utf-8">
@@ -99,7 +101,6 @@
 			// AND ENABLE EDITOR
 			//
 			$.get( "/${base}/rest/snippets/getLatestInProgressCodeSnippet", function( data ) {
-				console.log(data);
 				$( "#editorDiv" ).text( data );
 				editor = ace.edit("editorDiv");
 				editor.setTheme("ace/theme/monokai");
@@ -111,14 +112,14 @@
 			});
 
 			
-			$( '#validateAndSaveSnippetsSubmitBtn' ).click(function() {
+			$( '#validateAndSaveSnippetsSubmitBtn' ).on("click", function() {
 				$('#code').val(editor.getValue());
 			});
 			
 			//
 			// LOAD LATEST SUCCESSFULLY COMPILED CODE
 			//
-			$( '#revertSnippetsSubmitBtn' ).click(function() {
+			$( '#revertSnippetsSubmitBtn' ).on("click", function() {
 				$.get( "/${base}/rest/snippets/getLatestCodeSnippet", function( data ) {
 					console.log(data);
 					editor.env.document.setValue(data);
