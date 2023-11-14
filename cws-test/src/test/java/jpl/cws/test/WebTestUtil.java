@@ -193,6 +193,12 @@ public class WebTestUtil {
 		log.info("Entering password...");
 		passwordField.sendKeys(PASSWORD);
 
+		try {
+			screenShot("post-user-pass");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
 		waitForElementID("submit");
 
 		log.info("Clicking submit button.");
@@ -200,7 +206,7 @@ public class WebTestUtil {
 		submitBtn.click();
 
 		try {
-			screenShot("temp");
+			screenShot("post-submit-btn");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
