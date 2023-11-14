@@ -179,6 +179,8 @@ public class CwsInstaller {
 	private static String cws_shutdown_port;
 	private static String cws_tomcat_ajp_port;
 
+	private static String cws_keystore_storepass;
+
 	private static String cws_smtp_hostname;
 	private static String cws_smtp_port;
 
@@ -265,6 +267,7 @@ public class CwsInstaller {
 			setupNotificationEmails();
 			setupTokenExpirationHours();
 			setupPorts();
+			setupKeystorePassword();
 			setupTaskAssigmentEmails();
 			setupSMTP();
 			setupElasticsearch();
@@ -1059,6 +1062,24 @@ public class CwsInstaller {
 		}
 	}
 
+
+	private static void setupKeystorePassword() {
+		cws_keystore_storepass = getPreset("default_cws_keytool_keystore_storepass");
+
+		if (cws_installer_mode.equals("interactive")) {
+			if (cws_keystore_storepass == null) {
+				cws_keystore_storepass = readRequiredLine("Enter the Keystore password of .keystore ",
+					"Must specify a Keystore password!");
+			} else {
+				cws_keystore_storepass = readLine("Enter the Keystore password of .keystore " +
+					"Default is " + cws_keystore_storepass + ": ", cws_keystore_storepass);
+			}
+		} else {
+			if (cws_keystore_storepass == null) {
+				bailOutMissingOption("default_cws_keytool_keystore_storepass");
+			}
+		}
+	}
 
 	private static void setupPorts() {
 		// PROMPT USER FOR CWS WEB PORT
@@ -2397,7 +2418,7 @@ public class CwsInstaller {
 		long ONE_DAY_MS  = 24 * 60 * 60 * 1000;	// 24 hours
 		try {
 			KeyStore ks = KeyStore.getInstance("JKS");
-			ks.load(new FileInputStream(keystoreFilePath), "changeit".toCharArray());
+			ks.load(new FileInputStream(keystoreFilePath), cws_keystore_storepass.toCharArray());
 			Enumeration aliases = ks.aliases();
 			while(aliases.hasMoreElements()) {
 				String keystoreRoot = (String) aliases.nextElement();
