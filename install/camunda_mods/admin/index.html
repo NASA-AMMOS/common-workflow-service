@@ -18,9 +18,6 @@
     <!-- settings the base path for relative links -->
     <base href="$BASE"
           admin-api="$APP_ROOT/api/admin/"
-          cockpit-api="$APP_ROOT/api/cockpit/"
-          tasklist-api="$APP_ROOT/api/tasklist/"
-          welcome-api="$APP_ROOT/api/welcome/"
           engine-api="$APP_ROOT/api/engine/"
           app-root="$APP_ROOT"
           app-name="admin"/>
@@ -53,6 +50,7 @@
          authentication="authentication"
          user-name="userFullName"
          current-app="admin"
+         brand-name="Camunda Admin"
          ng-cloak>
       <ul cam-if-logged-in
           ng-controller="NavigationController">
@@ -69,7 +67,10 @@
           <a href="#/tenants">{{ 'TENANTS_TENANTS' | translate }}</a>
         </li>
 
-        <li ng-class="activeClass('#/authorization')">
+        <li ng-class="activeClass('#/authorization')"
+            show-if-authorized
+            auth-permission="READ"
+            auth-resource-name="authorization">
           <a href="#/authorization?resource=0">{{ 'AUTHORIZATION_AUTHORIZATIONS' | translate }}</a>
         </li>
         <li ng-class="activeClass('#/system')">
