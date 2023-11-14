@@ -1068,10 +1068,10 @@ public class CwsInstaller {
 
 		if (cws_installer_mode.equals("interactive")) {
 			if (cws_keystore_storepass == null) {
-				cws_keystore_storepass = readRequiredLine("Enter the Keystore password of .keystore ",
+				cws_keystore_storepass = readRequiredLine("Enter the Keystore password of .keystore. ",
 					"Must specify a Keystore password!");
 			} else {
-				cws_keystore_storepass = readLine("Enter the Keystore password of .keystore " +
+				cws_keystore_storepass = readLine("Enter the Keystore password of .keystore. " +
 					"Default is " + cws_keystore_storepass + ": ", cws_keystore_storepass);
 			}
 		} else {
