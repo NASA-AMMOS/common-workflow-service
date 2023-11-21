@@ -48,7 +48,6 @@
 		<property name="jobExecutorDeploymentAware" value="true" />
 		<property name="historyCleanupBatchWindowStartTime" value="00:00" />
 		<property name="historyCleanupBatchWindowEndTime" value="23:59" />
-		<property name="enforceHistoryTimeToLive" value="false" />
 		<property name="historyCleanupBatchSize" value="50" />
 		<property name="historyRemovalTimeStrategy" value="start" />
 		<property name="jdbcBatchProcessing" value="false" />

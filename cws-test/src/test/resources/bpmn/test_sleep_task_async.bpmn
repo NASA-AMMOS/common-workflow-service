@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_05ijdgm" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.1.1">
-  <bpmn:process id="test_sleep_task_async" name="test_sleep_task_async" isExecutable="true">
+  <bpmn:process id="test_sleep_task_async" name="test_sleep_task_async" isExecutable="true" camunda:historyTimeToLive="P30D">
     <bpmn:startEvent id="StartEvent_1" camunda:asyncBefore="true">
       <bpmn:outgoing>SequenceFlow_1</bpmn:outgoing>
     </bpmn:startEvent>
