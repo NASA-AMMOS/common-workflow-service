@@ -243,11 +243,11 @@ public class AdminTestIT extends WebTestUtil {
             proceedButton.click();
             sleep(1000);
 
+            screenShot("AdminTestIT-runTenantsTest");
             if (findOnPage("Tenant cwstestdev successfully deleted.")) {
                 scriptPass = true;
             }
             sleep(1000);
-            screenShot("AdminTestIT-runTenantsTest");
 
             goToPage("deployments");
             logout();
