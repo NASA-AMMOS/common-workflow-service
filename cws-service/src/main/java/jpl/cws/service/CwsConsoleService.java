@@ -325,7 +325,14 @@ public class CwsConsoleService {
                         deployedProcDef.getKey(), deployedProcDef.getDeploymentId());
             }
 
-            repositoryService.updateProcessDefinitionHistoryTimeToLive(deployedProcDef.getId(), Integer.parseInt(historyDaysToLive));
+            String historyTimeToLive = getHistoryTimeToLive(bpmnXml);
+            log.info("New process definition has historyTimeToLive of: " + historyTimeToLive);
+            if (historyTimeToLive == null) {
+                log.info("Setting historyTimeToLive to default value: " + historyDaysToLive);
+                historyTimeToLive = historyDaysToLive;
+            }
+
+            repositoryService.updateProcessDefinitionHistoryTimeToLive(deployedProcDef.getId(), Integer.parseInt(historyTimeToLive));
 
             // Notify workers that there has been a change
             // to the set of deployed process definitions
@@ -361,6 +368,22 @@ public class CwsConsoleService {
             acc = (acc && (startEvent.isCamundaAsync() || startEvent.isCamundaAsyncBefore()));
         }
         return acc;
+    }
+
+    private String getHistoryTimeToLive(String xml) {
+        if (!xml.contains("camunda:historyTimeToLive")) {
+            return null;
+        } else {
+            String value = xml.substring(xml.indexOf("camunda:historyTimeToLive=") + 27);
+            value = value.substring(0, value.indexOf('"'));
+            if (value.startsWith("P")) {
+                value = value.substring(1, value.length());
+            }
+            if (value.endsWith("D") || value.endsWith("M") || value.endsWith("Y")) {
+                value = value.substring(0, value.length()-1);
+            }
+            return value;
+        }
     }
 
     private boolean hasName(BpmnModelInstance model) {

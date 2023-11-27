@@ -49,6 +49,8 @@
 		<property name="historyCleanupBatchWindowStartTime" value="00:00" />
 		<property name="historyCleanupBatchWindowEndTime" value="23:59" />
 		<property name="historyCleanupBatchSize" value="50" />
+		<property name="batchOperationHistoryTimeToLive" value="30" />
+		<property name="historyTimeToLive" value="30" />
 		<property name="historyRemovalTimeStrategy" value="start" />
 		<property name="jdbcBatchProcessing" value="false" />
 		<property name="idGenerator">
