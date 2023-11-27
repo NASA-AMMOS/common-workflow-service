@@ -11,7 +11,7 @@ import jpl.cws.service.CwsConsoleService;
 public class HistoryCleanupDaemon extends Thread {
 	private static final Logger log = LoggerFactory.getLogger(HistoryCleanupDaemon.class);
 	
-	private static final int THIS_THREAD_REPEAT_DELAY = 8 * 60 * 60000;		// 8 hours
+	private static final int THIS_THREAD_REPEAT_DELAY = 4 * 60 * 60000;		// 4 hours
 
 	@Autowired private CwsConsoleService cwsConsoleService;
 	@Autowired private HistoryService historyService;
