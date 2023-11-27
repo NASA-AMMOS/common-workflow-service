@@ -5,7 +5,6 @@
     <bean id="processEngineConfiguration" class="org.camunda.bpm.engine.impl.cfg.StandaloneInMemProcessEngineConfiguration">
 
         <property name="history" value="activity" />
-        <property name="enforceHistoryTimeToLive" value="false" />
         <property name="databaseSchemaUpdate" value="true" />
         <property name="jobExecutorActivate" value="false" />
         <property name="telemetryReporterActivate" value="false" />
