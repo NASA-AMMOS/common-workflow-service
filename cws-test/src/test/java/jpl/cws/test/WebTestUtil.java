@@ -199,12 +199,6 @@ public class WebTestUtil {
 		WebElement submitBtn = findElById("submit");
 		submitBtn.click();
 
-		try {
-			screenShot("post-submit-btn");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
 		// waitForElementClass("sub-header");
 
 		// Verify we have moved past the login page to the Dashboard
