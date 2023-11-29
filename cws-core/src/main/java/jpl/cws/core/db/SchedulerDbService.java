@@ -24,16 +24,16 @@ import jpl.cws.core.log.CwsEmailerService;
 
 /**
  * Helper / service methods related scheduler database tables.
- * 
+ *
  * @author ghollins
  *
  */
 public class SchedulerDbService extends DbService implements InitializingBean {
 	private static int externalWorkerNum = 0;
 	private static final Logger log = LoggerFactory.getLogger(SchedulerDbService.class);
-	
+
 	@Autowired private CwsEmailerService cwsEmailerService;
-	
+
 	public static final String PENDING            = "pending";
 	public static final String DISABLED           = "disabled";
 	public static final String FAILED_TO_SCHEDULE = "failedToSchedule";
@@ -44,11 +44,11 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 	public static final String RESOLVED           = "resolved";
 	public static final String FAIL               = "fail";
 	public static final String INCIDENT			  = "incident";
-	
+
 	public static final int DEFAULT_WORKER_PROC_DEF_MAX_INSTANCES = 1;
 	public static final int PROCESSES_PAGE_SIZE = 100;
 
-	public static final String FIND_CLAIMABLE_ROWS_SQL = 
+	public static final String FIND_CLAIMABLE_ROWS_SQL =
 			"SELECT uuid FROM cws_sched_worker_proc_inst " +
 			"WHERE " +
 			"  status='"+PENDING+"' AND " +
@@ -58,7 +58,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			"  created_time ASC " +  // older dates (FIFO)  favored
 			"LIMIT ?";
 
-	public static final String UPDATE_CLAIMABLE_ROW_SQL = 
+	public static final String UPDATE_CLAIMABLE_ROW_SQL =
 			"UPDATE cws_sched_worker_proc_inst " +
 			"SET " +
 			"  claimed_by_worker=?, " +
@@ -67,30 +67,30 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			"WHERE " +
 			"  uuid=? AND claim_uuid IS NULL " +
 			"  AND EXISTS (SELECT * FROM cws_worker WHERE id=? AND status='up')";
-	
-	public static final String INSERT_SCHED_WORKER_PROC_INST_ROW_SQL = 
+
+	public static final String INSERT_SCHED_WORKER_PROC_INST_ROW_SQL =
 			"INSERT INTO cws_sched_worker_proc_inst " +
 			"(uuid, created_time, updated_time, proc_inst_id, " +
 			"proc_def_key, proc_business_key, priority, proc_variables, status, error_message, " +
 			"initiation_key, claimed_by_worker, started_by_worker, last_rejection_worker, num_worker_attempts, claim_uuid) " +
 			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-	
+
 	public static final String PROC_INST_STATUS_SQL =
 		" IF (PI.END_TIME_ IS NULL, 'running', " +
 			"IF (AI.ACT_TYPE_ in ('noneEndEvent','endEvent','escalationEndEvent','compensationEndEvent','signalEndEvent','terminateEndEvent') AND " +
 			"PI.END_TIME_ IS NOT NULL, 'complete', 'fail')) ";
 
-	
+
 	public SchedulerDbService() {
 		log.trace("SchedulerDbService constructor...");
 	}
-	
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		log.trace("jdbcTemplate = "+jdbcTemplate);
 	}
-	
-	
+
+
 	public boolean engineProcessRowExists(String procDefKey) {
 		int numRows = jdbcTemplate.queryForObject(
 			"SELECT count(*) FROM cws_worker_proc_def " +
@@ -98,11 +98,11 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			new Object[]{procDefKey}, Integer.class);
 		return numRows > 0;
 	}
-	
-	
+
+
 	/**
 	 * Inserts a row into the cws_sched_worker_proc_inst table.
-	 * 
+	 *
 	 */
 	public void insertSchedEngineProcInstRow(final SchedulerJob schedulerJob) throws Exception {
 		long t0 = System.currentTimeMillis();
@@ -144,22 +144,22 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			}
 		}
 	}
-	
-	
+
+
 	public void batchUpdateProcInstRowStatus(
 			Set<String> uuids,
 			String oldStatus,
 			String newStatus) throws Exception {
-		
+
 		log.warn("batch is " + uuids + ", " + uuids.size());
 	}
-	
-	
+
+
 	/**
 	 * Updates a cws_sched_worker_proc_inst row's status,
 	 * while ensuring only a valid state transition occurs
 	 * (by querying by current/old status).
-	 * 
+	 *
 	 */
 	public void updateProcInstRowStatus(
 		String uuid,
@@ -169,7 +169,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		boolean clearWorkerInfo) throws Exception {
 		long t0 = System.currentTimeMillis();
 		log.trace("uuid="+uuid+":  " + oldStatus + "--->" + newStatus +", errorMessage="+errorMessage);
-		
+
 		// Attempt to update the database
 		// There is a slight chance that the process will finish so quickly that
 		// we may need to try several times here, hence the while loop.
@@ -178,7 +178,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		// to avoid race conditions here
 		int numTries = 0;
 		int numUpdated = 0;
-		
+
 		while (numUpdated == 0 && numTries < 20) {
 			numUpdated = jdbcTemplate.update(
 				"UPDATE cws_sched_worker_proc_inst " +
@@ -191,7 +191,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 						errorMessage, uuid, oldStatus});
 			if (numUpdated == 0 && ++numTries < 20) {
 				String rowStatus = getProcInstRowStatus(uuid);
-				
+
 				// Workaround for potential Camunda bug.
 				//  This bug should now be fixed (as of v7.3.1+),
 				//  but it was decided that leaving this code in anyways
@@ -203,7 +203,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 					log.warn("already updated row to '"+COMPLETE+"' status -- workaround for Camunda bug");
 					return; // don't try to update anymore
 				}
-				
+
 				log.warn("sleeping before trying DB update again...");
 				Thread.sleep(250);
 			}
@@ -212,14 +212,14 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		if (timeTaken > SLOW_WARN_THRESHOLD) {
 			log.warn("updateProcInstRowStatus (cws_sched_worker_proc_inst) took " + timeTaken + " ms!");
 		}
-		
+
 		if (numUpdated != 1) {
-			throw new Exception("did not update 1 row, updated "+numUpdated + ". " + 
+			throw new Exception("did not update 1 row, updated "+numUpdated + ". " +
 					"(uuid="+uuid+":  " + oldStatus + "--->" + newStatus +", errorMessage="+errorMessage+")");
 		}
 	}
-	
-	
+
+
 	public int updateProcInstIdAndStartedByWorker(
 			String uuid,
 			String workerId,
@@ -241,13 +241,13 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		}
 		return numUpdated;
 	}
-	
+
 
 
 
 	/**
 	 * Attempt to claim a process start request in the database.
-	 * 
+	 *
 	 * @param workerProcsList -- attempts to claim rows for the active set of process definition(s)
 	 * @return mappings of claimUuids and claimedRowUuids
 	 *
@@ -278,7 +278,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 					// get list of uuids using array of procdefkeys IN (keys)
 					unfilteredRowUuids.addAll(rowUuidsPerProcDefKey);
 				}
-				
+
 				Collections.sort(unfilteredRowUuids);
 				for (String id : unfilteredRowUuids) {
 					String procDefKeyString = getProcDefKeyFromUuid(id);
@@ -339,6 +339,8 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 					}
 					else {
 						log.debug("Claimed (" + numClaimed + " of " + rowUuids.size() + ") for procDefKeys '" + workerProcsList.keySet() + "'");
+
+						log.debug("Number Claimed: " + numClaimed + " ");
 					}
 				}
 				else if (log.isTraceEnabled()) {
@@ -371,7 +373,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		else {
 			log.trace("no rows claimed by worker: " + workerId);
 		}
-		
+
 		if (numClaimed != claimUuids.size()) {
 			log.error("numUpdated != claimUuids.size()" );
 		}
@@ -382,8 +384,8 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 
 		return ret;
 	}
-	
-	
+
+
 	public String getProcInstRowStatus(String uuid) {
 		List<Map<String,Object>> list = jdbcTemplate.queryForList(
 			"SELECT status FROM cws_sched_worker_proc_inst " +
@@ -430,10 +432,10 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			return null;
 		}
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	public List<Map<String,Object>> getClaimedProcInstRows(List<String> claimUuids) {
 		long t0 = System.currentTimeMillis();
@@ -445,39 +447,39 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		if (timeTaken > SLOW_WARN_THRESHOLD) {
 			log.warn("SELECT * FROM cws_sched_worker_proc_inst by claim_uuid took " + timeTaken + " ms!");
 		}
-		
+
 		if (list.size() != claimUuids.size()) {
 			log.error("unexpected claim size: " + list.size() + ", for claim_uuids: " + claimUuidsStr +
 					" (expected " + claimUuids.size() + ")");
 		}
 		return list;
 	}
-	
+
 
 	public boolean externalWorkerExists(String workerId) {
 		return jdbcTemplate.queryForObject(
 			"SELECT count(*) FROM cws_external_worker WHERE id=?", new Object[]{workerId}, Integer.class) > 0;
 	}
-		
+
 	/**
 	 * Create a row (if not already exists) in the database for this engine
 	 */
-	public String createExternalWorkerRow(String workerId, String hostname) {		
+	public String createExternalWorkerRow(String workerId, String hostname) {
 		if (!externalWorkerExists(workerId)) {
 			log.info("Inserting row into cws_external_worker table...");
-			
+
 			int numUpdated = 0;
 			int numTries = 0;
 			String workerName = null;
 			while (numTries++ < 10 && numUpdated != 1) {
 				Timestamp tsNow = new Timestamp(DateTime.now().getMillis());
 				workerName = "ext_worker" + String.format("%1$4s", externalWorkerNum++).replace(' ', '0');
-				
+
 				try {
 					numUpdated = jdbcTemplate.update(
 							"INSERT INTO cws_external_worker" +
 							"   (id, name, hostname, created_time, last_heartbeat_time) " +
-							"VALUES (?,?,?,?,?)", 
+							"VALUES (?,?,?,?,?)",
 							new Object[] {
 									workerId,
 									workerName,
@@ -487,130 +489,130 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 							});
 				}
 				catch (DataAccessException e) {
-					
+
 					try {
 						// Could not update database, wait and retry again
 						Thread.sleep((long)(Math.random() * 500.0));
 					}
 					catch (InterruptedException ex) {
-						
+
 					}
 				}
 			}
-			
+
 			if (numUpdated != 1) {
 				log.error("Could not create external worker row for workerId " + workerId + " !");
 			}
-			
+
 			return workerName;
 		}
-		
+
 		log.error("Could not create external worker row for workerId " + workerId + " !");
-		
+
 		return null;
 	}
-	
-	
+
+
 	public int updateExternalWorkerHeartbeat(String workerId) {
 		return jdbcTemplate.update(
 			"UPDATE cws_external_worker SET last_heartbeat_time = ? WHERE id=?",
 			new Object[] { new Timestamp(DateTime.now().getMillis()), workerId }
 		);
 	}
-	
+
 	public int updateExternalWorkerActiveTopics(String workerId, String activeTopics) {
 		return jdbcTemplate.update(
 			"UPDATE cws_external_worker SET activeTopics = ? WHERE id=?",
 			new Object[] { activeTopics, workerId }
 		);
 	}
-	
+
 	public int updateExternalWorkerCurrentTopic(String workerId, String currentTopic) {
 		return jdbcTemplate.update(
 			"UPDATE cws_external_worker SET currentTopic = ? WHERE id=?",
 			new Object[] { currentTopic, workerId }
 		);
 	}
-	
+
 	public int updateExternalWorkerCurrentCommand(String workerId, String currentCommand) {
 		return jdbcTemplate.update(
 			"UPDATE cws_external_worker SET currentCommand = ? WHERE id=?",
 			new Object[] { currentCommand, workerId }
 		);
 	}
-	
+
 	public int updateExternalWorkerCurrentWorkingDir(String workerId, String currentWorkingDir) {
 		return jdbcTemplate.update(
 			"UPDATE cws_external_worker SET currentWorkingDir = ? WHERE id=?",
 			new Object[] { currentWorkingDir, workerId }
 		);
 	}
-	
+
 	public List<Map<String,Object>> getWorkers() {
 		return jdbcTemplate.queryForList(
 			"SELECT * FROM cws_worker ORDER BY name");
 	}
-	
+
 	public List<Map<String,Object>> getExternalWorkers() {
 		return jdbcTemplate.queryForList(
 			"SELECT * FROM cws_external_worker ORDER BY name");
 	}
-	
+
 	public List<Map<String,Object>> getWorkersStats() {
 		return jdbcTemplate.queryForList(
 			"SELECT status, COUNT(*) as cnt FROM cws_worker WHERE cws_install_type != 'console_only' GROUP BY status");
 	}
-	
+
 	public List<Map<String,Object>> getDiskUsage() {
 		return jdbcTemplate.queryForList(
 			"SELECT id, name, cws_install_type, disk_free_bytes FROM cws_worker");
 	}
-	
+
 	public List<Map<String,Object>> getLogUsage(String workerId) {
 		return jdbcTemplate.queryForList(
 			"SELECT filename, size_bytes FROM cws_log_usage WHERE worker_id=?",
 			new Object[] { workerId }
 			);
 	}
-	
+
 	public long getDbSize() throws Exception {
 
 		List<Map<String,Object>> list = jdbcTemplate.queryForList(
 				"SELECT SUM(data_length + index_length) AS size " +
 				"FROM information_schema.TABLES " +
 				"WHERE table_schema = (SELECT DATABASE())");
-		
+
 		if (list.size() != 1) {
 			throw new Exception("Could not get database size.");
 		}
 
 		return Long.parseLong(list.get(0).get("size").toString());
 	}
-	
-	
+
+
 	/**
 	 * Returns the number of "up" Workers.
-	 * 
+	 *
 	 */
 	public int getNumUpWorkers() {
 		String query = "SELECT COUNT(*) FROM cws_worker WHERE status = 'up'";
 		return jdbcTemplate.queryForObject(query, Integer.class);
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	public List<Map<String,Object>> getWorkerNumRunningProcs() {
 		return jdbcTemplate.queryForList(
 			"SELECT cws_worker.id, active_count as cnt " +
 			"FROM cws_worker");
 	}
-	
-	
+
+
 	/**
 	 * Gets a list of unresponsive workers.
-	 * 
+	 *
 	 */
 	public List<Map<String,Object>> detectDeadWorkers(int thresholdMilliseconds) {
 		try {
@@ -622,7 +624,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		catch (Throwable e) {
 			cwsEmailerService.sendNotificationEmails("CWS Database Error", "Severe Error!\n\nCould not query database for dead workers.\n\nDetails: " + e.getMessage());
 			log.error("Problem occurred while querying the database for dead workers.", e);
-			
+
 			throw e;
 		}
 	}
@@ -646,11 +648,11 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			throw e;
 		}
 	}
-	
-	
+
+
 	/**
 	 * Gets a list of unresponsive external workers.
-	 * 
+	 *
 	 */
 	public List<Map<String,Object>> detectDeadExternalWorkers(int thresholdMilliseconds) {
 		try {
@@ -662,21 +664,21 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		catch (Throwable e) {
 			cwsEmailerService.sendNotificationEmails("CWS Database Error", "Severe Error!\n\nCould not query database for dead external workers.\n\nDetails: " + e.getMessage());
 			log.error("Problem occurred while querying the database for dead external workers.", e);
-			
+
 			throw e;
 		}
 	}
-		
+
 	/**
 	*
 	*/
 	public void deleteProcessDefinition(String procDefKey) {
-		
+
 		jdbcTemplate.update(
 				"DELETE FROM cws_worker_proc_def " +
 				"where proc_def_key=?",
 				new Object[] {procDefKey});
-		
+
 		jdbcTemplate.update(
 				"DELETE FROM cws_sched_worker_proc_inst " +
 				"where proc_def_key=?",
@@ -705,7 +707,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 	}
 
 
-	
+
 	/**
 	*
 	*/
@@ -717,17 +719,17 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public int getWorkerJobExecutorMaxPoolSize(String workerId) {
 		return jdbcTemplate.queryForObject(
 			"SELECT job_executor_max_pool_size FROM cws_worker WHERE id=?",
 			new Object[] {workerId}, Integer.class);
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	public Map<String,Object> getCwsProcessInstanceRowForUuid(String uuid) {
 		return jdbcTemplate.queryForMap(
@@ -855,9 +857,9 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			List<String> statuses = Arrays.asList(statusList.split(","));
 			statusClause = buildSanitizedSqlArray(statuses, pattern);
 		}
-		
+
 		log.trace("statusClause = " + statusClause);
-		
+
 		int cwsRowsCount =
 			jdbcTemplate.queryForObject(
 				"SELECT COUNT(*) " +
@@ -887,16 +889,16 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 				"  1=1 ";
 
 		int camundaRowsCount = jdbcTemplate.queryForObject(camundaCountQuery,	whereObjs.toArray(), Integer.class);
-		
+
 		log.trace("cwsRowsCount = " + cwsRowsCount + ", camundaRowsCount = " + camundaRowsCount);
-		
+
 		return cwsRowsCount + camundaRowsCount;
 	}
-	
-	
+
+
 	/**
 	 * Returns the set of filtered process instances.
-	 * 
+	 *
 	 */
 	public List<Map<String,Object>> getFilteredProcessInstances(
 			String superProcInstId,
@@ -908,16 +910,16 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			String dateOrderBy,
 			int page
 			)
-	{	
+	{
 		List<Object> whereObjs = new ArrayList<Object>();
 		if (procInstId != null) { whereObjs.add(procInstId); }
 		if (procDefKey != null) { whereObjs.add(procDefKey); }
 		if (minDate    != null) { whereObjs.add(minDate);    }
 		if (maxDate    != null) { whereObjs.add(maxDate);    }
-		
+
 		Integer offset = page*PROCESSES_PAGE_SIZE;
 		Integer size = PROCESSES_PAGE_SIZE;
-		
+
 		whereObjs.add(offset);
 		whereObjs.add(size);
 
@@ -979,13 +981,13 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 				"LIMIT ?,?";
 
 		List<Map<String,Object>> camundaRows = jdbcTemplate.queryForList(camundaQuery, whereObjs.toArray());
-		
+
 		// JOIN THE SETS...
 		//
 		//  FINAL SET = CWS (PENDING, FAILED_TO_START) + Camunda (running, failed, completed)
-		//  
+		//
 		List<Map<String,Object>> ret = new ArrayList<Map<String,Object>>();
-		
+
 		// Get the CWS rows, and add them in.
 		//  (these will only be the 'pending' rows
 		//
@@ -1005,7 +1007,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			finalRow.put("proc_end_time",     null); // pending rows haven't actually run yet
 			ret.add(finalRow);
 		}
-		
+
 		// Get the Camunda rows, and add them in
 		//
 		for (Map<String,Object> camundaRow : camundaRows) {
@@ -1026,7 +1028,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			finalRow.put("proc_end_time",     (Timestamp)camundaRow.get("proc_end_time"));
 			ret.add(finalRow);
 		}
-		
+
 		return ret;
 	}
 
@@ -1102,10 +1104,10 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 
 		return new ArrayList<>(camundaAndCwsStatuses);
 	}
-	
+
 	/**
 	 * Used by worker syncCounters method
-	 * 
+	 *
 	 * List of [uuid, proc_def_key, status]
 	 */
 	public List<Map<String,Object>> getStatsForScheduledProcs(Set<String> cwsSchedUuids) {
@@ -1119,7 +1121,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			}
 			uuidInClause += ")";
 			//log.debug(uuidInClause);
-			
+
 			List<Map<String,Object>> camundaStatuses = jdbcTemplate.queryForList(
 							"SELECT DISTINCT " +
 							"  CI.uuid AS uuid, " +
@@ -1132,14 +1134,14 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 							"    ON " +
 							"    PI.PROC_INST_ID_ = AI.PROC_INST_ID_ " +
 							"    AND " +
-							"    (AI.END_TIME_ is null or AI.ACT_TYPE_ LIKE '%ndEvent' AND PI.END_TIME_ IS NOT NULL) " + 
+							"    (AI.END_TIME_ is null or AI.ACT_TYPE_ LIKE '%ndEvent' AND PI.END_TIME_ IS NOT NULL) " +
 							"WHERE " +
 							"  (AI.PARENT_ACT_INST_ID_ IS NULL OR AI.PARENT_ACT_INST_ID_ NOT LIKE 'SubProcess%') " +
 							"  AND " +
 							PROC_INST_STATUS_SQL + " IN ('complete','running', 'fail') " +
 							"  AND " +
 							"  CI.uuid in " + uuidInClause);
-			
+
 			List<Map<String,Object>> cwsStatuses = jdbcTemplate.queryForList(
 					"SELECT DISTINCT " +
 							"  uuid, " +
@@ -1151,19 +1153,19 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 							"  AND " +
 							"  proc_inst_id IS NULL "  // don't get any started processes (covered in above query)
 					);
-			
+
 			log.debug(camundaStatuses.size() + " camunda rows,  " + cwsStatuses.size() + " cwsStatuses rows.");
-			
+
 			ret.addAll(camundaStatuses);
 			ret.addAll(cwsStatuses);
 		}
-		
+
 		return ret;
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	public List<Map<String,Object>> getRunningProcessInstances() {
 		return jdbcTemplate.queryForList(
@@ -1171,10 +1173,10 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			"FROM cws_sched_worker_proc_inst " +
 			"WHERE status='running'");
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	public List<Map<String,Object>> getIncompleteProcessInstancesForWorker(String workerId) {
 		return jdbcTemplate.queryForList(
@@ -1184,10 +1186,10 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			"GROUP BY proc_def_key",
 			new Object[] {workerId});
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	public List<Map<String,Object>> getPendingProcessInstances() {
 		return jdbcTemplate.queryForList(
@@ -1195,16 +1197,16 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			"FROM cws_sched_worker_proc_inst " +
 			"WHERE status = '" + PENDING + "'");
 	}
-	
-	
+
+
 	/**
 	 * Returns mapping of process instance statuses.
 	 * If procInstId is specified, then returns information about a single process instance,
 	 * otherwise information about all process instances is returned.
-	 * 
+	 *
 	 * Camunda will first create a row in ACT_HI_PROCINST upon process start.
 	 * Then when the process completes, it will create multiple rows (one per activity) in ACT_HI_ACTINST.
-	 * 
+	 *
 	 */
 	public List<Map<String,Object>> getProcInstStatus(String procInstId, Integer limit) {
 		String query =
@@ -1233,10 +1235,10 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		log.trace("QUERY: " + query);
 		return jdbcTemplate.queryForList(query);
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	public void updateWorkerProcDefEnabled(String workerId, String procDefKey, String deploymentId, boolean isEnabled) throws Exception {
 		int numUpdated = 0;
@@ -1257,6 +1259,8 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 					"WHERE worker_id=? AND proc_def_key=?",
 					new Object[] {workerId, procDefKey});
 				log.debug("Updated (set accepting_new = 1) " + numUpdated + " row(s) in the cws_worker_proc_def table...");
+
+				log.debug("Updated Claim Num - " + numClaimed + " ");									    
 			}
 			else {
 				log.debug("Inserted " + numUpdated + " row(s) into the cws_worker_proc_def table...");
@@ -1274,10 +1278,10 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			log.debug("Updated (set accepting_new = 0) " + numUpdated + " row(s) in the cws_worker_proc_def table...");
 		}
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	public void updateWorkerProcDefLimit(String workerId, String procDefKey, int newLimit) throws Exception {
 		int numUpdated = jdbcTemplate.update(
@@ -1285,13 +1289,13 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			"SET max_instances=? " +
 			"WHERE worker_id=? AND proc_def_key=?",
 			new Object[] {newLimit, workerId, procDefKey});
-		
+
 		log.debug("updated "+numUpdated + " rows");
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	public void updateWorkerProcDefDeploymentId(String workerId, String procDefKey, String newDeploymentId) throws Exception {
 		int numUpdated = jdbcTemplate.update(
@@ -1299,13 +1303,13 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			"SET deployment_id=? " +
 			"WHERE worker_id=? AND proc_def_key=?",
 			new Object[] {newDeploymentId, workerId, procDefKey});
-		
+
 		log.trace("updated "+numUpdated + " rows");
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	public void updateWorkerNumJobExecutorThreads(String workerId, int numThreads) {
 		int numUpdated = jdbcTemplate.update(
@@ -1316,10 +1320,10 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 
 		log.debug("updated "+numUpdated + " rows");
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	public void updateWorkerStatus(String workerId, String status) {
 		int numRowsUpdated = jdbcTemplate.update(
@@ -1328,7 +1332,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 		);
 		log.debug("setWorkerStatus ('" + workerId + "', " + status + "): Updated " + numRowsUpdated + " rows.");
 	}
-	
+
 	public void setWorkerAcceptingNew(boolean acceptingNew, String workerId) {
 		jdbcTemplate.update(
 			"UPDATE cws_worker_proc_def " +
@@ -1337,17 +1341,17 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			new Object[] { acceptingNew, workerId }
 		);
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	public List<Map<String,Object>> getWorkerProcDefRows() {
 		return jdbcTemplate.queryForList(
 			"SELECT * FROM cws_worker_proc_def");
 	}
-	
-	
+
+
 	/**
 	 * Get proc defs where accepting_new is 1, and worker is alive (up)
 	 */
@@ -1359,8 +1363,8 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			String.class
 		);
 	}
-	
-	
+
+
 	/**
 	*
 	*/
@@ -1371,8 +1375,8 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			"LEFT JOIN cws_worker_proc_def AS pd ON w.id=pd.worker_id AND "+
 			"(pd.proc_def_key='" + procDefKey + "' OR pd.proc_def_key IS NULL) ORDER BY w.name");
 	}
-	
-	
+
+
 	/**
 	*
 	*/
@@ -1381,14 +1385,14 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			"SELECT prc.KEY_ AS pdk , IFNULL(SUM(pd.accepting_new),0) AS workers "+
 			"FROM ACT_RE_PROCDEF AS prc "+
 			"LEFT JOIN cws_worker_proc_def AS pd ON prc.KEY_=pd.proc_def_key GROUP BY KEY_");
-		
+
 		// Simpler? :
 		// select proc_def_key as pdk, sum(accepting_new) as workers from cws_worker_proc_def group by proc_def_key;
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	public Integer isWorkerProcDefAcceptingNew(String workerId, String deploymentId) {
 		try {
@@ -1403,10 +1407,10 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			return null;
 		}
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	public List<Map<String,Object>> getWorkerProcDefRows(String workerId, Boolean acceptingNew) {
 		if (acceptingNew != null) {
@@ -1422,8 +1426,8 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 				new Object[]{workerId});
 		}
 	}
-	
-	
+
+
 	/**
 	*
 	*/
@@ -1434,8 +1438,8 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			"VALUES (?, ?, ?)",
 			new Object[] {cwsToken, username, expirationTime});
 	}
-	
-	
+
+
 	/**
 	*
 	*/
@@ -1445,8 +1449,8 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			"where token=? and username=?",
 			new Object[] {cwsToken, username});
 	}
-	
-	
+
+
 	/**
 	*
 	*/
@@ -1457,8 +1461,8 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 			new Object[] { cwsToken, username }
 		);
 	}
-	
-	
+
+
 	/**
 	*
 	*/
