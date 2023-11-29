@@ -32,7 +32,7 @@ public class CwsConsoleStartup implements InitializingBean, DisposableBean {
 	@Autowired private SecurityService cwsSecurityService;
 	@Autowired private CodeService cwsCodeService;
 	@Autowired private ProcessStatusDaemon processStatusDaemon;
-	@Autowired private HistoryCleanupDaemon historyCleanupDaemon;
+	@Autowired private ElasticAndWorkerCleanupDaemon elasticAndWorkerCleanupDaemon;
 	@Autowired private ExternalTaskDaemon externalTaskDaemon;
 	@Autowired private WorkerMonitorBackgroundThread workerMonitorBackgroundThread;
 	
@@ -55,7 +55,7 @@ public class CwsConsoleStartup implements InitializingBean, DisposableBean {
 		
 		startWorkerMonitorBackgroundThread();
 		
-		startHistoryCleanupDaemon();
+		startElasticAndWorkerCleanupDaemon();
 
 		startExternalTaskDaemon();
 		
@@ -150,8 +150,8 @@ public class CwsConsoleStartup implements InitializingBean, DisposableBean {
 	/**
 	 * 
 	 */
-	private void startHistoryCleanupDaemon() {
-		historyCleanupDaemon.start();
+	private void startElasticAndWorkerCleanupDaemon() {
+		elasticAndWorkerCleanupDaemon.start();
 	}
 
 	/**
@@ -190,8 +190,8 @@ public class CwsConsoleStartup implements InitializingBean, DisposableBean {
 		log.warn("Destroying bean...");
 		log.warn("  Interrupting processStatusDaemon bean...");
 		processStatusDaemon.interrupt();
-		log.warn("  Interrupting historyCleanupDaemon bean...");
-		historyCleanupDaemon.interrupt();
+		log.warn("  Interrupting elasticAndWorkerCleanupDaemon bean...");
+		elasticAndWorkerCleanupDaemon.interrupt();
 		log.warn("  Interrupting externalTaskDaemon bean...");
 		externalTaskDaemon.interrupt();
 		log.warn("  Interrupting awsMetricsPublisherBackgroundThread bean...");

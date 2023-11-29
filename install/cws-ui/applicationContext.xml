@@ -46,12 +46,10 @@
 		<property name="history" value="__HISTORY_LEVEL__" />
 		<property name="authorizationEnabled" value="true" />
 		<property name="jobExecutorDeploymentAware" value="true" />
-		<property name="historyCleanupBatchWindowStartTime" value="00:00" />
+		<property name="historyCleanupBatchWindowStartTime" value="00:01" />
 		<property name="historyCleanupBatchWindowEndTime" value="23:59" />
 		<property name="historyCleanupBatchSize" value="50" />
-		<property name="batchOperationHistoryTimeToLive" value="30" />
-		<property name="historyTimeToLive" value="30" />
-		<property name="historyRemovalTimeStrategy" value="start" />
+		<property name="historyRemovalTimeStrategy" value="end" />
 		<property name="jdbcBatchProcessing" value="false" />
 		<property name="idGenerator">
 			<bean class="org.camunda.bpm.engine.impl.persistence.StrongUuidGenerator" />
@@ -322,7 +320,7 @@
 	<bean id="cwsEmailerService"                         class="jpl.cws.core.log.CwsEmailerService" />
 	<bean id="cwsSchedulerUtils"                         class="jpl.cws.scheduler.SchedulerQueueUtils" />
 	<bean id="processStatusDaemon"                       class="jpl.cws.console.ProcessStatusDaemon" />
-	<bean id="historyCleanupDaemon"                      class="jpl.cws.console.HistoryCleanupDaemon" />
+	<bean id="historyCleanupDaemon"                      class="jpl.cws.console.ElasticAndWorkerCleanupDaemon" />
 	<bean id="externalTaskDaemon"                      	 class="jpl.cws.console.ExternalTaskDaemon" />
 	<bean id="awsMetricsPublisherBackgroundThread"       class="jpl.cws.console.AwsMetricsPublisherBackgroundThread" />
 	<bean id="workerMonitorBackgroundThread"             class="jpl.cws.console.WorkerMonitorBackgroundThread" />

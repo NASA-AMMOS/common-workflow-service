@@ -10,7 +10,7 @@ import org.springframework.jms.core.JmsTemplate;
 import javax.jms.Session;
 
 public class ExternalTaskDaemon extends Thread {
-    private static final Logger log = LoggerFactory.getLogger(HistoryCleanupDaemon.class);
+    private static final Logger log = LoggerFactory.getLogger(ElasticAndWorkerCleanupDaemon.class);
 
     private static final int ONE_HOUR_MS = 60 * 60 * 1000; // 1 hour
 
