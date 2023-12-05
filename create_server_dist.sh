@@ -186,6 +186,9 @@ awk 'NR==FNR { a[n++]=$0; next }
 /__CUSTOM_METHODS_JAVA__/ { for (i=0;i<n;++i) print a[i]; next }1' ${DIST}/snippets.java ${INSTALL_DIR}/sql/core.sql.template > ${CWS}/sql/cws/core.sql
 
 cp ${INSTALL_DIR}/sql/core.afterstartup.sql.template           ${CWS}/sql/cws/core.afterstartup.sql
+cp ${INSTALL_DIR}/sql/adaptation.sql.template                  ${CWS}/sql/cws/adaptation.sql
+cp ${INSTALL_DIR}/sql/adaptation_core.sql.template             ${CWS}/sql/cws/adaptation_core.sql
+cp ${INSTALL_DIR}/sql/adaptation_external.sql.template         ${CWS}/sql/cws/adaptation_external.sql
 
 rm ${DIST}/snippets.java
 rm ${DIST}/snippets.java.bak

@@ -336,7 +336,6 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
                   	echo "password=\"${ADAPT_DB_PASS}\"" >> ${ROOT}/config/myadapt.cnf
                   	chmod 644 ${ROOT}/config/myadapt.cnf
 
-                  	cat ${ROOT}/config/myadapt.cnf
 
                   	# ----------------------------------------
                   	print "Your adaptation database configuration is:"

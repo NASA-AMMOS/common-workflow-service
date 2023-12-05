@@ -1,0 +1,8 @@
+INSERT INTO cws_code (code)
+VALUES (
+'
+__CUSTOM_METHODS_JAVA__
+'
+);
+
+ALTER TABLE cws_worker ADD asg_class VARCHAR(10);
