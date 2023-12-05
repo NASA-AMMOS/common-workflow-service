@@ -297,7 +297,7 @@ function auto_conf_data () {
     amq_port=${AMQ_PORT}
     cws_amq_jmx_port=${CWS_AMQ_JMX_PORT}
     cws_jmx_port=${CWS_JMX_PORT}
-    history_days_to_live=30
+    history_days_to_live=1
     worker_max_num_running_procs=${WORKER_MAX_NUM_RUNNING_PROCS}
     worker_abandoned_days=${WORKER_ABANDONED_DAYS}
     notify_users_email=y
