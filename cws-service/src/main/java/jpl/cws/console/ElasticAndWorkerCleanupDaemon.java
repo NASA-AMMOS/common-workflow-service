@@ -10,7 +10,7 @@ import jpl.cws.service.CwsConsoleService;
 public class ElasticAndWorkerCleanupDaemon extends Thread {
 	private static final Logger log = LoggerFactory.getLogger(ElasticAndWorkerCleanupDaemon.class);
 	
-	private static final int THIS_THREAD_REPEAT_DELAY = 8 * 60 * 60000;		// 4 hours
+	private static final int THIS_THREAD_REPEAT_DELAY = 8 * 60 * 60000;		// 8 hours
 
 	@Autowired private CwsConsoleService cwsConsoleService;
 	@Autowired private CwsEmailerService cwsEmailerService;
