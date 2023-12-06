@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd" id="_Bp7N4PhYEeaDD70QSuWP-g" exporter="camunda modeler" exporterVersion="2.8.0.201612011311" targetNamespace="http://camunda.org/schema/1.0/bpmn">
-  <bpmn2:process id="cws331" name="cws331" isExecutable="true">
+  <bpmn2:process id="cws331" name="cws331" isExecutable="true" camunda:historyTimeToLive="30">
     <bpmn2:serviceTask id="ServiceTask_1" camunda:class="jpl.cws.task.SleepTask" name="sleep with delay">
       <bpmn2:extensionElements>
         <camunda:field expression="5" name="numLogs"/>

@@ -3,6 +3,7 @@ package jpl.cws.test.integration.ui;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,6 +86,8 @@ public class AdminTestIT extends WebTestUtil {
             createAuthorizationButton.click();
             sleep(1000);
 
+            WebElement groupOrUserToggle = driver.findElement(By.cssSelector(".input-group-addon"));
+            groupOrUserToggle.click();
             WebElement userIdField = findElByXPath("//input[@type='text']");
             userIdField.sendKeys(USERNAME);
             sleep(1000);
@@ -240,11 +243,11 @@ public class AdminTestIT extends WebTestUtil {
             proceedButton.click();
             sleep(1000);
 
+            screenShot("AdminTestIT-runTenantsTest");
             if (findOnPage("Tenant cwstestdev successfully deleted.")) {
                 scriptPass = true;
             }
             sleep(1000);
-            screenShot("AdminTestIT-runTenantsTest");
 
             goToPage("deployments");
             logout();

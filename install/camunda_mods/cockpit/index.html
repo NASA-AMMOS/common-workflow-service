@@ -19,8 +19,11 @@
     <base href="$BASE"
           admin-api="$APP_ROOT/api/admin/"
           cockpit-api="$APP_ROOT/api/cockpit/"
+          tasklist-api="$APP_ROOT/api/tasklist/"
+          welcome-api="$APP_ROOT/api/welcome/"
           engine-api="$APP_ROOT/api/engine/"
-          app-root="$APP_ROOT" />
+          app-root="$APP_ROOT"
+          app-name="cockpit" />
 
     <!-- an example of plugin/feature exclusion -->
     <!--
@@ -32,38 +35,33 @@
     -->
 
 
-    <!-- styles -->
-    <link href="$APP_ROOT/app/cockpit/styles/styles.css?bust=7.19.0"
-          rel="stylesheet" />
-    <link href="$APP_ROOT/app/cockpit/styles/styles-components.css?bust=7.19.0"
-          rel="stylesheet" />
+    <link rel="icon" href="$APP_ROOT/favicon.ico">
+    <script defer src="$APP_ROOT/lib/runtime.js?bust=7.20.0" $CSP_NONCE charset="UTF-8"></script>
+    <script defer src="$APP_ROOT/lib/deps.js?bust=7.20.0" $CSP_NONCE charset="UTF-8"></script>
+    <script defer src="$APP_ROOT/app/cockpit/camunda-cockpit-bootstrap.js?bust=7.20.0" $CSP_NONCE charset="UTF-8"></script>
+    <link href="$APP_ROOT/app/cockpit/camunda-cockpit-bootstrap.css?bust=7.20.0" rel="stylesheet">
+
     <link rel="stylesheet"
           type="text/css"
-          href="$APP_ROOT/app/cockpit/styles/user-styles.css?bust=7.19.0">
-
-    <!-- favicon -->
-    <link rel="shortcut icon"
-          href="$APP_ROOT/app/cockpit/assets/images/favicon.ico"
-          type="image/x-icon" />
+          href="$APP_ROOT/app/cockpit/styles/user-styles.css?bust=7.20.0">
   </head>
   <body>
     <!-- navigation -->
     <div cam-widget-header
+         class="Header"
          authentication="authentication"
          user-name="userFullName"
          current-app="cockpit"
          ng-cloak
          sign-out="{{ 'SIGN_OUT_ACTION' | translate }}"
-         my-profile="{{ 'MY_PROFILE' | translate }}"
-         brand-name="Camunda Cockpit">
+         my-profile="{{ 'MY_PROFILE' | translate }}">
       <ul cam-if-logged-in
           ng-controller="camHeaderViewsCtrl">
         <li ng-repeat="actionProvider in menuActions"
-            ng-if="actionProvider.pagePath && actionProvider.accessible"
+            ng-if="actionProvider.accessible"
             ng-class="activeClass(actionProvider)">
-          <a ng-href="{{ actionProvider.pagePath }}">{{ actionProvider.label | translate}}</a>
+          <view provider="actionProvider"></view>
         </li>
-
         <li class="dropdown"
             ng-if="dropdownActions.length"
             uib-dropdown>
@@ -72,9 +70,9 @@
              href>{{ 'COCKPIT_MORE' | translate}} <i class="caret"></i></a>
           <ul class="dropdown-menu" uib-dropdown-menu>
             <li ng-repeat="actionProvider in dropdownActions"
-                ng-if="actionProvider.pagePath && actionProvider.accessible"
+                ng-if="actionProvider.accessible"
                 ng-class="activeClass(actionProvider)">
-              <a ng-href="{{ actionProvider.pagePath }}">{{ actionProvider.label | translate}}</a>
+              <view provider="actionProvider"></view>
             </li>
           </ul>
         </li>
@@ -105,7 +103,7 @@
 
     <!-- footer -->
     <footer cam-widget-footer
-            version="v7.19.0"></footer>
+            version="v7.20.0"></footer>
 
     <script type="application/javascript" $CSP_NONCE>
       var cockpitConf = window.camCockpitConf = {};
@@ -126,11 +124,11 @@ window.__define = window.define;
 window.__require = window.require;
 window.define = undefined;
 window.require = undefined;
-window.bust = '7.19.0';
+window.bust = '7.20.0';
 
 requirejs.config({
   baseUrl: '$APP_ROOT/app/cockpit',
-  urlArgs: 'bust=7.19.0'
+  urlArgs: 'bust=7.20.0'
 });
 requirejs(['$APP_ROOT/lib/deps.js'], function () {
   requirejs(['$APP_ROOT/app/cockpit/camunda-cockpit-bootstrap.js'], function(){});

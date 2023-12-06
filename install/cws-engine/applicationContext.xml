@@ -59,6 +59,10 @@
         <property name="databaseSchemaUpdate" value="true" />
         <property name="jobExecutorActivate" value="__JOB_EXECUTOR_ACTIVATE__" />
         <property name="history" value="__HISTORY_LEVEL__" />
+		<property name="historyCleanupBatchWindowStartTime" value="00:01" />
+		<property name="historyCleanupBatchWindowEndTime" value="23:59" />
+		<property name="historyCleanupBatchSize" value="50" />
+		<property name="historyRemovalTimeStrategy" value="end" />
         <property name="authorizationEnabled" value="true" />
         <property name="jobExecutorDeploymentAware" value="true" />
         <property name="jdbcBatchProcessing" value="false" />

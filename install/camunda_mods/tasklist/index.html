@@ -18,43 +18,43 @@
   <!--< base href="/" /> -->
   <base href="$BASE"
         admin-api="$APP_ROOT/api/admin/"
+        cockpit-api="$APP_ROOT/api/cockpit/"
         tasklist-api="$APP_ROOT/api/tasklist/"
+        welcome-api="$APP_ROOT/api/welcome/"
         engine-api="$APP_ROOT/api/engine/"
         app-root="$APP_ROOT"
-        app-name="tasklist" />
+        app-name="tasklist"/>
+
+  <link rel="icon" href="$APP_ROOT/favicon.ico">
+  <script defer src="$APP_ROOT/lib/runtime.js?bust=7.20.0" $CSP_NONCE charset="UTF-8"></script>
+  <script defer src="$APP_ROOT/lib/deps.js?bust=7.20.0" $CSP_NONCE charset="UTF-8"></script>
+  <script defer src="$APP_ROOT/app/tasklist/camunda-tasklist-bootstrap.js?bust=7.20.0" $CSP_NONCE charset="UTF-8"></script>
+  <link href="$APP_ROOT/app/tasklist/camunda-tasklist-bootstrap.css?bust=7.20.0" rel="stylesheet">
 
   <link rel="stylesheet"
         type="text/css"
-        href="$APP_ROOT/app/tasklist/styles/styles.css?bust=7.19.0">
-  <link rel="stylesheet"
-        type="text/css"
-        href="$APP_ROOT/app/tasklist/styles/user-styles.css?bust=7.19.0">
+        href="$APP_ROOT/app/tasklist/styles/user-styles.css?bust=7.20.0">
 
-  <!-- favicon -->
-  <link rel="shortcut icon"
-        href="$APP_ROOT/app/tasklist/assets/images/favicon.ico"
-        type="image/x-icon" />
 </head>
 
 <body ng-controller="camTasklistAppCtrl">
-  <div cam-widget-header
-       authentication="authentication"
-       user-name="userFullName"
-       current-app="tasklist"
-       toggle-navigation="{{ 'TOGGLE_NAVIGATION' | translate }}"
-       sign-out="{{ 'SIGN_OUT_ACTION' | translate }}"
-       my-profile="{{ 'MY_PROFILE' | translate }}"
-       brand-name="{{ appVendor }} {{ appName }}"
-       ng-cloak>
-   <ul cam-if-logged-in
-       ng-controller="camHeaderViewsCtrl">
-      <li ng-repeat="actionProvider in navbarActions"
-          ng-class="actionProvider.id">
-        <view ng-cloak
-              provider="actionProvider"
-              vars="navbarVars">
-        </view>
-      </li>
+<div cam-widget-header
+     authentication="authentication"
+     user-name="userFullName"
+     current-app="tasklist"
+     toggle-navigation="{{ 'TOGGLE_NAVIGATION' | translate }}"
+     sign-out="{{ 'SIGN_OUT_ACTION' | translate }}"
+     my-profile="{{ 'MY_PROFILE' | translate }}"
+     ng-cloak>
+  <ul cam-if-logged-in
+      ng-controller="camHeaderViewsCtrl">
+    <li ng-repeat="actionProvider in navbarActions"
+        ng-class="actionProvider.id">
+      <view ng-cloak
+            provider="actionProvider"
+            vars="navbarVars">
+      </view>
+    </li>
      <li><a class="cam-widget-header" href="/cws-ui">CWS</a></li>
     </ul>
   </div>
@@ -80,7 +80,7 @@
 
   <!-- # page-footer -->
   <footer cam-widget-footer
-          version="v7.19.0"></footer>
+          version="v7.20.0"></footer>
 
 
   <script type="text/javascript" $CSP_NONCE>
@@ -109,11 +109,11 @@ window.__define = window.define;
 window.__require = window.require;
 window.define = undefined;
 window.require = undefined;
-window.bust = '7.19.0';
+window.bust = '7.20.0';
 
 requirejs.config({
   baseUrl: '$APP_ROOT/app/tasklist',
-  urlArgs: 'bust=7.19.0'
+  urlArgs: 'bust=7.20.0'
 });
 requirejs(['$APP_ROOT/lib/deps.js'], function () {
   requirejs(['$APP_ROOT/app/tasklist/camunda-tasklist-bootstrap.js'], function () {});

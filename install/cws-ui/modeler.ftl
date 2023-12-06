@@ -3,6 +3,7 @@
 	<meta charset="utf-8">
 	<title>CWS - Modeler</title>
 	<script src="/${base}/js/jquery.min.js"></script>
+	<script src="/${base}/js/jquery-migrate.js"></script>
 	<!-- Custom styles for this template -->
 
 	<link rel="stylesheet" href="/${base}/css/diagram-js.css" />
