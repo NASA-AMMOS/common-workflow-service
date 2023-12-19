@@ -14,6 +14,7 @@ cws-service/src/main/resources/camunda/bpmn/*.bpmn
 
 .keystore
 cws_truststore.jks
+.storepass
 cws.crt
 
 cookies.txt

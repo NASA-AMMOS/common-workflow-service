@@ -267,7 +267,7 @@ public class CwsInstaller {
 			setupNotificationEmails();
 			setupTokenExpirationHours();
 			setupPorts();
-			setupKeystorePassword();
+			getKeystorePassword();
 			setupTaskAssigmentEmails();
 			setupSMTP();
 			setupElasticsearch();
@@ -1063,21 +1063,33 @@ public class CwsInstaller {
 	}
 
 
-	private static void setupKeystorePassword() {
-		cws_keystore_storepass = getPreset("default_cws_keytool_keystore_storepass");
+	private static void getKeystorePassword() {
+		Path filePath;
+		filePath = Paths.get(cws_tomcat_lib + SEP + ".storepass");
+		String storepassFilePath = filePath.toString();
+		File storepassReadFile = new File(storepassFilePath);
 
-		if (cws_installer_mode.equals("interactive")) {
-			if (cws_keystore_storepass == null) {
-				cws_keystore_storepass = readRequiredLine("Enter the Keystore password of .keystore. ",
-					"Must specify a Keystore password!");
-			} else {
-				cws_keystore_storepass = readLine("Enter the Keystore password of .keystore. " +
-					"Default is " + cws_keystore_storepass + ": ", cws_keystore_storepass);
+		boolean fileExists = storepassReadFile.exists();
+		if (fileExists == true) {
+			if (!storepassReadFile.canRead()) {
+				print("ERROR: .storepass in path '" + cws_tomcat_lib + SEP + "' is NOT readable by system user.");
+				print("     ");
+				print("WARNING:  Read and fulfill the Keystore/Truststore prerequisites before continuing installation: ");
+				print("          https://github.com/NASA-AMMOS/common-workflow-service?tab=readme-ov-file#prerequisites");
+				exit(1);
 			}
 		} else {
-			if (cws_keystore_storepass == null) {
-				bailOutMissingOption("default_cws_keytool_keystore_storepass");
-			}
+			print("ERROR: .storepass does NOT exist in path '" + cws_tomcat_lib + SEP + "' ");
+			print("     ");
+			print("WARNING:  Make sure to place .storepass in the correct path and satisfy the following Keystore/Truststore prerequisites: ");
+			print("          https://github.com/NASA-AMMOS/common-workflow-service?tab=readme-ov-file#prerequisites");
+			exit(1);
+		}
+
+		try {
+			cws_keystore_storepass = Files.readString(Paths.get(storepassFilePath)).trim();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
