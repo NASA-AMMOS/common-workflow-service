@@ -38,12 +38,12 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
     - You will need to add your own Tomcat keystore file to this path: `install/.keystore`
     - You will need to add your own truststore file to this path: `install/tomcat_lib/cws_truststore.jks`
     - See: https://tomcat.apache.org/tomcat-9.0-doc/ssl-howto.html
-  - **Java 11 JDK**: CWS only runs on JDK 11 now, but planning for JDK 17 soon.
+  - **Java 17 JDK**: CWS now runs on JDK 17.
     - For Homebrew users:
-      - Install OpenJDK 11 using: `brew install openjdk@11`
+      - Install OpenJDK 17 using: `brew install openjdk@17`
       - Check the exact version installed using `/usr/libexec/java_home -V`
       - Add to your Shell startup (e.g. .zprofile): `export JAVA_HOME=$(/usr/libexec/java_home -v X.X.X)`
-        - Replace the X.X.X version above with the OpenJDK 11 output from the `/usr/libexec/java_home -V` command.
+        - Replace the X.X.X version above with the OpenJDK 17 output from the `/usr/libexec/java_home -V` command.
 
 
 ### **Development Environment Configuration**
