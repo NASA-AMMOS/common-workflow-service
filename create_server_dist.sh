@@ -96,7 +96,6 @@ TOMCAT_CONF_DIR=${CWS_TOMCAT_ROOT}/conf
 print 'Installing key and trust store to Tomcat...'
 cp ${INSTALL_DIR}/.keystore ${CWS_TOMCAT_ROOT}/conf/.keystore
 cp ${INSTALL_DIR}/tomcat_lib/cws_truststore.jks ${TOMCAT_LIB_DIR}
-cp ${INSTALL_DIR}/tomcat_lib/.storepass ${TOMCAT_LIB_DIR}
 
 # ___________________________________________________________________
 # MAKE TOMCAT ROOT POINT TO cws-ui AND REMOVE DEFAULT TOMCAT ROOT APP

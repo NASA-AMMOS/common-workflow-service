@@ -37,9 +37,9 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
 - Tomcat **keystore, truststore, storepass files** (needed for CWS web console to work properly):
     - You will need to add your own Tomcat keystore file to this path: `install/.keystore`
     - You will need to add your own truststore file to this path: `install/tomcat_lib/cws_truststore.jks`
-    - You will need to add your own .storepass file, which carries the keystore password, to this path: `install/tomcat_lib/.storepass`
-      - The **.storepass** file must have the read/write permission set to Owner-Only, *'600'* or *'-rw-------'* at maximum
-        - `chmod 600 .storepass`
+    - You will need to add your own creds file, which carries the keystore password, to this path: `~/.cws/creds`
+      - The **~/.cws/** directory and **creds** file must have the read/write/execute permission set to Owner-Only, *'700'* or *'-rwx------'* at maximum
+        - `chmod 700 creds`
     - See: https://tomcat.apache.org/tomcat-9.0-doc/ssl-howto.html
     - **Java 11 JDK**: CWS only runs on JDK 11 now, but planning for JDK 17 soon.
       - For Homebrew users:

@@ -46,6 +46,12 @@ jobs:
           chmod +x generate-certs.sh
           ./generate-certs.sh
 
+      - name: Set up Keystore storepass
+        run: |
+          mkdir ~/.cws/
+          echo ${{ secrets.KEYSTORE_PASSWORD }} > ~/.cws/creds
+          chmod 700 ~/.cws/creds
+
       - name: Download Logstash
         uses: carlosperate/download-file-action@v1
         with:
