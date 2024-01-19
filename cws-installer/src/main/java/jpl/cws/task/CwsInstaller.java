@@ -1064,37 +1064,40 @@ public class CwsInstaller {
 
 
 	private static void getKeystorePassword() {
+
         cws_keystore_storepass = getPreset("default_cws_keystore_storepass");
 
 		if (cws_keystore_storepass == null) {
-	        Path filePath;
-    		filePath = Paths.get("~/.cws/creds");
-    		String storepassFilePath = filePath.toString();
-    		storepassFilePath = storepassFilePath.replaceFirst("^~", System.getProperty("user.home"));
-    		File storepassReadFile = new File(storepassFilePath);
-    		boolean fileExists = storepassReadFile.exists();
 
-    		if (fileExists == true) {
-    			if (!storepassReadFile.canRead()) {
-    				print("ERROR: creds in path '" + "~/.cws/creds" + "' is NOT readable by system user.");
-    				print("     ");
-    				print("WARNING:  Read and fulfill the Keystore/Truststore prerequisites before continuing installation: ");
-    				print("          https://github.com/NASA-AMMOS/common-workflow-service?tab=readme-ov-file#prerequisites");
-    				exit(1);
-    			}
-    		} else {
-    			print("ERROR: creds does NOT exist in path '" + "~/.cws/creds" + "' ");
-    			print("     ");
-    			print("WARNING:  Make sure to place creds in the correct path and satisfy the following Keystore/Truststore prerequisites: ");
-    			print("          https://github.com/NASA-AMMOS/common-workflow-service?tab=readme-ov-file#prerequisites");
-    			exit(1);
-    		}
+			Path filePath;
+			filePath = Paths.get("~/.cws/creds");
+			String storepassFilePath = filePath.toString();
+			storepassFilePath = storepassFilePath.replaceFirst("^~", System.getProperty("user.home"));
+			File storepassReadFile = new File(storepassFilePath);
+			boolean fileExists = storepassReadFile.exists();
 
-    		try {
-    			cws_keystore_storepass = Files.readString(Paths.get(storepassFilePath)).trim();
-    		} catch (IOException e) {
-    			e.printStackTrace();
-    		}
+			if (fileExists == true) {
+				if (!storepassReadFile.canRead()) {
+					print("ERROR: creds in path '" + "~/.cws/creds" + "' is NOT readable by system user.");
+					print("     ");
+					print("WARNING:  Read and fulfill the Keystore/Truststore prerequisites before continuing installation: ");
+					print("          https://github.com/NASA-AMMOS/common-workflow-service?tab=readme-ov-file#prerequisites");
+					exit(1);
+				}
+			} else {
+				print("ERROR: creds does NOT exist in path '" + "~/.cws/creds" + "' ");
+				print("     ");
+				print("WARNING:  Make sure to place creds in the correct path and satisfy the following Keystore/Truststore prerequisites: ");
+				print("          https://github.com/NASA-AMMOS/common-workflow-service?tab=readme-ov-file#prerequisites");
+				exit(1);
+			}
+
+			try {
+				cws_keystore_storepass = Files.readString(Paths.get(storepassFilePath)).trim();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
 		}
 	}
 
@@ -2432,7 +2435,7 @@ public class CwsInstaller {
 		Path filePath;
 		filePath = Paths.get(cws_tomcat_conf + SEP + ".keystore");
 		String keystoreFilePath = filePath.toString();
-		long ONE_DAY_MS  = 24 * 60 * 60 * 1000;	// 24 hours
+		long ONE_DAY_MS  = 24 * 60 * 60 * 1000;	// 24 hours or 1 day
 		try {
 			KeyStore ks = KeyStore.getInstance("JKS");
 			ks.load(new FileInputStream(keystoreFilePath), cws_keystore_storepass.toCharArray());
