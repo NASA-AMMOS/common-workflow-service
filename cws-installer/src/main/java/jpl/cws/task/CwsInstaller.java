@@ -1064,11 +1064,8 @@ public class CwsInstaller {
 
 
 	private static void getKeystorePassword() {
-
-        cws_keystore_storepass = getPreset("default_cws_keystore_storepass");
-
+		cws_keystore_storepass = getPreset("default_cws_keystore_storepass");
 		if (cws_keystore_storepass == null) {
-
 			Path filePath;
 			filePath = Paths.get("~/.cws/creds");
 			String storepassFilePath = filePath.toString();
@@ -1097,7 +1094,6 @@ public class CwsInstaller {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
 		}
 	}
 
