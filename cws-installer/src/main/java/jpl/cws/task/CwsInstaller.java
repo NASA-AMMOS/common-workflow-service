@@ -1693,9 +1693,9 @@ public class CwsInstaller {
 				print("    Database Driver               = " + cws_adapt_db_driver);
 				print("    Database User                 = " + cws_adapt_db_username);
 				print("    Database Password             = ****** (hidden) ");
+				print("....................................................................................");
 			}
 		}
-		print("....................................................................................");
 
 		if (cws_auth_scheme.equals("LDAP")) {
 			print("LDAP User                     = " + cws_user);
@@ -1708,6 +1708,7 @@ public class CwsInstaller {
 			print("Admin Last Name               = " + cws_user_lastname);
 			print("Admin Email                   = " + cws_user_email);
 		}
+		print("....................................................................................");
 		print("CWS web port                  = " + cws_tomcat_connector_port);
 		print("CWS SSL port                  = " + cws_tomcat_ssl_port);
 		print("CWS AJP port                  = " + cws_tomcat_ajp_port);
@@ -2598,6 +2599,7 @@ public class CwsInstaller {
 			String serverAdaptationContent = getFileContents(
 				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "server_adaptation.xml"));
 			content = content.replace("<Resource name=\"jdbc/cws\"", serverAdaptationContent);
+			content = content.replace("__ADAPTATION_SERVER_RESOURCE__", "");
 
 			content = content.replace("__CWS_ADAPT_DB_URL__",          cws_adapt_db_url);
 			content = content.replace("__CWS_ADAPT_DB_DRIVER__",       cws_adapt_db_driver);
