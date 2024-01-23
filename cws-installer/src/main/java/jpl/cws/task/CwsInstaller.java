@@ -212,6 +212,11 @@ public class CwsInstaller {
 	private static String aws_sqs_dispatcher_sqsUrl;
 	private static String aws_sqs_dispatcher_msgFetchLimit;
 
+	private static String camunda_version;
+
+	private static String java_version;
+	private static String java_home = System.getenv("JAVA_HOME");
+
 
 	private static Boolean reconfigure = false;
 
@@ -344,6 +349,9 @@ public class CwsInstaller {
 		ldap_identity_plugin_class = getPreset(LDAP_IDENTITY_PLUGIN_CLASS);
 		ldap_security_filter_class = getPreset(LDAP_SECURITY_FILTER_CLASS);
 		camunda_security_filter_class = getPreset(CAMUNDA_SECURITY_FILTER_CLASS);
+		camunda_version = getPreset("camunda_version");
+		
+		java_version = getPreset("java_version");
 	}
 
 	private static void exit(int status) {
@@ -2841,6 +2849,10 @@ public class CwsInstaller {
 			content = content.replace("__AWS_SQS_DISPATCHER_SQS_URL__", aws_sqs_dispatcher_sqsUrl);
 			content = content.replace("__AWS_SQS_DISPATCHER_MSG_FETCH_LIMIT__", aws_sqs_dispatcher_msgFetchLimit);
 		}
+
+		content = content.replace("__CWS_CAMUNDA_VERSION__", camunda_version);
+		content = content.replace("__CWS_JAVA_VERSION__", java_version);
+		content = content.replace("__CWS_JAVA_HOME__", java_home);
 
 		writeToFile(filePath, content);
 		copy(
