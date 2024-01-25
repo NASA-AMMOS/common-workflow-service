@@ -40,6 +40,11 @@ public class MvcCore {
 	@Value("${cws.history.days.to.live}") 	private String historyDaysToLive;
 	@Value("${cws.history.level}") 			private String historyLevel;
 
+	@Value("${cws.camunda.version}") 			private String camundaVersion;
+
+	@Value("${cws.java.home}") 			private String javaHome;
+	@Value("${cws.java.version}") 			private String javaVersion;
+
 	public MvcCore() {}
 	
 	protected ModelAndView buildModel(String page, String message) {
@@ -183,7 +188,12 @@ public class MvcCore {
 			model.addObject("tomcatWebapps",  	tomcatWebapps);
 			model.addObject("historyDaysToLive", historyDaysToLive);
 			model.addObject("historyLevel", 		historyLevel);
-			
+
+			model.addObject("camundaVersion", camundaVersion);
+
+			model.addObject("javaHome", javaHome);
+			model.addObject("javaVersion", javaVersion);
+
 			DiskUsage diskUsage = cwsConsoleService.getDiskUsage();
 			
 			model.addObject("databaseSize",  diskUsage.databaseSize);
