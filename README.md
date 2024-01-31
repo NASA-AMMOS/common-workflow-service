@@ -180,7 +180,7 @@ Start `test.sh` script by running:
 
 This will produce jacoco reports with code coverage measurements.
 
-##[Adaptation Setup Guide](cws-adaptation/README.md)
+## [Adaptation Setup Guide](cws-adaptation/README.md)
 
 # Contributing
 
