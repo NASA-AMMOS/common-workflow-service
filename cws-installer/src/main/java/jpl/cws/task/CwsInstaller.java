@@ -1111,7 +1111,7 @@ public class CwsInstaller {
 			try {
 				cws_keystore_storepass = Files.readString(Paths.get(storepassFilePath)).trim();
 			} catch (IOException e) {
-				log.error("ERROR: " + e.printStackTrace());
+				log.error("Read-in Keystore Storepass ERROR: " + e.getMessage());
 			}
 		}
 	}
@@ -2511,9 +2511,10 @@ public class CwsInstaller {
 			}
 		} catch (Exception e) {
 			print("   [WARNING]");
-			print("       The path '" + cws_tomcat_conf + SEP + "' may not contain .keystore file OR holds a keystore that is mismatched with password in '~/.cws/creds' or cws_keystore_storepass configuration.");
+			print("       The path '" + cws_tomcat_conf + SEP + "' ");
+			print("       may NOT contain .keystore file OR holds a keystore that is mismatched with password in '~/.cws/creds' or cws_keystore_storepass configuration.");
 			print("");
-			log.error("ERROR: " + e.printStackTrace());
+			log.error("Keystore Storepass ERROR: " + e.getMessage());
 			return 1;
 		}
 		return 0; // OK
