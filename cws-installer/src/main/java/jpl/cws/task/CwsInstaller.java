@@ -155,6 +155,16 @@ public class CwsInstaller {
 	private static String cws_db_username;
 	private static String cws_db_password;
 
+	private static String cws_adapt_use_shared_db;
+	private static String cws_adapt_db_type;
+	private static String cws_adapt_db_host;
+	private static String cws_adapt_db_port;
+	private static String cws_adapt_db_name;
+	private static String cws_adapt_db_url;
+	private static String cws_adapt_db_driver;
+	private static String cws_adapt_db_username;
+	private static String cws_adapt_db_password;
+
 	private static String cws_auth_scheme;
 	private static String cws_user;
 	private static String cws_user_firstname;
@@ -1667,6 +1677,34 @@ public class CwsInstaller {
 		print("Database User                 = " + cws_db_username);
 		print("Database Password             = ****** (hidden) ");
 		print("....................................................................................");
+
+		cws_adapt_use_shared_db = getPreset("adaptation_use_shared_db");
+		cws_adapt_db_type = getPreset("adaptation_db_type");
+		cws_adapt_db_host = getPreset("adaptation_db_host");
+		cws_adapt_db_port = getPreset("adaptation_db_port");
+		cws_adapt_db_name = getPreset("adaptation_db_name");
+		cws_adapt_db_username = getPreset("adaptation_db_username");
+		cws_adapt_db_password = getPreset("adaptation_db_password");
+		cws_adapt_db_url = "jdbc:" + cws_adapt_db_type + "://" + cws_adapt_db_host + ":" + cws_adapt_db_port + "/" + cws_adapt_db_name + "?autoReconnect=true";
+
+		if (cws_adapt_use_shared_db != null) {
+			if (cws_adapt_use_shared_db.equalsIgnoreCase("y")) {
+
+				if (cws_adapt_db_type.equals("mariadb")) {
+					cws_adapt_db_driver = "org.mariadb.jdbc.Driver";
+				} else if (cws_adapt_db_type.equals("mysql")) {
+					cws_adapt_db_driver = "com.mysql.jdbc.Driver";
+				}
+				print("  CWS Adapt Database ");
+				print("    Database Type                 = " + cws_adapt_db_type);
+				print("    Database URL                  = " + cws_adapt_db_url);
+				print("    Database Driver               = " + cws_adapt_db_driver);
+				print("    Database User                 = " + cws_adapt_db_username);
+				print("    Database Password             = ****** (hidden) ");
+				print("....................................................................................");
+			}
+		}
+
 		if (cws_auth_scheme.equals("LDAP")) {
 			print("LDAP User                     = " + cws_user);
 		}
@@ -1678,6 +1716,7 @@ public class CwsInstaller {
 			print("Admin Last Name               = " + cws_user_lastname);
 			print("Admin Email                   = " + cws_user_email);
 		}
+		print("....................................................................................");
 		print("CWS web port                  = " + cws_tomcat_connector_port);
 		print("CWS SSL port                  = " + cws_tomcat_ssl_port);
 		print("CWS AJP port                  = " + cws_tomcat_ajp_port);
@@ -2486,6 +2525,8 @@ public class CwsInstaller {
 				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP +  "bpm-platform.xml"));
 		copy(Paths.get( config_templates_dir + SEP + "tomcat_conf" + SEP + "server.xml"),
 				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP +  "server.xml"));
+		copy(Paths.get( config_templates_dir + SEP + "tomcat_conf" + SEP + "server_adaptation.xml"),
+			Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP +  "server_adaptation.xml"));
 		copy(Paths.get( config_templates_dir + SEP + "tomcat_conf" + SEP + "web.xml"),
 				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP +  "web.xml"));
 		copy(Paths.get( config_templates_dir + SEP + "engine-rest_mods" + SEP + "web.xml"),
@@ -2554,6 +2595,29 @@ public class CwsInstaller {
 		content = content.replace("__CWS_DB_DRIVER__",             cws_db_driver);
 		content = content.replace("__CWS_DB_USERNAME__",           cws_db_username);
 		content = content.replace("__CWS_DB_PASSWORD__",           cws_db_password);
+
+		writeToFile(filePath, content);
+		copy(
+			Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "server_adaptation.xml"),
+			Paths.get(cws_tomcat_root + SEP + "conf"        + SEP + "server_adaptation.xml"));
+		if (cws_adapt_db_url != null && cws_adapt_db_driver != null &&
+			cws_adapt_db_username != null && cws_adapt_db_password != null) {
+
+			// Fill in the __ADAPTATION_SERVER_RESOURCE__
+			String serverAdaptationContent = getFileContents(
+				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "server_adaptation.xml"));
+			content = content.replace("<Resource name=\"jdbc/cws\"", serverAdaptationContent);
+			content = content.replace("__ADAPTATION_SERVER_RESOURCE__", "");
+
+			content = content.replace("__CWS_ADAPT_DB_URL__",          cws_adapt_db_url);
+			content = content.replace("__CWS_ADAPT_DB_DRIVER__",       cws_adapt_db_driver);
+			content = content.replace("__CWS_ADAPT_DB_USERNAME__",     cws_adapt_db_username);
+			content = content.replace("__CWS_ADAPT_DB_PASSWORD__",     cws_adapt_db_password);
+		} else {
+			content = content.replace("__ADAPTATION_SERVER_RESOURCE__", "");
+
+		}
+
 		content = content.replace("__CWS_TOMCAT_CONNECTOR_PORT__", cws_tomcat_connector_port);
 		content = content.replace("__CWS_TOMCAT_SSL_PORT__",       cws_tomcat_ssl_port);
 		content = content.replace("__CWS_TOMCAT_AJP_PORT__",       cws_tomcat_ajp_port);
@@ -2746,6 +2810,17 @@ public class CwsInstaller {
 		Path filePath = Paths.get(config_work_dir + SEP + "cws-engine" + SEP + "applicationContext.xml");
 		String content = getFileContents(filePath);
 
+		if (cws_adapt_db_url != null && cws_adapt_db_driver != null &&
+			cws_adapt_db_username != null && cws_adapt_db_password != null) {
+			content = content.replace("__CWS_ADAPTATION_JNDI__", "<jee:jndi-lookup id=\"cwsAdaptDataSource\" jndi-name=\"java:comp/env/jdbc/cws_adaptation\" expected-type=\"javax.sql.DataSource\" />");
+			content = content.replace("__CWS_ADAPTATION_BEAN__", "<bean id=\"jdbcAdaptationTemplate\" class=\"org.springframework.jdbc.core.JdbcTemplate\">\n" +
+				"\t\t<constructor-arg ref=\"cwsAdaptDataSource\"/>\n" +
+				"\t</bean>");
+		} else {
+			content = content.replace("__CWS_ADAPTATION_JNDI__", "");
+			content = content.replace("__CWS_ADAPTATION_BEAN__", "");
+		}
+
 		content = content.replace("__CWS_DB_DRIVER__", cws_db_driver);
 		content = content.replace("__CWS_DB_URL__", cws_db_url);
 		content = content.replace("__CWS_DB_USERNAME__", cws_db_username);
@@ -2865,6 +2940,18 @@ public class CwsInstaller {
 		print(" Updating cws-ui/applicationContext.xml...");
 		Path path = Paths.get(config_work_dir + SEP + "cws-ui" + SEP + "applicationContext.xml");
 		String content = getFileContents(path);
+
+		if (cws_adapt_db_url != null && cws_adapt_db_driver != null &&
+			cws_adapt_db_username != null && cws_adapt_db_password != null) {
+			content = content.replace("__CWS_ADAPTATION_JNDI__", "<jee:jndi-lookup id=\"cwsAdaptDataSource\" jndi-name=\"java:comp/env/jdbc/cws_adaptation\" expected-type=\"javax.sql.DataSource\" />");
+			content = content.replace("__CWS_ADAPTATION_BEAN__", "<bean id=\"jdbcAdaptationTemplate\" class=\"org.springframework.jdbc.core.JdbcTemplate\">\n" +
+				"\t\t<constructor-arg ref=\"cwsAdaptDataSource\"/>\n" +
+				"\t</bean>");
+		} else {
+			content = content.replace("__CWS_ADAPTATION_JNDI__", "");
+			content = content.replace("__CWS_ADAPTATION_BEAN__", "");
+		}
+
 		content = content.replace("__CWS_DB_DRIVER__", cws_db_driver);
 		content = content.replace("__CWS_DB_URL__", cws_db_url);
 		content = content.replace("__CWS_DB_USERNAME__", cws_db_username);
