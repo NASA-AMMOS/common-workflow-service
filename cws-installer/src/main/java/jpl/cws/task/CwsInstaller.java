@@ -42,6 +42,9 @@ import org.xml.sax.InputSource;
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
+import java.io.FileInputStream;
+import java.util.Enumeration;
+import java.io.IOException;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -49,6 +52,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.Math;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -65,8 +71,14 @@ import java.util.HashSet;
 import java.util.TimeZone;
 import javax.naming.AuthenticationNotSupportedException;
 import javax.naming.AuthenticationException;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
 
 import javax.tools.ToolProvider;
 
@@ -177,6 +189,8 @@ public class CwsInstaller {
 	private static String cws_shutdown_port;
 	private static String cws_tomcat_ajp_port;
 
+	private static String cws_keystore_storepass;
+
 	private static String cws_smtp_hostname;
 	private static String cws_smtp_port;
 
@@ -268,6 +282,7 @@ public class CwsInstaller {
 			setupNotificationEmails();
 			setupTokenExpirationHours();
 			setupPorts();
+			getKeystorePassword();
 			setupTaskAssigmentEmails();
 			setupSMTP();
 			setupElasticsearch();
@@ -1066,6 +1081,41 @@ public class CwsInstaller {
 	}
 
 
+	private static void getKeystorePassword() {
+		cws_keystore_storepass = getPreset("cws_keystore_storepass");
+
+		if (cws_keystore_storepass == null) {
+			Path filePath;
+			filePath = Paths.get("~/.cws/creds");
+			String storepassFilePath = filePath.toString();
+			storepassFilePath = storepassFilePath.replaceFirst("^~", System.getProperty("user.home"));
+			File storepassReadFile = new File(storepassFilePath);
+			boolean fileExists = storepassReadFile.exists();
+
+			if (fileExists == true) {
+				if (!storepassReadFile.canRead()) {
+					print("ERROR: creds in path '" + "~/.cws/creds" + "' is NOT readable by system user.");
+					print("     ");
+					print("WARNING:  Read and fulfill the Keystore/Truststore prerequisites before continuing installation: ");
+					print("          https://github.com/NASA-AMMOS/common-workflow-service?tab=readme-ov-file#prerequisites");
+					exit(1);
+				}
+			} else {
+				print("ERROR: creds does NOT exist in path '" + "~/.cws/creds" + "' ");
+				print("     ");
+				print("WARNING:  Make sure to place creds in the correct path and satisfy the following Keystore/Truststore prerequisites: ");
+				print("          https://github.com/NASA-AMMOS/common-workflow-service?tab=readme-ov-file#prerequisites");
+				exit(1);
+			}
+
+			try {
+				cws_keystore_storepass = Files.readString(Paths.get(storepassFilePath)).trim();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	private static void setupPorts() {
 		// PROMPT USER FOR CWS WEB PORT
 		cws_tomcat_connector_port = getPreset("cws_web_port");
@@ -1813,6 +1863,9 @@ public class CwsInstaller {
 		// Check that user provided Elasticsearch service is up and healthy
 		warningCount += validateElasticsearch();
 
+		// Check that keystore and truststore is valid, not expired
+		warningCount += validateKeystoreTruststore();
+
 		if (installWorker && !installConsole) {
 			// Validate the AMQ host/port for worker only installations.
 			warningCount += validateAmqConfig();
@@ -2416,6 +2469,54 @@ public class CwsInstaller {
 			print("");
 			return 1;
 		}
+	}
+
+	/**
+	 * Validates the .keystore file in tomcat_lab. Checks for correct file name and expiration
+	 */
+	private static int validateKeystoreTruststore() {
+		print("checking that user provided valid .keystore file and certificate chain...");
+		Path filePath;
+		filePath = Paths.get(cws_tomcat_conf + SEP + ".keystore");
+		String keystoreFilePath = filePath.toString();
+		long ONE_DAY_MS  = 24 * 60 * 60 * 1000;	// 24 hours or 1 day
+		try {
+			KeyStore ks = KeyStore.getInstance("JKS");
+			ks.load(new FileInputStream(keystoreFilePath), cws_keystore_storepass.toCharArray());
+			Enumeration aliases = ks.aliases();
+			while(aliases.hasMoreElements()) {
+				String keystoreRoot = (String) aliases.nextElement();
+				Date expirationDate = ((X509Certificate) ks.getCertificate(keystoreRoot)).getNotAfter();
+				Date currentTime = new Date();
+				long daysInterval = expirationDate.getTime() - currentTime.getTime();
+				long numDays = daysInterval / (ONE_DAY_MS);
+				if (numDays <= 0) {
+					print("   [WARNING]");
+					print("       The Certificate Chain in Keystore '" + keystoreFilePath + "' is expired. ");
+					print("       Expiration Date: " + expirationDate);
+					print("");
+					return 1;
+				} else if (numDays > 0 && numDays < 90) {
+					print("   [OK]");
+					print("       NOTICE: Make sure to renew the certificates within the .keystore certificate chain soon.");
+					print("               Certificate(s): '" + keystoreFilePath + "' ");
+					print("               Expiration Date: " + expirationDate);
+					print("               Days Until expiration: " + numDays + " days");
+					print("");
+					return 0;
+				} else {
+					print("   [OK]");
+					print("");
+				}
+			}
+		} catch (Exception e) {
+			print("   [WARNING]");
+			print("       The path '" + cws_tomcat_conf + SEP + "' may not contain .keystore file or holds an invalid keystore.");
+			print("");
+			e.printStackTrace();
+			return 1;
+		}
+		return 0; // OK
 	}
 
 	/**
