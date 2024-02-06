@@ -63,7 +63,7 @@
 		<maven-install-plugin.version>2.5.2</maven-install-plugin.version>
 		<exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
 		<maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
-		<maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+		<maven-surefire-plugin.version>3.0.0</maven-surefire-plugin.version>
 		<mockito.version>4.3.1</mockito.version>
 		<mybatis.version>3.5.6</mybatis.version>
 		<mysql-connector.version>8.0.28</mysql-connector.version>
@@ -78,7 +78,7 @@
 		<slf4j-log4j2-bind.version>2.17.1</slf4j-log4j2-bind.version>
 		<skip.integration.tests>false</skip.integration.tests>
 		<spring.framework.version>5.3.31</spring.framework.version>
-		<surefire.version>2.22.2</surefire.version>
+		<surefire.version>3.0.0</surefire.version>
 		<tomcat-catalina.version>9.0.75</tomcat-catalina.version>
 		<urlrewritefilter.version>4.0.3</urlrewritefilter.version>
 		<xbean-spring.version>4.24</xbean-spring.version>
