@@ -15,7 +15,7 @@
       <bpmn2:outgoing>SequenceFlow_1</bpmn2:outgoing>
     </bpmn2:startEvent>
     <bpmn2:sequenceFlow id="SequenceFlow_1" name="" sourceRef="StartEvent_1" targetRef="ScriptTask_1"/>
-    <bpmn2:scriptTask id="ScriptTask_1" name="set delay in JavaScript" scriptFormat="JavaScript">
+    <bpmn2:scriptTask id="ScriptTask_1" name="set delay in JavaScript" scriptFormat="groovy">
       <bpmn2:incoming>SequenceFlow_1</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_2</bpmn2:outgoing>
       <bpmn2:script><![CDATA[milliseconds=1000;
@@ -33,7 +33,7 @@ execution.setVariable("Delay_milliseconds",milliseconds);]]></bpmn2:script>
       <bpmn2:outgoing>SequenceFlow_4</bpmn2:outgoing>
     </bpmn2:serviceTask>
     <bpmn2:sequenceFlow id="SequenceFlow_4" name="" sourceRef="ServiceTask_2" targetRef="ServiceTask_1"/>
-    <bpmn2:scriptTask id="ScriptTask_2" name="set success variable" scriptFormat="JavaScript">
+    <bpmn2:scriptTask id="ScriptTask_2" name="set success variable" scriptFormat="groovy">
       <bpmn2:incoming>SequenceFlow_3</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_5</bpmn2:outgoing>
       <bpmn2:script><![CDATA[execution.setVariable("cws331_success",true);]]></bpmn2:script>
