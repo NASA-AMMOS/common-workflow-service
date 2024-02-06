@@ -123,6 +123,19 @@
 			<artifactId>junit</artifactId>
 		</dependency>
 
+		<dependency>
+			 <groupId>org.graalvm.js</groupId>
+			 <artifactId>js</artifactId>
+			 <version>23.0.2</version>
+			<scope>runtime</scope>
+		</dependency>
+		 <dependency>
+		        <groupId>org.graalvm.js</groupId>
+		        <artifactId>js-scriptengine</artifactId>
+		        <version>23.0.2</version>
+			<scope>runtime</scope>
+		</dependency>
+
 		<!--  IS THIS NEEDED?? -->
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
