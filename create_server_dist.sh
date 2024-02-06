@@ -69,6 +69,7 @@ cp ${INSTALL_DIR}/tomcat_lib/css-jaas.cfg                     ${CONFIG_TEMPLATES
 cp ${INSTALL_DIR}/tomcat_bin/setenv.sh                        ${CONFIG_TEMPLATES_DIR}/tomcat_bin
 cp ${INSTALL_DIR}/tomcat_conf/bpm-platform.xml                ${CONFIG_TEMPLATES_DIR}/tomcat_conf
 cp ${INSTALL_DIR}/tomcat_conf/server.xml                      ${CONFIG_TEMPLATES_DIR}/tomcat_conf
+cp ${INSTALL_DIR}/tomcat_conf/server_adaptation.xml           ${CONFIG_TEMPLATES_DIR}/tomcat_conf
 cp ${INSTALL_DIR}/tomcat_conf/web.xml                         ${CONFIG_TEMPLATES_DIR}/tomcat_conf
 cp ${INSTALL_DIR}/tomcat_conf/ldap_plugin_bean.xml            ${CONFIG_TEMPLATES_DIR}/tomcat_conf
 cp ${INSTALL_DIR}/tomcat_conf/ldap_plugin_ref.xml             ${CONFIG_TEMPLATES_DIR}/tomcat_conf
@@ -185,6 +186,17 @@ awk 'NR==FNR { a[n++]=$0; next }
 /__CUSTOM_METHODS_JAVA__/ { for (i=0;i<n;++i) print a[i]; next }1' ${DIST}/snippets.java ${INSTALL_DIR}/sql/core.sql.template > ${CWS}/sql/cws/core.sql
 
 cp ${INSTALL_DIR}/sql/core.afterstartup.sql.template           ${CWS}/sql/cws/core.afterstartup.sql
+
+if [[ -f ${INSTALL_DIR}/sql/adaptation.sql.template && -f ${INSTALL_DIR}/sql/adaptation_core.sql.template && -f ${INSTALL_DIR}/sql/adaptation_external.sql.template ]]; then
+    print "Building adaptation (external) sql..."
+    awk 'NR==FNR { a[n++]=$0; next }
+    /__CUSTOM_METHODS_JAVA__/ { for (i=0;i<n;++i) print a[i]; next }1' ${DIST}/snippets.java ${INSTALL_DIR}/sql/adaptation.sql.template > ${CWS}/sql/cws/adaptation.sql
+    awk 'NR==FNR { a[n++]=$0; next }
+    /__CUSTOM_METHODS_JAVA__/ { for (i=0;i<n;++i) print a[i]; next }1' ${DIST}/snippets.java ${INSTALL_DIR}/sql/adaptation_core.sql.template > ${CWS}/sql/cws/adaptation_core.sql
+    awk 'NR==FNR { a[n++]=$0; next }
+    /__CUSTOM_METHODS_JAVA__/ { for (i=0;i<n;++i) print a[i]; next }1' ${DIST}/snippets.java ${INSTALL_DIR}/sql/adaptation_external.sql.template > ${CWS}/sql/cws/adaptation_external.sql
+fi
+
 
 rm ${DIST}/snippets.java
 rm ${DIST}/snippets.java.bak

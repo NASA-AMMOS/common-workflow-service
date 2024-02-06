@@ -215,6 +215,8 @@ function auto_conf_data () {
     CWS_CONSOLE_SSL_PORT=38443
     AMQ_PORT=31616
 
+    check_java_requirements
+
     if [[ "${INSTALL_TYPE}" == "console-and-worker" ]]; then
         INSTALL_TYPE_CODE=1
         WORKER_TYPE="run_all"
@@ -317,5 +319,8 @@ function auto_conf_data () {
     cws_notification_emails=${NOTIFICATION_EMAILS}
     cws_token_expiration_hours=240
     user_provided_logstash=n
+    camunda_version=${CAMUNDA_VER}
+    java_version=${JAVA_HOME_VERSION}
+    java_home=${JAVA_HOME}
 EOF
 }

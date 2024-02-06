@@ -3,4 +3,3 @@
 function adaptationWorkersReady() {
 	return; // CWS core behavior is to do nothing here
 }
-

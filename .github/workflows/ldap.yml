@@ -21,7 +21,7 @@ jobs:
 
     services:
       mdb103:
-        image: mariadb:10.3
+        image: mariadb:10.6
         ports:
           - 3306:3306
         env:
@@ -45,6 +45,13 @@ jobs:
           cd cws-certs
           chmod +x generate-certs.sh
           ./generate-certs.sh
+
+      - name: Set up Keystore storepass
+        run: |
+          mkdir ~/.cws/
+          chmod 700 ~/.cws/
+          echo ${{ secrets.KEYSTORE_PASSWORD }} > ~/.cws/creds
+          chmod 600 ~/.cws/creds
 
       - name: Download Logstash
         uses: carlosperate/download-file-action@v1

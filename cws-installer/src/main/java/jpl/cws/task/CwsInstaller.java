@@ -42,6 +42,9 @@ import org.xml.sax.InputSource;
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
+import java.io.FileInputStream;
+import java.util.Enumeration;
+import java.io.IOException;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -49,6 +52,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.Math;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -65,8 +71,14 @@ import java.util.HashSet;
 import java.util.TimeZone;
 import javax.naming.AuthenticationNotSupportedException;
 import javax.naming.AuthenticationException;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
 
 import javax.tools.ToolProvider;
 
@@ -155,6 +167,16 @@ public class CwsInstaller {
 	private static String cws_db_username;
 	private static String cws_db_password;
 
+	private static String cws_adapt_use_shared_db;
+	private static String cws_adapt_db_type;
+	private static String cws_adapt_db_host;
+	private static String cws_adapt_db_port;
+	private static String cws_adapt_db_name;
+	private static String cws_adapt_db_url;
+	private static String cws_adapt_db_driver;
+	private static String cws_adapt_db_username;
+	private static String cws_adapt_db_password;
+
 	private static String cws_auth_scheme;
 	private static String cws_user;
 	private static String cws_user_firstname;
@@ -166,6 +188,8 @@ public class CwsInstaller {
 	private static String cws_tomcat_ssl_port;
 	private static String cws_shutdown_port;
 	private static String cws_tomcat_ajp_port;
+
+	private static String cws_keystore_storepass;
 
 	private static String cws_smtp_hostname;
 	private static String cws_smtp_port;
@@ -212,6 +236,11 @@ public class CwsInstaller {
 	private static String aws_sqs_dispatcher_sqsUrl;
 	private static String aws_sqs_dispatcher_msgFetchLimit;
 
+	private static String camunda_version;
+
+	private static String java_version;
+	private static String java_home = System.getenv("JAVA_HOME");
+
 
 	private static Boolean reconfigure = false;
 
@@ -253,6 +282,7 @@ public class CwsInstaller {
 			setupNotificationEmails();
 			setupTokenExpirationHours();
 			setupPorts();
+			getKeystorePassword();
 			setupTaskAssigmentEmails();
 			setupSMTP();
 			setupElasticsearch();
@@ -344,6 +374,9 @@ public class CwsInstaller {
 		ldap_identity_plugin_class = getPreset(LDAP_IDENTITY_PLUGIN_CLASS);
 		ldap_security_filter_class = getPreset(LDAP_SECURITY_FILTER_CLASS);
 		camunda_security_filter_class = getPreset(CAMUNDA_SECURITY_FILTER_CLASS);
+		camunda_version = getPreset("camunda_version");
+		
+		java_version = getPreset("java_version");
 	}
 
 	private static void exit(int status) {
@@ -1048,6 +1081,41 @@ public class CwsInstaller {
 	}
 
 
+	private static void getKeystorePassword() {
+		cws_keystore_storepass = getPreset("cws_keystore_storepass");
+
+		if (cws_keystore_storepass == null) {
+			Path filePath;
+			filePath = Paths.get("~/.cws/creds");
+			String storepassFilePath = filePath.toString();
+			storepassFilePath = storepassFilePath.replaceFirst("^~", System.getProperty("user.home"));
+			File storepassReadFile = new File(storepassFilePath);
+			boolean fileExists = storepassReadFile.exists();
+
+			if (fileExists == true) {
+				if (!storepassReadFile.canRead()) {
+					print("ERROR: creds in path '" + "~/.cws/creds" + "' is NOT readable by system user.");
+					print("     ");
+					print("WARNING:  Read and fulfill the Keystore/Truststore prerequisites before continuing installation: ");
+					print("          https://github.com/NASA-AMMOS/common-workflow-service?tab=readme-ov-file#prerequisites");
+					exit(1);
+				}
+			} else {
+				print("ERROR: creds does NOT exist in path '" + "~/.cws/creds" + "' ");
+				print("     ");
+				print("WARNING:  Make sure to place creds in the correct path and satisfy the following Keystore/Truststore prerequisites: ");
+				print("          https://github.com/NASA-AMMOS/common-workflow-service?tab=readme-ov-file#prerequisites");
+				exit(1);
+			}
+
+			try {
+				cws_keystore_storepass = Files.readString(Paths.get(storepassFilePath)).trim();
+			} catch (IOException e) {
+				log.error("Read-in Keystore Storepass ERROR: " + e.getMessage());
+			}
+		}
+	}
+
 	private static void setupPorts() {
 		// PROMPT USER FOR CWS WEB PORT
 		cws_tomcat_connector_port = getPreset("cws_web_port");
@@ -1659,6 +1727,34 @@ public class CwsInstaller {
 		print("Database User                 = " + cws_db_username);
 		print("Database Password             = ****** (hidden) ");
 		print("....................................................................................");
+
+		cws_adapt_use_shared_db = getPreset("adaptation_use_shared_db");
+		cws_adapt_db_type = getPreset("adaptation_db_type");
+		cws_adapt_db_host = getPreset("adaptation_db_host");
+		cws_adapt_db_port = getPreset("adaptation_db_port");
+		cws_adapt_db_name = getPreset("adaptation_db_name");
+		cws_adapt_db_username = getPreset("adaptation_db_username");
+		cws_adapt_db_password = getPreset("adaptation_db_password");
+		cws_adapt_db_url = "jdbc:" + cws_adapt_db_type + "://" + cws_adapt_db_host + ":" + cws_adapt_db_port + "/" + cws_adapt_db_name + "?autoReconnect=true";
+
+		if (cws_adapt_use_shared_db != null) {
+			if (cws_adapt_use_shared_db.equalsIgnoreCase("y")) {
+
+				if (cws_adapt_db_type.equals("mariadb")) {
+					cws_adapt_db_driver = "org.mariadb.jdbc.Driver";
+				} else if (cws_adapt_db_type.equals("mysql")) {
+					cws_adapt_db_driver = "com.mysql.jdbc.Driver";
+				}
+				print("  CWS Adapt Database ");
+				print("    Database Type                 = " + cws_adapt_db_type);
+				print("    Database URL                  = " + cws_adapt_db_url);
+				print("    Database Driver               = " + cws_adapt_db_driver);
+				print("    Database User                 = " + cws_adapt_db_username);
+				print("    Database Password             = ****** (hidden) ");
+				print("....................................................................................");
+			}
+		}
+
 		if (cws_auth_scheme.equals("LDAP")) {
 			print("LDAP User                     = " + cws_user);
 		}
@@ -1670,6 +1766,7 @@ public class CwsInstaller {
 			print("Admin Last Name               = " + cws_user_lastname);
 			print("Admin Email                   = " + cws_user_email);
 		}
+		print("....................................................................................");
 		print("CWS web port                  = " + cws_tomcat_connector_port);
 		print("CWS SSL port                  = " + cws_tomcat_ssl_port);
 		print("CWS AJP port                  = " + cws_tomcat_ajp_port);
@@ -1765,6 +1862,9 @@ public class CwsInstaller {
 
 		// Check that user provided Elasticsearch service is up and healthy
 		warningCount += validateElasticsearch();
+
+		// Check that keystore and truststore is valid, not expired
+		warningCount += validateKeystoreTruststore();
 
 		if (installWorker && !installConsole) {
 			// Validate the AMQ host/port for worker only installations.
@@ -2372,6 +2472,55 @@ public class CwsInstaller {
 	}
 
 	/**
+	 * Validates the .keystore file in tomcat_lab. Checks for correct file name and expiration
+	 */
+	private static int validateKeystoreTruststore() {
+		print("checking that user provided valid .keystore file and certificate chain...");
+		Path filePath;
+		filePath = Paths.get(cws_tomcat_conf + SEP + ".keystore");
+		String keystoreFilePath = filePath.toString();
+		long ONE_DAY_MS  = 24 * 60 * 60 * 1000;	// 24 hours or 1 day
+		try {
+			KeyStore ks = KeyStore.getInstance("JKS");
+			ks.load(new FileInputStream(keystoreFilePath), cws_keystore_storepass.toCharArray());
+			Enumeration aliases = ks.aliases();
+			while(aliases.hasMoreElements()) {
+				String keystoreRoot = (String) aliases.nextElement();
+				Date expirationDate = ((X509Certificate) ks.getCertificate(keystoreRoot)).getNotAfter();
+				Date currentTime = new Date();
+				long daysInterval = expirationDate.getTime() - currentTime.getTime();
+				long numDays = daysInterval / (ONE_DAY_MS);
+				if (numDays <= 0) {
+					print("   [WARNING]");
+					print("       The Certificate Chain in Keystore '" + keystoreFilePath + "' is expired. ");
+					print("       Expiration Date: " + expirationDate);
+					print("");
+					return 1;
+				} else if (numDays > 0 && numDays < 90) {
+					print("   [OK]");
+					print("       NOTICE: Make sure to renew the certificates within the .keystore certificate chain soon.");
+					print("               Certificate(s): '" + keystoreFilePath + "' ");
+					print("               Expiration Date: " + expirationDate);
+					print("               Days Until expiration: " + numDays + " days");
+					print("");
+					return 0;
+				} else {
+					print("   [OK]");
+					print("");
+				}
+			}
+		} catch (Exception e) {
+			print("   [WARNING]");
+			print("       The path '" + cws_tomcat_conf + SEP + "' ");
+			print("       may NOT contain .keystore file OR holds a keystore that is mismatched with password in '~/.cws/creds' or cws_keystore_storepass configuration.");
+			print("");
+			log.error("Keystore Storepass ERROR: " + e.getMessage());
+			return 1;
+		}
+		return 0; // OK
+	}
+
+	/**
 	 * Validates that some sort of time syncing service
 	 * such as NTP or chrony is running on this installation machine.
 	 *
@@ -2478,6 +2627,8 @@ public class CwsInstaller {
 				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP +  "bpm-platform.xml"));
 		copy(Paths.get( config_templates_dir + SEP + "tomcat_conf" + SEP + "server.xml"),
 				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP +  "server.xml"));
+		copy(Paths.get( config_templates_dir + SEP + "tomcat_conf" + SEP + "server_adaptation.xml"),
+			Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP +  "server_adaptation.xml"));
 		copy(Paths.get( config_templates_dir + SEP + "tomcat_conf" + SEP + "web.xml"),
 				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP +  "web.xml"));
 		copy(Paths.get( config_templates_dir + SEP + "engine-rest_mods" + SEP + "web.xml"),
@@ -2546,6 +2697,29 @@ public class CwsInstaller {
 		content = content.replace("__CWS_DB_DRIVER__",             cws_db_driver);
 		content = content.replace("__CWS_DB_USERNAME__",           cws_db_username);
 		content = content.replace("__CWS_DB_PASSWORD__",           cws_db_password);
+
+		writeToFile(filePath, content);
+		copy(
+			Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "server_adaptation.xml"),
+			Paths.get(cws_tomcat_root + SEP + "conf"        + SEP + "server_adaptation.xml"));
+		if (cws_adapt_db_url != null && cws_adapt_db_driver != null &&
+			cws_adapt_db_username != null && cws_adapt_db_password != null) {
+
+			// Fill in the __ADAPTATION_SERVER_RESOURCE__
+			String serverAdaptationContent = getFileContents(
+				Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "server_adaptation.xml"));
+			content = content.replace("<Resource name=\"jdbc/cws\"", serverAdaptationContent);
+			content = content.replace("__ADAPTATION_SERVER_RESOURCE__", "");
+
+			content = content.replace("__CWS_ADAPT_DB_URL__",          cws_adapt_db_url);
+			content = content.replace("__CWS_ADAPT_DB_DRIVER__",       cws_adapt_db_driver);
+			content = content.replace("__CWS_ADAPT_DB_USERNAME__",     cws_adapt_db_username);
+			content = content.replace("__CWS_ADAPT_DB_PASSWORD__",     cws_adapt_db_password);
+		} else {
+			content = content.replace("__ADAPTATION_SERVER_RESOURCE__", "");
+
+		}
+
 		content = content.replace("__CWS_TOMCAT_CONNECTOR_PORT__", cws_tomcat_connector_port);
 		content = content.replace("__CWS_TOMCAT_SSL_PORT__",       cws_tomcat_ssl_port);
 		content = content.replace("__CWS_TOMCAT_AJP_PORT__",       cws_tomcat_ajp_port);
@@ -2738,6 +2912,17 @@ public class CwsInstaller {
 		Path filePath = Paths.get(config_work_dir + SEP + "cws-engine" + SEP + "applicationContext.xml");
 		String content = getFileContents(filePath);
 
+		if (cws_adapt_db_url != null && cws_adapt_db_driver != null &&
+			cws_adapt_db_username != null && cws_adapt_db_password != null) {
+			content = content.replace("__CWS_ADAPTATION_JNDI__", "<jee:jndi-lookup id=\"cwsAdaptDataSource\" jndi-name=\"java:comp/env/jdbc/cws_adaptation\" expected-type=\"javax.sql.DataSource\" />");
+			content = content.replace("__CWS_ADAPTATION_BEAN__", "<bean id=\"jdbcAdaptationTemplate\" class=\"org.springframework.jdbc.core.JdbcTemplate\">\n" +
+				"\t\t<constructor-arg ref=\"cwsAdaptDataSource\"/>\n" +
+				"\t</bean>");
+		} else {
+			content = content.replace("__CWS_ADAPTATION_JNDI__", "");
+			content = content.replace("__CWS_ADAPTATION_BEAN__", "");
+		}
+
 		content = content.replace("__CWS_DB_DRIVER__", cws_db_driver);
 		content = content.replace("__CWS_DB_URL__", cws_db_url);
 		content = content.replace("__CWS_DB_USERNAME__", cws_db_username);
@@ -2842,6 +3027,10 @@ public class CwsInstaller {
 			content = content.replace("__AWS_SQS_DISPATCHER_MSG_FETCH_LIMIT__", aws_sqs_dispatcher_msgFetchLimit);
 		}
 
+		content = content.replace("__CWS_CAMUNDA_VERSION__", camunda_version);
+		content = content.replace("__CWS_JAVA_VERSION__", java_version);
+		content = content.replace("__CWS_JAVA_HOME__", java_home);
+
 		writeToFile(filePath, content);
 		copy(
 			Paths.get(config_work_dir + SEP + "cws-ui" + SEP + "cws-ui.properties"),
@@ -2853,6 +3042,18 @@ public class CwsInstaller {
 		print(" Updating cws-ui/applicationContext.xml...");
 		Path path = Paths.get(config_work_dir + SEP + "cws-ui" + SEP + "applicationContext.xml");
 		String content = getFileContents(path);
+
+		if (cws_adapt_db_url != null && cws_adapt_db_driver != null &&
+			cws_adapt_db_username != null && cws_adapt_db_password != null) {
+			content = content.replace("__CWS_ADAPTATION_JNDI__", "<jee:jndi-lookup id=\"cwsAdaptDataSource\" jndi-name=\"java:comp/env/jdbc/cws_adaptation\" expected-type=\"javax.sql.DataSource\" />");
+			content = content.replace("__CWS_ADAPTATION_BEAN__", "<bean id=\"jdbcAdaptationTemplate\" class=\"org.springframework.jdbc.core.JdbcTemplate\">\n" +
+				"\t\t<constructor-arg ref=\"cwsAdaptDataSource\"/>\n" +
+				"\t</bean>");
+		} else {
+			content = content.replace("__CWS_ADAPTATION_JNDI__", "");
+			content = content.replace("__CWS_ADAPTATION_BEAN__", "");
+		}
+
 		content = content.replace("__CWS_DB_DRIVER__", cws_db_driver);
 		content = content.replace("__CWS_DB_URL__", cws_db_url);
 		content = content.replace("__CWS_DB_USERNAME__", cws_db_username);
