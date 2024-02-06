@@ -264,7 +264,7 @@ rm -f ${ROOT}/config/my.cnf
 sleep 1
 
 if [ "$RECONFIGURE" = true ]; then
-	${JAVA_HOME}/bin/java -classpath "./installer/*" -javaagent:./server/apache-tomcat-${TOMCAT_VER}/lib/org.jacoco.agent-0.8.8-runtime.jar=destfile=./installer-jacoco.exec,append=false jpl.cws.task.CwsInstaller --reconfigure
+	${JAVA_HOME}/bin/java -classpath "./installer/*" -javaagent:./server/apache-tomcat-${TOMCAT_VER}/lib/org.jacoco.agent-0.8.2-runtime.jar=destfile=./installer-jacoco.exec,append=false jpl.cws.task.CwsInstaller --reconfigure
 else
-	${JAVA_HOME}/bin/java -classpath "./installer/*" -javaagent:./server/apache-tomcat-${TOMCAT_VER}/lib/org.jacoco.agent-0.8.8-runtime.jar=destfile=./installer-jacoco.exec,append=false jpl.cws.task.CwsInstaller
+	${JAVA_HOME}/bin/java -classpath "./installer/*" -javaagent:./server/apache-tomcat-${TOMCAT_VER}/lib/org.jacoco.agent-0.8.2-runtime.jar=destfile=./installer-jacoco.exec,append=false jpl.cws.task.CwsInstaller
 fi
