@@ -6,6 +6,8 @@
 
 	<!-- JAVASCRIPT LINKS -->
 	<script src="/${base}/js/jquery.min.js"></script>
+	<script src="/${base}/js/popper.min.js"></script>
+	<script src="/${base}/js/bootstrap.min.js"></script>
 	<script src="/${base}/js/bootstrap-toggle.min.js"></script>
 	<script src="/${base}/js/DataTables/datatables.js"></script>
 	<script src="/${base}/js/cws.js"></script>
@@ -920,7 +922,7 @@
 			</div>
 		</div>
 
-		<div class="modal fade" id="page-ref-modal" role="dialog" data-backdrop="static" data-keyboard="false">
+		<div class="modal" id="page-ref-modal" role="dialog" data-backdrop="static" data-keyboard="false">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -964,7 +966,7 @@
 			</div> <!-- modal-dialog -->
 		</div> <!-- .modal .fade -->
 
-		<div class="modal fade" id="delete-error-modal" role="dialog" data-backdrop="static" data-keyboard="false">
+		<div class="modal" id="delete-error-modal" role="dialog" data-backdrop="static" data-keyboard="false">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -985,7 +987,7 @@
 			</div> <!-- modal-dialog -->
 		</div> <!-- .modal .fade -->
 
-		<div class="modal fade" id="workers-modal" role="dialog">
+		<div class="modal" id="workers-modal" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -1017,7 +1019,7 @@
 			</div> <!-- modal-dialog -->
 		</div> <!-- .modal .fade -->
 
-		<div class="modal fade" id="ajax-error-modal" role="dialog" data-backdrop="static" data-keyboard="false">
+		<div class="modal" id="ajax-error-modal" role="dialog" data-backdrop="static" data-keyboard="false">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
