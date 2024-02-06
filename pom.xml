@@ -83,6 +83,7 @@
 		<urlrewritefilter.version>4.0.3</urlrewritefilter.version>
 		<xbean-spring.version>4.24</xbean-spring.version>
 		<xmlunit.version>2.6.2</xmlunit.version>
+		<graalvm.version>22.3.3</graalvm.version>
 	</properties>
 
 	<profiles>
@@ -191,6 +192,23 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+
+			<dependency>
+				<groupId>org.graalvm.sdk</groupId>
+				<artifactId>graal-sdk</artifactId>
+				<version>${graalvm.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.graalvm.js</groupId>
+				<artifactId>js</artifactId>
+				<version>${graalvm.version}</version>
+				<scope>runtime</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.graalvm.js</groupId>
+				<artifactId>js-scriptengine</artifactId>
+				<version>${graalvm.version}</version>
+			</dependency>
 
 			<dependency>
 				<groupId>org.camunda.bpm</groupId>
