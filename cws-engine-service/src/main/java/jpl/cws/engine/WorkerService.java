@@ -756,6 +756,13 @@ public class WorkerService implements InitializingBean {
 					"(remainders = " + remainders +
 					", procMaxNumbers = " + workerMaxProcInstances.entrySet() +
 					", currentCounts = " + currentCounts + ")");
+
+				for (Entry<String,Integer> entry : remainders.entrySet()) {
+					List<Map<String, Object>> lastCompleteProcInst = schedulerDbService.getProcDefKeyLatestCompleteInst(entry.getKey().toString());
+					if (lastCompleteProcInst.size() > 0) {
+						log.debug("Last completed process instance for procDefKey '" + entry.getKey().toString() + "': " + lastCompleteProcInst);
+					}
+				}
 			}
 
 
