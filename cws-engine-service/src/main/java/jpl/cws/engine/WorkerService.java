@@ -896,7 +896,7 @@ public class WorkerService implements InitializingBean {
 		if (executorServiceMaxPoolSize != null) {
 			try {
 				// we are getting errors if we go beyond 10?
-				executorServiceMaxPoolSize = Math.max(10, executorServiceMaxPoolSize);
+				executorServiceMaxPoolSize = Math.min(10, executorServiceMaxPoolSize);
 				// Log information about JMX remote interface
 				if (System.getProperty("com.sun.management.jmxremote") == null) {
 					log.warn("JMX remote appears to be disabled");
@@ -923,7 +923,7 @@ public class WorkerService implements InitializingBean {
 				// Through experimentation, we have seen that the max doesn't get reached, but
 				// its the core size that counts.
 				//
-				Attribute attr2 = new Attribute("CorePoolSize", 10);
+				Attribute attr2 = new Attribute("CorePoolSize", executorServiceMaxPoolSize);
 				mbsc.setAttribute(serviceName, attr2);
 				
 				// Also set the MaximumPoolSize
