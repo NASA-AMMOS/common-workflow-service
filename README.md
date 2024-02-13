@@ -17,6 +17,12 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
 
 ## Prerequisites
 
+- [**Java 17 JDK**](https://formulae.brew.sh/formula/openjdk@17): CWS only runs on JDK 17. (NOTE: Cannot use JRE)
+  - For Homebrew users:
+    - Install OpenJDK 17 using: `brew install openjdk@17`
+    - Check the exact version installed using `/usr/libexec/java_home -V`
+    - Add to your Shell startup (e.g. .zprofile): `export JAVA_HOME=$(/usr/libexec/java_home -v X.X.X)`
+      - Replace the X.X.X version above with the OpenJDK 17 output from the `/usr/libexec/java_home -V` command.
 - [**Maven**](https://maven.apache.org/download.cgi): Used to dynamically download libraries and other required project dependencies.
   - For Home-brew users:
     - Install Maven using: `brew install maven`
@@ -38,16 +44,10 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
     - You will need to add your own Tomcat keystore file to this path: `install/.keystore`
     - You will need to add your own truststore file to this path: `install/tomcat_lib/cws_truststore.jks`
     - See: https://tomcat.apache.org/tomcat-9.0-doc/ssl-howto.html
-  - **Java 17 JDK**: CWS now runs on JDK 17.
-    - For Homebrew users:
-      - Install OpenJDK 17 using: `brew install openjdk@17`
-      - Check the exact version installed using `/usr/libexec/java_home -V`
-      - Add to your Shell startup (e.g. .zprofile): `export JAVA_HOME=$(/usr/libexec/java_home -v X.X.X)`
-        - Replace the X.X.X version above with the OpenJDK 17 output from the `/usr/libexec/java_home -V` command.
-  - **Store Your Keystore Password**: You will need to add your own creds file, which carries the keystore password, to this path: `~/.cws/creds`
-    - Set the permissions for the **~/.cws/** directory and **creds** file as Owner-Only.
-      - **~/.cws/** directory: `chmod 700 ~/.cws/`
-      - **~/.cws/creds** file: `chmod 600 ~/.cws/creds`
+- **Store Your Keystore Password**: You will need to add your own creds file, which carries the keystore password, to this path: `~/.cws/creds`
+  - Set the permissions for the **~/.cws/** directory and **creds** file as Owner-Only.
+    - **~/.cws/** directory: `chmod 700 ~/.cws/`
+    - **~/.cws/creds** file: `chmod 600 ~/.cws/creds`
 
 
 ### **Development Environment Configuration**
