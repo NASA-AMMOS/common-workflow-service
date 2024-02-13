@@ -2938,7 +2938,7 @@ public class CwsInstaller {
 		if (cws_project_webapp_root != null && !cws_project_webapp_root.equals("none") && cws_project_webapp_root.length() > 1) {
 
 			String linkName = cws_project_webapp_root.substring(0, 1).toUpperCase() + cws_project_webapp_root.substring(1);
-			projectLink = "<li><a href=\"/" + cws_project_webapp_root + "\"><span class=\"glyphicon glyphicon-wrench\"></span> &nbsp;" + linkName + "</a></li>";
+			projectLink = "<li class=\"nav-item\"><a class=\"nav-link\" href=\"/" + cws_project_webapp_root + "\"><img height=\"16\" width=\"16\" src=\"/${base}/images/utility_wrench.svg\" />" + linkName + "</a></li>";
 		}
 
 		content = content.replace("__CWS_PROJECT_LINK__", projectLink);
