@@ -54,7 +54,7 @@ else
 	echo " +-------+----------------------------------------------------"
 	echo " | ERROR |                                                    "
 	echo " +-------+                                                    "
-	echo " | Java version is less than 17.  Must run with Java 17x    "
+	echo " | Java version is not 17.  Must run with Java 17x    "
 	echo " | Aborting program...                                        "
 	echo "--------------------------------------------------------------"
 	exit 1
