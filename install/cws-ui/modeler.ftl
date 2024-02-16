@@ -106,12 +106,12 @@
   				type: "POST",
   				url: "/${base}/rest/deployments/deployModelerFile",
   				data: { 
-  					filename: $( ".layer-base" ).attr("data-element-id"), 
+  					filename: $( ".bio-properties-panel-header-label" ).attr("title"), 
   					xmlData: xml 
   				}
   			})
  			.done(function( msg ) {
-        $('#modal-title').html("<h1>Deployment Status: " + $( ".layer-base" ).attr("data-element-id") + ".bpmn</h1>");
+        $('#modal-title').html("<h1>Deployment Status: " + $( ".bio-properties-panel-header-label" ).attr("title") + ".bpmn</h1>");
  				$('#modal-body').html("<h2>"+msg+"</h2>");
  				if ($("#modal-body:contains('ERROR:')").length >= 1) {
 				  $("#modal-body").css( "color", "red" );
