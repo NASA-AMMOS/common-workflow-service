@@ -152,10 +152,10 @@ function check_java_requirements () {
         exit 1
     fi
 
-    if [[ "${JAVA_PATH_VERSION}" > "11" && "${JAVA_PATH_VERSION}" < "12" ]]; then
-        print "  Java version == 11x     [OK]"
+    if [[ "${JAVA_PATH_VERSION}" > "17" && "${JAVA_PATH_VERSION}" < "18" ]]; then
+        print "  Java version == 17x     [OK]"
     else
-        print "  ERROR: Java version is ${JAVA_PATH_VERSION}. CWS only supports Java version 11x."
+        print "  ERROR: Java version is ${JAVA_PATH_VERSION}. CWS only supports Java version 17x."
         exit 1
     fi
 
