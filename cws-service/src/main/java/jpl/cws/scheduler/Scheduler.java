@@ -3,7 +3,9 @@ package jpl.cws.scheduler;
 import static jpl.cws.core.db.SchedulerDbService.FAILED_TO_SCHEDULE;
 import static jpl.cws.core.db.SchedulerDbService.PENDING;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -127,8 +129,8 @@ public class Scheduler implements InitializingBean {
 			String procBusinessKey, String initiationKey,
 			int priority) throws Exception {
 		
-		log.info("Scheduling process definition '" + procDefKey + "' ...");
-		log.info("  with variables=" + processVariables);
+		log.trace("Scheduling process definition '" + procDefKey + "' ...");
+		log.trace("  with variables=" + processVariables);
 
 		String schedulerJobUuid = null;
 		boolean rowCreated = false;

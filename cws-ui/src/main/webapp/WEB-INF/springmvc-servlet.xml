@@ -15,9 +15,7 @@
 	
 	<context:property-placeholder location="classpath:cws-ui.properties"/>
 	
-    <mvc:annotation-driven>
-        <mvc:path-matching suffix-pattern="true" />
-    </mvc:annotation-driven>
+	<mvc:annotation-driven />
   
 <!--     <bean id="viewResolver"
     	class="org.springframework.web.servlet.view.InternalResourceViewResolver" >

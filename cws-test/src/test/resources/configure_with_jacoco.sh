@@ -48,13 +48,13 @@ else
 	exit 1
 fi
 
-if [[ "$java_version" > "17" && "$java_version" < "18" ]]; then
-	echo "  Java version == 17x      [OK]"
+if [[ "$java_version" > "11" && "$java_version" < "12" ]]; then
+	echo "  Java version == 11x      [OK]"
 else
 	echo " +-------+----------------------------------------------------"
 	echo " | ERROR |                                                    "
 	echo " +-------+                                                    "
-	echo " | Java version is not 17.  Must run with Java 17x    "
+	echo " | Java version is less than 11.  Must run with Java 11x    "
 	echo " | Aborting program...                                        "
 	echo "--------------------------------------------------------------"
 	exit 1
@@ -264,7 +264,7 @@ rm -f ${ROOT}/config/my.cnf
 sleep 1
 
 if [ "$RECONFIGURE" = true ]; then
-	${JAVA_HOME}/bin/java -classpath "./installer/*" -javaagent:./server/apache-tomcat-${TOMCAT_VER}/lib/org.jacoco.agent-0.8.7-runtime.jar=destfile=./installer-jacoco.exec,append=false jpl.cws.task.CwsInstaller --reconfigure
+	${JAVA_HOME}/bin/java -classpath "./installer/*" -javaagent:./server/apache-tomcat-${TOMCAT_VER}/lib/org.jacoco.agent-0.8.2-runtime.jar=destfile=./installer-jacoco.exec,append=false jpl.cws.task.CwsInstaller --reconfigure
 else
-	${JAVA_HOME}/bin/java -classpath "./installer/*" -javaagent:./server/apache-tomcat-${TOMCAT_VER}/lib/org.jacoco.agent-0.8.7-runtime.jar=destfile=./installer-jacoco.exec,append=false jpl.cws.task.CwsInstaller
+	${JAVA_HOME}/bin/java -classpath "./installer/*" -javaagent:./server/apache-tomcat-${TOMCAT_VER}/lib/org.jacoco.agent-0.8.2-runtime.jar=destfile=./installer-jacoco.exec,append=false jpl.cws.task.CwsInstaller
 fi
