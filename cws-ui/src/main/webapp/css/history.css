@@ -61,34 +61,34 @@ summary {
 }
 
 .proc-var-flex-main {
-    margin-bottom: 10px; 
-    display: flex; 
-    flex-direction: row; 
-    flex-wrap: nowrap; 
-    justify-content: flex-start; 
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
     align-items: center;
 }
 
 .proc-var-flex-main-sub-1 {
     align-self: start;
-    display: flex; 
-    flex-wrap: nowrap; 
+    display: flex;
+    flex-wrap: nowrap;
     justify-content: space-between;
 }
 
 .proc-var-flex-main-sub-2 {
-    width: 150px; 
-    word-wrap: break-word; 
+    width: 160px;
+    word-wrap: break-word;
     overflow: hidden;
 }
 
 .proc-var-flex-main-sub-3 {
-    width: 200px;
+    width: 300px;
     word-wrap: break-word;
 }
 
 .proc-var-flex-btn {
-    align-self: start; 
+    align-self: start;
 }
 
 #logDataNest {
