@@ -89,7 +89,7 @@ services:
     labels:
       com.example.service: "cws-server"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.5.0    # update this each CWS release
+    image: nasa-ammos/common-workflow-service:2.6.0-pre.1    # update this each CWS release
     depends_on:
       - db
       - es
@@ -121,7 +121,7 @@ services:
     labels:
       com.example.service: "cws-worker1"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.5.0    # update this each CWS release
+    image: nasa-ammos/common-workflow-service:2.6.0-pre.1    # update this each CWS release
     depends_on:
       - db
       - es
