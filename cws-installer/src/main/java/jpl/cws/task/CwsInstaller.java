@@ -2518,6 +2518,7 @@ public class CwsInstaller {
 			log.error("Keystore Storepass ERROR: " + e.getMessage());
 			return 1;
 		}
+		return 0;
 	}
 
 	/**
