@@ -153,7 +153,7 @@ function check_java_requirements () {
     fi
 
     if [[ "${JAVA_PATH_VERSION}" > "17" && "${JAVA_PATH_VERSION}" < "18" ]]; then
-        print "  Java version == 17x     [OK]"
+        print "  Java version == 17x      [OK]"
     else
         print "  ERROR: Java version is ${JAVA_PATH_VERSION}. CWS only supports Java version 17x."
         exit 1
