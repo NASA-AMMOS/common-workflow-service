@@ -31,8 +31,8 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
     - A database for CWS to use. `cws_dev` is a good default name.
     - A database user with full access to the above database.
 - [**ITerm2**](https://iterm2.com/): Currently these build scripts include commands to open new terminal windows using ITerm2, so they are best run from that terminal.
-- **Logstash 8.8.0+**: Download Logstash for your platform. Uncompress it (only if it is a .tar.gz) and then ZIP back it up with the filename 'logstash-8.8.0.zip' and place in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/logstash).
-- **Elasticsearch 8.8.0+**: CWS requires an externally-configured elasticsearch cluster to be set up. You can use an SSL Secure Elasticsearch with or without authentication, or an Insecure HTTP Elasticsearch.
+- **Logstash 8.12.0+**: Download Logstash for your platform. Uncompress it (only if it is a .tar.gz) and then ZIP back it up with the filename 'logstash-8.12.0.zip' and place in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/logstash).
+- **Elasticsearch 8.12.0+**: CWS requires an externally-configured elasticsearch cluster to be set up. You can use an SSL Secure Elasticsearch with or without authentication, or an Insecure HTTP Elasticsearch.
   - The "Elasticsearch Setup" instruction below provides a contained Dockerized way of running Elasticsearch. This serves as an alternative to installing Elasticsearch.
 - Tomcat **keystore, truststore, storepass files** (needed for CWS web console to work properly). To generate an open-source **.keystore** and **cws_truststore.jks** use the script `./generate-certs.sh` [here](https://github.com/NASA-AMMOS/common-workflow-service/tree/develop/cws-certs)
     - You will need to add your own Tomcat keystore file to this path: `install/.keystore`

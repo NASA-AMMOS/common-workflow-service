@@ -56,8 +56,8 @@ jobs:
       - name: Download Logstash
         uses: carlosperate/download-file-action@v1
         with:
-          file-url: https://artifacts.elastic.co/downloads/logstash/logstash-8.8.0-windows-x86_64.zip
-          file-name: logstash-8.8.0.zip
+          file-url: https://artifacts.elastic.co/downloads/logstash/logstash-8.12.0-windows-x86_64.zip
+          file-name: logstash-8.12.0.zip
           location: install/logging/
 
       - name: Check for Logstash

@@ -17,17 +17,12 @@ services:
       interval: 3s
       timeout: 1s
       retries: 5
-  #  networks:
-  #    - backend
   es:
     labels:
       com.example.service: "es"
       com.example.description: "For searching and indexing data"
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
     container_name: cws-es
-  #  networks:
-  #    - frontend
-  #    - backend
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -54,7 +49,7 @@ services:
 #    labels:
 #      com.example.service: "kibana"
 #      com.example.description: "Data visualisation and for log aggregation"
-#    image: kibana:8.8.0
+#    image: kibana:8.12.0
 #    container_name: cws-kibana
 #    ports:
 #      - "5601:5601"
@@ -69,7 +64,7 @@ services:
 #    labels:
 #      com.example.service: "logstash"
 #      com.example.description: "For logging data"
-#    image: logstash:8.8.0
+#    image: logstash:8.12.0
 #    container_name: cws-logstash
 #    volumes:
 #      - ./cws-logstash.conf:/home/cws_user/cws-logstash.conf:ro
@@ -105,9 +100,6 @@ services:
       - "38443:38443"
       - "31616:31616"
     hostname: cws-console
-  #  networks:
-  #    - frontend
-  #    - backend
     environment:
        - DB_HOST=db
        - DB_USER=root
@@ -122,6 +114,7 @@ services:
       retries: 12
     volumes:
       - ./config.properties:/home/cws_user/config.properties:ro
+      - ~/.cws/creds:/root/.cws/creds:ro
       - console-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
   cws-worker:
     container_name: cws-worker1
@@ -134,9 +127,6 @@ services:
       - es
       - cws
     hostname: cws-worker1
-  #  networks:
-  #    - frontend
-  #    - backend
     environment:
       - DB_HOST=db
       - DB_USER=root
@@ -146,6 +136,7 @@ services:
       - ES_PORT=9200
     volumes:
       - ./worker-config.properties:/home/cws_user/config.properties:ro
+      - ~/.cws/creds:/root/.cws/creds:ro
       - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
 
 volumes:
@@ -153,7 +144,5 @@ volumes:
   worker1-logs-volume:
 
 networks:
-  default:
-    external:
-      name: cws-network
-
+  cws-network:
+    external: true

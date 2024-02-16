@@ -198,11 +198,6 @@
 						<td>${version}</td>
 					</tr>
 					<tr>
-						<td>Camunda Version</td>
-						<td>${camundaVersion}</td>
-					</tr>					
-
-					<tr>
 						<td>CWS Database Type</td>
 						<td>${dbType}</td>
 					</tr>
@@ -247,8 +242,12 @@
 						<td>${historyLevel?capitalize}</td>
 					</tr>
 					<tr>
-						<td>CWS History Days To Live</td>
+						<td>CWS History Days To Live (Logs & ES)</td>
 						<td>${historyDaysToLive}</td>
+					</tr>
+					<tr>
+						<td>Camunda Version</td>
+						<td>${camundaVersion}</td>
 					</tr>
 					<tr>
 						<td>Java Version</td>

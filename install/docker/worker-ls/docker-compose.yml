@@ -5,7 +5,7 @@ services:
 #    labels:
 #      com.example.service: "logstash"
 #      com.example.description: "For logging data"
-#    image: docker.elastic.co/logstash/logstash:8.8.0
+#    image: docker.elastic.co/logstash/logstash:8.12.0
 #    container_name: cws-worker-logstash
 #    volumes:
 #      - logs-volume:/cws_logs:ro
@@ -47,6 +47,5 @@ volumes:
   worker2-logs-volume:
 
 networks:
-  default:
-    external:
-      name: cws-network
+  cws-network:
+    external: true
