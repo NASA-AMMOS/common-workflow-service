@@ -2,6 +2,7 @@ package jpl.cws.task;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -11,7 +12,6 @@ import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 
 import jpl.cws.core.service.ProcessService;
 import jpl.cws.core.service.SpringApplicationContext;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Abstract base class for all CWS built-in (and custom user-added) task
@@ -19,8 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  * 
  */
 public abstract class CwsTask implements JavaDelegate {
-
-	@Autowired private ProcessService cwsProcessService;
 
 	public static final String UNEXPECTED_ERROR = "unexpectedError";
 
@@ -116,19 +114,16 @@ public abstract class CwsTask implements JavaDelegate {
 
 	private void notifyWorkerOfFailedProcess() {
 		log.debug("notifying workers of failed process...");
-		(new Thread() {
-			public void run() {
-				try {
-					// This delay is necessary, because the process must actually
-					// complete in Camunda before we can look at Camunda's records
-					// to get the true status of the process instance.
-					sleep(1000);
-					cwsProcessService.sendProcEventTopicMessageWithRetries(null, null, null, null, "sync");
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
+		try {
+			// This delay is necessary, because the process must actually
+			// complete in Camunda before we can look at Camunda's records
+			// to get the true status of the process instance.
+			TimeUnit.SECONDS.sleep(2);
+			ProcessService cwsProcessService = (ProcessService) SpringApplicationContext.getBean("cwsProcessService");
+			cwsProcessService.sendProcEventTopicMessageWithRetries(null, null, null, null, "sync");
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
