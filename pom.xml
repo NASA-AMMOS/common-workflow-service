@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 	<artifactId>common-workflow-service</artifactId>
-	<version>2.5.0</version>    <!-- update this each CWS release -->
+	<version>2.6.0-pre.1</version>    <!-- update this each CWS release -->
 	<packaging>pom</packaging>
 	<name>cws</name>
 	<description>CWS</description>
@@ -47,8 +47,8 @@
 		<gson.version>2.8.9</gson.version>
 		<h2.version>2.2.220</h2.version>
 		<!-- <httpclient.version>4.3</httpclient.version> -->
-		<jacoco.version>0.8.2</jacoco.version>
-		<java.version>11</java.version>
+		<jacoco.version>0.8.7</jacoco.version>
+		<java.version>17</java.version>
 		<javax.mail.version>1.4.7</javax.mail.version>
 		<jersey-client.version>2.6</jersey-client.version>
 		<jms.version>1.1</jms.version>
@@ -77,11 +77,11 @@
 		<log4j.version>2.17.1</log4j.version>
 		<slf4j-log4j2-bind.version>2.17.1</slf4j-log4j2-bind.version>
 		<skip.integration.tests>false</skip.integration.tests>
-		<spring.framework.version>5.2.20.RELEASE</spring.framework.version>
+		<spring.framework.version>5.3.31</spring.framework.version>
 		<surefire.version>2.22.2</surefire.version>
 		<tomcat-catalina.version>9.0.75</tomcat-catalina.version>
 		<urlrewritefilter.version>4.0.3</urlrewritefilter.version>
-		<xbean-spring.version>3.17</xbean-spring.version>
+		<xbean-spring.version>4.24</xbean-spring.version>
 		<xmlunit.version>2.6.2</xmlunit.version>
 	</properties>
 
@@ -109,7 +109,7 @@
 	<repositories>
 		<repository>
 			<id>maven2</id>
-			<url>http://repo1.maven.org/maven2</url>
+			<url>https://repo1.maven.org/maven2</url>
 		</repository>
 		<repository>
 			<id>repository.jboss.org-public</id>
@@ -191,6 +191,19 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+
+			<dependency>
+			        <groupId>org.graalvm.js</groupId>
+			        <artifactId>js</artifactId>
+			        <version>23.0.2</version>
+				<scope>runtime</scope>
+			</dependency>
+		        <dependency>
+		        	<groupId>org.graalvm.js</groupId>
+		        	<artifactId>js-scriptengine</artifactId>
+		        	<version>23.0.2</version>
+				<scope>runtime</scope>
+		        </dependency>
 
 			<dependency>
 				<groupId>org.camunda.bpm</groupId>
@@ -658,7 +671,13 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.3.1</version>
+			</plugin>
 		</plugins>
+
 	</build>
 
 </project>

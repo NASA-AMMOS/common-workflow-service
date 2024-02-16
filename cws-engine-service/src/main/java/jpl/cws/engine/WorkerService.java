@@ -902,7 +902,8 @@ public class WorkerService implements InitializingBean {
 	public void setJobExecutorMaxPoolSize(Integer executorServiceMaxPoolSize, boolean doDbUpdate) {
 		if (executorServiceMaxPoolSize != null) {
 			try {
-
+				// we are getting errors if we go beyond 10?
+				executorServiceMaxPoolSize = Math.min(10, executorServiceMaxPoolSize);
 				// Log information about JMX remote interface
 				if (System.getProperty("com.sun.management.jmxremote") == null) {
 					log.warn("JMX remote appears to be disabled");
