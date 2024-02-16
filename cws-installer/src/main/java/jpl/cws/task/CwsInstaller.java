@@ -2507,6 +2507,7 @@ public class CwsInstaller {
 				} else {
 					print("   [OK]");
 					print("");
+					return 0; // no warnings
 				}
 			}
 		} catch (Exception e) {
@@ -2517,7 +2518,6 @@ public class CwsInstaller {
 			log.error("Keystore Storepass ERROR: " + e.getMessage());
 			return 1;
 		}
-		return 0; // OK
 	}
 
 	/**
