@@ -12,6 +12,8 @@ import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 
 import jpl.cws.core.service.ProcessService;
 import jpl.cws.core.service.SpringApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 /**
  * Abstract base class for all CWS built-in (and custom user-added) task
@@ -20,6 +22,8 @@ import jpl.cws.core.service.SpringApplicationContext;
  */
 public abstract class CwsTask implements JavaDelegate {
 
+	@Autowired
+	ApplicationContext context;
 	public static final String UNEXPECTED_ERROR = "unexpectedError";
 
 	protected final CwsTaskLogger log = new CwsTaskLogger(this.getClass().getName());
@@ -119,7 +123,7 @@ public abstract class CwsTask implements JavaDelegate {
 			// complete in Camunda before we can look at Camunda's records
 			// to get the true status of the process instance.
 			TimeUnit.SECONDS.sleep(2);
-			ProcessService cwsProcessService = (ProcessService) SpringApplicationContext.getBean("cwsProcessService");
+			ProcessService cwsProcessService = (ProcessService) context.getBean("cwsProcessService");
 			cwsProcessService.sendProcEventTopicMessageWithRetries(null, null, null, null, "sync");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
