@@ -2504,10 +2504,6 @@ public class CwsInstaller {
 					print("               Days Until expiration: " + numDays + " days");
 					print("");
 					return 0;
-				} else {
-					print("   [OK]");
-					print("");
-					return 0; // no warnings
 				}
 			}
 		} catch (Exception e) {
@@ -2518,7 +2514,9 @@ public class CwsInstaller {
 			log.error("Keystore Storepass ERROR: " + e.getMessage());
 			return 1;
 		}
-		return 0;
+		print("   [OK]");
+		print("");
+		return 0; // no warnings
 	}
 
 	/**
