@@ -5,7 +5,7 @@ services:
     labels:
       com.example.service: "es"
       com.example.description: "For searching and indexing data"
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
     container_name: cws-es-only
     networks:
       - es-net
@@ -35,7 +35,7 @@ services:
 #    labels:
 #      com.example.service: "kibana"
 #      com.example.description: "Data visualisation and for log aggregation"
-#    image: kibana:8.8.0
+#    image: kibana:8.12.0
 #    container_name: cws-kibana
 #    ports:
 #      - "5601:5601"
