@@ -8,6 +8,11 @@ ls /home/cws_user/cws/server/apache-tomcat-9.0.75/logs
 # Clear out any previous logs before starting (Note: Previous logs will cause CWS not to start)
 rm -rf /home/cws_user/cws/server/apache-tomcat-9.0.75/logs/*
 
+mkdir ~/.cws
+echo "changeit" > ~/.cws/creds
+chmod 700 ~/.cws
+chmod 600 ~/.cws/creds
+
 cd cws
 ./configure.sh ../config.properties Y
 
