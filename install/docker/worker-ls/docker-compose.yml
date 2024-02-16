@@ -47,6 +47,5 @@ volumes:
   worker2-logs-volume:
 
 networks:
-  default:
-    external:
-      name: cws-network
+  cws-network:
+    external: true
