@@ -54,7 +54,7 @@ jobs:
           chmod 600 ~/.cws/creds
 
       - name: Download Logstash
-        uses: carlosperate/download-file-action@v1
+        uses: carlosperate/download-file-action@v2
         with:
           file-url: https://artifacts.elastic.co/downloads/logstash/logstash-8.12.0-windows-x86_64.zip
           file-name: logstash-8.12.0.zip
@@ -109,7 +109,7 @@ jobs:
       - name: Send custom JSON data to Slack workflow
         if: ${{ always() && contains(env.TEAM, github.actor) }}
         id: slack
-        uses: slackapi/slack-github-action@v1.19.0
+        uses: slackapi/slack-github-action@v1.25.0
         with:
           # This data can be any valid JSON from a previous step in the GitHub Action
           payload: |
