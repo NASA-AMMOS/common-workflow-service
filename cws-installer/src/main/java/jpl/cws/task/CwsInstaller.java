@@ -265,6 +265,8 @@ public class CwsInstaller {
 			}
 
 			getVersion();
+			getCamundaVersion();
+			getJavaVersion();
 			getOsName();
 			getTotalPhysicalMemory();
 			checkCompiler();
@@ -374,9 +376,6 @@ public class CwsInstaller {
 		ldap_identity_plugin_class = getPreset(LDAP_IDENTITY_PLUGIN_CLASS);
 		ldap_security_filter_class = getPreset(LDAP_SECURITY_FILTER_CLASS);
 		camunda_security_filter_class = getPreset(CAMUNDA_SECURITY_FILTER_CLASS);
-		camunda_version = getPreset("camunda_version");
-		
-		java_version = getPreset("java_version");
 	}
 
 	private static void exit(int status) {
@@ -385,6 +384,14 @@ public class CwsInstaller {
 
 	private static void getVersion() {
 		cws_version = getenv("CWS_VER");
+	}
+
+	private static void getCamundaVersion() {
+		camunda_version = getenv("CAMUNDA_VER");
+	}
+
+	private static void getJavaVersion() {
+		java_version = getenv("JAVA_HOME_VERSION");
 	}
 
 	private static void getOsName() {

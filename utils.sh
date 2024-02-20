@@ -140,6 +140,7 @@ function check_java_requirements () {
 
     JAVA_HOME_VERSION=$("${JAVA_HOME}/bin/java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
     print "  JAVA_HOME Java version : ${JAVA_HOME_VERSION}"
+    export JAVA_HOME_VERSION
 
     JAVA_PATH_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
     print "  PATH      Java version : ${JAVA_PATH_VERSION}  $(which java)"
