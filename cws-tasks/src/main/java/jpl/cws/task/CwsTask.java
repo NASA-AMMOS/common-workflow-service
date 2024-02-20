@@ -15,7 +15,7 @@ import jpl.cws.core.service.SpringApplicationContext;
 /**
  * Abstract base class for all CWS built-in (and custom user-added) task
  * implementations.
- * 
+ *
  */
 public abstract class CwsTask implements JavaDelegate {
 
@@ -55,32 +55,32 @@ public abstract class CwsTask implements JavaDelegate {
 	 *   1) initializes parameters
 	 *   2) runs the task implementation
 	 *   3) throws any qualified exceptions
-	 * 
+	 *
 	 */
 	public void execute(final DelegateExecution execution) {
 		this.execution = execution;
-		
+
 		// setup tags on logging
 		log.setProcTags(getProcDefKey(execution),
-				execution.getProcessInstanceId(), 
+				execution.getProcessInstanceId(),
 				execution.getActivityInstanceId());
-		
+
 		try {
 			// setup base params
 			throwOnTruncatedVariableBoolean = getBooleanParam(
 					throwOnTruncatedVariable, "throwOnTruncatedVariable",
 					DEFAULT_THROW_ON_TRUNCATED_VARIABLE);
-			
+
 			// Evaluate preCondition.
 			// If preCondition passes, then execute task,
 			// otherwise skip task execution.
 			if (evaluateTaskPreCondition()) {
 				setOutputVariable("preConditionPassed", true);
-				
+
 				// get params
 				log.trace("INITIALIZING PARAMETERS FOR TASK: " + this);
 				initParams();
-				
+
 				// execute the task
 				log.trace("EXECUTING TASK: " + this);
 				executeTask();
@@ -91,17 +91,17 @@ public abstract class CwsTask implements JavaDelegate {
 		} catch (BpmnError e) {
 			log.warn("Propagating BpmnError(" + e.getErrorCode() + ")...");
 			setOutputVariable("bpmnErrorMessage", e.getErrorCode());
-			
+
 			// We saw an error, but we want to check with Camunda because this is by-passing our end-event listener
 			notifyWorkerOfFailedProcess();
-			
+
 			throw e; // propagate so engine can handle (if boundary catch defined)
 		} catch (Throwable t) {
 			log.error("Unexpected Throwable while executing " + this, t);
 			setOutputVariable("unexpectedErrorMessage", t.getMessage());
-			
+
 			notifyWorkerOfFailedProcess();
-			
+
 			// wrap and propagate so engine can (if boundary catch defined) handle
 			throw new BpmnError(UNEXPECTED_ERROR);
 		} finally {
@@ -109,7 +109,7 @@ public abstract class CwsTask implements JavaDelegate {
 			this.execution = null;
 		}
 	}
-	
+
 
 	private void notifyWorkerOfFailedProcess() {
 		log.debug("notifying workers of failed process...");
@@ -128,8 +128,8 @@ public abstract class CwsTask implements JavaDelegate {
 			}
 		}).start();
 	}
-	
-	
+
+
 	private String getProcDefKey(final DelegateExecution execution) {
 		String procDefKey = "UNKNOWN";
 
@@ -159,34 +159,34 @@ public abstract class CwsTask implements JavaDelegate {
 
 	/**
 	 * Implementation must be filled out by subclasses.
-	 * 
+	 *
 	 */
 	protected abstract void initParams() throws Exception;
 
 	/**
 	 * Implementation must be filled out by subclasses.
-	 * 
+	 *
 	 */
 	protected abstract void executeTask() throws Exception;
 
 	/**
 	 * Evaluates the task preCondition.
-	 * 
+	 *
 	 * @return true if preCondition passes false if preCondition fails
-	 * 
+	 *
 	 * @throws Exception  if unexpected exception occurs
 	 * @throws BpmnError  if process is to be determined.
 	 */
 	private boolean evaluateTaskPreCondition() throws Exception {
-		
+
 		if (!getBooleanParam(preCondition, "preCondition",
 				DEFAULT_PRE_CONDITION)) {
-			
+
 			// Check special case for preCondition is "none" and pass as true
 			if (preCondition != null && preCondition.getValue(execution).equals("none")) {
 				return true;
 			}
-			
+
 			log.warn("preCondition was not satisfied");
 			PreConditionFailBehavior failBehavior = PreConditionFailBehavior
 					.valueOf(getStringParam(onPreConditionFail,
@@ -269,7 +269,7 @@ public abstract class CwsTask implements JavaDelegate {
 	}
 
 	protected String getStringParam(Expression expression, String paramName,
-			String defaultValue) throws Exception {
+									String defaultValue) throws Exception {
 		if (expression == null) {
 			// return default
 			return defaultValue;
@@ -292,7 +292,7 @@ public abstract class CwsTask implements JavaDelegate {
 	}
 
 	protected Boolean getBooleanParam(Expression expression, String paramName,
-			Boolean defaultValue) throws Exception {
+									  Boolean defaultValue) throws Exception {
 		if (expression == null) {
 			// return default
 			return defaultValue;
@@ -322,7 +322,7 @@ public abstract class CwsTask implements JavaDelegate {
 	}
 
 	protected Integer getIntegerParam(Expression expression, String paramName,
-			Integer defaultValue) throws Exception {
+									  Integer defaultValue) throws Exception {
 		if (expression == null) {
 			// return default
 			return defaultValue;
@@ -352,7 +352,7 @@ public abstract class CwsTask implements JavaDelegate {
 	}
 
 	protected Long getLongParam(Expression expression, String paramName,
-			Long defaultValue) throws Exception {
+								Long defaultValue) throws Exception {
 		if (expression == null) {
 			// return default
 			return defaultValue;
@@ -384,7 +384,7 @@ public abstract class CwsTask implements JavaDelegate {
 	}
 
 	protected Float getFloatParam(Expression expression, String paramName,
-			Float defaultValue) throws Exception {
+								  Float defaultValue) throws Exception {
 		if (expression == null) {
 			// return default
 			return defaultValue;
@@ -414,7 +414,7 @@ public abstract class CwsTask implements JavaDelegate {
 	}
 
 	protected Double getDoubleParam(Expression expression, String paramName,
-			Double defaultValue) throws Exception {
+									Double defaultValue) throws Exception {
 		if (expression == null) {
 			// return default
 			return defaultValue;
@@ -437,10 +437,10 @@ public abstract class CwsTask implements JavaDelegate {
 	/**
 	 * For now only supports Map<String,String> but may want to support
 	 * generics/others in future...
-	 * 
+	 *
 	 */
 	protected Map<String, String> getMapParam(Expression expression,
-			String paramName) throws Exception {
+											  String paramName) throws Exception {
 		if (expression == null) {
 			// no default, so throw exception
 			throw new Exception("Mandatory parameter '" + paramName + "' not specified");
@@ -449,7 +449,7 @@ public abstract class CwsTask implements JavaDelegate {
 	}
 
 	protected Map<String, String> getMapParam(Expression expression,
-			String paramName, Map<String, String> defaultValue)
+											  String paramName, Map<String, String> defaultValue)
 			throws Exception {
 		if (expression == null) {
 			// return default
