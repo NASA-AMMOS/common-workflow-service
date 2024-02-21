@@ -140,7 +140,7 @@ function check_java_requirements () {
 
     JAVA_HOME_VERSION=$("${JAVA_HOME}/bin/java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
     print "  JAVA_HOME Java version : ${JAVA_HOME_VERSION}"
-    export JAVA_HOME_VERSION
+    export JAVA_HOME_VERSION="${JAVA_HOME_VERSION}"
 
     JAVA_PATH_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
     print "  PATH      Java version : ${JAVA_PATH_VERSION}  $(which java)"
@@ -320,8 +320,5 @@ function auto_conf_data () {
     cws_notification_emails=${NOTIFICATION_EMAILS}
     cws_token_expiration_hours=240
     user_provided_logstash=n
-    camunda_version=${CAMUNDA_VER}
-    java_version=${JAVA_HOME_VERSION}
-    java_home=${JAVA_HOME}
 EOF
 }

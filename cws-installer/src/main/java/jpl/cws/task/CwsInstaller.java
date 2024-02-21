@@ -236,11 +236,6 @@ public class CwsInstaller {
 	private static String aws_sqs_dispatcher_sqsUrl;
 	private static String aws_sqs_dispatcher_msgFetchLimit;
 
-	private static String camunda_version;
-
-	private static String java_version;
-	private static String java_home = System.getenv("JAVA_HOME");
-
 
 	private static Boolean reconfigure = false;
 
@@ -265,8 +260,6 @@ public class CwsInstaller {
 			}
 
 			getVersion();
-			getCamundaVersion();
-			getJavaVersion();
 			getOsName();
 			getTotalPhysicalMemory();
 			checkCompiler();
@@ -384,14 +377,6 @@ public class CwsInstaller {
 
 	private static void getVersion() {
 		cws_version = getenv("CWS_VER");
-	}
-
-	private static void getCamundaVersion() {
-		camunda_version = getenv("CAMUNDA_VER");
-	}
-
-	private static void getJavaVersion() {
-		java_version = getenv("JAVA_HOME_VERSION");
 	}
 
 	private static void getOsName() {
@@ -3032,10 +3017,6 @@ public class CwsInstaller {
 			content = content.replace("__AWS_SQS_DISPATCHER_SQS_URL__", aws_sqs_dispatcher_sqsUrl);
 			content = content.replace("__AWS_SQS_DISPATCHER_MSG_FETCH_LIMIT__", aws_sqs_dispatcher_msgFetchLimit);
 		}
-
-		content = content.replace("__CWS_CAMUNDA_VERSION__", camunda_version);
-		content = content.replace("__CWS_JAVA_VERSION__", java_version);
-		content = content.replace("__CWS_JAVA_HOME__", java_home);
 
 		writeToFile(filePath, content);
 		copy(
