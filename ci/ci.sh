@@ -123,9 +123,6 @@ default_cws_auth_scheme=CAMUNDA
 default_history_level=full
 default_shutdown_port=38005
 metrics_publishing_interval=10
-camunda_version=${CAMUNDA_VER}
-java_version=${JAVA_HOME_VERSION}
-java_home=${JAVA_HOME}
 EOF
 
 
@@ -184,9 +181,6 @@ aws_cloudwatch_endpoint=monitoring.us-west-1.amazonaws.com
 default_history_level=full
 default_shutdown_port=38005
 metrics_publishing_interval=10
-camunda_version=${CAMUNDA_VER}
-java_version=${JAVA_HOME_VERSION}
-java_home=${JAVA_HOME}
 EOF
 
 

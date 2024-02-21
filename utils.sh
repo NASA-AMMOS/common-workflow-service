@@ -319,8 +319,5 @@ function auto_conf_data () {
     cws_notification_emails=${NOTIFICATION_EMAILS}
     cws_token_expiration_hours=240
     user_provided_logstash=n
-    camunda_version=${CAMUNDA_VER}
-    java_version=${JAVA_HOME_VERSION}
-    java_home=${JAVA_HOME}
 EOF
 }
