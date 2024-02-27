@@ -242,8 +242,20 @@
 						<td>${historyLevel?capitalize}</td>
 					</tr>
 					<tr>
-						<td>CWS History Days To Live</td>
+						<td>CWS History Days To Live (Logs & ES)</td>
 						<td>${historyDaysToLive}</td>
+					</tr>
+					<tr>
+						<td>Camunda Version</td>
+						<td>${camundaVersion}</td>
+					</tr>
+					<tr>
+						<td>Java Version</td>
+						<td>${javaVersion}</td>
+					</tr>					
+					<tr>
+						<td>Java Home Path</td>
+						<td>${javaHome}</td>
 					</tr>
 				</table>
 			</div>

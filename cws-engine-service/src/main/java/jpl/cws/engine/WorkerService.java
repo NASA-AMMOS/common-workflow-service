@@ -756,6 +756,13 @@ public class WorkerService implements InitializingBean {
 					"(remainders = " + remainders +
 					", procMaxNumbers = " + workerMaxProcInstances.entrySet() +
 					", currentCounts = " + currentCounts + ")");
+
+				for (Entry<String,Integer> entry : remainders.entrySet()) {
+					List<Map<String, Object>> lastCompleteProcInst = schedulerDbService.getProcDefKeyLatestCompleteInst(entry.getKey().toString());
+					if (lastCompleteProcInst.size() > 0) {
+						log.debug("Last completed process instance for procDefKey '" + entry.getKey().toString() + "': " + lastCompleteProcInst);
+					}
+				}
 			}
 
 
@@ -895,7 +902,8 @@ public class WorkerService implements InitializingBean {
 	public void setJobExecutorMaxPoolSize(Integer executorServiceMaxPoolSize, boolean doDbUpdate) {
 		if (executorServiceMaxPoolSize != null) {
 			try {
-
+				// we are getting errors if we go beyond 10?
+				executorServiceMaxPoolSize = Math.min(10, executorServiceMaxPoolSize);
 				// Log information about JMX remote interface
 				if (System.getProperty("com.sun.management.jmxremote") == null) {
 					log.warn("JMX remote appears to be disabled");

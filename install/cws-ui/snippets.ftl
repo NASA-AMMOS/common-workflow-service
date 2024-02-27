@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+
 <html>
 <head>
 	<meta charset="utf-8">
@@ -62,7 +64,7 @@
 					<br/>
 					<b>NOTE:</b> <b>For each external code library (JAR)</b> (referenced by Java import statements) <b>put the JAR in the following place</b>:
 					<ul>
-						<li>CWS Console Server: <pre>cws/server/apache-tomcat-9.0.72/lib</pre></li>
+						<li>CWS Console Server: <pre>cws/server/apache-tomcat-9.0.75/lib</pre></li>
 					</ul>
 					<br/>
 				</form>
@@ -99,7 +101,6 @@
 			// AND ENABLE EDITOR
 			//
 			$.get( "/${base}/rest/snippets/getLatestInProgressCodeSnippet", function( data ) {
-				console.log(data);
 				$( "#editorDiv" ).text( data );
 				editor = ace.edit("editorDiv");
 				editor.setTheme("ace/theme/monokai");
@@ -111,14 +112,14 @@
 			});
 
 			
-			$( '#validateAndSaveSnippetsSubmitBtn' ).click(function() {
+			$( '#validateAndSaveSnippetsSubmitBtn' ).on("click", function() {
 				$('#code').val(editor.getValue());
 			});
 			
 			//
 			// LOAD LATEST SUCCESSFULLY COMPILED CODE
 			//
-			$( '#revertSnippetsSubmitBtn' ).click(function() {
+			$( '#revertSnippetsSubmitBtn' ).on("click", function() {
 				$.get( "/${base}/rest/snippets/getLatestCodeSnippet", function( data ) {
 					console.log(data);
 					editor.env.document.setValue(data);

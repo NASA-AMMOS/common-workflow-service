@@ -36,4 +36,6 @@
 
     <ResourceLink name="jdbc/cws" global="jdbc/cws" type="javax.sql.DataSource" />
 
+    <ResourceLink name="jdbc/cws_adaptation" global="jdbc/cws_adaptation" type="javax.sql.DataSource" />
+
 </Context>

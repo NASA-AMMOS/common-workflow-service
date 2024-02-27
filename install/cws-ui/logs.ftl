@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+
 <html>
 <head>
 	<meta charset="utf-8">
@@ -6,8 +8,11 @@
 	<!--Load JS Libraries-->
 
 	<script src="/${base}/js/jquery.min.js"></script>
+	<script src="/${base}/js/jquery.migrate.js"></script>
 	<script src="/${base}/js/docs.min.js"></script><!--What is this?Are we using this currently?TODO:Investigate/remove-->
 	<script src="/${base}/js/moment.js"></script>
+	<script src="/${base}/js/moment-timezone.js"></script>
+	<script src="/${base}/js/moment-timezone-with-data.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
 	<script src="/${base}/js/DataTables/datatables.js"></script>
     <script src="/${base}/js/DataTablesDateFilter.js"></script>
@@ -54,7 +59,7 @@
 			workerIdArr.push("${workerId}");
 		</#list>
 	
-		var now = moment().format("YYYY-MM-DDTHH:mm:ss.SSSSSS");
+		var now = moment().utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss.SSSSSS");
 
 		var refID;
 	
@@ -250,7 +255,6 @@
 				//we need to support sorting
 				//get the column # and direction we are sorting
 				var sortCol = data.order[0].column;
-				console.log("sortCol: " + sortCol);
 				var sortDir = data.order[0].dir;
 
 				//get the column name
@@ -297,11 +301,8 @@
 
 				var returnData;
 				var fetchError = "";
-				//console.log("STRINGIFIED: " + JSON.stringify(esReq));
-				//console.log("ENCODED: " + encodeURIComponent(JSON.stringify(esReq)));
 
 				var local_esReq = JSON.stringify(mainEsReq);
-				console.log("STRINGIFIED: " + local_esReq);
 				local_esReq = encodeURIComponent(local_esReq);
 				//sometimes double quotes get left here? replace double quotes with url encoded
 				local_esReq = local_esReq.replace(/"/g, "%22");
@@ -313,7 +314,6 @@
 					async: false,
 					success: function (ajaxData) {
 						returnData = ajaxData;
-						console.log(returnData);
 						//we should have our data now. We need to format it for the table
 						var formattedData = [];
 						for (hit in returnData.hits.hits) {
@@ -358,7 +358,7 @@
 							if (hitData["msgBody"] !== undefined) {
 								formattedRow["message"] = hitData["msgBody"];
 							} else {
-								formattedRow["messsage"] = "";
+								formattedRow["message"] = "";
 							}
 							if (Object.values(formattedRow).join("").toUpperCase().includes(data.search.value.toUpperCase())) {
 								formattedData.push(formattedRow);
@@ -518,29 +518,26 @@
 
 		$("#search-text").keypress(function(e){
 			if(e.which==13){
-				console.log("enter pressed");
 				e.preventDefault();
-				$("#filter-submit-btn").click();
+				$("#filter-submit-btn").trigger("click");
 			}
 		});
 
 		$("#pi-text").keypress(function(e){
 			if(e.which==13){
-				console.log("enter pressed");
 				e.preventDefault();
-				$("#filter-submit-btn").click();
+				$("#filter-submit-btn").trigger("click");
 			}
 		});
 
 		$("#worker-id-text").keypress(function(e){
 			if(e.which==13){
-				console.log("enter pressed");
 				e.preventDefault();
-				$("#filter-submit-btn").click();
+				$("#filter-submit-btn").trigger("click");
 			}
 		});
 
-		$("#filter-submit-btn").click(function(e){
+		$("#filter-submit-btn").on("click", function(e){
 			e.preventDefault();
 			window.location="/${base}/logs"+getFilterQString();
 		});
@@ -549,7 +546,7 @@
 			$(this).attr("href","/${base}/logs"+getFilterQString(false));
 		});
 
-		$("#filters-btn").click(function(){
+		$("#filters-btn").on("click", function(){
 			if($("#filters-div-flex").is(":visible"))
 				$("#filter-arrow").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
 			else
@@ -620,7 +617,7 @@
 			$(".ajax-spinner").show();
 			//update timestamp to grab new logs
 			var oldNow = now;
-			now=moment().format("YYYY-MM-DDTHH:mm:ss.SSSSSSZ");
+			now=moment().utcOffset('+0000').format("YYYY-MM-DDTHH:mm:ss.SSSSSSZ");
 			
 			//find the condition with oldNow timestamp and update it to be now
 			for (var i = 0; i < mainEsReq.query.bool.must.length; i++) {

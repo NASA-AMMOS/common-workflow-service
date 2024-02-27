@@ -183,7 +183,10 @@ public class MvcCore {
 			model.addObject("tomcatWebapps",  	tomcatWebapps);
 			model.addObject("historyDaysToLive", historyDaysToLive);
 			model.addObject("historyLevel", 		historyLevel);
-			
+			model.addObject("javaHome", System.getenv("JAVA_HOME"));
+			model.addObject("javaVersion", Runtime.version().toString());
+			model.addObject("camundaVersion", System.getenv("CAMUNDA_VER"));
+
 			DiskUsage diskUsage = cwsConsoleService.getDiskUsage();
 			
 			model.addObject("databaseSize",  diskUsage.databaseSize);

@@ -3,6 +3,7 @@
 	<meta charset="utf-8">
 	<title>CWS - Modeler</title>
 	<script src="/${base}/js/jquery.min.js"></script>
+	<script src="/${base}/js/jquery-migrate.js"></script>
 	<!-- Custom styles for this template -->
 
 	<link rel="stylesheet" href="/${base}/css/diagram-js.css" />
@@ -22,6 +23,8 @@
 				}
 			}
 		});
+
+		let procDefName = 
 	
 		$( window ).load(function() {
 			console.log( "window loaded" );
@@ -100,26 +103,31 @@
 
  <script>
   	function deployHandler() {
- 		bpmnModeler.saveXML({ format: true }, function (err, xml) {
- 			$.ajax({
-  				type: "POST",
-  				url: "/${base}/rest/deployments/deployModelerFile",
-  				data: { 
-  					filename: $( ".layer-base" ).attr("data-element-id"), 
-  					xmlData: xml 
-  				}
-  			})
- 			.done(function( msg ) {
-        $('#modal-title').html("<h1>Deployment Status: " + $( ".layer-base" ).attr("data-element-id") + ".bpmn</h1>");
- 				$('#modal-body').html("<h2>"+msg+"</h2>");
- 				if ($("#modal-body:contains('ERROR:')").length >= 1) {
+		bpmnModeler.saveXML({ format: true }).then((xml) => {
+			console.log(xml);
+			//the name of the process is in this xml. We need to extract it.
+			//the line starts with bpmn:process id=" but we need to get everything between name=" and "
+			var name = xml.xml.substring(xml.xml.indexOf('name="') + 6, xml.xml.indexOf('"', xml.xml.indexOf('name="') + 6));
+			console.log(name);
+			$.ajax({
+				type: "POST",
+				url: "/${base}/rest/deployments/deployModelerFile",
+				data: { 
+					filename: name, 
+					xmlData: xml.xml 
+				}
+			})
+			.done(function( msg ) {
+				$('#modal-title').html("<h1>Deployment Status: " + name + ".bpmn</h1>");
+				$('#modal-body').html("<h2>"+msg+"</h2>");
+				if ($("#modal-body:contains('ERROR:')").length >= 1) {
 				  $("#modal-body").css( "color", "red" );
 				}
 				else {
 				  $("#modal-body").css( "color", "green" );
 				}
- 				$('#modal-window').show();
-  		});
+				$('#modal-window').show();
+			});
   	});
 	}
 	function hideModal() {

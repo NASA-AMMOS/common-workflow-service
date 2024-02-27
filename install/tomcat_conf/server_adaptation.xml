@@ -1,0 +1,15 @@
+<Resource name="jdbc/cws_adaptation"
+          auth="Container"
+          type="javax.sql.DataSource"
+          factory="com.zaxxer.hikari.HikariJNDIFactory"
+          poolName="cws-adapt-pool"
+
+          maximumPoolSize="5"
+          connectionTimeout="300000"
+
+          driverClassName="__CWS_ADAPT_DB_DRIVER__"
+          jdbcUrl="__CWS_ADAPT_DB_URL__"
+          username="__CWS_ADAPT_DB_USERNAME__"
+          password="__CWS_ADAPT_DB_PASSWORD__" />
+
+<Resource name="jdbc/cws"

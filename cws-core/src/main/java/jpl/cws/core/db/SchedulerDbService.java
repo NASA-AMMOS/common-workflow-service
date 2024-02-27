@@ -398,6 +398,13 @@ public class SchedulerDbService extends DbService implements InitializingBean {
         return jdbcTemplate.queryForObject(query, Integer.class);
     }
 
+    public List<Map<String, Object>> getProcDefKeyLatestCompleteInst(String procDefKey) {
+        return jdbcTemplate.queryForList(
+            "SELECT proc_inst_id, start_time, end_time FROM cws_proc_inst_status WHERE proc_def_key=? AND status='complete' ORDER BY start_time DESC LIMIT 1",
+            new Object[]{procDefKey}
+        );
+    }
+
 
     public String getProcDefKeyFromUuid(String uuid) {
         String query = "SELECT proc_def_key FROM cws_sched_worker_proc_inst " + "WHERE uuid='" + uuid + "'";

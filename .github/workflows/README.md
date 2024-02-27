@@ -22,7 +22,7 @@ The `publish-cws-image` job is the CD component of the workflow, triggered upon 
 
 - [**Services**](https://docs.github.com/en/actions/using-containerized-services/about-service-containers):
   - MariaDB
-    - Image: mariadb:10.3
+    - Image: mariadb:10.6
     - Ports: 3306:3306
 - [**checkout**](https://github.com/marketplace/actions/checkout): This action checks out the repository under `$GITHUB_WORKSPACE`, so the workflow can access it.
 - Set up JDK 11:
@@ -37,7 +37,7 @@ The `publish-cws-image` job is the CD component of the workflow, triggered upon 
 - **Download Logstash**:
   - [**download-file-action**](https://github.com/marketplace/actions/download-file-to-workspace): This action downloads a file from the internet into the workspace
     - Downloads Logstash using a URL
-    - Renames the file as `logstash-8.8.0.zip`
+    - Renames the file as `logstash-8.12.0.zip`
     - Stores Logstash in appropriate directory
 - **Check for Logstash**:
   - List files in the directory where Logstash is expected

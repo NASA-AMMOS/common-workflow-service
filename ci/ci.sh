@@ -62,6 +62,7 @@ function worker_conf_data() {
   fi
 }
 
+check_java_requirements
 
 cat > ci_console.conf.template <<- EOF
 cam_server_url=NA

@@ -17,11 +17,17 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
 
 ## Prerequisites
 
+- [**Java 17 JDK**](https://formulae.brew.sh/formula/openjdk@17): CWS only runs on JDK 17. (NOTE: Cannot use JRE)
+  - For Homebrew users:
+    - Install OpenJDK 17 using: `brew install openjdk@17`
+    - Check the exact version installed using `/usr/libexec/java_home -V`
+    - Add to your Shell startup (e.g. .zprofile): `export JAVA_HOME=$(/usr/libexec/java_home -v X.X.X)`
+      - Replace the X.X.X version above with the OpenJDK 17 output from the `/usr/libexec/java_home -V` command.
 - [**Maven**](https://maven.apache.org/download.cgi): Used to dynamically download libraries and other required project dependencies.
   - For Home-brew users:
     - Install Maven using: `brew install maven`
     - Verify installation using: `mvn -v`
-- [**Docker**](https://docs.docker.com/get-docker/): Used to run external Elasticsearch, and create and configure mariaDB database container
+- [**Docker**](https://docs.docker.com/get-docker/): Used to run external Elasticsearch, and create and configure MariaDB database container
   - Recommended minimum system requirements from Docker Resources window:
       - CPUs: 5
       - Memory: 14.00 GB
@@ -31,28 +37,26 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
     - A database for CWS to use. `cws_dev` is a good default name.
     - A database user with full access to the above database.
 - [**ITerm2**](https://iterm2.com/): Currently these build scripts include commands to open new terminal windows using ITerm2, so they are best run from that terminal.
-- **Logstash 8.8.0+**: Download Logstash for your platform. Uncompress it (only if it is a .tar.gz) and then ZIP back it up with the filename 'logstash-8.8.0.zip' and place in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/logstash).
-- **Elasticsearch 8.8.0+**: CWS requires an externally-configured elasticsearch cluster to be set up. You can use an SSL Secure Elasticsearch with or without authentication, or an Insecure HTTP Elasticsearch.
+- **Logstash 8.12.0+**: Download Logstash for your platform. Uncompress it (only if it is a .tar.gz) and then ZIP back it up with the filename 'logstash-8.12.0.zip' and place in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/logstash).
+- **Elasticsearch 8.12.0+**: CWS requires an externally-configured elasticsearch cluster to be set up. You can use an SSL Secure Elasticsearch with or without authentication, or an Insecure HTTP Elasticsearch.
   - The "Elasticsearch Setup" instruction below provides a contained Dockerized way of running Elasticsearch. This serves as an alternative to installing Elasticsearch.
-- Tomcat **keystore and truststore files** (needed for CWS web console to work properly):
+- Tomcat **keystore, truststore, storepass files** (needed for CWS web console to work properly). To generate an open-source **.keystore** and **cws_truststore.jks** use the script `./generate-certs.sh` [here](https://github.com/NASA-AMMOS/common-workflow-service/tree/develop/cws-certs)
     - You will need to add your own Tomcat keystore file to this path: `install/.keystore`
     - You will need to add your own truststore file to this path: `install/tomcat_lib/cws_truststore.jks`
     - See: https://tomcat.apache.org/tomcat-9.0-doc/ssl-howto.html
-  - **Java 11 JDK**: CWS only runs on JDK 11 now, but planning for JDK 17 soon.
-    - For Homebrew users:
-      - Install OpenJDK 11 using: `brew install openjdk@11`
-      - Check the exact version installed using `/usr/libexec/java_home -V`
-      - Add to your Shell startup (e.g. .zprofile): `export JAVA_HOME=$(/usr/libexec/java_home -v X.X.X)`
-        - Replace the X.X.X version above with the OpenJDK 11 output from the `/usr/libexec/java_home -V` command.
+- **Store Your Keystore Password**: You will need to add your own creds file, which carries the keystore password, to this path: `~/.cws/creds`
+  - Set the permissions for the **~/.cws/** directory and **creds** file as Owner-Only.
+    - **~/.cws/** directory: `chmod 700 ~/.cws/`
+    - **~/.cws/creds** file: `chmod 600 ~/.cws/creds`
 
 
 ### **Development Environment Configuration**
 
 ### _MariaDB Setup_
 
-Generate mariaDB Docker Container and Create Database Instance for CWS:
+Generate MariaDB Docker Container and Create Database Instance for CWS:
 ```
-docker run -d -p 3306:3306 -e MYSQL_DATABASE=__DB_NAME__ -e MYSQL_ROOT_PASSWORD=__ROOT_PW__ -e TZ=America/Los_Angeles --name mdb103 mariadb:10.3
+docker run -d -p 3306:3306 -e MYSQL_DATABASE=__DB_NAME__ -e MYSQL_ROOT_PASSWORD=__ROOT_PW__ -e TZ=America/Los_Angeles --name mdb106 mariadb:10.6
 ```
 
 Replace `__DB_NAME__` with your desired database name. <br />
@@ -60,17 +64,17 @@ Replace `__ROOT_PW__` with your desired password.
 
 `__DB_NAME__` and `__ROOT_PW__` must match parameters set in script file: `<personal-dev>.sh`
 
-Directly access mariaDB with:
+Directly access MariaDB with:
 
 ```
 mysql -h 127.0.0.1 -u root -p
 ```
 Enter the password above when prompted.
 
-_CWS must have been built, in this case using a build script, in order to directly access mariaDB with the MySQL monitor, as the build
+_CWS must have been built, in this case using a build script, in order to directly access MariaDB with the MySQL monitor, as the build
 script contains required information to access the database. See the **Building CWS** section for an example build script._
 
-_Make sure `cws_dev` database in created mariaDB instance before moving forward to build CWS_
+_Make sure `cws_dev` database in created MariaDB instance before moving forward to build CWS_
 
 ### _Elasticsearch Setup_
 Open new Shell terminal designated for running ElasticSearch.
@@ -179,6 +183,8 @@ Start `test.sh` script by running:
 ```
 
 This will produce jacoco reports with code coverage measurements.
+
+## [Adaptation Setup Guide](cws-adaptation/README.md)
 
 # Contributing
 

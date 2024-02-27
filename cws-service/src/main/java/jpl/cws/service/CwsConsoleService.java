@@ -325,8 +325,6 @@ public class CwsConsoleService {
                         deployedProcDef.getKey(), deployedProcDef.getDeploymentId());
             }
 
-            repositoryService.updateProcessDefinitionHistoryTimeToLive(deployedProcDef.getId(), Integer.parseInt(historyDaysToLive));
-
             // Notify workers that there has been a change
             // to the set of deployed process definitions
             //
