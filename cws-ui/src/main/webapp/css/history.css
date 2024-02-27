@@ -3,7 +3,13 @@
 .dataTables_wrapper .button {float:left; display: inline; margin-top: 15px; margin-right: 15px;}
 .dataTables_wrapper {margin-left: 5px; margin-right: -10px;}
 summary {
+    display: list-item;
     width: 100px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    outline: outset;
+    outline-offset: 3px;
+    font-size: medium;
 }
 .historyLimitSize {
     max-height: 200px;
@@ -55,9 +61,6 @@ summary {
     word-break: break-all;
     font-family: courier,consolas;
     /*white-space: normal !important;*/
-}
-summary {
-    display: list-item;
 }
 
 .proc-var-flex-main {
