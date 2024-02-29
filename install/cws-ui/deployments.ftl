@@ -552,7 +552,7 @@
 				//DISABLES PAGINATION (ONE LONG TABLE) (https://datatables.net/reference/option/paging)
 				"paging": false,
 				//SETS WHAT ELEMENTS ARE CREATED BY DATATABLE AND WHERE ELEMENTS ARE PUT (https://datatables.net/reference/option/dom)
-				dom: "<'above-table-div'<'above-table-buttons'>f>"
+				dom: "<'above-table-div form-inline'<'above-table-buttons form-group mb-2'>f>"
 					+ "t"
 					+ "<'below-table-div'i>",
 			});
@@ -563,8 +563,8 @@
 			$("#process-table").DataTable().draw();
 
 			//ADD DOWNLOAD BUTTON & HIDE SUSPENDED CHECKBOX TO DIVS CREATED BY DATATABLE (DOM OPTION)
-			$('<button id="download-btn" class="btn btn-primary" onclick="downloadJSON()"><i class="glyphicon glyphicon-save btn-icon"></i>Download</button>').appendTo(".above-table-buttons");
-			$('<input name="hide-suspended" id="hide-sus-btn" type="checkbox" style="align-self: center;"><label for="hide-sus-btn">Hide All Suspended Processes</label>').appendTo(".above-table-buttons");
+			$('<button id="download-btn" class="btn btn-primary" onclick="downloadJSON()"><img height="16" width="16" src="/${base}/images/download.svg" style="margin-right: 3px;" />Download</button>').appendTo(".above-table-buttons");
+			$('<div class="form-check form-check-inline"><input class="form-check-input" name="hide-suspended" id="hide-sus-btn" type="checkbox" style="align-self: center;"><label class="form-check-label" for="hide-sus-btn">Hide All Suspended Processes</label></div>').appendTo(".above-table-buttons");
 
 			//HANDLES MODAL POPUP FOR WORKER BUTTON
 			$(".worker-view-btn").on("click", function () {
@@ -810,7 +810,7 @@
 
 				<#include "sidebar.ftl">
 
-					<div class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 main">
+					<div class="col-sm-9 col-md-10 main">
 						<span id="statusMessageDiv">${msg}</span>
 
 						<div class="row">
@@ -859,7 +859,7 @@
 								</div>
 							</div>
 
-							<div class="status-div col-md-7 col-md-offset-1">
+							<div class="status-div col-md-7 offset-md-1">
 								<label>Process status summary:</label>
 								<div id="stat-txt-cws-reserved-total" class="stat-txt">-</div>
 								<div id="stat-bar-cws-reserved-total" class="progress">
@@ -1037,8 +1037,6 @@
 				</div> <!-- modal-content -->
 			</div> <!-- modal-dialog -->
 		</div> <!-- .modal .fade -->
-
-		<script src="/${base}/js/bootstrap.min.js"></script>
 		
 		<script type="text/javascript">
 			var dataProcKey;

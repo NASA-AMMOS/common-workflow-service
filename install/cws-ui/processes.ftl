@@ -45,7 +45,7 @@
         <div class="container-fluid">
             <div class="row">
                 <#include "sidebar.ftl">
-                    <div class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 main">
+                    <div class="col-sm-9 col-md-10 main">
 
                         <span id="statusMessageDiv">
                             <h2>${msg}</h2>
@@ -55,7 +55,7 @@
 
                         <!-- Filters box (top of page) -->
                         <div id="filters-div">
-                            <h3 style="margin-top: 10px;">Filters:</h3>
+                            <h4 style="margin-top: 10px;">Filters:</h4>
                             <p>Select filters before retrieving data to reduce loading time.</p>
                             <div class="col-md-4">
                                 <h4>Process Definition:</h4>
@@ -124,15 +124,13 @@
                         </div>
 
                         <!-- Toggle visibility of filters button -->
-                        <div id="filters-btn" class="btn btn-warning"><span class="glyphicon glyphicon-filter">
-                            </span>&nbsp;Filters&nbsp;<span id="filter-arrow"
-                                class="glyphicon glyphicon-chevron-up"></span>
+                        <div id="filters-btn" class="btn btn-warning"><img height="16" width="16" src="/${base}/images/filter.svg" />&nbsp;Filters&nbsp;<img height="16" width="16" src="/${base}/images/chevron_up.svg" />
                         </div>
 
                         <!-- Shows superprocess ID when displaying subprocesses, hidden otherwise -->
                         <div id="display-subprocs-div">
-                            <h3>Displaying Subprocesses for Process Instance ID: <span
-                                    id="super-proc-inst-id">34374-349083748</span></h3>
+                            <h4>Displaying Subprocesses for Process Instance ID: <span
+                                    id="super-proc-inst-id">34374-349083748</span></h4>
                         </div>
                         <div id="action_msg"></div>
 
@@ -150,8 +148,7 @@
                                                     class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                                                     aria-haspopup="true" aria-label="Select Options"
                                                     style="background-color: transparent; border-color: transparent; box-shadow: none; display: flex; justify-content: center; width: 14px; border: 0px solid transparent; padding-left: 15px; padding-right: 15px">
-                                                    <span class="glyphicon glyphicon-chevron-down"
-                                                        aria-hidden="true"></span>
+                                                    <img height="16" width="16" src="/${base}/images/chevron_down.svg" />
                                                 </button>
                                                 <ul class="dropdown-menu">
                                                     <li><a id="selectOnPage" onclick="selectPage()">Select x processes
@@ -241,9 +238,9 @@
                 //Toggle direction of chevron on filter visiblity toggle button
                 $("#filters-btn").on("click", function () {
                     if ($("#filters-div").is(":visible"))
-                        $("#filter-arrow").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
+                        $("#filter-arrow").attr("src", "/${base}/images/chevron_down.svg");
                     else
-                        $("#filter-arrow").removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
+                        $("#filter-arrow").attr("src","/${base}/images/chevron_up.svg");
                     $("#filters-div").slideToggle();
                 });
 
@@ -316,7 +313,7 @@
                     //allows for editing what buttons / text says on/in the table
                     language: {
                         searchBuilder: {
-                            add: "<i class=\"glyphicon glyphicon-search btn-icon\"></i>Add Local Filter",
+                            add: "<img height=\"16\" width=\"16\" src=\"/${base}/images/search.svg\" /></i>Add Local Filter",
                         }
                     },
                     //delays rendering the data in the dom until it has to (ex: don't render page 10 until we browse to page 10)
@@ -935,7 +932,7 @@
                             extend: 'colvis',
                             columns: ':not(.noVis)',
                             className: 'btn btn-primary',
-                            text: '<i class="glyphicon glyphicon-eye-open btn-icon"></i>Columns',
+                            text: '<img height="16" width="16" src="/${base}/images/visible_show.svg" style="margin-right: 5px;" />Columns',
                         }
                     ],
                     //enables the complex search builder, tells it what columns should be able to be searched
@@ -999,7 +996,7 @@
                     + `</ul></div>`).appendTo(".above-table-buttons");
 
                 //add our download dropdown button to the div that datatables created (created in dom: above)
-                $('<div class="btn-group"><button id="action-download-group" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><i class="glyphicon glyphicon-save btn-icon"></i>&nbsp;Download &nbsp;'
+                $('<div class="btn-group"><button id="action-download-group" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><img height="16" width="16" src="/${base}/images/save.svg" />&nbsp;Download &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="action-download-group">'

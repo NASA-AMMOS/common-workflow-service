@@ -59,7 +59,6 @@ label{
 }
 @media (min-width: 768px) {
   .sidebar {
-    position: fixed;
     top: 51px;
     bottom: 0;
     left: 0;
@@ -89,6 +88,7 @@ label{
 .nav-sidebar > li > a {
   padding-right: 20px;
   padding-left: 20px;
+  text-decoration: none;
 }
 .nav-sidebar li:hover {
   background-color: #ddd;
@@ -100,8 +100,8 @@ label{
   color: #fff;
 }
 
-.nav-sidebar .active > a:hover,
-.nav-sidebar .active > a:focus {
+.nav-sidebar .active > li:hover,
+.nav-sidebar .active > li:focus {
   background-color: #428bca;
 }
 /*
@@ -281,6 +281,7 @@ div[class*="bar-"] {
 
 #filters-btn {
   margin: 10px 0px;
+  color: white;
 }
 #log-div {
   clear: both;
@@ -411,4 +412,9 @@ a.nav-link {
 
 a.nav-link img {
   margin-right: 5px;
+}
+
+.icon-button {
+  display: flex;
+  align-items: center;
 }

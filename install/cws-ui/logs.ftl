@@ -222,7 +222,7 @@
 					extend: 'colvis',
 					columns: ':not(.noVis)',
 					className: 'btn btn-primary',
-					text: '<i class="glyphicon glyphicon-eye-open btn-icon"></i>Columns',
+					text: '<div class="icon-button"><img height="16" width="16" src="/${base}/images/visible_show.svg" style="margin-right: 5px;" />Columns</div>',
 				}
 			],
 			dom: "<'above-table-div'<'above-table-buttons'B><'above-table-length'i><'above-table-filler'><'above-table-filter'f>>"
@@ -548,9 +548,9 @@
 
 		$("#filters-btn").on("click", function(){
 			if($("#filters-div-flex").is(":visible"))
-				$("#filter-arrow").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
+				$("#filter-arrow").attr("src","/${base}/images/chevron_down.svg");
 			else
-				$("#filter-arrow").removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
+				$("#filter-arrow").attr("src","/${base}/images/chevron_up.svg");
 	
 			$("#filters-div-flex").slideToggle();
 		});
@@ -647,7 +647,7 @@
 <div class="container-fluid">
 	<div class="row">
 		<#include "sidebar.ftl">
-		<div class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 main">
+		<div class="col-sm-9 col-md-10 main">
 	
 			<span id="statusMessageDiv">
 				<h2>${msg}</h2>
@@ -656,28 +656,28 @@
 			<h2 class="sub-header">Logs</h2>
 			<div id="filters-div-flex">
 				<div id="filters-div-header">
-					<h4>Filters:</h4>
+					<h5>Filters:</h5>
 				</div>
 				<div id="filters-div-row">
 					<div id="filters-div-col-1">
-						<h5>Process Definitions</h5>
+						<h6>Process Definitions</h6>
 						<select id="pd-select">
 							<option value="def">All Process Definitions</option>
 							<#list procDefs as pd>
 								<option value="${pd.key}">${pd.name}</option>
 							</#list>
 						</select>
-						<h5>Process Instances</h5>
+						<h6>Process Instances</h6>
 						<div class="autocomplete">
 							<input id="pi-text"type="text"class="form-control"placeholder="Instance ID...">
 						</div>
-						<h5>Worker ID</h5>
+						<h6>Worker ID</h6>
 						<div class="autocomplete">
 							<input id="worker-id-text" type="text" class="form-control" placeholder="Worker ID...">
 						</div>
 					</div>
 					<div id="filters-div-col-2">
-						<h5>Log Level</h5>
+						<h6>Log Level</h6>
 						<div id="log-level-sel">
 							<input type='checkbox'id='trace'value='TRACE'/>
 							<label for='trace'>Trace</label><br/>
@@ -692,12 +692,12 @@
 						</div>
 					</div>
 					<div id="filters-div-col-3">
-						<h5>Search by Keyword</h5>
+						<h6>Search by Keyword</h6>
 						<input id="search-text"id="filter-text"type="text"class="form-control"placeholder="Search..."/>
-						<h5>Start Date:</h5>
+						<h6>Start Date:</h6>
 						<input id="start-date"class="form-control"placeholder="yyyy-mm-dd"
 							data-date-format="yyyy-mm-dd"maxlength="10"type="text">
-						<h5>End Date:</h5>
+						<h6>End Date:</h6>
 						<input id="end-date"class="form-control"placeholder="yyyy-mm-dd"
 							data-date-format="yyyy-mm-dd"size="16"type="text">
 					</div>
@@ -708,12 +708,14 @@
 				</div>
 			</div>
 			<div id="filter-btn-refresh-flexbox">
-				<div id="filters-btn"class="btn btn-warning"><span class="glyphicon glyphicon-filter">
-					</span>&nbsp;Filters&nbsp;<span id="filter-arrow"class="glyphicon glyphicon-chevron-up"></span>
+				<div class="icon-button">
+				<div id="filters-btn"class="btn btn-warning"><img height="16" width="16" src="/${base}/images/filter.svg" />
+					</span>&nbsp;Filters&nbsp;<img id="filter-arrow" height="16" width="16" src="/${base}/images/chevron_up.svg" />
 				</div>
+			</div>
 				<div style="margin:30px 15px;"class="pull-right">
 					<input type="checkbox"id="refresh-checkbox"/>&nbsp;
-					<label for='refresh-checkbox'>Refresh the logs every</label>&nbsp;
+					<label for='refresh-checkbox' style="color: black;">Refresh the logs every</label>&nbsp;
 					<select id="refresh-rate">
 						<option value="10">10 seconds</option>
 						<option value="5">5 seconds</option>

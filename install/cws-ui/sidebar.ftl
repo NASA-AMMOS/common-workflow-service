@@ -1,4 +1,4 @@
-<div class="col-sm-3 col-md-2 sidebar">
+<div class="col-sm-3 col-md-2 sidebar collapse collapse-horizontal show" id="sidebar">
 	<ul class="nav nav-sidebar">
 		<li <#if springMacroRequestContext.requestUri?contains("/deployments")> class="active"</#if>><a href="/${base}/deployments">Deployments</a></li>
 		<li <#if springMacroRequestContext.requestUri?contains("/workers")> class="active"</#if>><a href="/${base}/workers">Workers</a></li>
