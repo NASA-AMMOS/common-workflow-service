@@ -468,7 +468,7 @@
 								return "";
 							} else {
 								var html = `<button id="pv-` + data + `" class="btn btn-default worker-view-btn"`
-									+ `data-proc-key="` + data + `">view</button>`;
+									+ `data-proc-key="` + data + `" type="button">view</button>`;
 								return html;
 							}
 						}
