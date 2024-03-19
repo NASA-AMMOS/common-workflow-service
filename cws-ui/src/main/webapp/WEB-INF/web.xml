@@ -65,6 +65,19 @@
 		<url-pattern>/initiators</url-pattern>
 		<url-pattern>/logout</url-pattern>
 		<url-pattern>/not_authorized</url-pattern>
+		<url-pattern>/swagger-ui/index.html</url-pattern>
+		<url-pattern>/swagger-ui/springfox.css</url-pattern>
+		<url-pattern>/swagger-ui/swagger-ui.css</url-pattern>
+		<url-pattern>/swagger-ui/springfox.js</url-pattern>
+		<url-pattern>/swagger-ui/swagger-ui.js</url-pattern>
+		<url-pattern>/swagger-ui/swagger-ui-bundle.js</url-pattern>
+		<url-pattern>/swagger-ui/swagger-ui-standalone-preset.js</url-pattern>
+		<url-pattern>/swagger-ui/favicon-32x32.png</url-pattern>
+		<url-pattern>/swagger-ui/favicon-16x16.png</url-pattern>
+		<url-pattern>/swagger-resources/configuration/ui</url-pattern>
+		<url-pattern>/swagger-resources/configuration/security</url-pattern>
+		<url-pattern>/swagger-resources</url-pattern>
+		<url-pattern>/v2/api-docs</url-pattern>
 		<url-pattern>*.mvc</url-pattern>
 	</servlet-mapping>
 

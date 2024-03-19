@@ -14,6 +14,11 @@
 	<context:annotation-config/>
 	
 	<context:property-placeholder location="classpath:cws-ui.properties"/>
+
+    <mvc:resources mapping="/swagger-ui/**" location="classpath:/META-INF/resources/webjars/springfox-swagger-ui/"/>
+    <mvc:view-controller path="/swagger-ui/" view-name="forward:/swagger-ui/index.html"/>
+    <mvc:resources mapping="index.html" location="classpath:/META-INF/resources/webjars/springfox-swagger-ui/"/>
+    <bean id="swaggerConfig" class="jpl.cws.controller.SwaggerConfig"/>
 	
     <mvc:annotation-driven>
         <mvc:path-matching suffix-pattern="true" />
