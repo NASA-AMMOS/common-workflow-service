@@ -37,12 +37,17 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.google.gson.*;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+
 import org.apache.commons.io.IOUtils;
 import org.camunda.bpm.engine.ExternalTaskService;
 import org.camunda.bpm.engine.ManagementService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.joda.time.DateTime;
+import org.python.compiler.APIVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,6 +116,7 @@ public class RestService extends MvcCore {
 	 * Gets the contents of the initiators XML context file
 	 * 
 	 */
+	@ApiOperation(value="Gets the contents of the initiators XML context file.", tags = {"Initiators"}, produces = "application/xml")
 	@RequestMapping(value="/initiators/getXmlContextFile", method=GET)
 	public @ResponseBody String getXmlContextFile() {
 		try {
@@ -127,6 +133,8 @@ public class RestService extends MvcCore {
 	 * Refreshes initiators from XML file
 	 * 
 	 */
+	@ApiOperation(value = "Refreshes initiators from a new XML file.", tags = {"Initiators"}, consumes = "application/xml", produces = "text/plain")
+	@Parameter(name = "newXmlContext", description = "New XML context to update initiators with.", required = true)
 	@RequestMapping(value="/initiators/updateInitiatorsContextXml", method=POST)
 	public @ResponseBody String refreshInitiatorsFromXml(HttpServletResponse response,
 			@RequestParam("newXmlContext") String newXmlContext) {
@@ -146,6 +154,7 @@ public class RestService extends MvcCore {
 	 * Refreshes initiators from current working initiators XML file
 	 * 
 	 */
+	@ApiOperation(value = "Refreshes initiators from current working initiators XML file.", tags = {"Initiators"}, produces = "text/plain")
 	@RequestMapping(value="/initiators/loadInitiatorsContextXml", method=POST)
 	public @ResponseBody String refreshInitiatorsFromXml(HttpServletResponse response) {
 		
@@ -165,6 +174,11 @@ public class RestService extends MvcCore {
 	 *
 	 * Adds or updates single initiator
 	 */
+	@ApiOperation(value = "Updates a single initiator.", tags = {"Initiators"}, consumes = "application/xml", produces = "text/plain")
+	@Parameters({
+			@Parameter(name = "newXmlContext", description = "New XML context to update initiators with.", required = true),
+			@Parameter(name = "beanName", description = "Bean name of the initiator to update.", required = true)
+	})
 	@RequestMapping(value="/initiators/updateSingleInitiator", method=POST)
 	public @ResponseBody String updateSingleInitiatorFromXml(
 			@RequestParam("newXmlContext") String newXmlContext,
@@ -185,6 +199,8 @@ public class RestService extends MvcCore {
 	 *
 	 * Updates only changed or new initiators
 	 */
+	@ApiOperation(value = "Updates only changed or new initiators.", tags = {"Initiators"}, consumes = "application/xml", produces = "text/plain")
+	@Parameter(name = "newXmlContext", description = "New XML context to update initiators with.", required = true)
 	@RequestMapping(value="/initiators/updateChangedInitiators", method=POST)
 	public @ResponseBody String updateChangedInitiatorsFromXml(
 			@RequestParam("newXmlContext") String newXmlContext) {
@@ -203,6 +219,11 @@ public class RestService extends MvcCore {
 	 * Updates a process initiator's enabled flag.
 	 * 
 	 */
+	@ApiOperation(value = "Updates a process initiator's enabled flag.", tags = {"Initiators"}, produces = "text/plain")
+	@Parameters({
+			@Parameter(name = "initiatorId", description = "ID of the initiator to update.", required = true),
+			@Parameter(name = "enabled", description = "New enabled status of the initiator.", required = true)
+	})
 	@RequestMapping(value="/initiators/{initiatorId}/enabled", method=POST)
 	public @ResponseBody ModelAndView setInitiatorEnabled(
 		@PathVariable String initiatorId,
@@ -225,6 +246,10 @@ public class RestService extends MvcCore {
 		return buildModel("login", "updated initiator enabled to " + enabled);
 	}
 
+	@ApiOperation(value = "Enables / disables all process initiators.", tags = {"Initiators"}, produces = "text/plain")
+	@Parameters({
+			@Parameter(name = "enabled", description = "New enabled status of the initiators.", required = true)
+	})
 	@RequestMapping(value = "/initiators/all/enabled", method = POST)
 	public @ResponseBody ModelAndView setAllInitiatorsEnabled(
 			@RequestParam("enabled") boolean enabled) {
@@ -247,6 +272,10 @@ public class RestService extends MvcCore {
 	 * Gets a process initiator's enabled flag.
 	 * 
 	 */
+	@ApiOperation(value = "Gets a process initiator's enabled flag.", tags = {"Initiators"}, produces = "text/plain")
+	@Parameters({
+			@Parameter(name = "initiatorId", description = "ID of the initiator to get.", required = true)
+	})
 	@RequestMapping(value="/initiators/{initiatorId}/enabled", method=GET)
 	public @ResponseBody String isInitiatorEnabled(
 			@PathVariable String initiatorId) {
@@ -270,6 +299,7 @@ public class RestService extends MvcCore {
 	 * Gets all process initiators enabled flag.
 	 *
 	 */
+	@ApiOperation(value = "Gets all process initiators enabled flag.", tags = {"Initiators"}, produces = "application/json")
 	@RequestMapping(value = "initiators/all/enabled", method = GET)
 	public @ResponseBody Map<String, String> areAllInitiatorsEnabled () {
 		try {
@@ -297,6 +327,7 @@ public class RestService extends MvcCore {
 	 * Returns ModelAndView table body representing the current set of Initiators.
 	 * 
 	 */
+	@ApiOperation(value = "Returns ModelAndView table body representing the current set of Initiators.", tags = {"Initiators"}, produces = "text/html")
 	@RequestMapping(value = "/initiators/getInitiatorsHtmlTable", method = GET)
 	public ModelAndView getInitiatorsHtmlTable() {
 		ModelAndView mav = new ModelAndView("initiators-table");
@@ -320,6 +351,7 @@ public class RestService extends MvcCore {
 	 * Notify confused User to use POST instead of GET
 	 * 
 	 */
+	@ApiOperation(hidden = true, value = "Notify confused User to use POST instead of GET", tags = {"Initiators"}, produces = "text/plain")
 	@RequestMapping(value="/deployments/deployProcessDefinition", method = GET)
 	public @ResponseBody String provideDeployProcessDefinitionInfo() {
 		return "You can upload a file by POSTing to this same URL.";
@@ -330,6 +362,11 @@ public class RestService extends MvcCore {
 	 * Deploys a new process definition from a filename (for deployment from the modeler)
 	 * 
 	 */
+	@ApiOperation(value = "Deploys a new process definition from a filename (for deployment from the modeler).", tags = {"Deployments"}, produces = "text/plain")
+	@Parameters({
+			@Parameter(name = "filename", description = "Name of the file to deploy.", required = true),
+			@Parameter(name = "xmlData", description = "XML data to deploy.", required = true)
+	})
 	@RequestMapping(value="/deployments/deployModelerFile", method = POST)
 	public @ResponseBody String deployModelerFile(
 			@RequestParam("filename") String filename,
@@ -381,6 +418,10 @@ public class RestService extends MvcCore {
 	 * @throws IOException 
 	 * 
 	 */
+	@ApiOperation(value = "Deploys a new process definition via a UI-uploaded file.", tags = {"Deployments"}, produces = "text/plain")
+	@Parameters({
+			@Parameter(name = "file", description = "File to deploy.", required = true)
+	})
 	@RequestMapping(value="/deployments/deployProcessDefinition", method = POST)
 	public @ResponseBody ModelAndView deployProcessDefinition(
 			@RequestParam("file") MultipartFile file) {
@@ -435,6 +476,10 @@ public class RestService extends MvcCore {
 	 * @param subPath The subPath for the elasticsearch query, e.g., /_delete_by_query
 	 * @return fully constructed elasticsearch URL string
 	 */
+	@ApiOperation(value = "Constructs Elasticsearch URL", tags = {"Elasticsearch"}, produces = "text/plain")
+	@Parameters({
+			@Parameter(name = "subPath", description = "The subPath for the elasticsearch query, e.g., /_delete_by_query", required = true)
+	})
 	private String constructElasticsearchUrl(String subPath) {
 		String urlString = elasticsearchProtocolName + "://" + elasticsearchHostname + ":" + elasticsearchPort + subPath;
 		return urlString;
@@ -453,6 +498,10 @@ public class RestService extends MvcCore {
 	 * Undeploys a process definition.
 	 *
 	 */
+	@ApiOperation(value = "Undeploys a process definition.", tags = {"Deployments"}, produces = "text/plain")
+	@Parameters({
+			@Parameter(name = "processDefKey", description = "Key of the process definition to undeploy.", required = true)
+	})
 	@RequestMapping(value = "/processes/processDefinition/{processDefKey}/undeploy", method = GET, produces="application/json")
 	public @ResponseBody String unDeployProcessDefinition(
 			@PathVariable String processDefKey) {
@@ -504,6 +553,14 @@ public class RestService extends MvcCore {
 		return new JsonResponse(JsonResponse.Status.SUCCESS, "Undeployed procDefKey '" + processDefKey + "'").toString();
 	}
 
+	@ApiOperation(value = "Schedules a process definition", tags = {"Deployments"}, produces = "text/plain")
+	@Parameters({
+			@Parameter(name = "processDefKey", description = "Key of the process definition to schedule.", required = true),
+			@Parameter(name = "processBusinessKey", description = "Business key of the process to schedule.", required = false),
+			@Parameter(name = "initiationKey", description = "Initiation key of the process to schedule.", required = false),
+			@Parameter(name = "processPriority", description = "Priority of the process to schedule.", required = false),
+			@Parameter(name = "processVariables", description = "Variables of the process to schedule.", required = false)
+	})
 	@RequestMapping(value = "/process/{processDefKey}/schedule", method = POST)
 	public @ResponseBody String scheduleProcess(
 			final HttpSession session,
