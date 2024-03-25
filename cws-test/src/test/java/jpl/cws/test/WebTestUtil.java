@@ -28,6 +28,10 @@ import org.slf4j.LoggerFactory;
 
 
 import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Point;
+
+
 
 /**
  *
@@ -289,19 +293,45 @@ public class WebTestUtil {
 	public void enableWorkers(String procDef) {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 
-		TakesScreenshot screenshot = (TakesScreenshot)driver;
+		// wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
+		sleep(5000);
+		WebElement enable = findElById("pv-"+procDef);
+		String elementHTML = enable.getAttribute("outerHTML");
+		
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+	  	js.executeScript("arguments[0].scrollIntoViewIfNeeded();", enable);
+
+			TakesScreenshot screenshot = (TakesScreenshot)driver;
 		//Saving the screenshot in desired location
 		File source = screenshot.getScreenshotAs(OutputType.FILE);
 		//Path to the location to save screenshot
-		try{FileUtils.copyFile(source, new File("/tmp/Screen.png"));}
+		try{FileUtils.copyFile(source, new File("/tmp/Before-"+procDef+".png"));}
 		
 catch(IOException e) {
   e.printStackTrace();
 }
-		wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
-		WebElement enable = findElById("pv-"+procDef);
+      	System.out.println("Src attribute is: "+ elementHTML);
+      	sleep(5000);
+
+		// Point point = enable.getLocation();
+		// int xCoord = point.getX();
+		// int yCoord = point.getY();
+	    // js.executeScript("arguments[0].scroll(arguments[1], arguments[2]);", enable, xCoord, yCoord - 50);
+	    // sleep(5000);
+
+
+File source2 = screenshot.getScreenshotAs(OutputType.FILE);
+		try{FileUtils.copyFile(source2, new File("/tmp/After-"+procDef+".png"));}
+		
+catch(IOException e) {
+  e.printStackTrace();
+}
 		enable.click();
 		sleep(1000);
+
+
+
+		
 
 		WebElement allWorkers = findElById("all-workers");
 		WebElement allWorkersDone = findElById("done-workers-btn");
@@ -325,6 +355,11 @@ catch(IOException e) {
 
 		wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
 		WebElement enable = findElById("pv-"+procDef);
+
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+	  	js.executeScript("arguments[0].scrollIntoViewIfNeeded();", enable);
+	  	sleep(1000);
+
 		enable.click();
 		sleep(1000);
 
@@ -460,8 +495,25 @@ catch(IOException e) {
 		if(driver.getPageSource().contains(procName)) {
 			disableWorkers(procName);
 
-			wait.until(ExpectedConditions.elementToBeClickable(By.id("delete-"+procName)));
 			WebElement delButton = driver.findElement(By.id("delete-"+procName));
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+		  	js.executeScript("arguments[0].scrollIntoViewIfNeeded();", delButton);
+
+
+			TakesScreenshot screenshot = (TakesScreenshot)driver;
+		//Saving the screenshot in desired location
+		File source = screenshot.getScreenshotAs(OutputType.FILE);
+		//Path to the location to save screenshot
+		try{FileUtils.copyFile(source, new File("/tmp/Before-"+procName+".png"));}
+		
+catch(IOException e) {
+  e.printStackTrace();
+}
+
+		String elementHTML = delButton.getAttribute("outerHTML");
+      	System.out.println("Src attribute is: "+ elementHTML);
+
+
 			delButton.click();
 
 			waitForElementID("delete-proc-def");

@@ -36,26 +36,26 @@ function worker_conf_data() {
   INSTALL_TYPE=${1}
 
   if [[ "${INSTALL_TYPE}" == "worker1" ]]; then
-      sed -i 's/__WORKER_TYPE__/run_all/' ${ROOT}/ci_worker.conf
-      sed -i 's/__CWS_WEB_PORT__/37080/' ${ROOT}/ci_worker.conf
-      sed -i 's/__CWS_SSL_PORT__/37443/' ${ROOT}/ci_worker.conf
-      sed -i 's/__CWS_AJP_PORT__/37009/' ${ROOT}/ci_worker.conf
-      sed -i 's/__CWS_SHUTDOWN_PORT__/37005/' ${ROOT}/ci_worker.conf
-      sed -i 's/__CWS_JMX_PORT__/31098/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__WORKER_TYPE__/run_all/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__CWS_WEB_PORT__/37080/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__CWS_SSL_PORT__/37443/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__CWS_AJP_PORT__/37009/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__CWS_SHUTDOWN_PORT__/37005/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__CWS_JMX_PORT__/31098/' ${ROOT}/ci_worker.conf
   elif [[ "${INSTALL_TYPE}" == "worker2" ]]; then
-      sed -i 's/__WORKER_TYPE__/run_models_only/' ${ROOT}/ci_worker.conf
-      sed -i 's/__CWS_WEB_PORT__/36080/' ${ROOT}/ci_worker.conf
-      sed -i 's/__CWS_SSL_PORT__/36443/' ${ROOT}/ci_worker.conf
-      sed -i 's/__CWS_AJP_PORT__/36009/' ${ROOT}/ci_worker.conf
-      sed -i 's/__CWS_SHUTDOWN_PORT__/36005/' ${ROOT}/ci_worker.conf
-      sed -i 's/__CWS_JMX_PORT__/31097/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__WORKER_TYPE__/run_models_only/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__CWS_WEB_PORT__/36080/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__CWS_SSL_PORT__/36443/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__CWS_AJP_PORT__/36009/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__CWS_SHUTDOWN_PORT__/36005/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__CWS_JMX_PORT__/31097/' ${ROOT}/ci_worker.conf
   elif [[ "${INSTALL_TYPE}" == "worker3" ]]; then
-      sed -i 's/__WORKER_TYPE__/run_external_tasks_only/' ${ROOT}/ci_worker.conf
-      sed -i 's/__CWS_WEB_PORT__/33080/' ${ROOT}/ci_worker.conf
-      sed -i 's/__CWS_SSL_PORT__/33443/' ${ROOT}/ci_worker.conf
-      sed -i 's/__CWS_AJP_PORT__/33009/' ${ROOT}/ci_worker.conf
-      sed -i 's/__CWS_SHUTDOWN_PORT__/33005/' ${ROOT}/ci_worker.conf
-      sed -i 's/__CWS_JMX_PORT__/31096/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__WORKER_TYPE__/run_external_tasks_only/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__CWS_WEB_PORT__/33080/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__CWS_SSL_PORT__/33443/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__CWS_AJP_PORT__/33009/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__CWS_SHUTDOWN_PORT__/33005/' ${ROOT}/ci_worker.conf
+      sed -i '' -e 's/__CWS_JMX_PORT__/31096/' ${ROOT}/ci_worker.conf
   else
       print "ERROR: UNEXPECTED INSTALL TYPE VALUE: '${INSTALL_TYPE}'"
       exit 1;
@@ -123,9 +123,6 @@ default_cws_auth_scheme=CAMUNDA
 default_history_level=full
 default_shutdown_port=38005
 metrics_publishing_interval=10
-camunda_version=${CAMUNDA_VER}
-java_version=${JAVA_HOME_VERSION}
-java_home=${JAVA_HOME}
 EOF
 
 
@@ -184,9 +181,6 @@ aws_cloudwatch_endpoint=monitoring.us-west-1.amazonaws.com
 default_history_level=full
 default_shutdown_port=38005
 metrics_publishing_interval=10
-camunda_version=${CAMUNDA_VER}
-java_version=${JAVA_HOME_VERSION}
-java_home=${JAVA_HOME}
 EOF
 
 

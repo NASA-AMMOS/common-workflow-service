@@ -5,10 +5,10 @@
 # Shell utility functions and environment settings used throughout CWS setup scripts
 
 # Update versions as necessary
-export CWS_VER='2.5.0'    # update this each CWS release
+export CWS_VER='2.6.0-pre.1'    # update this each CWS release
 export CAMUNDA_VER='7.20.0'
 export TOMCAT_VER='9.0.75'
-export LOGSTASH_VER='8.8.0'
+export LOGSTASH_VER='8.12.0'
 
 # Prints the provided string, tagging with the script that called it
 function print () {
@@ -152,10 +152,10 @@ function check_java_requirements () {
         exit 1
     fi
 
-    if [[ "${JAVA_PATH_VERSION}" > "11" && "${JAVA_PATH_VERSION}" < "12" ]]; then
-        print "  Java version == 11x     [OK]"
+    if [[ "${JAVA_PATH_VERSION}" > "17" && "${JAVA_PATH_VERSION}" < "18" ]]; then
+        print "  Java version == 17x      [OK]"
     else
-        print "  ERROR: Java version is ${JAVA_PATH_VERSION}. CWS only supports Java version 11x."
+        print "  ERROR: Java version is ${JAVA_PATH_VERSION}. CWS only supports Java version 17x."
         exit 1
     fi
 
@@ -319,8 +319,5 @@ function auto_conf_data () {
     cws_notification_emails=${NOTIFICATION_EMAILS}
     cws_token_expiration_hours=240
     user_provided_logstash=n
-    camunda_version=${CAMUNDA_VER}
-    java_version=${JAVA_HOME_VERSION}
-    java_home=${JAVA_HOME}
 EOF
 }

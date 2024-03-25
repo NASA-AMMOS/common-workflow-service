@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-sm navbar-dark bg-dark fixed-top justify-content-between" role="navigation">
 	<div class="container-fluid">
 		<div class="d-flex align-items-center">
-			<button class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar" style="margin-bottom: 3px;"><img height="16" width="16" src="/${base}/images/hamburger.svg"/></button>
+<!---			<button class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar" style="margin-bottom: 3px;"><img height="16" width="16" src="/${base}/images/hamburger.svg"/></button> --->
 			<a class="navbar-brand" href="/${base}/home">
 				<span>__CWS_BRAND_HEADER__</span>
 			</a>
