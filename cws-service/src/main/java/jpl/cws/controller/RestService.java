@@ -37,11 +37,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.google.gson.*;
+
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.ibatis.annotations.Param;
 import org.camunda.bpm.engine.ExternalTaskService;
 import org.camunda.bpm.engine.ManagementService;
 import org.camunda.bpm.engine.RepositoryService;
@@ -622,6 +625,10 @@ public class RestService extends MvcCore {
 	 * REST method used to get status information about a process instance
 	 * 
 	 */
+	@ApiOperation(value = "Gets status information about a process instance.", tags = {"Processes"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "uuid", description = "UUID of the process instance to get status for.", required = true)
+	})
 	@RequestMapping(value = "/process-instance/{uuid}/status", method = GET, produces="application/json")
 	public @ResponseBody String getProcessInstanceStatus(
 			@PathVariable String uuid,
@@ -640,6 +647,11 @@ public class RestService extends MvcCore {
     /**
      * Returns status counts for (proc_def_key, business_key) pair
      */
+	@ApiOperation(value = "Gets status counts for (proc_def_key, business_key) pair.", tags = {"Processes"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "businessKey", description = "Business key of the process instance to get status for.", required = true),
+			@Parameter(name = "procDefKey", description = "Process definition key of the process instance to get status for.", required = true)
+	})
     @RequestMapping(value="/stats/statsByBusinessKey", method = GET)
     public @ResponseBody Map<String,Integer> statsByBusinessKey(
             @RequestParam(value = "businessKey", required=true) String businessKey,
@@ -660,6 +672,7 @@ public class RestService extends MvcCore {
 	/**
 	 * Returns latest successfully compiled code snippet from DB
 	 */
+	@ApiOperation(value = "Gets latest successfully compiled code snippet from DB.", tags = {"Snippets"}, produces = "text/plain")
 	@RequestMapping(value="/snippets/getLatestCodeSnippet", method = GET)
 	public @ResponseBody String getLatestCodeSnippet() {
 		return cwsConsoleService.getLatestCode();
@@ -669,6 +682,7 @@ public class RestService extends MvcCore {
 	/**
 	 * Returns latest code snippet from DB
 	 */
+	@ApiOperation(value = "Gets latest code snippet from DB.", tags = {"Snippets"}, produces = "text/plain")
 	@RequestMapping(value="/snippets/getLatestInProgressCodeSnippet", method = GET)
 	public @ResponseBody String getLatestInProgressCodeSnippet() {
 		return cwsConsoleService.getLatestInProgressCode();
@@ -678,6 +692,10 @@ public class RestService extends MvcCore {
 	/**
 	 * Saves UI-edited code to the database.
 	 */
+	@ApiOperation(value = "Saves UI-edited code snippet to the database.", tags = {"Snippets"}, produces = "text/plain")
+	@Parameters({
+			@Parameter(name = "code", description = "Code to save.", required = true)
+	})
 	@RequestMapping(value = "/snippets/validateAndSaveSnippets", method = POST)
 	public ModelAndView validateAndSaveSnippets(
 			@RequestParam String code,
@@ -702,6 +720,7 @@ public class RestService extends MvcCore {
 	/**
 	 * Sends a message to shutdown the entire system, including all remote workers
 	 */
+	@ApiOperation(value = "Sends a message to shutdown the entire system, including all remote workers.", tags = {"System"}, produces = "text/plain")
 	@RequestMapping(value="/system/shutdown", method = GET)
 	public @ResponseBody String doSystemShutdown() {
 		return cwsConsoleService.doSystemShutdown();
@@ -712,6 +731,10 @@ public class RestService extends MvcCore {
 	 * REST method used to get logs
 	 *
 	 */
+	@ApiOperation(value = "Gets logs using a scroll ID to keep track of already fetched data. Used on logs page.", tags = {"Logs"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "scrollId", description = "Scroll ID to keep track of already fetched data.", required = true)
+	})
 	@RequestMapping(value = "/logs/get/scroll", method = POST, produces="application/json")
 	public @ResponseBody String getLogsScroll(
 			@RequestParam(value = "scrollId") String scrollId) {
@@ -745,6 +768,7 @@ public class RestService extends MvcCore {
 	 * REST method used to get the total number of log rows
 	 *
 	 */
+	@ApiOperation(value = "Gets the total number of log rows.", tags = {"Logs"}, produces = "application/json")
 	@RequestMapping(value="/logs/get/count", method = GET, produces="application/json")
 	public @ResponseBody String getNumLogs() {
 		String urlString = constructElasticsearchUrl("/_count");
@@ -775,6 +799,10 @@ public class RestService extends MvcCore {
 	 * REST method used to get logs on the logs page (shorter scroll timer)
 	 *
 	 */
+	@ApiOperation(value = "Gets logs on the logs page (shorter scroll timer).", tags = {"Logs"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "source", description = "Source of the logs to get.", required = true)
+	})
 	@RequestMapping(value = "/logs/get/noScroll", method = GET, produces="application/json")
 	public @ResponseBody String getLogsNoScroll(
 			@RequestParam(value = "source") String source) {
@@ -810,6 +838,10 @@ public class RestService extends MvcCore {
 	 * REST method used to get logs
 	 * 
 	 */
+	@ApiOperation(value = "Gets logs.", tags = {"Logs"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "source", description = "Source of the logs to get.", required = true)
+	})
 	@RequestMapping(value = "/logs/get", method = GET, produces="application/json")
 	public @ResponseBody String getLogs(
 			@RequestParam(value = "source") String source) {
@@ -842,6 +874,10 @@ public class RestService extends MvcCore {
 	 * REST method used to delete logs by procDefKey
 	 * 
 	 */
+	@ApiOperation(value = "Deletes logs by procDefKey.", tags = {"Logs"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "procDefKey", description = "Process definition key to delete logs for.", required = true)
+	})
 	@RequestMapping(value = "/logs/delete/{procDefKey}", method = DELETE, produces="application/json")
 	public @ResponseBody String deleteLogsByProcDefKey(
 			HttpServletResponse response,
@@ -912,6 +948,10 @@ public class RestService extends MvcCore {
 	 * REST method used to get history (logs + historical data)
 	 * 
 	 */
+	@ApiOperation(value = "Gets history (logs + historical data).", tags = {"History"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "procInstId", description = "Process instance ID to get history for.", required = true)
+	})
 	@RequestMapping(value = "/history/{procInstId}", method = GET, produces="application/json")
 	public @ResponseBody String getHistory(@PathVariable String procInstId) {
 
@@ -927,6 +967,7 @@ public class RestService extends MvcCore {
 	 * REST method used to get Elasticsearch stats
 	 * 
 	 */
+	@ApiOperation(value = "Gets Elasticsearch stats.", tags = {"Elasticsearch"}, produces = "application/json")
 	@RequestMapping(value = "/stats/es/indices", method = GET, produces="application/json")
 	public @ResponseBody String getElasticsearchIndices() {
 		String urlString = constructElasticsearchUrl("/_cat/indices?v&bytes=b&s=index&format=json");
@@ -958,6 +999,7 @@ public class RestService extends MvcCore {
 	 * REST method used to get Elasticsearch stats
 	 * 
 	 */
+	@ApiOperation(value = "Gets Elasticsearch cluster health.", tags = {"Elasticsearch"}, produces = "application/json")
 	@RequestMapping(value = "/stats/es/cluster/health", method = GET, produces="application/json")
 	public @ResponseBody String getElasticsearchClusterHealth() {
 		String urlString = constructElasticsearchUrl("/_cluster/health");
@@ -989,6 +1031,7 @@ public class RestService extends MvcCore {
 	 * REST method used to get Elasticsearch stats
 	 * 
 	 */
+	@ApiOperation(value = "Gets Elasticsearch stats.", tags = {"Elasticsearch"}, produces = "application/json")
 	@RequestMapping(value = "/stats/es", method = GET, produces="application/json")
 	public @ResponseBody String getElasticsearchStats() {
 		String urlString = constructElasticsearchUrl("/_nodes/stats/_all");
@@ -1019,6 +1062,7 @@ public class RestService extends MvcCore {
 	/**
 	 * Returns latest system stats (Db size, ES size, Disk space, Log sizes, etc...
 	 */
+	@ApiOperation(value = "Gets system stats.", tags = {"System"}, produces = "application/json")
 	@RequestMapping(value="/stats/diskUsage", method = GET, produces = "application/json")
 	public @ResponseBody String getDiskStats(HttpServletResponse response) {
 
@@ -1045,6 +1089,10 @@ public class RestService extends MvcCore {
 	/**
 	 * Returns latest code snippet from DB
 	 */
+	@ApiOperation(value = "Gets latest code snippet from DB.", tags = {"Snippets"}, produces = "text/plain")
+	@Parameters({
+			@Parameter(name = "snippetId", description = "ID of the snippet to get.", required = false)
+	})
 	@RequestMapping(value="/stats/processInstanceStats", method = GET)
 	public @ResponseBody Map<String,String> getProcessInstanceStats(
 			@RequestParam(value = "lastNumHours", required=false) String lastNumHours
@@ -1058,6 +1106,10 @@ public class RestService extends MvcCore {
 	* Return JSON key values of process status
 	* e.g. {PD1: {errors:4, pending:3,... },...}
 	*/
+	@ApiOperation(value = "Gets process instance stats (JSON).", tags = {"Processes"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "lastNumHours", description = "Number of hours to get stats for.", required = false)
+	})
 	@RequestMapping(value="/stats/processInstanceStatsJSON", method = GET)
 	public @ResponseBody Map<String,Map<String,String>> getProcessInstanceStatsJSON(
 			@RequestParam(value = "lastNumHours", required=false) String lastNumHours
@@ -1078,6 +1130,7 @@ public class RestService extends MvcCore {
 	*
 	*
 	*/
+	@ApiOperation(value = "Gets pending process instances (JSON).", tags = {"Processes"}, produces = "application/json")
 	@RequestMapping(value="/stats/pendingProcessesJSON", method = GET, produces="application/json")
 	public @ResponseBody String getPendingProcessesJSON(HttpServletResponse response) {
 		JsonArray json = new JsonArray();
@@ -1103,6 +1156,7 @@ public class RestService extends MvcCore {
 	 * 
 	 * FIXME: This can result in double-counting (e.g. a running task has an external task as well)
 	 */
+	@ApiOperation(value = "Gets number of running processes for each worker.", tags = {"Workers"}, produces = "application/json")
 	@RequestMapping(value="/stats/workerNumRunningProcs", method = GET)
 	public @ResponseBody Map<String,String> getWorkerNumRunningProcs() {
 		
@@ -1128,6 +1182,13 @@ public class RestService extends MvcCore {
 	 * 
 	 * FIXME:  remove processVariables parameter below -- I don't think it's used
 	 */
+	@ApiOperation(value = "Update the number of process definitions a worker can be working on at any given time.", tags = {"Workers"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "workerId", description = "ID of the worker to update.", required = true),
+			@Parameter(name = "procDefKey", description = "Key of the process definition to update.", required = true),
+			@Parameter(name = "newLimit", description = "New limit for the worker.", required = true),
+			@Parameter(name = "processVariables", description = "Process variables to update.", required = false)
+	})
 	@RequestMapping(value = "/worker/{workerId}/{procDefKey}/updateWorkerProcDefLimit/{newLimit}", method = POST)
 	public @ResponseBody String updateWorkerProcDefLimit(
 			final HttpSession session,
@@ -1158,6 +1219,12 @@ public class RestService extends MvcCore {
 	 * Inserts or updates worker tag with name and value
 	 *
 	 */
+	@ApiOperation(value = "Inserts or updates worker tag with name and value.", tags = {"Workers"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "workerId", description = "ID of the worker to update.", required = true),
+			@Parameter(name = "name", description = "Name of the tag to update.", required = true),
+			@Parameter(name = "value", description = "Value of the tag to update.", required = true)
+	})
 	@RequestMapping(value = "/worker/{workerId}/updateTag/{name}", method = POST, produces="application/json")
 	public @ResponseBody String updateWorkerTag(
 			HttpServletResponse response,
@@ -1185,6 +1252,10 @@ public class RestService extends MvcCore {
 	 * Checks if procDefKey is deployed (exists)
 	 * 
 	 */
+	@ApiOperation(value = "Checks if process definition key is deployed.", tags = {"Processes"}, produces = "text/plain")
+	@Parameters({
+			@Parameter(name = "procDefKey", description = "Key of the process definition to check.", required = true)
+	})
 	@RequestMapping(value = "/isProcDefKeyDeployed", method = POST)
 	public @ResponseBody String isProcDefKeyDeployed(
 			@RequestParam(value = "procDefKey", required=true) String procDefKey) {
@@ -1202,6 +1273,7 @@ public class RestService extends MvcCore {
 	/**
 	* Get list of all workers with active status for the process
 	*/
+	@ApiOperation(value = "Gets list of all workers with active status for the process.", tags = {"Workers", "Processes"}, produces = "application/json")
 	@RequestMapping(value="/worker/{procDefKey}/getWorkersForProc", method = GET)
 	public @ResponseBody String getWorkersForProc(@PathVariable String procDefKey) {
 
@@ -1214,6 +1286,10 @@ public class RestService extends MvcCore {
 	/**
 	* Add new external worker
 	*/
+	@ApiOperation(value = "Adds new external worker.", tags = {"Workers"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "hostname", description = "Hostname of the worker to add.", required = true)
+	})
 	@RequestMapping(value="/externalWorker/add", method = GET)
 	public @ResponseBody String addExternalWorker(
 			@RequestParam(value = "hostname") String hostname) {
@@ -1232,12 +1308,21 @@ public class RestService extends MvcCore {
 	/**
 	* Update external worker heartbeat
 	*/
+	@ApiOperation(value = "Updates external worker heartbeat.", tags = {"Workers"}, produces = "application/json")
 	@RequestMapping(value="/externalWorker/{workerId}/heartbeat", method = GET)
 	public @ResponseBody void externalWorkerHeartbeat(@PathVariable String workerId) {
 
 		dbService.updateExternalWorkerHeartbeat(workerId);
 	}
 	
+	@ApiOperation(value = "Updates external worker.", tags = {"Workers"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "workerId", description = "ID of the worker to update.", required = true),
+			@Parameter(name = "activeTopics", description = "Active topics of the worker to update.", required = false),
+			@Parameter(name = "currentTopic", description = "Current topic of the worker to update.", required = false),
+			@Parameter(name = "currentCommand", description = "Current command of the worker to update.", required = false),
+			@Parameter(name = "currentWorkingDir", description = "Current working directory of the worker to update.", required = false)
+	})
 	@RequestMapping(value = "/externalWorker/{workerId}/update", method = POST)
 	public @ResponseBody String updateExternalWorker(
 			@PathVariable String workerId,
@@ -1274,6 +1359,16 @@ public class RestService extends MvcCore {
 	 * 
 	 * 
 	 */
+	@ApiOperation(value = "Gets the size of an instance", tags = {"Processes"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "superProcInstId", description = "Super process instance ID to get size for.", required = false),
+			@Parameter(name = "procInstId", description = "Process instance ID to get size for.", required = false),
+			@Parameter(name = "procDefKey", description = "Process definition key to get size for.", required = false),
+			@Parameter(name = "status", description = "Status to get size for.", required = false),
+			@Parameter(name = "minDate", description = "Minimum date to get size for.", required = false),
+			@Parameter(name = "maxDate", description = "Maximum date to get size for.", required = false),
+			@Parameter(name = "maxReturn", description = "Maximum number of results to return.", required = false)
+	})
 	@RequestMapping(value = "/processes/getInstancesSize", method = GET, produces="application/json")
 	public @ResponseBody int getInstancesSize(
 			@RequestParam(value = "superProcInstId", required=false) String superProcInstId,
@@ -1306,6 +1401,10 @@ public class RestService extends MvcCore {
 		return size;
 	}
 
+	@ApiOperation(value = "Gets the status of a process isntance ID", tags = {"Processes", "History"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "procInstId", description = "Process instance ID to get status for.", required = true)
+	})
 	@RequestMapping(value="/history/getStatus/{procInstId}", method = GET)
 	public @ResponseBody String getStatusByProcInstId(
 			@PathVariable String procInstId) {
@@ -1323,6 +1422,18 @@ public class RestService extends MvcCore {
 	 * REST method used to get Processes table JSON
 	 * 
 	 */
+	@ApiOperation(value = "Gets camunda instances.", tags = {"Processes"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "superProcInstId", description = "Super process instance ID to get instances for.", required = false),
+			@Parameter(name = "procInstId", description = "Process instance ID to get instances for.", required = false),
+			@Parameter(name = "procDefKey", description = "Process definition key to get instances for.", required = false),
+			@Parameter(name = "status", description = "Status to get instances for.", required = false),
+			@Parameter(name = "minDate", description = "Minimum date to get instances for.", required = false),
+			@Parameter(name = "maxDate", description = "Maximum date to get instances for.", required = false),
+			@Parameter(name = "dateOrderBy", description = "Date order by to get instances for.", required = false),
+			@Parameter(name = "page", description = "Page to get instances for.", required = false),
+			@Parameter(name = "maxReturn", description = "Maximum number of results to return.", required = false)
+	})
 	@RequestMapping(value = "/processes/getInstancesCamunda", method = GET, produces="application/json")
 	public @ResponseBody String getProcessInstancesCamunda(
 			@RequestParam(value = "superProcInstId",  required=false) String superProcInstId,
@@ -1374,6 +1485,7 @@ public class RestService extends MvcCore {
 	/**
 	* List of all process definitions and number of workers selected for each
 	*/
+	@ApiOperation(value = "Gets process definitions and number of workers selected for each.", tags = {"Processes"}, produces = "application/json")
 	@RequestMapping(value="/processes/getProcDefWorkerCount", method = GET)
 	public @ResponseBody String getProcDefWorkerCount() {
 		
@@ -1387,6 +1499,10 @@ public class RestService extends MvcCore {
 	 * 
 	 * 
 	 */
+	@ApiOperation(value = "Makes disabled processes pending", tags = {"Processes"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "uuids", description = "UUIDs of the processes to make pending.", required = true)
+	})
 	@RequestMapping(value = "/processes/makeDisabledRowsPending", method = POST)
 	public @ResponseBody String makeDisabledRowsPending(
 			final HttpSession session,
@@ -1411,6 +1527,10 @@ public class RestService extends MvcCore {
 	 * 
 	 * 
 	 */
+	@ApiOperation(value = "Makes pending processes disabled", tags = {"Processes"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "uuids", description = "UUIDs of the processes to make disabled.", required = true)
+	})
 	@RequestMapping(value = "/processes/makePendingRowsDisabled", method = POST)
 	public @ResponseBody String makePendingRowsDisabled(
 			final HttpSession session,
@@ -1434,6 +1554,11 @@ public class RestService extends MvcCore {
 	 * Retry incidents
 	 *
 	 */
+	@ApiOperation(value = "Retries processes that have the status 'Incident'.", tags = {"Processes"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "retries", description = "Number of retries to set for the incidents. Default value: 1", required = true),
+			@Parameter(name = "uuids", description = "UUIDs of the incidents to retry.", required = true)
+	})
 	@RequestMapping(value = "/processes/retryIncidentRows", method = POST)
 	public @ResponseBody ResponseEntity<String> retryIncidentRows(
 			final HttpSession session,
@@ -1467,6 +1592,10 @@ public class RestService extends MvcCore {
 	 * Retry failedToStart
 	 *
 	 */
+	@ApiOperation(value = "Retries processes that have the status 'Failed to Start'.", tags = {"Processes"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "uuids", description = "UUIDs of the processes to retry.", required = true)
+	})
 	@RequestMapping(value = "/processes/retryFailedToStart", method = POST)
 	public @ResponseBody ResponseEntity<String> retryFailedToStart(
 			final HttpSession session,
@@ -1488,6 +1617,10 @@ public class RestService extends MvcCore {
 	 * Mark 'fail' as resolved
 	 *
 	 */
+	@ApiOperation(value = "Marks processes that have the status 'Fail' as resolved.", tags = {"Processes"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "uuids", description = "UUIDs of the processes to mark as resolved.", required = true)
+	})
 	@RequestMapping(value = "/processes/markResolved", method = POST)
 	public @ResponseBody ResponseEntity<String> markResolved(
 			final HttpSession session,
@@ -1509,6 +1642,13 @@ public class RestService extends MvcCore {
 	 * 
 	 * 
 	 */
+	@ApiOperation(value = "Updates the enabled/disabled status of a process definition on a worker", tags = {"Processes", "Worker"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "workerId", description = "ID of the worker to update.", required = true),
+			@Parameter(name = "procDefKey", description = "Key of the process definition to update.", required = true),
+			@Parameter(name = "enabledFlag", description = "Flag to set the process definition to.", required = true),
+			@Parameter(name = "processVariables", description = "Process variables to update.", required = false)
+	})
 	@RequestMapping(value = "/worker/{workerId}/{procDefKey}/updateWorkerProcDefEnabled/{enabledFlag}", method = POST)
 	public @ResponseBody String updateWorkerProcDefEnabled(
 			final HttpSession session,
@@ -1537,6 +1677,10 @@ public class RestService extends MvcCore {
 	 * Suspends a process definition given its procDefId
 	 *
 	 */
+	@ApiOperation(value = "Suspends a process definition given its procDefId.", tags = {"Processes"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "procDefId", description = "ID of the process definition to suspend.", required = true)
+	})
 	@RequestMapping(value = "/deployments/suspend/{procDefId}", method = POST)
 	public @ResponseBody String suspendProcDefId(
 			@PathVariable String procDefId) {
@@ -1549,6 +1693,10 @@ public class RestService extends MvcCore {
 	 * Activates a suspended process definition given its procDefId
 	 *
 	 */
+	@ApiOperation(value = "Activates a suspended process definition given its procDefId.", tags = {"Processes"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "procDefId", description = "ID of the process definition to activate.", required = true)
+	})
 	@RequestMapping(value = "/deployments/activate/{procDefId}", method = POST)
 	public @ResponseBody String activateProcDefId(
 			@PathVariable String procDefId ) {
@@ -1562,6 +1710,10 @@ public class RestService extends MvcCore {
 	 *
 	 * Accepts an array of procInstIds and expects all of them to be running.
 	 */
+	@ApiOperation(value = "Deletes running process instances (Only pass running instances into this endpoint)", tags = {"Processes"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "procInstIds", description = "IDs of the process instances to delete. Expects all of the process instances in the list to be running.", required = true)
+	})
 	@RequestMapping(value = "/processes/delete", method = POST)
 	public @ResponseBody String deleteRunningProcInsts(
 			final HttpSession session,
@@ -1575,6 +1727,11 @@ public class RestService extends MvcCore {
 	 * 
 	 * 
 	 */
+	@ApiOperation(value = "Updates the number of job executor threads for a worker", tags = {"Workers"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "workerId", description = "ID of the worker to update.", required = true),
+			@Parameter(name = "numThreads", description = "Number of threads to set for the worker.", required = true)
+	})
 	@RequestMapping(value = "/worker/{workerId}/updateNumJobExecThreads/{numThreads}", method = POST)
 	public @ResponseBody String updateWorkerNumJobExecThreads(
 			final HttpSession session,
@@ -1622,6 +1779,7 @@ public class RestService extends MvcCore {
 	 * This cookie, can then be used to make future requests.
 	 * 
 	 */
+	@ApiOperation(value = "Authenticates the user via GET.", tags = {"Security"}, produces = "application/json")
 	@RequestMapping(value="/authenticate", method = GET)
 	public @ResponseBody String authenticateViaGet(
 		final HttpSession session) {
@@ -1638,6 +1796,7 @@ public class RestService extends MvcCore {
 	 * This cookie, can then be used to make future requests.
 	 * 
 	 */
+	@ApiOperation(value = "Authenticates the user via POST.", tags = {"Security"}, produces = "application/json")
 	@RequestMapping(value = "/authenticate", method = POST)
 	public @ResponseBody String authenticateViaPost(
 			final HttpSession session,
@@ -1651,6 +1810,7 @@ public class RestService extends MvcCore {
 	 * Validates CWS token (checks for expiration)
 	 * 
 	 */
+	@ApiOperation(value = "Validates CWS token.", tags = {"Security"}, produces = "application/json")
 	@RequestMapping(value = "/validateCwsToken", method = POST)
 	public @ResponseBody String validateCwsToken(
 			final HttpSession session,
@@ -1670,6 +1830,10 @@ public class RestService extends MvcCore {
 	 * For testing purposes - if you want to send messages to the built-in ActiveMQ broker
 	 * 
 	 */
+	@ApiOperation(value = "Posts a message to an AMQ queue.", tags = {"Messaging"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "payload", description = "Payload to post to the queue.", required = true)
+	})
 	@RequestMapping(value = "/postAmqTopic", method = GET)
 	public @ResponseBody String postAmqTopic(@RequestParam(value = "payload", required=true) final String payload) {
 		log.debug("posting AMQ topic... payload: " + payload);
@@ -1689,6 +1853,11 @@ public class RestService extends MvcCore {
 	 * can make a call to get data from an external resource.
 	 * 
 	 */
+	@ApiOperation(value = "Makes an external HTTP GET request.", tags = {"External"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "url", description = "URL to make the GET request to.", required = true),
+			@Parameter(name = "acceptType", description = "Accept type for the request.", required = false)
+	})
 	@RequestMapping(value = "/externalGetReq", method = GET)
 	public @ResponseBody String externalGetReq(
 			@RequestParam(value = "url", required=true) final String url,
@@ -1716,6 +1885,11 @@ public class RestService extends MvcCore {
 	 * This call expects a parameter with a key of 'data' that holds the POST data body.
 	 * 
 	 */
+	@ApiOperation(value = "Makes an external HTTP POST request.", tags = {"External"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "url", description = "URL to make the POST request to.", required = true),
+			@Parameter(name = "contentType", description = "Content type for the request.", required = false)
+	})
 	@RequestMapping(value = "/externalPostReq", method = POST)
 	public @ResponseBody String externalPostReq(
 			HttpServletRequest request,
@@ -1747,6 +1921,11 @@ public class RestService extends MvcCore {
 	 * This call expects a parameter with a key of 'data' that holds the PUT data body.
 	 * 
 	 */
+	@ApiOperation(value = "Makes an external HTTP PUT request.", tags = {"External"}, produces = "application/json")
+	@Parameters({
+			@Parameter(name = "url", description = "URL to make the PUT request to.", required = true),
+			@Parameter(name = "contentType", description = "Content type for the request.", required = false)
+	})
 	@RequestMapping(value = "/externalPutReq", method = PUT)
 	public @ResponseBody String externalPutReq(
 			HttpServletRequest request,
