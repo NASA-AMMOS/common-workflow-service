@@ -27,9 +27,11 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("API")
-                .description("API Desc")
-                .version("V1")
+                .title("CWS API")
+                .description("Documentation of the endpoints used by CWS. Once authenticated, requests can be made to these endpoints (ensure that you are sending the cookie that results from the authentication call!")
+                .version("2.6.0")
+                .license("Apache 2.0")
+                .licenseUrl("https://github.com/NASA-AMMOS/common-workflow-service?tab=Apache-2.0-1-ov-file")
                 .build();
     }
 
