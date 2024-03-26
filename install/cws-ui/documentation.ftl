@@ -79,10 +79,11 @@
 					<tr>
 						<td><a href="http://www.bpmnquickguide.com/quickguide/index.html" target="_blank">BP Incubator BPMN Quick Guide</a></td>
 					</tr>
+					<tr>
+						<td><a href="/cws-ui/swagger-ui/index.html" target="_blank">API Documentation</a></td>
+					</tr>
 				</table>
 			</div>
-			
-			<table>
 		</div>
 	</div>
 </div>
