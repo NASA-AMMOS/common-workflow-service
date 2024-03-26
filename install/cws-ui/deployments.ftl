@@ -420,7 +420,7 @@
 								}
 
 								returnVal += `<a href="/${base}/modeler?procDefKey=` + data.key + `" target="_blank" aria-label="Edit" data-microtip-position="top-right" role="tooltip">`
-										+ `<span style="float: right;" id="edit-` + data.key + `" class="glyphicon glyphicon-pencil"></span></a>`
+										+ `<span style="float: right;" id="edit-` + data.key + `"><img height="16" width="16" src="/${base}/images/pen.svg" /></span></a>`
 										+ `<a data-proc-key="` + data.key + `" onClick="handleDeleteProcDef('` + data.key + `')" aria-label="Delete" data-microtip-position="top-right" role="tooltip">`
 										+ `<img height="16" width="16" src="/${base}/images/trash.svg" style="cursor: pointer; float: right; color: #d9534f;" id="delete-`
 										+ data.key + `" /></a>`;
@@ -598,16 +598,14 @@
 						var procDefKey = this.data()["key"];
 						var procDefId = this.data()["id"];
 						if (status == "false") {
-							$("#suspend-" + procDefKey).removeClass("glyphicon-play");
-							$("#suspend-" + procDefKey).addClass("glyphicon-pause");
+							$("#suspend-" + procDefKey).attr("src", "/${base}/images/pin_pause.svg");
 							$("#suspend-" + procDefKey).css("color", "#d9534f");
 							$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
 							$("#status-txt-" + procDefKey).html("Active");
 							$("#" + procDefKey).removeClass("disabled");
 							$("#pv-" + procDefKey).removeClass("disabled");
 						} else {
-							$("#suspend-" + procDefKey).removeClass("glyphicon-pause");
-							$("#suspend-" + procDefKey).addClass("glyphicon-play");
+							$("#suspend-" + procDefKey).attr("src", "/${base}/images/play.svg");
 							$("#suspend-" + procDefKey).css("color", "green");
 							$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
 							$("#status-txt-" + procDefKey).html("Suspended");
@@ -749,8 +747,7 @@
 				success: function (data) {
 					console.log("successfully suspended");
 					//change the glyphicon to play & make green
-					$("#suspend-" + procDefKey).removeClass("glyphicon-pause");
-					$("#suspend-" + procDefKey).addClass("glyphicon-play");
+					$("#suspend-" + procDefKey).attr("src", "/${base}/images/play.svg");
 					$("#suspend-" + procDefKey).css("color", "green");
 					$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
 					$("#status-txt-" + procDefKey).html("Suspended");
@@ -775,8 +772,7 @@
 				success: function (data) {
 					console.log("successfully activated");
 					//change the glyphicon to pause & make color #d9534f
-					$("#suspend-" + procDefKey).removeClass("glyphicon-play");
-					$("#suspend-" + procDefKey).addClass("glyphicon-pause");
+					$("#suspend-" + procDefKey).attr("src", "/${base}/images/pin_pause.svg");
 					$("#suspend-" + procDefKey).css("color", "#d9534f");
 					$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
 					$("#status-txt-" + procDefKey).html("Active");

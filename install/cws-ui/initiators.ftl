@@ -56,7 +56,7 @@
 	<div class="row">
 		<#include "sidebar.ftl">
 		
-		<div class="col-sm-9 col-md-10 main">
+		<div class="main-content">
 			<span id="statusMessageDiv"><h2>${msg}</h2></span>
 
 			<h2 class="sub-header">Initiators</h2>

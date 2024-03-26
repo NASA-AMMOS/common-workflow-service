@@ -10,10 +10,10 @@
 	
 		function refreshElasticsearchStats() {
 		
-			var greenHtml = 'Good <span class="glyphicon glyphicon-ok" style="color: #51cf66;"></span>';
-			var redHtml = '<span class="glyphicon glyphicon-remove" style="color: #ff6b6b;"></span> Red';
-			var offlineHtml = '<span class="glyphicon glyphicon-remove" style="color: #ff6b6b;"></span> Offline';
-			var timedOutHtml = '<span class="glyphicon glyphicon-remove" style="color: #ff6b6b;"></span> Timed out';
+			var greenHtml = 'Good <img height="16" width="16" src="/${base}/images/check_green.svg" /></span>';
+			var redHtml = '<img height="16" width="16" src="/${base}/images/minus_red.svg" /> Red';
+			var offlineHtml = '<img height="16" width="16" src="/${base}/images/minus_red.svg" /> Offline';
+			var timedOutHtml = '<img height="16" width="16" src="/${base}/images/minus_red.svg" />  Timed out';
 		
 			$.ajax({ 
 				url: "/${base}/rest/stats/es/cluster/health",
@@ -79,7 +79,7 @@
 	
 		<#include "sidebar.ftl">
 		
-		<div class="col-sm-9 col-md-10 main">
+		<div class="main-content">
 			<span id="statusMessageDiv"><h2>${msg}</h2></span>
 			<h2 class="sub-header">Deployment Summary: <a href="/${base}/deployments">${numTotalProcDefs} deployed, ${numActiveProcDefs} active</a></h2>
 			<br/>

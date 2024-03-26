@@ -45,7 +45,7 @@
         <div class="container-fluid">
             <div class="row">
                 <#include "sidebar.ftl">
-                    <div class="col-sm-9 col-md-10 main">
+                    <div class="main-content">
 
                         <span id="statusMessageDiv">
                             <h2>${msg}</h2>
@@ -979,7 +979,7 @@
                 });
 
                 //add our action dropdown button to the div that datatables created (created in dom: above)
-                $('<div class="btn-group"><button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><i class="glyphicon glyphicon-tasks btn-icon"></i>&nbsp;Actions &nbsp;'
+                $('<div class="btn-group"><button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><img height="16" width="16" src="/${base}/images/waterfall.svg" />&nbsp;Actions &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'

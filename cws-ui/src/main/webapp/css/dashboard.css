@@ -430,6 +430,7 @@ a.nav-link img {
   margin-top: 13px;
   position: absolute;
   left: 75px;
+  width: calc(100% - 100px);
 }
 
 :target {

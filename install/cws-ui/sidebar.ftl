@@ -22,7 +22,7 @@ const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstra
 		<li <#if springMacroRequestContext.requestUri?contains("/summary")> class="active"</#if>><a href="/${base}/summary">System Summary</a></li>
 ------>
 
-		<li <#if springMacroRequestContext.requestUri?contains("/deployments")> class="active"</#if>><a href="/${base}/deployments data-bs-toggle="tooltip" data-bs-title="Deployments"><img height="32" width="32" src="/${base}/images/locate.svg" /></a></li>
+		<li <#if springMacroRequestContext.requestUri?contains("/deployments")> class="active"</#if>><a href="/${base}/deployments" data-bs-toggle="tooltip" data-bs-title="Deployments"><img height="32" width="32" src="/${base}/images/locate.svg" /></a></li>
 		<li <#if springMacroRequestContext.requestUri?contains("/workers")> class="active"</#if>><a href="/${base}/workers" data-bs-toggle="tooltip" data-bs-title="Workers"><img height="32" width="32" src="/${base}/images/cpu.svg" /></a></li>
 		<li <#if springMacroRequestContext.requestUri?contains("/snippets")> class="active"</#if>><a href="/${base}/snippets" data-bs-toggle="tooltip" data-bs-title="Snippets"><img height="32" width="32" src="/${base}/images/snippet.svg" /></a></li>
 		<li <#if springMacroRequestContext.requestUri?contains("/initiators")> class="active"</#if>><a href="/${base}/initiators" data-bs-toggle="tooltip" data-bs-title="Initiators"><img height="32" width="32" src="/${base}/images/double_chevron_right.svg" /></a></li>

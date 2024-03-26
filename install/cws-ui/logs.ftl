@@ -164,7 +164,7 @@
 		$("#logData").DataTable({
 			language: {
 				searchBuilder: {
-					add: "<i class=\"glyphicon glyphicon-search btn-icon\"></i>Add Local Filter",
+					add: "<img height=\"16\" width=\"16\" src=\"/${base}/images/search.svg\" /> Add Local Filter",
 				}
 			},
 			deferRender: true,
@@ -647,7 +647,7 @@
 <div class="container-fluid">
 	<div class="row">
 		<#include "sidebar.ftl">
-		<div class="col-sm-9 col-md-10 main">
+		<div class="main-content">
 	
 			<span id="statusMessageDiv">
 				<h2>${msg}</h2>

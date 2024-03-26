@@ -11,6 +11,8 @@ import org.openqa.selenium.support.ui.Select;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.openqa.selenium.JavascriptExecutor;
+
 /**
  *
  * @author ghollins
@@ -209,7 +211,12 @@ public class WebTestIT extends WebTestUtil {
 
 			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
 
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
+			WebElement filter = driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input"));
+
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+	  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", filter);
+	  		// filter.click();
+
 			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_hello_world");
 			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
 
@@ -217,6 +224,14 @@ public class WebTestIT extends WebTestUtil {
 
 			waitForElementXPath("//a[contains(text(),'History')]");
 			WebElement historyButton = driver.findElement(By.xpath("//a[contains(text(),'History')]"));
+			js.executeScript("arguments[0].scrollIntoViewIfNeeded();", historyButton);
+			
+			try {
+			File scrFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+			// Now you can do whatever you need to do with it, for example copy somewhere
+			FileUtils.copyFile(scrFile, new File("/tmp/history_button.png"));
+			} catch(IOException e) {}
+			
 			historyButton.click();
 			sleep(1000);
 
@@ -252,7 +267,12 @@ public class WebTestIT extends WebTestUtil {
 
 			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
 
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
+			WebElement filter = driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input"));
+
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+	  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", filter);
+
+			// filter.click();
 			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_groovy_script");
 			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
 
@@ -260,8 +280,22 @@ public class WebTestIT extends WebTestUtil {
 
 			waitForElementXPath("//a[contains(text(),'History')]");
 			WebElement historyButton = driver.findElement(By.xpath("//a[contains(text(),'History')]"));
+			js.executeScript("arguments[0].scrollIntoViewIfNeeded();", historyButton);
+			
+			try {
+			File scrFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+			// Now you can do whatever you need to do with it, for example copy somewhere
+			FileUtils.copyFile(scrFile, new File("/tmp/groovy_button.png"));
+			} catch(IOException e) {}
 			historyButton.click();
+
 			sleep(1000);
+
+			try {
+			File scrFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+			// Now you can do whatever you need to do with it, for example copy somewhere
+			FileUtils.copyFile(scrFile, new File("/tmp/groovy.png"));
+			} catch(IOException e) {}
 
 			findOnPage("Groovy.");
 
