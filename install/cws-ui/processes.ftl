@@ -979,7 +979,7 @@
                 });
 
                 //add our action dropdown button to the div that datatables created (created in dom: above)
-                $('<div class="btn-group"><button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><img height="16" width="16" src="/${base}/images/waterfall.svg" />&nbsp;Actions &nbsp;'
+                $('<div class="btn-group"><button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><img height="16" width="16" src="/${base}/images/waterfall_light.svg" />&nbsp;Actions &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
@@ -996,7 +996,7 @@
                     + `</ul></div>`).appendTo(".above-table-buttons");
 
                 //add our download dropdown button to the div that datatables created (created in dom: above)
-                $('<div class="btn-group"><button id="action-download-group" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><img height="16" width="16" src="/${base}/images/save.svg" />&nbsp;Download &nbsp;'
+                $('<div class="btn-group"><button id="action-download-group" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><img height="16" width="16" src="/${base}/images/save_light.svg" />&nbsp;Download &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="action-download-group">'
