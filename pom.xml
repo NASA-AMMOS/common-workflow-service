@@ -116,6 +116,11 @@
 			<name>JBoss.org Maven repository</name>
 			<url>https://repository.jboss.org/nexus/content/groups/public</url>
 		</repository>
+		<repository>
+			<id>redhat</id>
+			<name>Redhat Maven Repository Public</name>
+			<url>https://maven.repository.redhat.com/ga/</url>
+		</repository>
 	</repositories>
 	<dependencyManagement>
 		<dependencies>

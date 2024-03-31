@@ -29,8 +29,6 @@
     				<artifactId>spring-test</artifactId>
 				</dependency>
 
-
-
 				<!-- AWS JAVA API -->
 				<dependency>
 					<groupId>software.amazon.awssdk</groupId>
