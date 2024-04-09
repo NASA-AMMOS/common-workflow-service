@@ -6,22 +6,6 @@
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
-	<script>
-		$( document ).ready(function() {
-			// 
-			if ($("#message:contains('ERROR:')").length >= 1) {
-				$("#message").css( "color", "red" );
-			}
-			else {
-				$("#message").css( "color", "green" );
-				if ($('#message').html().length > 9) {
-					$('#message').fadeOut(5000, "linear");
-				}
-			}
-			
-		});
-	
-	</script>
 	
 	<!-- Just for debugging purposes. Don't actually copy this line! -->
 	<!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -54,8 +38,10 @@
 
 <div class="container">
 		
-		<div id="login-form" class="col-md-6 col-md-push-3 col-sm-12">
-			<h2 id="message">${msg}</h2>
+		<div id="login-form" class="col-md-6 col-md-push-3 col-sm-12" style="margin-top: 200px">
+			<div style="display: flex; justify-content: center; margin-bottom: 30px;">
+				<h2>__CWS_BRAND_HEADER__</h2>
+			</div>
 			
 			<form action="/${base}/logintotarget" method="POST">
 				<label for="username">
