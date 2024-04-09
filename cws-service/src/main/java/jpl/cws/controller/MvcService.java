@@ -227,6 +227,12 @@ public class MvcService extends MvcCore {
 	public ModelAndView modeler() {
 		return buildModelerModel("");
 	}
+
+	@ApiIgnore
+	@RequestMapping(value = "/api-docs", method = GET)
+	public ModelAndView apidocs() {
+		return buildApiDocsModel("");
+	}
 	
 	
 	/**

@@ -80,7 +80,7 @@
 						<td><a href="http://www.bpmnquickguide.com/quickguide/index.html" target="_blank">BP Incubator BPMN Quick Guide</a></td>
 					</tr>
 					<tr>
-						<td><a href="/cws-ui/swagger-ui/index.html" target="_blank">API Documentation</a></td>
+						<td><a href="/cws-ui/api-docs" target="_blank">API Documentation</a></td>
 					</tr>
 					<tr>
 						<td><a href="https://docs.camunda.org/rest/camunda-bpm-platform/7.20/" target="_blank">Camunda API Documentation</a></td>

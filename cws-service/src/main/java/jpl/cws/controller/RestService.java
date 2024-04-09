@@ -77,6 +77,7 @@ import jpl.cws.scheduler.CwsProcessInstance;
 import jpl.cws.scheduler.LogHistory;
 import jpl.cws.scheduler.Scheduler;
 import jpl.cws.service.CwsConsoleService;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Controller
 @RequestMapping("/api")
@@ -563,7 +564,7 @@ public class RestService extends MvcCore {
 	})
 	@RequestMapping(value = "/process/{processDefKey}/schedule", method = POST)
 	public @ResponseBody String scheduleProcess(
-			final HttpSession session,
+			@ApiIgnore final HttpSession session,
 			@PathVariable String processDefKey,
 			@RequestParam (value = "processBusinessKey", required=false) String processBusinessKey,
 			@RequestParam (value = "initiationKey", required=false) String initiationKey,
@@ -629,7 +630,7 @@ public class RestService extends MvcCore {
 	@RequestMapping(value = "/process-instance/{uuid}/status", method = GET, produces="application/json")
 	public @ResponseBody String getProcessInstanceStatus(
 			@PathVariable String uuid,
-			final HttpSession session) {
+			@ApiIgnore final HttpSession session) {
 		
 		log.debug("REST: getProcessInstanceStatus(" + uuid + ")");
 		
@@ -696,7 +697,7 @@ public class RestService extends MvcCore {
 	@RequestMapping(value = "/snippets/validateAndSaveSnippets", method = POST)
 	public ModelAndView validateAndSaveSnippets(
 			@RequestParam String code,
-			final HttpSession session) {
+			@ApiIgnore final HttpSession session) {
 		log.debug("REST: validateAndSaveSnippets");
 		log.trace("REST: validateAndSaveSnippets, code=" + code);
 		
@@ -1188,7 +1189,7 @@ public class RestService extends MvcCore {
 	})
 	@RequestMapping(value = "/worker/{workerId}/{procDefKey}/updateWorkerProcDefLimit/{newLimit}", method = POST)
 	public @ResponseBody String updateWorkerProcDefLimit(
-			final HttpSession session,
+			@ApiIgnore final HttpSession session,
 			@PathVariable String workerId,
 			@PathVariable String procDefKey,
 			@PathVariable String newLimit,
@@ -1505,7 +1506,7 @@ public class RestService extends MvcCore {
 	})
 	@RequestMapping(value = "/processes/makeDisabledRowsPending", method = POST)
 	public @ResponseBody String makeDisabledRowsPending(
-			final HttpSession session,
+			@ApiIgnore final HttpSession session,
 			@RequestBody List<String> uuids) {
 		
 		log.info("*** REST CALL ***  /processes/makeDisabledRowsPending ... " + uuids.size());
@@ -1533,7 +1534,7 @@ public class RestService extends MvcCore {
 	})
 	@RequestMapping(value = "/processes/makePendingRowsDisabled", method = POST)
 	public @ResponseBody String makePendingRowsDisabled(
-			final HttpSession session,
+			@ApiIgnore final HttpSession session,
 			@RequestBody List<String> uuids) {
 		
 		log.info("*** REST CALL ***  /processes/makePendingRowsDisabled ... " + uuids.size());
@@ -1561,7 +1562,7 @@ public class RestService extends MvcCore {
 	})
 	@RequestMapping(value = "/processes/retryIncidentRows", method = POST)
 	public @ResponseBody ResponseEntity<String> retryIncidentRows(
-			final HttpSession session,
+			@ApiIgnore final HttpSession session,
 			@RequestParam(defaultValue = "1") String retries,
 			@RequestBody List<String> uuids) {
 
@@ -1598,7 +1599,7 @@ public class RestService extends MvcCore {
 	})
 	@RequestMapping(value = "/processes/retryFailedToStart", method = POST)
 	public @ResponseBody ResponseEntity<String> retryFailedToStart(
-			final HttpSession session,
+			@ApiIgnore final HttpSession session,
 			@RequestBody List<String> uuids) {
 
 		log.info("*** REST CALL ***  /processes/retryFailedToStart ... " + uuids.size());
@@ -1623,7 +1624,7 @@ public class RestService extends MvcCore {
 	})
 	@RequestMapping(value = "/processes/markResolved", method = POST)
 	public @ResponseBody ResponseEntity<String> markResolved(
-			final HttpSession session,
+			@ApiIgnore final HttpSession session,
 			@RequestBody List<String> procInstIds) {
 
 		log.info("*** REST CALL ***  /processes/markResolved ... " + procInstIds.size());
@@ -1651,7 +1652,7 @@ public class RestService extends MvcCore {
 	})
 	@RequestMapping(value = "/worker/{workerId}/{procDefKey}/updateWorkerProcDefEnabled/{enabledFlag}", method = POST)
 	public @ResponseBody String updateWorkerProcDefEnabled(
-			final HttpSession session,
+			@ApiIgnore final HttpSession session,
 			@PathVariable String workerId,
 			@PathVariable String procDefKey,
 			@PathVariable String enabledFlag,
@@ -1716,7 +1717,7 @@ public class RestService extends MvcCore {
 	})
 	@RequestMapping(value = "/processes/delete", method = POST)
 	public @ResponseBody String deleteRunningProcInsts(
-			final HttpSession session,
+			@ApiIgnore final HttpSession session,
 			@RequestBody List<String> procInstIds) {
 		log.debug("*** REST CALL *** deleteRunningProcInsts");
 		String result = cwsConsoleService.deleteRunningProcInst(procInstIds);
@@ -1734,7 +1735,7 @@ public class RestService extends MvcCore {
 	})
 	@RequestMapping(value = "/worker/{workerId}/updateNumJobExecThreads/{numThreads}", method = POST)
 	public @ResponseBody String updateWorkerNumJobExecThreads(
-			final HttpSession session,
+			@ApiIgnore final HttpSession session,
 			@PathVariable String workerId,
 			@PathVariable String numThreads) {
 		
@@ -1782,7 +1783,7 @@ public class RestService extends MvcCore {
 	@ApiOperation(value = "Authenticates the user via GET.", tags = {"Security"}, produces = "application/json")
 	@RequestMapping(value="/authenticate", method = GET)
 	public @ResponseBody String authenticateViaGet(
-		final HttpSession session) {
+			@ApiIgnore final HttpSession session) {
 		log.debug("/authenticate call got through CWS security!");
 		return "{\"status\" : \"SUCCESS\", \"session\" : \"" + session.getId() + "\"}";
 	}
@@ -1799,7 +1800,7 @@ public class RestService extends MvcCore {
 	@ApiOperation(value = "Authenticates the user via POST.", tags = {"Security"}, produces = "application/json")
 	@RequestMapping(value = "/authenticate", method = POST)
 	public @ResponseBody String authenticateViaPost(
-			final HttpSession session,
+			@ApiIgnore final HttpSession session,
 			HttpServletResponse response) {
 		log.debug("/authenticate call got through CWS security!");
 		return "{\"status\" : \"SUCCESS\", \"session\" : \"" + session.getId() + "\"}";
@@ -1816,7 +1817,7 @@ public class RestService extends MvcCore {
 	})
 	@RequestMapping(value = "/validateCwsToken", method = POST)
 	public @ResponseBody String validateCwsToken(
-			final HttpSession session,
+			@ApiIgnore final HttpSession session,
 			HttpServletResponse response,
 			@RequestParam String cwsToken) {
 		log.trace("validateCwsToken... (cwsToken="+cwsToken+", session.id="+session.getId()+")");
