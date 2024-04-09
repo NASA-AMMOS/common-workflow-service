@@ -39,8 +39,13 @@
 <div class="container">
 		
 		<div id="login-form" class="col-md-6 col-md-push-3 col-sm-12" style="margin-top: 200px">
-			<div style="display: flex; justify-content: center; margin-bottom: 30px;">
-				<h2>__CWS_BRAND_HEADER__</h2>
+			<div style="display: flex; justify-content: center; margin-bottom: 30px; flex-direction: column;">
+				<div style="display: flex; justify-content: center;">
+					<h2>__CWS_BRAND_HEADER__</h2>
+				</div>
+				<div style="display: flex; justify-content: center;">
+					<h4>Please log in</h4>
+				</div>
 			</div>
 			
 			<form action="/${base}/logintotarget" method="POST">
