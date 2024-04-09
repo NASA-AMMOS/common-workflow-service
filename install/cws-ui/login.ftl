@@ -15,6 +15,16 @@
 		<script src="/${base}/js/html5shiv.js"></script>
 		<script src="/${base}/js/respond.min.js"></script>
 	<![endif]-->
+	<script>
+		$(document).ready(function() {
+			if ($("#message:contains('ERROR:')").length >= 1) {
+				$("#message").css( "color", "red" );
+			}
+			else {
+				$("#message").css( "color", "green" );
+			}
+		});
+	</script>
 </head>
 
 <body>
@@ -44,7 +54,7 @@
 					<h2>__CWS_BRAND_HEADER__</h2>
 				</div>
 				<div style="display: flex; justify-content: center;">
-					<h4>Please log in</h4>
+					<h4 id="message">${msg}</h4>
 				</div>
 			</div>
 			
