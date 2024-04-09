@@ -410,19 +410,19 @@
 								var returnVal = `<div class="proc-name-btns">`;
 								if (data.suspended == "true") {
 									returnVal += `<a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="resumeProcDef('` + data.id + `', '` + data.key + `')" aria-label="Resume" data-microtip-position="top-right" role="tooltip">`
-											+ `<img height="16" width="16" src="/${base}/images/play.svg" style="cursor: pointer; float: right; color: green;" id="suspend-`
+											+ `<img height="22" width="22" src="/${base}/images/play.svg" style="cursor: pointer; float: right; color: green;" id="suspend-`
 											+ data.key + `" />`
 											+ `</a>`;
 								} else {
 									returnVal += `<a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="suspendProcDef('` + data.id + `', '` + data.key + `')" aria-label="Suspend" data-microtip-position="top-right" role="tooltip">`
-											+ `<img height="16" width="16" src="/${base}/images/pin_pause.svg" style="cursor: pointer; float: right; color: #d9534f;" id="suspend-`
+											+ `<img height="22" width="22" src="/${base}/images/pin_pause.svg" style="cursor: pointer; float: right; color: #d9534f;" id="suspend-`
 											+ data.key + `" /></a>`;
 								}
 
 								returnVal += `<a href="/${base}/modeler?procDefKey=` + data.key + `" target="_blank" aria-label="Edit" data-microtip-position="top-right" role="tooltip">`
-										+ `<span style="float: right;" id="edit-` + data.key + `"><img height="16" width="16" src="/${base}/images/pen.svg" /></span></a>`
+										+ `<span style="float: right;" id="edit-` + data.key + `"><img height="22" width="22" src="/${base}/images/pen.svg" /></span></a>`
 										+ `<a data-proc-key="` + data.key + `" onClick="handleDeleteProcDef('` + data.key + `')" aria-label="Delete" data-microtip-position="top-right" role="tooltip">`
-										+ `<img height="16" width="16" src="/${base}/images/trash.svg" style="cursor: pointer; float: right; color: #d9534f;" id="delete-`
+										+ `<img height="22" width="22" src="/${base}/images/trash_red.svg" style="cursor: pointer; float: right; color: #d9534f;" id="delete-`
 										+ data.key + `" /></a>`;
 
 								returnVal += `</div>`;

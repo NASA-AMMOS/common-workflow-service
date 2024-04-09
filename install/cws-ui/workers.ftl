@@ -5,6 +5,7 @@
 	<script src="/${base}/js/jquery.min.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<script src="/${base}/js/adaptation-workers.js"></script>
+	<script src="/${base}/js/popper.min.js"></script>
 	<script src="/${base}/js/DataTables/datatables.min.js"></script>
 	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.min.css" />
 	<script src="/${base}/js/cws.js"></script>

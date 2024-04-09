@@ -6,9 +6,9 @@
     <meta charset="utf-8">
     <title>CWS - Processes</title>
     <script src="/${base}/js/jquery.min.js"></script>
-    <script src="/${base}/js/popper.min.js"></script>
     <script src="/${base}/js/bootstrap.min.js"></script>
     <script src="/${base}/js/moment.js"></script>
+    <script src="/${base}/js/popper.min.js"></script>
     <script src="/${base}/js/DataTables/datatables.js"></script>
     <script src="/${base}/js/bootstrap-datepicker.min.js"></script>
     <script src="/${base}/js/DataTablesDateFilter.js"></script>
@@ -57,46 +57,47 @@
                         <div id="filters-div">
                             <h4 style="margin-top: 10px;">Filters:</h4>
                             <p>Select filters before retrieving data to reduce loading time.</p>
-                            <div class="col-md-4">
-                                <h4>Process Definition:</h4>
-                                <select id="pd-select">
-                                    <option value="def">Select PD</option>
-                                    <#list procDefs as pd>
-                                        <option value="${pd.key}">${pd.name}</option>
-                                    </#list>
-                                </select>
+                            <div style="display: flex; gap: 20px;">
                                 <div>
-                                    <h4 style="margin-top: 15px;">Subprocess & Superprocess:</h4>
+                                    <h4>Process Definition:</h4>
+                                    <select id="pd-select">
+                                        <option value="def">Select PD</option>
+                                        <#list procDefs as pd>
+                                            <option value="${pd.key}">${pd.name}</option>
+                                        </#list>
+                                    </select>
+                                </div>
+                                <div style="width: 200px;">
+                                    <h4>Subprocess & Superprocess:</h4>
                                     <input id="super-proc-inst-id-in" style="width: 90%" type="text"
                                         class="form-control" placeholder="Superprocess Instance ID" />
-                                </div>
-                                <div style="margin-top: 10px" id="hide-subprocs-div">
+                                    <div style="margin-top: 10px" id="hide-subprocs-div">
                                     <label for="hide-subprocs">Hide Subprocesses</label>
                                     <input name="hide-subprocs" id="hide-subprocs-btn" type="checkbox">
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <h4>Status:</h4>
-                                <div id="status-select">
-                                    <input id="fail" type="checkbox" value="fail" />
-                                    <label for="fail">Failed</label><br />
-                                    <input id="complete" type="checkbox" value="complete" />
-                                    <label for="complete">Complete</label><br />
-                                    <input id="resolved" type="checkbox" value="resolved" />
-                                    <label for="resolved">Resolved</label><br />
-                                    <input id="running" type="checkbox" value="running" />
-                                    <label for="running">Running</label><br />
-                                    <input id="pending" type="checkbox" value="pending" />
-                                    <label for="pending">Pending</label><br />
-                                    <input id="disabled" type="checkbox" value="disabled" />
-                                    <label for="disabled">Disabled</label><br />
-                                    <input id="failedToStart" type="checkbox" value="failedToStart" />
-                                    <label for="failedToStart">Failed to Start</label><br />
-                                    <input id="incident" type="checkbox" value="incident" />
-                                    <label for="incident">Incident</label><br />
                                 </div>
-                            </div>
-                            <div class="col-md-4">
+
+                                <div>
+                                    <h4>Status:</h4>
+                                    <div id="status-select">
+                                        <input id="fail" type="checkbox" value="fail" />
+                                        <label for="fail">Failed</label><br />
+                                        <input id="complete" type="checkbox" value="complete" />
+                                        <label for="complete">Complete</label><br />
+                                        <input id="resolved" type="checkbox" value="resolved" />
+                                        <label for="resolved">Resolved</label><br />
+                                        <input id="running" type="checkbox" value="running" />
+                                        <label for="running">Running</label><br />
+                                        <input id="pending" type="checkbox" value="pending" />
+                                        <label for="pending">Pending</label><br />
+                                        <input id="disabled" type="checkbox" value="disabled" />
+                                        <label for="disabled">Disabled</label><br />
+                                        <input id="failedToStart" type="checkbox" value="failedToStart" />
+                                        <label for="failedToStart">Failed to Start</label><br />
+                                        <input id="incident" type="checkbox" value="incident" />
+                                        <label for="incident">Incident</label><br />
+                                    </div>
+                                </div>
                                 <div id="datepicker-div">
                                     <h4>Created Date:</h4>
                                     <input id="min-date" class="form-control" data-date-format="yyyy-mm-dd" type="text"
@@ -113,7 +114,7 @@
                                 </div>
                             </div>
                             <br />
-                            <div class="col-md-12">
+                            <div style="display: flex; gap: 10px; align-items: baseline;">
                                 <input type="button" id="filter-submit-btn" class="btn btn-info pull-right"
                                     value="Filter" />
                                 <h5 class="pull-right" style="margin-right: 8px;">Matched Processes: <span

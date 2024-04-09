@@ -8,9 +8,9 @@
 	<script src="/${base}/js/jquery.migrate.js"></script>
 	<script src="/${base}/js/ace/ace.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
-	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<script src="/${base}/js/bootstrap.min.js"></script>
+	<script src="/${base}/js/popper.min.js"></script>
 
 	<style type="text/css">
 	#save-table td:nth-child(2){
@@ -74,9 +74,9 @@
 							<td><input id="saveXmlBtn" type="button" class="btn btn-primary" value="Save the XML file"/></td>
 							<td>
 								<label>Enable All</label>
-								<div class="slide-switch" id="active-all">
-									<input id="activate-all-inits" type="checkbox">
-									<label for="activate-all-inits"><span>Power</span></label>
+								<div class="form-check form-switch">
+								  <input class="form-check-input" type="checkbox" role="switch" id="activate-all-inits">
+								  <label class="form-check-label" for="activate-all-inits">Power</label>
 								</div>
 							</td>
 						</tr>

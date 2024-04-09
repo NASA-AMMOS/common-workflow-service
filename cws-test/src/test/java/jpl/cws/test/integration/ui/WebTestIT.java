@@ -281,12 +281,7 @@ public class WebTestIT extends WebTestUtil {
 			waitForElementXPath("//a[contains(text(),'History')]");
 			WebElement historyButton = driver.findElement(By.xpath("//a[contains(text(),'History')]"));
 			js.executeScript("arguments[0].scrollIntoViewIfNeeded();", historyButton);
-			
-			try {
-			File scrFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
-			// Now you can do whatever you need to do with it, for example copy somewhere
-			FileUtils.copyFile(scrFile, new File("/tmp/groovy_button.png"));
-			} catch(IOException e) {}
+
 			historyButton.click();
 
 			sleep(1000);

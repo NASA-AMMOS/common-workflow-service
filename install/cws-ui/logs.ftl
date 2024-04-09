@@ -14,6 +14,7 @@
 	<script src="/${base}/js/moment-timezone.js"></script>
 	<script src="/${base}/js/moment-timezone-with-data.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
+	<script src="/${base}/js/popper.min.js"></script>
 	<script src="/${base}/js/DataTables/datatables.js"></script>
     <script src="/${base}/js/DataTablesDateFilter.js"></script>
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
