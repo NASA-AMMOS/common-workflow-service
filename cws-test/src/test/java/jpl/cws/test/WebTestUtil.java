@@ -296,36 +296,23 @@ public class WebTestUtil {
 		// wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
 		sleep(5000);
 		WebElement enable = findElById("pv-"+procDef);
-		String elementHTML = enable.getAttribute("outerHTML");
+		// String elementHTML = enable.getAttribute("outerHTML");
 		
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 	  	js.executeScript("arguments[0].scrollIntoViewIfNeeded();", enable);
 
-			TakesScreenshot screenshot = (TakesScreenshot)driver;
-		//Saving the screenshot in desired location
-		File source = screenshot.getScreenshotAs(OutputType.FILE);
-		//Path to the location to save screenshot
-		try{FileUtils.copyFile(source, new File("/tmp/Before-"+procDef+".png"));}
+// 			TakesScreenshot screenshot = (TakesScreenshot)driver;
+// 		//Saving the screenshot in desired location
+// 		File source = screenshot.getScreenshotAs(OutputType.FILE);
+// 		//Path to the location to save screenshot
+// 		try{FileUtils.copyFile(source, new File("/tmp/Before-"+procDef+".png"));}
 		
-catch(IOException e) {
-  e.printStackTrace();
-}
-      	System.out.println("Src attribute is: "+ elementHTML);
+// catch(IOException e) {
+//   e.printStackTrace();
+// }
+      	// System.out.println("Src attribute is: "+ elementHTML);
       	sleep(5000);
 
-		// Point point = enable.getLocation();
-		// int xCoord = point.getX();
-		// int yCoord = point.getY();
-	    // js.executeScript("arguments[0].scroll(arguments[1], arguments[2]);", enable, xCoord, yCoord - 50);
-	    // sleep(5000);
-
-
-File source2 = screenshot.getScreenshotAs(OutputType.FILE);
-		try{FileUtils.copyFile(source2, new File("/tmp/After-"+procDef+".png"));}
-		
-catch(IOException e) {
-  e.printStackTrace();
-}
 		enable.click();
 		sleep(1000);
 

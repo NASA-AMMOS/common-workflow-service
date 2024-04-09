@@ -198,7 +198,7 @@
 		});*/
 
 	$("#saveXmlBtn").on("click", function(){
-		$("#saveMsg").modal();
+		$("#saveMsg").modal("show");
 	});
 
 	$("#saveConfirmBtn").on("click", function() {

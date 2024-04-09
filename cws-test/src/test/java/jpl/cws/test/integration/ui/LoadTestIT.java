@@ -56,6 +56,8 @@ public class LoadTestIT extends WebTestUtil {
             // run 1000 models, 5 at a time (across 3 workers ideally)
             runStartLoadTest();
 
+            System.out.println("TEST CASES: " + Integer.toString(testCasesCompleted));
+
             if (Integer.toString(testCasesCompleted).equals("1")) {
                 scriptPass = true;
             } else {
