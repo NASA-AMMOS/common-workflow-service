@@ -41,6 +41,18 @@
                         dom_id: '#swagger-ui',
                         deepLinking: true,
                         docExpansion: 'none',
+                        requestInterceptor: function(request) {
+                            //check if request.headers.cwsToken exists. if it does, store the value
+                            //in the cookie. This is because swagger-ui does not support
+                            //sending headers in the request
+                            if (request.headers.cwsToken) {
+                                request.curlOptions = ["--cookie", "cwsToken=" + request.headers.cwsToken];
+                                delete request.headers.cwsToken;
+                            } else {
+                                request.curlOptions = ["--cookie", "cwsToken={REPLACE_WITH_CWS_TOKEN}"]
+                            }
+                            return request;
+                        }
                     });
                 });
             };
