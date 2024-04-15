@@ -43,10 +43,15 @@ public class SnippetsTestIT extends WebTestUtil {
 			login();
 
 			runSnippetsModelTest();
+			log.info("Done model test: "+ testCasesCompleted);
 			runValidateButtonTest();
+			log.info("Done validate test: "+ testCasesCompleted);
 			runUpdateSnippetTest();
+			log.info("Done snippets test: "+ testCasesCompleted);
 			runUpdateErrorTest();
+			log.info("Done validate error test: "+ testCasesCompleted);
 			runReloadEditorTest();
+			log.info("Done editor test: "+ testCasesCompleted);
 
 			if(Integer.toString(testCasesCompleted).equals("5")) {
 				scriptPass = true;
@@ -227,6 +232,12 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			WebElement validateAndSaveButton = driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn"));
 	  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", validateAndSaveButton);
+	  		sleep(2000);
+
+	  		screenShot("SnippetsTestIT-EXCEPTION");
+
+	  		String elementHTML = validateAndSaveButton.getAttribute("outerHTML");
+	  		log.info(elementHTML);
 
 	  		validateAndSaveButton.click();
 
@@ -321,8 +332,13 @@ public class SnippetsTestIT extends WebTestUtil {
 				driver.findElement(By.id("revertSnippetsSubmitBtn")).click();
 
 				waitForElementID("validateAndSaveSnippetsSubmitBtn");
+
+				validateAndSaveButton = driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn"));
+		  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", validateAndSaveButton);
+		  		sleep(2000);
+
 				log.info("Clicking on 'Validate and Save' button");
-				driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn")).click();
+				validateAndSaveButton.click();
 
 				log.info("Verifying 'Saved the snippets' shows up on the page.");
 				if(findOnPage("Saved the snippets")) {

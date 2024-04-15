@@ -74,7 +74,7 @@
 							<td><input id="saveXmlBtn" type="button" class="btn btn-primary" value="Save the XML file"/></td>
 							<td>
 								<label>Enable All</label>
-								<div class="form-check form-switch">
+								<div class="form-check form-switch" id="active-all">
 								  <input class="form-check-input" type="checkbox" role="switch" id="activate-all-inits">
 								  <label class="form-check-label" for="activate-all-inits">Power</label>
 								</div>
