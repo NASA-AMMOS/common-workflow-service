@@ -23,14 +23,10 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.JavascriptExecutor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
-import org.apache.commons.io.FileUtils;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Point;
-
 
 
 /**
@@ -292,33 +288,15 @@ public class WebTestUtil {
 
 	public void enableWorkers(String procDef) {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-
-		// wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
 		sleep(5000);
 		WebElement enable = findElById("pv-"+procDef);
-		// String elementHTML = enable.getAttribute("outerHTML");
 		
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 	  	js.executeScript("arguments[0].scrollIntoViewIfNeeded();", enable);
-
-// 			TakesScreenshot screenshot = (TakesScreenshot)driver;
-// 		//Saving the screenshot in desired location
-// 		File source = screenshot.getScreenshotAs(OutputType.FILE);
-// 		//Path to the location to save screenshot
-// 		try{FileUtils.copyFile(source, new File("/tmp/Before-"+procDef+".png"));}
-		
-// catch(IOException e) {
-//   e.printStackTrace();
-// }
-      	// System.out.println("Src attribute is: "+ elementHTML);
       	sleep(5000);
 
 		enable.click();
 		sleep(1000);
-
-
-
-		
 
 		WebElement allWorkers = findElById("all-workers");
 		WebElement allWorkersDone = findElById("done-workers-btn");
@@ -485,21 +463,6 @@ public class WebTestUtil {
 			WebElement delButton = driver.findElement(By.id("delete-"+procName));
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 		  	js.executeScript("arguments[0].scrollIntoViewIfNeeded();", delButton);
-
-
-			TakesScreenshot screenshot = (TakesScreenshot)driver;
-		//Saving the screenshot in desired location
-		File source = screenshot.getScreenshotAs(OutputType.FILE);
-		//Path to the location to save screenshot
-		try{FileUtils.copyFile(source, new File("/tmp/Before-"+procName+".png"));}
-		
-catch(IOException e) {
-  e.printStackTrace();
-}
-
-		String elementHTML = delButton.getAttribute("outerHTML");
-      	System.out.println("Src attribute is: "+ elementHTML);
-
 
 			delButton.click();
 

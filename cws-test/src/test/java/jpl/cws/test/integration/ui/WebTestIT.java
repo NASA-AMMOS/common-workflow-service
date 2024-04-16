@@ -226,12 +226,6 @@ public class WebTestIT extends WebTestUtil {
 			WebElement historyButton = driver.findElement(By.xpath("//a[contains(text(),'History')]"));
 			js.executeScript("arguments[0].scrollIntoViewIfNeeded();", historyButton);
 			
-			try {
-			File scrFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
-			// Now you can do whatever you need to do with it, for example copy somewhere
-			FileUtils.copyFile(scrFile, new File("/tmp/history_button.png"));
-			} catch(IOException e) {}
-			
 			historyButton.click();
 			sleep(1000);
 
@@ -285,12 +279,6 @@ public class WebTestIT extends WebTestUtil {
 			historyButton.click();
 
 			sleep(1000);
-
-			try {
-			File scrFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
-			// Now you can do whatever you need to do with it, for example copy somewhere
-			FileUtils.copyFile(scrFile, new File("/tmp/groovy.png"));
-			} catch(IOException e) {}
 
 			findOnPage("Groovy.");
 
