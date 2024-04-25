@@ -400,8 +400,8 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 
     public List<Map<String, Object>> getProcDefKeyLatestCompleteInst(String procDefKey) {
         return jdbcTemplate.queryForList(
-            "SELECT proc_inst_id, start_time, end_time FROM cws_proc_inst_status WHERE proc_def_key=? AND status='complete' ORDER BY start_time DESC LIMIT 1",
-            new Object[]{procDefKey}
+                "SELECT proc_inst_id, start_time, end_time FROM cws_proc_inst_status WHERE proc_def_key=? AND status='complete' ORDER BY start_time DESC LIMIT 1",
+                new Object[]{procDefKey}
         );
     }
 
@@ -604,8 +604,10 @@ public class SchedulerDbService extends DbService implements InitializingBean {
      */
     public List<Map<String, Object>> getWorkerNumRunningProcs() {
         return jdbcTemplate.queryForList(
-                "SELECT cws_worker.id, active_count as cnt " +
-                        "FROM cws_worker");
+                "SELECT cws_worker.id, COUNT(*) AS cnt FROM cws_proc_inst_status," +
+                        "cws_worker,cws_sched_worker_proc_inst WHERE cws_worker.id = cws_sched_worker_proc_inst.claimed_by_worker" +
+                        " AND cws_sched_worker_proc_inst.proc_inst_id = cws_proc_inst_status.proc_inst_id AND " +
+                        "cws_proc_inst_status.status NOT LIKE '%complete%' GROUP BY cws_worker.id");
     }
 
 
