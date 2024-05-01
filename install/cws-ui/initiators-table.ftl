@@ -21,7 +21,7 @@
 						<img id="enable_${x.initiatorId}_icon"  src="/${base}/images/play.20.png" onClick="setEnabled('${x.initiatorId}', true);" style="display: none;" />-->
 						<div class="form-check form-switch">
 						  <input class="form-check-input" type="checkbox" role="switch" id="toggle_${x.initiatorId}" onClick="setEnabled('${x.initiatorId}');">
-						  <label class="form-check-label" for="toggle_${x.initiatorId}">Power</label>
+						  <label class="form-check-label" for="toggle_${x.initiatorId}"></label>
 						</div>
 					</td>
 				</tr>

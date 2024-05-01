@@ -76,7 +76,7 @@
 								<label>Enable All</label>
 								<div class="form-check form-switch" id="active-all">
 								  <input class="form-check-input" type="checkbox" role="switch" id="activate-all-inits">
-								  <label class="form-check-label" for="activate-all-inits">Power</label>
+								  <label class="form-check-label" for="activate-all-inits"></label>
 								</div>
 							</td>
 						</tr>
@@ -323,9 +323,11 @@
 		//if there is no "false" in the list, then all are enabled.
 		if (Object.values(initiatorEnabled).indexOf("false") == -1) {
 			$("#active-all input").prop('checked', true);
+			$("#active-all label").text("On");
 		}
 		else {
 			$("#active-all input").prop('checked', false);
+			$("#active-all label").text("Off");
 		}
 
 		//
