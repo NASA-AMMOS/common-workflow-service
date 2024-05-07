@@ -9,17 +9,14 @@
 	<script src="/${base}/js/popper.min.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
 	<script src="/${base}/js/bootstrap-toggle.min.js"></script>
-	<script src="/${base}/js/popper.min.js"></script>
 	<script src="/${base}/js/DataTables/datatables.js"></script>
 	<script src="/${base}/js/cws.js"></script>
 	<script src="/${base}/js/adaptation-workers-modal.js"></script>
 	<!-- CSS LINKS -->
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/${base}/css/bootstrap-toggle.min.css" rel="stylesheet">
-	<script src="/${base}/js/bootstrap-toggle.min.js"></script>
 	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css"/>
 	<!-- Custom styles for this template -->
-	<link href="/${base}/js/DataTables/datatables.css" rel="stylesheet">
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<link href="/${base}/css/deployments.css" rel="stylesheet">
 	<link href="/${base}/css/microtip.css" rel="stylesheet">

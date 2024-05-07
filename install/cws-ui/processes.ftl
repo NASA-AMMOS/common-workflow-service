@@ -6,9 +6,9 @@
     <meta charset="utf-8">
     <title>CWS - Processes</title>
     <script src="/${base}/js/jquery.min.js"></script>
+    <script src="/${base}/js/popper.min.js"></script>
     <script src="/${base}/js/bootstrap.min.js"></script>
     <script src="/${base}/js/moment.js"></script>
-    <script src="/${base}/js/popper.min.js"></script>
     <script src="/${base}/js/DataTables/datatables.js"></script>
     <script src="/${base}/js/bootstrap-datepicker.min.js"></script>
     <script src="/${base}/js/DataTablesDateFilter.js"></script>

@@ -3,9 +3,9 @@
 	<meta charset="utf-8">
 	<title>CWS - Documentation</title>
 	<script src="/${base}/js/jquery.min.js"></script>
+	<script src="/${base}/js/popper.min.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
-	<script src="/${base}/js/popper.min.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
