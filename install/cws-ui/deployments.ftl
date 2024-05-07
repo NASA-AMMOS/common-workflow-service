@@ -31,6 +31,9 @@
 		const refreshRateVar = "CWS_DASH_DEPLOY_REFRESH_RATE-" + username;
 		const hideSuspendedProcVar = "CWS_DASH_DEPLOY_HIDE_SUS-" + username;
 
+		const tooltipTriggerList = document.querySelectorAll('.progress-bar[data-bs-toggle="tooltip"]')
+		const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
 		//GLOBAL VARIABLES
 
 		var statsVal = {};
@@ -181,13 +184,23 @@
 			$("#stat-bar-" + name + " div.bar-failedToStart").css('width', statsPercent.fts + '%');
 			$("#stat-bar-" + name + " div.bar-incident").css('width', statsPercent.incident + '%');
 			//set the tooltip text of each bar
-			$("#stat-bar-" + name + " div.bar-pending").attr('data-original-title', statsCounts.pending + " Pending");
-			$("#stat-bar-" + name + " div.bar-disabled").attr('data-original-title', statsCounts.disabled + " Disabled");
-			$("#stat-bar-" + name + " div.bar-active").attr('data-original-title', statsCounts.active + " Running");
-			$("#stat-bar-" + name + " div.bar-completed").attr('data-original-title', statsCounts.completed + " Completed");
-			$("#stat-bar-" + name + " div.bar-error").attr('data-original-title', statsCounts.error + " Failed");
-			$("#stat-bar-" + name + " div.bar-failedToStart").attr('data-original-title', statsCounts.fts + " Failed to Start");
-			$("#stat-bar-" + name + " div.bar-incident").attr('data-original-title', statsCounts.incident + " Incidents");
+			$("#stat-bar-" + name + " div.bar-pending").attr('data-bs-title', statsCounts.pending + " Pending");
+			$("#stat-bar-" + name + " div.bar-disabled").attr('data-bs-title', statsCounts.disabled + " Disabled");
+			$("#stat-bar-" + name + " div.bar-active").attr('data-bs-title', statsCounts.active + " Running");
+			$("#stat-bar-" + name + " div.bar-completed").attr('data-bs-title', statsCounts.completed + " Completed");
+			$("#stat-bar-" + name + " div.bar-error").attr('data-bs-title', statsCounts.error + " Failed");
+			$("#stat-bar-" + name + " div.bar-failedToStart").attr('data-bs-title', statsCounts.fts + " Failed to Start");
+			$("#stat-bar-" + name + " div.bar-incident").attr('data-bs-title', statsCounts.incident + " Incidents");
+
+			// Update the tooltips
+			document.querySelectorAll('.progress-bar[data-bs-toggle="tooltip"]').forEach(el => {
+				const tooltipInstance = bootstrap.Tooltip.getInstance(el);
+				tooltipInstance._config.title = el.dataset.bsTitle;
+				tooltipInstance.update();
+			});
+
+			
+
 		}
 
 		//HANDLER FUNCTION FOR DELETING A PROCESS DEFINITION
@@ -514,31 +527,31 @@
 								var html = `<div id="stat-txt-` + data + `" class="stat-txt"></div>`
 										+ `<div id="stat-bar-` + data + `" class="progress" data-pdk="` + data + `">`
 										+ `<div class="progress-bar progress-bar-danger bar-error"`
-										+ `data-toggle="tooltip" title="0 Errors">`
+										+ `data-bs-toggle="tooltip" data-bs-title="0 Errors">`
 										+ `<span class="sr-only"></span>`
 										+ `</div>`
 										+ `<div class="progress-bar progress-bar-warning bar-pending"`
-										+ `data-toggle="tooltip" title="0 Pending">`
+										+ `data-bs-toggle="tooltip" data-bs-title="0 Pending">`
 										+ `<span class="sr-only"></span>`
 										+ `</div>`
 										+ `<div class="progress-bar progress-bar-disabled bar-disabled"`
-										+ `data-toggle="tooltip" title="0 Disabled">`
+										+ `data-bs-toggle="tooltip" data-bs-title="0 Disabled">`
 										+ `<span class="sr-only"></span>`
 										+ `</div>`
 										+ `<div class="progress-bar progress-bar-info bar-active"`
-										+ `data-toggle="tooltip" title="0 Active">`
+										+ `data-bs-toggle="tooltip" data-bs-title="0 Active">`
 										+ `<span class="sr-only"></span>`
 										+ `</div>`
 										+ `<div class="progress-bar progress-bar-success bar-completed"`
-										+ `data-toggle="tooltip" title="0 Completed">`
+										+ `data-bs-toggle="tooltip" data-bs-title="0 Completed">`
 										+ `<span class="sr-only"></span>`
 										+ `</div>`
-										+ `<div class="progress-bar bar-failedToStart" data-toggle="tooltip"`
-										+ `title="0 Failed to Start">`
+										+ `<div class="progress-bar bar-failedToStart" data-bs-toggle="tooltip"`
+										+ `data-bs-title="0 Failed to Start">`
 										+ `<span class="sr-only"></span>`
 										+ `</div>`
-										+ `<div class="progress-bar bar-incident" data-toggle="tooltip"`
-										+ `title="0 Incidents">`
+										+ `<div class="progress-bar bar-incident" data-bs-toggle="tooltip"`
+										+ `data-bs-title="0 Incidents">`
 										+ `<span class="sr-only"></span>`
 										+ `</div>`
 										+ `<span class="sr-only">No Instance Statistics...</span>`
@@ -858,37 +871,37 @@
 					<label>Process status summary:</label>
 					<div id="stat-txt-cws-reserved-total" class="stat-txt">-</div>
 					<div id="stat-bar-cws-reserved-total" class="progress">
-						<div class="progress-bar progress-bar-danger bar-error" data-toggle="tooltip"
-							 title="0 Errors">
+						<div class="progress-bar progress-bar-danger bar-error" data-bs-toggle="tooltip"
+							 data-bs-title="0 Errors">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar progress-bar-warning bar-pending" data-toggle="tooltip"
-							 title="0 Pending">
+						<div class="progress-bar progress-bar-warning bar-pending" data-bs-toggle="tooltip"
+							 data-bs-title="0 Pending">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar progress-bar-disabled bar-disabled" data-toggle="tooltip"
-							 title="0 Disabled">
+						<div class="progress-bar progress-bar-disabled bar-disabled" data-bs-toggle="tooltip"
+							 data-bs-title="0 Disabled">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar progress-bar-info bar-active" data-toggle="tooltip"
-							 title="0 Active">
+						<div class="progress-bar progress-bar-info bar-active" data-bs-toggle="tooltip"
+							 data-bs-title="0 Active">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar progress-bar-success bar-completed" data-toggle="tooltip"
-							 title="0 Completed">
+						<div class="progress-bar progress-bar-success bar-completed" data-bs-toggle="tooltip"
+							 data-bs-title="0 Completed">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar bar-failedToStart" data-toggle="tooltip"
-							 title="0 Failed to Start">
+						<div class="progress-bar bar-failedToStart" data-bs-toggle="tooltip"
+							 data-bs-title="0 Failed to Start">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar bar-incident" data-toggle="tooltip" title="0 Incidents">
+						<div class="progress-bar bar-incident" data-bs-toggle="tooltip" data-bs-title="0 Incidents">
 							<span class="sr-only"></span>
 						</div>
 
