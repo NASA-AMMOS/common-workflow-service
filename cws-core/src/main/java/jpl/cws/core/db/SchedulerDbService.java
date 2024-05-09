@@ -604,10 +604,8 @@ public class SchedulerDbService extends DbService implements InitializingBean {
      */
     public List<Map<String, Object>> getWorkerNumRunningProcs() {
         return jdbcTemplate.queryForList(
-                "SELECT cws_worker.id, COUNT(*) AS cnt FROM cws_proc_inst_status," +
-                        "cws_worker,cws_sched_worker_proc_inst WHERE cws_worker.id = cws_sched_worker_proc_inst.claimed_by_worker" +
-                        " AND cws_sched_worker_proc_inst.proc_inst_id = cws_proc_inst_status.proc_inst_id AND " +
-                        "cws_proc_inst_status.status NOT LIKE '%complete%' GROUP BY cws_worker.id");
+                "SELECT cws_worker.id, COUNT(*) AS cnt FROM cws_proc_inst_status,cws_worker "
+                + "WHERE cws_proc_inst_status.status NOT LIKE '%complete%' GROUP BY cws_worker.id");
     }
 
 
