@@ -31,6 +31,7 @@ import jpl.cws.process.initiation.CwsProcessInitiator;
 import jpl.cws.process.initiation.InitiatorsService;
 import jpl.cws.scheduler.Scheduler;
 import jpl.cws.service.CwsConsoleService;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Controller
 public class MvcService extends MvcCore {
@@ -50,6 +51,7 @@ public class MvcService extends MvcCore {
 	/**
 	 *
 	 */
+	@ApiIgnore
 	@RequestMapping(value = "/login", method = GET)
 	public ModelAndView login(final HttpSession session) {
 		return buildModel("login", "Please log in");
@@ -59,6 +61,7 @@ public class MvcService extends MvcCore {
 	/**
 	 *
 	 */
+	@ApiIgnore
 	@RequestMapping(value = "/not_authorized", method = GET)
 	public ModelAndView notAuthorized(final HttpSession session) {
 		return buildModel("not_authorized", "Not authorized. Please navigate elsewhere");
@@ -68,6 +71,7 @@ public class MvcService extends MvcCore {
 	/**
 	 * 
 	 */
+	@ApiIgnore
 	@RequestMapping(value = "/home", method = GET)
 	public ModelAndView index(final HttpSession session) {
 		return buildHomeModel("");
@@ -76,6 +80,7 @@ public class MvcService extends MvcCore {
 	/**
 	 *
 	 */
+	@ApiIgnore
 	@RequestMapping(value = "/summary", method = GET)
 	public ModelAndView summary(final HttpSession session) {
 		return buildSummaryModel("");
@@ -87,6 +92,7 @@ public class MvcService extends MvcCore {
 	 * and results in displaying the home page with a welcome message
 	 * 
 	 */
+	@ApiIgnore
 	@RequestMapping(value = "/logintotarget", method = POST)
 	public ModelAndView logintotarget(
 			final HttpSession session,
@@ -140,26 +146,26 @@ public class MvcService extends MvcCore {
 			return buildHomeModel("Welcome " + (user == null ? username : user.getFirstName()));
 		}
 	}
-	
-	
+
+	@ApiIgnore
 	@RequestMapping(value = "/deployments", method = GET)
 	public ModelAndView deployments() {
 		return buildDeploymentsModel("");
 	}
-	
-	
+
+	@ApiIgnore
 	@RequestMapping(value = "/logs", method = GET)
 	public ModelAndView logs() {
 		return buildLogsModel("");
 	}
-	
-	
+
+	@ApiIgnore
 	@RequestMapping(value = "/history", method = GET)
 	public ModelAndView history() {
 		return buildHistoryModel("");
 	}
 
-	
+	@ApiIgnore
 	@RequestMapping(value = "/workers", method = GET)
 	public ModelAndView workers() {
 		return buildWorkersModel();
@@ -170,6 +176,7 @@ public class MvcService extends MvcCore {
 	 * Returns Initiators page model and view
 	 * 
 	 */
+	@ApiIgnore
 	@RequestMapping(value = "/initiators", method = GET)
 	public ModelAndView initiators() {
 		ModelAndView model = new ModelAndView("initiators");
@@ -187,8 +194,8 @@ public class MvcService extends MvcCore {
 		}
 		return model;
 	}
-	
-	
+
+	@ApiIgnore
 	@RequestMapping(value = "/snippets", method = GET)
 	public ModelAndView snippets() {
 		ModelAndView model = new ModelAndView("snippets");
@@ -196,35 +203,42 @@ public class MvcService extends MvcCore {
 		model.addObject("msg", "");
 		return model;
 	}
-	
-	
+
+	@ApiIgnore
 	@RequestMapping(value = "/processes", method = GET)
 	public ModelAndView processes() {
 		return buildProcessesModel("");
 	}
-	
-	
+
+	@ApiIgnore
 	@RequestMapping(value = "/configuration", method = GET)
 	public ModelAndView configuration() {
 		return buildConfigurationModel("");
 	}
-	
-	
+
+	@ApiIgnore
 	@RequestMapping(value = "/documentation", method = GET)
 	public ModelAndView documentation() {
 		return buildDocumentationModel("");
 	}
-	
-	
+
+	@ApiIgnore
 	@RequestMapping(value = "/modeler", method = GET)
 	public ModelAndView modeler() {
 		return buildModelerModel("");
+	}
+
+	@ApiIgnore
+	@RequestMapping(value = "/api-docs", method = GET)
+	public ModelAndView apidocs() {
+		return buildApiDocsModel("");
 	}
 	
 	
 	/**
 	 * 
 	 */
+	@ApiIgnore
 	@RequestMapping(value = "/logout", method = GET)
 	public ModelAndView logout(
 			final HttpSession session,

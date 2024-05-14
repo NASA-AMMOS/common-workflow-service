@@ -35,7 +35,7 @@ public class WorkersTestIT extends WebTestUtil {
 			gotoLoginPage();
 			login();
 			goToPage("deployments");
-			startProcDef("test_workers_page", "Test Workers Page", 30000);
+			startProcDef("test_workers_page", "Test Workers Page", 0);
 			runNumberActiveTest();
 			runThreadLimitTest();
 			runWorkersCheckBoxTest();

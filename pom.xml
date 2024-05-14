@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 	<artifactId>common-workflow-service</artifactId>
-	<version>2.6.0-pre.1</version>    <!-- update this each CWS release -->
+	<version>2.6.0</version>    <!-- update this each CWS release -->
 	<packaging>pom</packaging>
 	<name>cws</name>
 	<description>CWS</description>
@@ -115,6 +115,11 @@
 			<id>repository.jboss.org-public</id>
 			<name>JBoss.org Maven repository</name>
 			<url>https://repository.jboss.org/nexus/content/groups/public</url>
+		</repository>
+		<repository>
+			<id>redhat</id>
+			<name>Redhat Maven Repository Public</name>
+			<url>https://maven.repository.redhat.com/ga/</url>
 		</repository>
 	</repositories>
 	<dependencyManagement>
@@ -631,6 +636,22 @@
 				<groupId>org.xmlunit</groupId>
 				<artifactId>xmlunit-core</artifactId>
 				<version>${xmlunit.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.webjars</groupId>
+				<artifactId>bootstrap</artifactId>
+				<version>3.4.0</version>
+			</dependency>
+			<dependency>
+				<groupId>io.springfox</groupId>
+				<artifactId>springfox-swagger2</artifactId>
+				<version>3.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>io.springfox</groupId>
+				<artifactId>springfox-swagger-ui</artifactId>
+				<version>3.0.0</version>
 			</dependency>
 
 		</dependencies>
