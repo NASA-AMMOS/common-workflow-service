@@ -554,7 +554,6 @@
 										+ `data-bs-title="0 Incidents">`
 										+ `<span class="sr-only"></span>`
 										+ `</div>`
-										+ `<span class="sr-only">No Instance Statistics...</span>`
 										+ `</div>`;
 								return html;
 							}
@@ -904,8 +903,6 @@
 						<div class="progress-bar bar-incident" data-bs-toggle="tooltip" data-bs-title="0 Incidents">
 							<span class="sr-only"></span>
 						</div>
-
-						<span class="sr-only">No Summary Statistics...</span>
 					</div>
 				</div>
 			</div>
