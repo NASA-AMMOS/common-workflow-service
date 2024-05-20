@@ -130,7 +130,10 @@ public class InitiatorsTestIT extends WebTestUtil {
 			driver.findElement(By.id("saveXmlBtn")).click();
 
 			waitForElementID("saveConfirmBtn");
-			driver.findElement(By.id("saveConfirmBtn")).click();
+			WebElement saveConfirmBtn = driver.findElement(By.id("saveConfirmBtn"));
+            
+            js.executeScript("arguments[0].scrollIntoViewIfNeeded();", saveConfirmBtn);
+			saveConfirmBtn.click();
 
 			wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("saveConfirmBtn")));
 
@@ -175,7 +178,12 @@ public class InitiatorsTestIT extends WebTestUtil {
 				String color = driver.findElement(By.className("progress-bar-success")).getCssValue("background-color");
 				log.info(color);
 
-				if (color.equals("rgba(92, 184, 92, 1)")) { //color = green
+				WebElement progressBar = driver.findElement(By.className("progress-bar-success"));
+				js.executeScript("arguments[0].scrollIntoViewIfNeeded();", progressBar);
+				sleep(1000);
+				screenShot("InitiatorTestIT-runStartInitiatorTestColor");
+
+				if (color.equals("rgba(13, 110, 253, 1)")) { //color = blue
 					scriptPass = true;
 					testCasesCompleted++;
 				}
@@ -207,6 +215,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 			waitForElementID("processes-table");
 
 			log.info("Clicking on Test Initiators Page history.");
+			sleep(5000);
 			WebElement historyButton = findElByXPath("//a[contains(text(),'History')]");
 			waitForElement(historyButton);
 			historyButton.sendKeys(Keys.RETURN);
@@ -214,6 +223,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 			findOnPage("CWS - History");
 
 			log.info("Looking for 'variable1 = foo' and 'variable2 = bar'");
+
 			if (findOnPage("Setting (string) variable1 = foo")
 					&& findOnPage("Setting (string) variable2 = bar")) {
 				scriptPass = true;
@@ -320,7 +330,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 				String color = driver.findElement(By.className("progress-bar-success")).getCssValue("background-color");
 				log.info(color);
 
-				if (color.equals("rgba(92, 184, 92, 1)")) { //color = green
+				if (color.equals("rgba(13, 110, 253, 1)")) { //color = blue
 					scriptPass = true;
 					procCounter = procCounter + 2;
 					testCasesCompleted++;

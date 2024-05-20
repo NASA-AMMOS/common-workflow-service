@@ -6,6 +6,7 @@
     <meta charset="utf-8">
     <title>CWS - Processes</title>
     <script src="/${base}/js/jquery.min.js"></script>
+    <script src="/${base}/js/popper.min.js"></script>
     <script src="/${base}/js/bootstrap.min.js"></script>
     <script src="/${base}/js/moment.js"></script>
     <script src="/${base}/js/DataTables/datatables.js"></script>
@@ -44,7 +45,7 @@
         <div class="container-fluid">
             <div class="row">
                 <#include "sidebar.ftl">
-                    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+                    <div class="main-content">
 
                         <span id="statusMessageDiv">
                             <h2>${msg}</h2>
@@ -54,48 +55,49 @@
 
                         <!-- Filters box (top of page) -->
                         <div id="filters-div">
-                            <h3 style="margin-top: 10px;">Filters:</h3>
+                            <h4 style="margin-top: 10px;">Filters:</h4>
                             <p>Select filters before retrieving data to reduce loading time.</p>
-                            <div class="col-md-4">
-                                <h4>Process Definition:</h4>
-                                <select id="pd-select">
-                                    <option value="def">Select PD</option>
-                                    <#list procDefs as pd>
-                                        <option value="${pd.key}">${pd.name}</option>
-                                    </#list>
-                                </select>
+                            <div style="display: flex; gap: 20px;">
                                 <div>
-                                    <h4 style="margin-top: 15px;">Subprocess & Superprocess:</h4>
+                                    <h4>Process Definition:</h4>
+                                    <select id="pd-select">
+                                        <option value="def">Select PD</option>
+                                        <#list procDefs as pd>
+                                            <option value="${pd.key}">${pd.name}</option>
+                                        </#list>
+                                    </select>
+                                </div>
+                                <div style="width: 200px;">
+                                    <h4>Subprocess & Superprocess:</h4>
                                     <input id="super-proc-inst-id-in" style="width: 90%" type="text"
                                         class="form-control" placeholder="Superprocess Instance ID" />
-                                </div>
-                                <div style="margin-top: 10px" id="hide-subprocs-div">
+                                    <div style="margin-top: 10px" id="hide-subprocs-div">
                                     <label for="hide-subprocs">Hide Subprocesses</label>
                                     <input name="hide-subprocs" id="hide-subprocs-btn" type="checkbox">
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <h4>Status:</h4>
-                                <div id="status-select">
-                                    <input id="fail" type="checkbox" value="fail" />
-                                    <label for="fail">Failed</label><br />
-                                    <input id="complete" type="checkbox" value="complete" />
-                                    <label for="complete">Complete</label><br />
-                                    <input id="resolved" type="checkbox" value="resolved" />
-                                    <label for="resolved">Resolved</label><br />
-                                    <input id="running" type="checkbox" value="running" />
-                                    <label for="running">Running</label><br />
-                                    <input id="pending" type="checkbox" value="pending" />
-                                    <label for="pending">Pending</label><br />
-                                    <input id="disabled" type="checkbox" value="disabled" />
-                                    <label for="disabled">Disabled</label><br />
-                                    <input id="failedToStart" type="checkbox" value="failedToStart" />
-                                    <label for="failedToStart">Failed to Start</label><br />
-                                    <input id="incident" type="checkbox" value="incident" />
-                                    <label for="incident">Incident</label><br />
                                 </div>
-                            </div>
-                            <div class="col-md-4">
+
+                                <div>
+                                    <h4>Status:</h4>
+                                    <div id="status-select">
+                                        <input id="fail" type="checkbox" value="fail" />
+                                        <label for="fail">Failed</label><br />
+                                        <input id="complete" type="checkbox" value="complete" />
+                                        <label for="complete">Complete</label><br />
+                                        <input id="resolved" type="checkbox" value="resolved" />
+                                        <label for="resolved">Resolved</label><br />
+                                        <input id="running" type="checkbox" value="running" />
+                                        <label for="running">Running</label><br />
+                                        <input id="pending" type="checkbox" value="pending" />
+                                        <label for="pending">Pending</label><br />
+                                        <input id="disabled" type="checkbox" value="disabled" />
+                                        <label for="disabled">Disabled</label><br />
+                                        <input id="failedToStart" type="checkbox" value="failedToStart" />
+                                        <label for="failedToStart">Failed to Start</label><br />
+                                        <input id="incident" type="checkbox" value="incident" />
+                                        <label for="incident">Incident</label><br />
+                                    </div>
+                                </div>
                                 <div id="datepicker-div">
                                     <h4>Created Date:</h4>
                                     <input id="min-date" class="form-control" data-date-format="yyyy-mm-dd" type="text"
@@ -112,7 +114,7 @@
                                 </div>
                             </div>
                             <br />
-                            <div class="col-md-12">
+                            <div style="display: flex; gap: 10px; align-items: baseline;">
                                 <input type="button" id="filter-submit-btn" class="btn btn-info pull-right"
                                     value="Filter" />
                                 <h5 class="pull-right" style="margin-right: 8px;">Matched Processes: <span
@@ -123,15 +125,13 @@
                         </div>
 
                         <!-- Toggle visibility of filters button -->
-                        <div id="filters-btn" class="btn btn-warning"><span class="glyphicon glyphicon-filter">
-                            </span>&nbsp;Filters&nbsp;<span id="filter-arrow"
-                                class="glyphicon glyphicon-chevron-up"></span>
+                        <div id="filters-btn" class="btn btn-warning"><img height="16" width="16" src="/${base}/images/filter.svg" />&nbsp;Filters&nbsp;<img height="16" width="16" src="/${base}/images/chevron_up.svg" />
                         </div>
 
                         <!-- Shows superprocess ID when displaying subprocesses, hidden otherwise -->
                         <div id="display-subprocs-div">
-                            <h3>Displaying Subprocesses for Process Instance ID: <span
-                                    id="super-proc-inst-id">34374-349083748</span></h3>
+                            <h4>Displaying Subprocesses for Process Instance ID: <span
+                                    id="super-proc-inst-id">34374-349083748</span></h4>
                         </div>
                         <div id="action_msg"></div>
 
@@ -149,8 +149,7 @@
                                                     class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                                                     aria-haspopup="true" aria-label="Select Options"
                                                     style="background-color: transparent; border-color: transparent; box-shadow: none; display: flex; justify-content: center; width: 14px; border: 0px solid transparent; padding-left: 15px; padding-right: 15px">
-                                                    <span class="glyphicon glyphicon-chevron-down"
-                                                        aria-hidden="true"></span>
+                                                    <img height="16" width="16" src="/${base}/images/chevron_down.svg" />
                                                 </button>
                                                 <ul class="dropdown-menu">
                                                     <li><a id="selectOnPage" onclick="selectPage()">Select x processes
@@ -240,9 +239,9 @@
                 //Toggle direction of chevron on filter visiblity toggle button
                 $("#filters-btn").on("click", function () {
                     if ($("#filters-div").is(":visible"))
-                        $("#filter-arrow").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
+                        $("#filter-arrow").attr("src", "/${base}/images/chevron_down.svg");
                     else
-                        $("#filter-arrow").removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
+                        $("#filter-arrow").attr("src","/${base}/images/chevron_up.svg");
                     $("#filters-div").slideToggle();
                 });
 
@@ -315,7 +314,7 @@
                     //allows for editing what buttons / text says on/in the table
                     language: {
                         searchBuilder: {
-                            add: "<i class=\"glyphicon glyphicon-search btn-icon\"></i>Add Local Filter",
+                            add: "<img height=\"16\" width=\"16\" src=\"/${base}/images/search.svg\" /></i>Add Local Filter",
                         }
                     },
                     //delays rendering the data in the dom until it has to (ex: don't render page 10 until we browse to page 10)
@@ -934,7 +933,7 @@
                             extend: 'colvis',
                             columns: ':not(.noVis)',
                             className: 'btn btn-primary',
-                            text: '<i class="glyphicon glyphicon-eye-open btn-icon"></i>Columns',
+                            text: '<img height="16" width="16" src="/${base}/images/visible_show.svg" style="margin-right: 5px;" />Columns',
                         }
                     ],
                     //enables the complex search builder, tells it what columns should be able to be searched
@@ -981,7 +980,7 @@
                 });
 
                 //add our action dropdown button to the div that datatables created (created in dom: above)
-                $('<div class="btn-group"><button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><i class="glyphicon glyphicon-tasks btn-icon"></i>&nbsp;Actions &nbsp;'
+                $('<div class="btn-group"><button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><img height="16" width="16" src="/${base}/images/waterfall_light.svg" />&nbsp;Actions &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
@@ -998,7 +997,7 @@
                     + `</ul></div>`).appendTo(".above-table-buttons");
 
                 //add our download dropdown button to the div that datatables created (created in dom: above)
-                $('<div class="btn-group"><button id="action-download-group" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><i class="glyphicon glyphicon-save btn-icon"></i>&nbsp;Download &nbsp;'
+                $('<div class="btn-group"><button id="action-download-group" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><img height="16" width="16" src="/${base}/images/save_light.svg" />&nbsp;Download &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="action-download-group">'

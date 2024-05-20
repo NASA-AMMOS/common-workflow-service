@@ -268,7 +268,11 @@ public class WorkersTestIT extends WebTestUtil {
 			
 			waitForElementID("saveConfirmBtn");
 			log.info("Clicking on 'Save Confirm' button.");
-			driver.findElement(By.id("saveConfirmBtn")).click();
+			WebElement saveConfirmBtn = driver.findElement(By.id("saveConfirmBtn"));
+			
+	  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", saveConfirmBtn);
+
+			saveConfirmBtn.click();
 			
 			wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("saveConfirmBtn")));
 			
