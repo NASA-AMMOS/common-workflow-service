@@ -10,25 +10,25 @@
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<link href="/${base}/css/bootstrap-datepicker.min.css" rel="stylesheet">
 	<script>
-	var params = {};
-	var rows;
+		var params = {};
+		var rows;
 
-	$( document ).ready(function() {
-		// 
-		if ($("#statusMessageDiv:contains('ERROR:')").length >= 1) {
-			$("#statusMessageDiv").css( "color", "red" );
-		}
-		else {
-			$("#statusMessageDiv").css( "color", "green" );
-			if ($('#statusMessageDiv').html().length > 9) {
-				$('#statusMessageDiv').fadeOut(5000, "linear");
+		$( document ).ready(function() {
+			//
+			if ($("#statusMessageDiv:contains('ERROR:')").length >= 1) {
+				$("#statusMessageDiv").css( "color", "red" );
 			}
-		}
-	});
+			else {
+				$("#statusMessageDiv").css( "color", "green" );
+				if ($('#statusMessageDiv').html().length > 9) {
+					$('#statusMessageDiv').fadeOut(5000, "linear");
+				}
+			}
+		});
 
-	
+
 	</script>
-	
+
 	<!-- Just for debugging purposes. Don't actually copy this line! -->
 	<!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
 
@@ -58,13 +58,13 @@
 	<div class="row">
 		<#include "sidebar.ftl">
 		<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-	
+
 			<span id="statusMessageDiv">
 				<h2>${msg}</h2>
 			</span>
-	
+
 			<h2 class="sub-header">Documentation</h2>
-			
+
 			<div id="config-div">
 				<table id="configData" class="table table-striped table-bordered sortable">
 					<tr>
@@ -79,10 +79,17 @@
 					<tr>
 						<td><a href="http://www.bpmnquickguide.com/quickguide/index.html" target="_blank">BP Incubator BPMN Quick Guide</a></td>
 					</tr>
+					<tr>
+						<td>
+							<a href="/cws-ui/api-docs" target="_blank">CWS REST API Documentation</a>
+							<i style="margin-left: 8px; font-size: small">Created with SwaggerUI</i>
+						</td>
+					</tr>
+					<tr>
+						<td><a href="https://docs.camunda.org/rest/camunda-bpm-platform/7.20/" target="_blank">Camunda API Documentation</a></td>
+					</tr>
 				</table>
 			</div>
-			
-			<table>
 		</div>
 	</div>
 </div>

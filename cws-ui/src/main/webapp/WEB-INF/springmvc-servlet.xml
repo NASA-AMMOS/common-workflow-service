@@ -14,6 +14,8 @@
 	<context:annotation-config/>
 	
 	<context:property-placeholder location="classpath:cws-ui.properties"/>
+
+    <bean id="swaggerConfig" class="jpl.cws.controller.SwaggerConfig"/>
 	
     <mvc:annotation-driven>
         <mvc:path-matching suffix-pattern="true" />

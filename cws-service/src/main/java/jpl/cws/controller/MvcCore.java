@@ -286,5 +286,17 @@ public class MvcCore {
 		return model;
 	}
 
-}
+	protected  ModelAndView buildApiDocsModel(String message) {
+		log.trace("Building apidocs's model...");
+		ModelAndView model = new ModelAndView("api-docs");
+		try {
+			model.addObject("base", appRoot);
+			model.addObject("msg", message);
 
+			log.trace("MODEL for Modeler page: "+model.getModel());
+		}
+		catch (Throwable t) {
+			log.error("Unexpected exception", t);
+		}
+		return model;
+	}
