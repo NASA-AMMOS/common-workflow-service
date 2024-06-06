@@ -19,17 +19,21 @@ import jpl.cws.service.camunda.CamundaExecutionService;
 @Component
 public class MvcCore {
 	private static final Logger log = LoggerFactory.getLogger(MvcCore.class);
-	
+
 	@Autowired protected CamundaExecutionService cwsExecutionService;
 	@Autowired protected SchedulerQueueUtils cwsSchedulerUtils;
 	@Autowired private CwsConsoleService cwsConsoleService;
-	
+
 	@Value("${cws.console.app.root}")    	private String appRoot;
 	@Value("${cws.version}")             	private String version;
 	@Value("${cws.db.type}")             	private String dbType;
 	@Value("${cws.db.host}")             	private String dbHost;
 	@Value("${cws.db.name}")             	private String dbName;
 	@Value("${cws.db.port}")             	private String dbPort;
+	@Value("${cws.elasticsearch.protocol}") private String esProtocol;
+	@Value("${cws.elasticsearch.hostname}") private String esHost;
+	@Value("${cws.elasticsearch.index.prefix}") 	private String esIndexPrefix;
+	@Value("${cws.elasticsearch.port}") 	private String esPort;
 	@Value("${cws.auth.scheme}")         	private String authScheme;
 	@Value("${cws.install.dir}")         	private String installDir;
 	@Value("${cws.tomcat.lib}")          	private String tomcatLib;
@@ -41,7 +45,7 @@ public class MvcCore {
 	@Value("${cws.history.level}") 			private String historyLevel;
 
 	public MvcCore() {}
-	
+
 	protected ModelAndView buildModel(String page, String message) {
 		ModelAndView model = new ModelAndView(page);
 		model.addObject("base", appRoot);
@@ -52,13 +56,13 @@ public class MvcCore {
 		log.debug("MODEL: "+model.getModel());
 		return model;
 	}
-	
-	
+
+
 	protected ModelAndView buildHomeModel(String message) {
 		ModelAndView model = new ModelAndView("home");
 		model.addObject("base", appRoot);
 		model.addObject("msg", message);
-		
+
 		log.trace("MODEL for Home page: "+model.getModel());
 		return model;
 	}
@@ -83,8 +87,8 @@ public class MvcCore {
 		log.trace("MODEL for Summary page: "+model.getModel());
 		return model;
 	}
-	
-	
+
+
 	protected ModelAndView buildDeploymentsModel(String message) {
 		log.trace("buildDeploymentsModel...");
 		ModelAndView model = new ModelAndView("deployments");
@@ -95,7 +99,7 @@ public class MvcCore {
 			// Add list of (the latest) process definitions to the model
 			//
 			model.addObject("procDefs", cwsExecutionService.listProcessDefinitions());
-			
+
 			log.trace("MODEL for Deployments page: "+model.getModel());
 		}
 		catch (Throwable t) {
@@ -123,14 +127,14 @@ public class MvcCore {
 		}
 		return model;
 	}
-	
+
 	protected ModelAndView buildHistoryModel(String message) {
 		log.trace("buildHistoryModel...");
 		ModelAndView model = new ModelAndView("history");
 		try {
 			model.addObject("base", appRoot);
 			model.addObject("msg", message);
-			
+
 			log.trace("MODEL for History page: "+model.getModel());
 		}
 		catch (Throwable t) {
@@ -138,9 +142,9 @@ public class MvcCore {
 		}
 		return model;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	protected ModelAndView buildProcessesModel(String message) {
 		ModelAndView model = new ModelAndView("processes");
@@ -159,10 +163,10 @@ public class MvcCore {
 		}
 		return model;
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	protected ModelAndView buildConfigurationModel(String message) {
 		ModelAndView model = new ModelAndView("configuration");
@@ -175,6 +179,10 @@ public class MvcCore {
 			model.addObject("dbHost",			dbHost);
 			model.addObject("dbName",			dbName);
 			model.addObject("dbPort",			dbPort);
+			model.addObject("esProtocol",	    esProtocol);
+			model.addObject("esHost",			esHost);
+			model.addObject("esIndexPrefix",	esIndexPrefix);
+			model.addObject("esPort",			esPort);
 			model.addObject("authScheme",		authScheme);
 			model.addObject("installDir",		installDir);
 			model.addObject("tomcatLib",  	 	tomcatLib);
@@ -188,10 +196,10 @@ public class MvcCore {
 			model.addObject("camundaVersion", System.getenv("CAMUNDA_VER"));
 
 			DiskUsage diskUsage = cwsConsoleService.getDiskUsage();
-			
+
 			model.addObject("databaseSize",  diskUsage.databaseSize);
 			model.addObject("workersInfo",  diskUsage.workers);
-			
+
 			log.trace("MODEL for Configuration page: "+model.getModel());
 		}
 		catch (Throwable t) {
@@ -199,15 +207,15 @@ public class MvcCore {
 		}
 		return model;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	protected ModelAndView buildModelerModel() {
 		ModelAndView model = new ModelAndView("modeler");
 		try {
 			model.addObject("base", appRoot);
-			
+
 			log.trace("MODEL for Modeler page: "+model.getModel());
 		}
 		catch (Throwable t) {
@@ -215,10 +223,10 @@ public class MvcCore {
 		}
 		return model;
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 */
 	protected ModelAndView buildDocumentationModel(String message) {
 		ModelAndView model = new ModelAndView("documentation");
@@ -232,11 +240,11 @@ public class MvcCore {
 		}
 		return model;
 	}
-	
-	
+
+
 	/**
 	 * Model for "Workers" web page
-	 * 
+	 *
 	 */
 	protected ModelAndView buildWorkersModel() {
 		ModelAndView model = new ModelAndView("workers");
@@ -247,19 +255,19 @@ public class MvcCore {
 		//
 		List<ProcessDefinition> procDefs = cwsExecutionService.listProcessDefinitions();
 		model.addObject("procDefs", procDefs);
-		
+
 		model.addObject("workers", cwsConsoleService.getWorkersUiDTO(procDefs));
 		model.addObject("externalWorkers", cwsConsoleService.getExternalWorkersUiDTO());
-		
+
 		model.addObject("workersTitle", cwsConsoleService.getWorkersTitle());
-		
+
 		try {
 			Set<org.apache.activemq.broker.Connection> clients = cwsSchedulerUtils.getAmqClients();
 			model.addObject("amqClients", clients);
 		} catch (Exception e) {
 			log.error("There was a problem getting listing of AMQ clients", e);
 		}
-		
+
 		return model;
 	}
 
@@ -277,6 +285,6 @@ public class MvcCore {
 		}
 		return model;
 	}
-	
+
 }
 

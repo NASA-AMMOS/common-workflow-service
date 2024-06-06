@@ -13,59 +13,58 @@
 	var params = {};
 	var rows;
 	var es = [];
-	
+
 	function formatBytes(bytes,decimals) {
 	   if(bytes == 0) return '0 Bytes';
-	   
+
 	   var k = 1024,
 	       dm = decimals <= 0 ? 0 : decimals || 2,
 	       sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
 	       i = Math.floor(Math.log(bytes) / Math.log(k));
-	       
+
 	   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 	}
 
 	function getEsIndices() {
-	
-	
-		$.ajax({ 
+
+		$.ajax({
 			url: "/${base}/rest/stats/es/indices",
 			success: function( data ) {
-				
+
 				for (var i = 0; i < data.length; i++) {
-				
-					var index = data[i];
-					var health = index.health;
-					
-					if (health === 'yellow') {
-						health += ' (OK)';
-					}
-					
-					var size = formatBytes(parseInt(index["store.size"], 10));
-					
-					$("#es_indices").append('<tr><td>' + index.index + '</td><td>' + health + '</td><td>' + size + '</td></tr>');
+                    var index = data[i];
+                    if (index.index.startsWith("${esIndexPrefix}")) {
+
+    					var health = index.health;
+
+    					if (health === 'yellow') {
+    						health += ' (OK)';
+    					}
+    					var size = formatBytes(parseInt(index["store.size"], 10));
+    					$("#es_indices").append('<tr><td>' + index.index + '</td><td>' + health + '</td><td>' + size + '</td></tr>');
+                    }
 				}
-				
+
 			//	$("#es_num_indices").html(data.length);
 			},
 			error: function(err){
 				console.log("getes indices failed!", err);
 			}
 		});
-		
+
 	}
-	
+
 	function refreshElasticsearchStats() {
-	
-		$.ajax({ 
+
+		$.ajax({
 			url: "/${base}/rest/stats/es",
 			success: function( data ) {
-				
+
 				for (var property in data.nodes) {
 				  if (data.nodes.hasOwnProperty(property)) {
-				  
+
 				    var node = data.nodes[property];
-				    
+
 				    es.push( { 	host: node.host,
 				    			size: node.indices.store.size_in_bytes,
 				    			disk_free: node.fs.total.free_in_bytes,
@@ -73,31 +72,31 @@
 				    			memory_used_precent: node.os.mem.used_percent } );
 				  }
 				}
-				
+
 				$("#es_host").html(es[0].host);
 				$("#es_disk_used").html(formatBytes(es[0].size));
 				$("#es_disk_free").html(formatBytes(es[0].disk_free));
 				$("#es_cpu").html(es[0].cpu_usage_percent + "%");
 				$("#es_memory").html(es[0].memory_used_precent + "%");
-				
+
 			},
 			error: function(){
 			}
 		});
 	}
-	
+
 	function updateValues() {
-					
+
 		var dbSize = formatBytes(parseInt('${databaseSize}'.replace(/,/g, ''), 10));
-		
+
 		$("#db_size").html(dbSize);
-		
-		
+
+
 		// Update table values
 		var table = $("#diskUsage tbody");
-		
+
         table.find('tr').each(function (i, el) {
-        
+
 	        var $tds = $(this).find('td'),
 	        	node = $tds.eq(1),
 	            sizeWithCommas = node.text();
@@ -111,9 +110,9 @@
             }
 	    });
 	}
-		
+
 	$( document ).ready(function() {
-		// 
+		//
 		if ($("#statusMessageDiv:contains('ERROR:')").length >= 1) {
 			$("#statusMessageDiv").css( "color", "red" );
 		}
@@ -123,15 +122,15 @@
 				$('#statusMessageDiv').fadeOut(5000, "linear");
 			}
 		}
-		
+
 		updateValues();
 		getEsIndices();
 		refreshElasticsearchStats();
 	});
 
-	
+
 	</script>
-	
+
 	<!-- Just for debugging purposes. Don't actually copy this line! -->
 	<!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
 
@@ -147,28 +146,28 @@
 			margin-bottom: 1em;
 			float:left;
 		}
-		
+
 		.database {
 			display: flex;
 			align-items: center;
 			margin: 30px 0px 50px;
 		}
-		
+
 		.database > div {
 			font-size: 23px;
 		}
-		
+
 		#db_size {
 			border-radius: 8px;
 			margin-left: 25px;
 			background: #ededed;
 			padding: 10px;
 		}
-		
+
 		.margin {
 			margin-bottom: 20px;
 		}
-		
+
 	</style>
 </head>
 
@@ -180,13 +179,13 @@
 	<div class="row">
 		<#include "sidebar.ftl">
 		<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-	
+
 			<span id="statusMessageDiv">
 				<h2>${msg}</h2>
 			</span>
-	
+
 			<h2 class="sub-header">Configuration</h2>
-			
+
 			<div id="config-div">
 				<table id="configData" class="table table-striped table-bordered sortable">
 					<tr>
@@ -212,6 +211,14 @@
 					<tr>
 						<td>CWS Database Port</td>
 						<td>${dbPort}</td>
+					</tr>
+					<tr>
+						<td>CWS Elasticsearch URL</td>
+						<td>${esProtocol}://${esHost}:${esPort}</td>
+					</tr>
+					<tr>
+						<td>CWS Elasticsearch Index Prefix</td>
+						<td>${esIndexPrefix}</td>
 					</tr>
 					<tr>
 						<td>CWS Authentication Scheme</td>
@@ -252,7 +259,7 @@
 					<tr>
 						<td>Java Version</td>
 						<td>${javaVersion}</td>
-					</tr>					
+					</tr>
 					<tr>
 						<td>Java Home Path</td>
 						<td>${javaHome}</td>
@@ -263,14 +270,14 @@
 			<br/>
 			<div>
 				<h3 class="sub-header">System Health</h3>
-				
+
 				<div class="database">
 					<div>Database Disk Usage</div>
 					<div id="db_size">${databaseSize}</div>
 				</div>
-				
+
 				<h3 class="margin">System</h3>
-				
+
 					<table id="diskUsage" class="table table-striped table-bordered sortable">
 					<tr>
 						<th>Name</th>
@@ -307,10 +314,10 @@
 				<br/>
 				<div id="esdata">
 					<h3 class="margin">Elasticsearch Server</h3>
-					
+
 					<table class="table table-striped table-bordered sortable">
 						<tr>
-							<!-- Placeholder will get overwritten in by refreshElasticsearchStats() --> 
+							<!-- Placeholder will get overwritten in by refreshElasticsearchStats() -->
 							<th>Hostname</th>
 							<td id="es_host">127.0.0.1</td>
 						</tr>

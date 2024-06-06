@@ -222,7 +222,7 @@ public class CwsInstaller {
 	private static String elasticsearch_protocol_init;
 	private static String elasticsearch_host;
 	private static String elasticsearch_host_init;
-	private static String elasticsearch_index_name;
+	private static String elasticsearch_index_prefix;
 	private static String elasticsearch_port;
 	private static String elasticsearch_use_auth;
 	private static String elasticsearch_username;
@@ -1370,18 +1370,18 @@ public class CwsInstaller {
 		log.debug("elasticsearch_port: " + elasticsearch_port);
 
 		// PROMPT USER FOR ELASTICSEARCH INDEX
-		elasticsearch_index_name = getPreset("elasticsearch_index_name");
+		elasticsearch_index_prefix = getPreset("elasticsearch_index_prefix");
 
-		if (elasticsearch_index_name == null) {
-			elasticsearch_index_name = getPreset("default_elasticsearch_index_name");
+		if (elasticsearch_index_prefix == null) {
+			elasticsearch_index_prefix = getPreset("default_elasticsearch_index_prefix");
 		}
 
 		if (cws_installer_mode.equals("interactive")) {
-			elasticsearch_index_name = readLine("Enter the Elasticsearch Index. " +
-					"Default is " + elasticsearch_index_name + ": ", elasticsearch_index_name);
+			elasticsearch_index_prefix = readLine("Enter the Elasticsearch Index. " +
+					"Default is " + elasticsearch_index_prefix + ": ", elasticsearch_index_prefix);
 		}
 
-		log.debug("elasticsearch_index_name: " + elasticsearch_index_name);
+		log.debug("elasticsearch_index_prefix: " + elasticsearch_index_prefix);
 
 
 		// PROMPT USER ELASTICSEARCH AUTH
@@ -1799,7 +1799,7 @@ public class CwsInstaller {
 		print("....................................................................................");
 		print("Elasticsearch Protocol        = " + elasticsearch_protocol);
 		print("Elasticsearch Host            = " + elasticsearch_host);
-		print("Elasticsearch Index Name      = " + elasticsearch_index_name);
+		print("Elasticsearch Index Prefix    = " + elasticsearch_index_prefix);
         print("Elasticsearch Port            = " + elasticsearch_port);
 		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 			print("Elasticsearch User            = " + elasticsearch_username);
@@ -2459,7 +2459,7 @@ public class CwsInstaller {
 				print("           [ELASTICSEARCH]: Configuration Details");
 				print("               elasticsearch_protocol=" + elasticsearch_protocol_init + "  ");
 				print("               elasticsearch_host=" + elasticsearch_host_init + "  ");
-				print("               elasticsearch_index_name=" + elasticsearch_index_name + "  ");
+				print("               elasticsearch_index_prefix=" + elasticsearch_index_prefix + "  ");
 				print("               elasticsearch_port=" + elasticsearch_port + "  ");
 				print("       .........................................................................................");
 				print("");
@@ -2982,7 +2982,7 @@ public class CwsInstaller {
 		content = content.replace("__CWS_CONSOLE_SSL_PORT__",            cws_console_ssl_port);
 		content = content.replace("__CWS_ES_PROTOCOL__",                 elasticsearch_protocol);
 		content = content.replace("__CWS_ES_HOST__",                     elasticsearch_host);
-		content = content.replace("__CWS_ES_INDEX_NAME__",               elasticsearch_index_name);
+		content = content.replace("__CWS_ES_INDEX_PREFIX__",             elasticsearch_index_prefix);
 		content = content.replace("__CWS_ES_PORT__",                     elasticsearch_port);
 		content = content.replace("__CWS_ES_USE_AUTH__",                 elasticsearch_use_auth);
 		content = content.replace("__CWS_ENABLE_CLOUD_AUTOSCALING__",    cws_enable_cloud_autoscaling);
@@ -3105,7 +3105,7 @@ public class CwsInstaller {
 		content = getFileContents(path);
 		content = content.replace("__ES_PROTOCOL__",      			elasticsearch_protocol);
 		content = content.replace("__ES_HOST__",      				elasticsearch_host);
-		content = content.replace("__ES_INDEX_NAME__",              elasticsearch_index_name);
+		content = content.replace("__ES_INDEX_PREFIX__",            elasticsearch_index_prefix);
 		content = content.replace("__ES_PORT__",  					elasticsearch_port);
 		content = content.replace("__ES_USE_AUTH__",                elasticsearch_use_auth);
 		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
@@ -3350,7 +3350,7 @@ public class CwsInstaller {
 
 		logstashContent = logstashContent.replace("__CWS_ES_PROTOCOL__", elasticsearch_protocol);
 		logstashContent = logstashContent.replace("__CWS_ES_HOST__", elasticsearch_host);
-		logstashContent = logstashContent.replace("__CWS_ES_INDEX_NAME__", elasticsearch_index_name);
+		logstashContent = logstashContent.replace("__CWS_ES_INDEX_PREFIX__", elasticsearch_index_prefix);
 		logstashContent = logstashContent.replace("__CWS_ES_PORT__", elasticsearch_port);
 		if (elasticsearch_use_auth.equalsIgnoreCase(("Y"))) {
 			// Construct the auth config for logstash
@@ -3436,7 +3436,7 @@ public class CwsInstaller {
 		setPreset("cws_token_expiration_hours", cws_token_expiration_hours);
 		setPreset("elasticsearch_protocol", elasticsearch_protocol);
 		setPreset("elasticsearch_host", elasticsearch_host);
-		setPreset("elasticsearch_index_name", elasticsearch_index_name);
+		setPreset("elasticsearch_index_prefix", elasticsearch_index_prefix);
 		setPreset("elasticsearch_port", elasticsearch_port);
 		setPreset("elasticsearch_use_auth", elasticsearch_use_auth);
 		setPreset("elasticsearch_username", elasticsearch_username);

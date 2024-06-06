@@ -191,7 +191,7 @@ function auto_conf_data () {
     DB_PASS=${9}
     ES_PROTOCOL=${10}
     ES_HOST=${11}
-    ES_INDEX_NAME=${12}
+    ES_INDEX_PREFIX=${12}
     ES_PORT=${13}
     ES_USE_AUTH=${14}
     ES_USERNAME=${15}
@@ -282,7 +282,7 @@ function auto_conf_data () {
     database_password=${DB_PASS}
     elasticsearch_protocol=${ES_PROTOCOL}
     elasticsearch_host=${ES_HOST}
-    elasticsearch_index_name=${ES_INDEX_NAME}
+    elasticsearch_index_prefix=${ES_INDEX_PREFIX}
     elasticsearch_port=${ES_PORT}
     elasticsearch_use_auth=${ES_USE_AUTH}
     elasticsearch_username=${ES_USERNAME}
