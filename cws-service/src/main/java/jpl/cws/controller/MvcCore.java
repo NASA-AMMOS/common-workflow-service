@@ -20,31 +20,54 @@ import jpl.cws.service.camunda.CamundaExecutionService;
 public class MvcCore {
 	private static final Logger log = LoggerFactory.getLogger(MvcCore.class);
 
-	@Autowired protected CamundaExecutionService cwsExecutionService;
-	@Autowired protected SchedulerQueueUtils cwsSchedulerUtils;
-	@Autowired private CwsConsoleService cwsConsoleService;
+	@Autowired
+	protected CamundaExecutionService cwsExecutionService;
+	@Autowired
+	protected SchedulerQueueUtils cwsSchedulerUtils;
+	@Autowired
+	private CwsConsoleService cwsConsoleService;
 
-	@Value("${cws.console.app.root}")    	private String appRoot;
-	@Value("${cws.version}")             	private String version;
-	@Value("${cws.db.type}")             	private String dbType;
-	@Value("${cws.db.host}")             	private String dbHost;
-	@Value("${cws.db.name}")             	private String dbName;
-	@Value("${cws.db.port}")             	private String dbPort;
-	@Value("${cws.elasticsearch.protocol}") private String esProtocol;
-	@Value("${cws.elasticsearch.hostname}") private String esHost;
-	@Value("${cws.elasticsearch.index.prefix}") 	private String esIndexPrefix;
-	@Value("${cws.elasticsearch.port}") 	private String esPort;
-	@Value("${cws.auth.scheme}")         	private String authScheme;
-	@Value("${cws.install.dir}")         	private String installDir;
-	@Value("${cws.tomcat.lib}")          	private String tomcatLib;
-	@Value("${cws.tomcat.bin}")          	private String tomcatBin;
-	@Value("${cws.tomcat.home}")          	private String tomcatHome;
-	@Value("${cws.tomcat.webapps}")         private String tomcatWebapps;
-	@Value("${cws.project.webapp.root}") 	private String projectWebappRoot;
-	@Value("${cws.history.days.to.live}") 	private String historyDaysToLive;
-	@Value("${cws.history.level}") 			private String historyLevel;
+	@Value("${cws.console.app.root}")
+	private String appRoot;
+	@Value("${cws.version}")
+	private String version;
+	@Value("${cws.db.type}")
+	private String dbType;
+	@Value("${cws.db.host}")
+	private String dbHost;
+	@Value("${cws.db.name}")
+	private String dbName;
+	@Value("${cws.db.port}")
+	private String dbPort;
+	@Value("${cws.elasticsearch.protocol}")
+	private String esProtocol;
+	@Value("${cws.elasticsearch.hostname}")
+	private String esHost;
+	@Value("${cws.elasticsearch.index.prefix}")
+	private String esIndexPrefix;
+	@Value("${cws.elasticsearch.port}")
+	private String esPort;
+	@Value("${cws.auth.scheme}")
+	private String authScheme;
+	@Value("${cws.install.dir}")
+	private String installDir;
+	@Value("${cws.tomcat.lib}")
+	private String tomcatLib;
+	@Value("${cws.tomcat.bin}")
+	private String tomcatBin;
+	@Value("${cws.tomcat.home}")
+	private String tomcatHome;
+	@Value("${cws.tomcat.webapps}")
+	private String tomcatWebapps;
+	@Value("${cws.project.webapp.root}")
+	private String projectWebappRoot;
+	@Value("${cws.history.days.to.live}")
+	private String historyDaysToLive;
+	@Value("${cws.history.level}")
+	private String historyLevel;
 
-	public MvcCore() {}
+	public MvcCore() {
+	}
 
 	protected ModelAndView buildModel(String page, String message) {
 		ModelAndView model = new ModelAndView(page);
@@ -53,7 +76,7 @@ public class MvcCore {
 		if (projectWebappRoot != null && !projectWebappRoot.isEmpty()) {
 			model.addObject("cwsProjectWebappRoot", projectWebappRoot);
 		}
-		log.debug("MODEL: "+model.getModel());
+		log.debug("MODEL: " + model.getModel());
 		return model;
 	}
 
@@ -63,7 +86,7 @@ public class MvcCore {
 		model.addObject("base", appRoot);
 		model.addObject("msg", message);
 
-		log.trace("MODEL for Home page: "+model.getModel());
+		log.trace("MODEL for Home page: " + model.getModel());
 		return model;
 	}
 
@@ -84,7 +107,7 @@ public class MvcCore {
 		}
 		model.addObject("numActiveProcDefs", numActivePd);
 
-		log.trace("MODEL for Summary page: "+model.getModel());
+		log.trace("MODEL for Summary page: " + model.getModel());
 		return model;
 	}
 
@@ -100,9 +123,8 @@ public class MvcCore {
 			//
 			model.addObject("procDefs", cwsExecutionService.listProcessDefinitions());
 
-			log.trace("MODEL for Deployments page: "+model.getModel());
-		}
-		catch (Throwable t) {
+			log.trace("MODEL for Deployments page: " + model.getModel());
+		} catch (Throwable t) {
 			log.error("Unexpected exception", t);
 		}
 		return model;
@@ -120,9 +142,8 @@ public class MvcCore {
 			model.addObject("procDefs", cwsExecutionService.listProcessDefinitions());
 			model.addObject("workerIds", cwsConsoleService.getAllWorkerIds());
 
-			log.trace("MODEL for Logs page: "+model.getModel());
-		}
-		catch (Throwable t) {
+			log.trace("MODEL for Logs page: " + model.getModel());
+		} catch (Throwable t) {
 			log.error("Unexpected exception", t);
 		}
 		return model;
@@ -135,9 +156,8 @@ public class MvcCore {
 			model.addObject("base", appRoot);
 			model.addObject("msg", message);
 
-			log.trace("MODEL for History page: "+model.getModel());
-		}
-		catch (Throwable t) {
+			log.trace("MODEL for History page: " + model.getModel());
+		} catch (Throwable t) {
 			log.error("Unexpected exception", t);
 		}
 		return model;
@@ -156,9 +176,8 @@ public class MvcCore {
 			//
 			model.addObject("procDefs", cwsExecutionService.listProcessDefinitions());
 
-			log.trace("MODEL for Processes page: "+model.getModel());
-		}
-		catch (Throwable t) {
+			log.trace("MODEL for Processes page: " + model.getModel());
+		} catch (Throwable t) {
 			log.error("Unexpected exception", t);
 		}
 		return model;
@@ -174,35 +193,34 @@ public class MvcCore {
 			model.addObject("base", appRoot);
 			model.addObject("msg", message);
 
-			model.addObject("version",			version);
-			model.addObject("dbType",			dbType);
-			model.addObject("dbHost",			dbHost);
-			model.addObject("dbName",			dbName);
-			model.addObject("dbPort",			dbPort);
-			model.addObject("esProtocol",	    esProtocol);
-			model.addObject("esHost",			esHost);
-			model.addObject("esIndexPrefix",	esIndexPrefix);
-			model.addObject("esPort",			esPort);
-			model.addObject("authScheme",		authScheme);
-			model.addObject("installDir",		installDir);
-			model.addObject("tomcatLib",  	 	tomcatLib);
-			model.addObject("tomcatBin",  	 	tomcatBin);
-			model.addObject("tomcatHome",  	tomcatHome);
-			model.addObject("tomcatWebapps",  	tomcatWebapps);
+			model.addObject("version", version);
+			model.addObject("dbType", dbType);
+			model.addObject("dbHost", dbHost);
+			model.addObject("dbName", dbName);
+			model.addObject("dbPort", dbPort);
+			model.addObject("esProtocol", esProtocol);
+			model.addObject("esHost", esHost);
+			model.addObject("esIndexPrefix", esIndexPrefix);
+			model.addObject("esPort", esPort);
+			model.addObject("authScheme", authScheme);
+			model.addObject("installDir", installDir);
+			model.addObject("tomcatLib", tomcatLib);
+			model.addObject("tomcatBin", tomcatBin);
+			model.addObject("tomcatHome", tomcatHome);
+			model.addObject("tomcatWebapps", tomcatWebapps);
 			model.addObject("historyDaysToLive", historyDaysToLive);
-			model.addObject("historyLevel", 		historyLevel);
+			model.addObject("historyLevel", historyLevel);
 			model.addObject("javaHome", System.getenv("JAVA_HOME"));
 			model.addObject("javaVersion", Runtime.version().toString());
 			model.addObject("camundaVersion", System.getenv("CAMUNDA_VER"));
 
 			DiskUsage diskUsage = cwsConsoleService.getDiskUsage();
 
-			model.addObject("databaseSize",  diskUsage.databaseSize);
-			model.addObject("workersInfo",  diskUsage.workers);
+			model.addObject("databaseSize", diskUsage.databaseSize);
+			model.addObject("workersInfo", diskUsage.workers);
 
-			log.trace("MODEL for Configuration page: "+model.getModel());
-		}
-		catch (Throwable t) {
+			log.trace("MODEL for Configuration page: " + model.getModel());
+		} catch (Throwable t) {
 			log.error("Unexpected exception", t);
 		}
 		return model;
@@ -216,9 +234,8 @@ public class MvcCore {
 		try {
 			model.addObject("base", appRoot);
 
-			log.trace("MODEL for Modeler page: "+model.getModel());
-		}
-		catch (Throwable t) {
+			log.trace("MODEL for Modeler page: " + model.getModel());
+		} catch (Throwable t) {
 			log.error("Unexpected exception", t);
 		}
 		return model;
@@ -234,8 +251,7 @@ public class MvcCore {
 			model.addObject("base", appRoot);
 			model.addObject("msg", message);
 			model.addObject("cwsVersion", version);
-		}
-		catch (Throwable t) {
+		} catch (Throwable t) {
 			log.error("Unexpected exception", t);
 		}
 		return model;
@@ -244,7 +260,6 @@ public class MvcCore {
 
 	/**
 	 * Model for "Workers" web page
-	 *
 	 */
 	protected ModelAndView buildWorkersModel() {
 		ModelAndView model = new ModelAndView("workers");
@@ -278,25 +293,24 @@ public class MvcCore {
 			model.addObject("base", appRoot);
 			model.addObject("msg", message);
 
-			log.trace("MODEL for Modeler page: "+model.getModel());
-		}
-		catch (Throwable t) {
+			log.trace("MODEL for Modeler page: " + model.getModel());
+		} catch (Throwable t) {
 			log.error("Unexpected exception", t);
 		}
 		return model;
 	}
 
-	protected  ModelAndView buildApiDocsModel(String message) {
+	protected ModelAndView buildApiDocsModel(String message) {
 		log.trace("Building apidocs's model...");
 		ModelAndView model = new ModelAndView("api-docs");
 		try {
 			model.addObject("base", appRoot);
 			model.addObject("msg", message);
 
-			log.trace("MODEL for Modeler page: "+model.getModel());
-		}
-		catch (Throwable t) {
+			log.trace("MODEL for Modeler page: " + model.getModel());
+		} catch (Throwable t) {
 			log.error("Unexpected exception", t);
 		}
 		return model;
 	}
+}
