@@ -33,7 +33,7 @@
 
 				for (var i = 0; i < data.length; i++) {
                     var index = data[i];
-                    if (index.index.startsWith("${esIndexPrefix}")) {
+                    if (index.index.startsWith("${esIndexPrefix}" + "-logstash")) {
 
     					var health = index.health;
 
