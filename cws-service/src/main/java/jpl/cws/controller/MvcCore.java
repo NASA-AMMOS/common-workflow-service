@@ -20,54 +20,31 @@ import jpl.cws.service.camunda.CamundaExecutionService;
 public class MvcCore {
 	private static final Logger log = LoggerFactory.getLogger(MvcCore.class);
 
-	@Autowired
-	protected CamundaExecutionService cwsExecutionService;
-	@Autowired
-	protected SchedulerQueueUtils cwsSchedulerUtils;
-	@Autowired
-	private CwsConsoleService cwsConsoleService;
+	@Autowired protected CamundaExecutionService cwsExecutionService;
+	@Autowired protected SchedulerQueueUtils cwsSchedulerUtils;
+	@Autowired private CwsConsoleService cwsConsoleService;
 
-	@Value("${cws.console.app.root}")
-	private String appRoot;
-	@Value("${cws.version}")
-	private String version;
-	@Value("${cws.db.type}")
-	private String dbType;
-	@Value("${cws.db.host}")
-	private String dbHost;
-	@Value("${cws.db.name}")
-	private String dbName;
-	@Value("${cws.db.port}")
-	private String dbPort;
-	@Value("${cws.elasticsearch.protocol}")
-	private String esProtocol;
-	@Value("${cws.elasticsearch.hostname}")
-	private String esHost;
-	@Value("${cws.elasticsearch.index.prefix}")
-	private String esIndexPrefix;
-	@Value("${cws.elasticsearch.port}")
-	private String esPort;
-	@Value("${cws.auth.scheme}")
-	private String authScheme;
-	@Value("${cws.install.dir}")
-	private String installDir;
-	@Value("${cws.tomcat.lib}")
-	private String tomcatLib;
-	@Value("${cws.tomcat.bin}")
-	private String tomcatBin;
-	@Value("${cws.tomcat.home}")
-	private String tomcatHome;
-	@Value("${cws.tomcat.webapps}")
-	private String tomcatWebapps;
-	@Value("${cws.project.webapp.root}")
-	private String projectWebappRoot;
-	@Value("${cws.history.days.to.live}")
-	private String historyDaysToLive;
-	@Value("${cws.history.level}")
-	private String historyLevel;
+	@Value("${cws.console.app.root}") private String appRoot;
+	@Value("${cws.version}") private String version;
+	@Value("${cws.db.type}") private String dbType;
+	@Value("${cws.db.host}") private String dbHost;
+	@Value("${cws.db.name}") private String dbName;
+	@Value("${cws.db.port}") private String dbPort;
+	@Value("${cws.elasticsearch.protocol}") private String esProtocol;
+	@Value("${cws.elasticsearch.hostname}") private String esHost;
+	@Value("${cws.elasticsearch.index.prefix}") private String esIndexPrefix;
+	@Value("${cws.elasticsearch.port}") private String esPort;
+	@Value("${cws.auth.scheme}") private String authScheme;
+	@Value("${cws.install.dir}") private String installDir;
+	@Value("${cws.tomcat.lib}") private String tomcatLib;
+	@Value("${cws.tomcat.bin}") private String tomcatBin;
+	@Value("${cws.tomcat.home}") private String tomcatHome;
+	@Value("${cws.tomcat.webapps}") private String tomcatWebapps;
+	@Value("${cws.project.webapp.root}") private String projectWebappRoot;
+	@Value("${cws.history.days.to.live}") private String historyDaysToLive;
+	@Value("${cws.history.level}") private String historyLevel;
 
-	public MvcCore() {
-	}
+	public MvcCore() {}
 
 	protected ModelAndView buildModel(String page, String message) {
 		ModelAndView model = new ModelAndView(page);

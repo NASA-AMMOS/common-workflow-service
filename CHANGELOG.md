@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [X.Y.Z](https://github.com/NASA-AMMOS/<repo_name>/releases/tag/X.Y.Z) - 2023-MM-DD
 
-### Added 
+### Added
+- IDS-10140
+  - Configure Elasticsearch Index name with Prefix setting: `elasticsearch_index_prefix`
 
-- 
-
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
