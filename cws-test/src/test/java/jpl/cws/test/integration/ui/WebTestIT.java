@@ -218,11 +218,11 @@ public class WebTestIT extends WebTestUtil {
 			waitForElementXPath("//a[contains(text(),'History')]");
 			WebElement historyButton = driver.findElement(By.xpath("//a[contains(text(),'History')]"));
 			historyButton.click();
-			sleep(1000);
+			sleep(5000);
 
 			findOnPage("ls");
-			findOnPage("Hello World");
 			findOnPage("Command 'ls' exit code: 0");
+			findOnPage("Hello World.");
 
 			sleep(9000);
 
@@ -261,7 +261,7 @@ public class WebTestIT extends WebTestUtil {
 			waitForElementXPath("//a[contains(text(),'History')]");
 			WebElement historyButton = driver.findElement(By.xpath("//a[contains(text(),'History')]"));
 			historyButton.click();
-			sleep(1000);
+			sleep(5000);
 
 			findOnPage("Groovy.");
 
