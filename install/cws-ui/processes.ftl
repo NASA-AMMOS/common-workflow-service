@@ -12,8 +12,6 @@
     <script src="/${base}/js/DataTables/datatables.js"></script>
     <script src="/${base}/js/bootstrap-datepicker.min.js"></script>
     <script src="/${base}/js/DataTablesDateFilter.js"></script>
-    <script src="/${base}/js/DataTables/dataTables.responsive.min.js"></script>
-    <script src="/${base}/js/DataTables/responsive.bootstrap.min.js"></script>
     <!-- Custom js adaptation script; override this file from your adaptation project -->
     <script src="/${base}/js/adaptation-process-actions.js"></script>
     <script src="/${base}/js/cws.js"></script>
@@ -24,7 +22,6 @@
     <link href="/${base}/css/microtip.css" rel="stylesheet">
     <link href="/${base}/css/processes.css" rel="stylesheet">
     <link href="/${base}/js/DataTables/datatables.css" rel="stylesheet">
-    <link href="/${base}/js/DataTables/responsive.bootstrap.min.css" rel="stylesheet">
 
     <!-- Just for debugging purposes. Don't actually copy this line! -->
     <!--[if lt IE 9]>
@@ -314,7 +311,7 @@
                     //allows for editing what buttons / text says on/in the table
                     language: {
                         searchBuilder: {
-                            add: "<img height=\"16\" width=\"16\" src=\"/${base}/images/search.svg\" /></i>Add Local Filter",
+                            add: "Add Local Filter",
                         }
                     },
                     //delays rendering the data in the dom until it has to (ex: don't render page 10 until we browse to page 10)
@@ -337,11 +334,11 @@
                             render: function (data, type) {
                                 if (type === 'display') {
                                     if (data == null) {
-                                        return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" class="btn btn-default btn-sm disabled">History</a>' +
-                                            "<a style=\"margin-top: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" class=\"btn btn-default btn-sm disabled\">Subprocs</a>";
+                                        return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" ><button style=\"margin-bottom: 5px;\" class="btn btn-secondary btn-sm disabled">History</button></a>' +
+                                            "<a style=\"margin-bottom: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" ><button class=\"btn btn-secondary btn-sm disabled\" style=\"margin-bottom: 5px\">Subprocs</button></a>";
                                     }
-                                    return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" class="btn btn-default btn-sm">History</a>' +
-                                        "<a style=\"margin-top: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" class=\"btn btn-default btn-sm\">Subprocs</a>";
+                                    return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" ><button style=\"margin-bottom: 5px;\" class="btn btn-secondary btn-sm">History</button></a>' +
+                                        "<a style=\"margin-bottom: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" ><button class=\"btn btn-secondary btn-sm\">Subprocs</button></a>";
                                 }
                                 return data;
                             }
@@ -933,7 +930,7 @@
                             extend: 'colvis',
                             columns: ':not(.noVis)',
                             className: 'btn btn-primary',
-                            text: '<img height="16" width="16" src="/${base}/images/visible_show.svg" style="margin-right: 5px;" />Columns',
+                            text: '<img height="16" width="16" src="/${base}/images/visible_show_dark.svg" style="margin-right: 5px; margin-bottom: 3px;" />Columns',
                         }
                     ],
                     //enables the complex search builder, tells it what columns should be able to be searched
@@ -980,30 +977,30 @@
                 });
 
                 //add our action dropdown button to the div that datatables created (created in dom: above)
-                $('<div class="btn-group"><button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><img height="16" width="16" src="/${base}/images/waterfall_light.svg" />&nbsp;Actions &nbsp;'
+                $('<div class="btn-group" style="margin-bottom: 5px"><button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><img height="16" width="16" src="/${base}/images/waterfall_light.svg" />&nbsp;Actions &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
-                    + `<li id="action_open_selected_new_tabs" class="disabled" role="presentation"><a id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)<span style="margin-left: 10px;" class="label label-info">Requires Pop-ups to be enabled</span></a></li>`
-                    + `<li id="action_copy_all_selected_history_links" class="disabled" role="presentation"><a id="action_copy_all_selected_history_links_atag" role="menuitem">Copy all selected history links (must not be pending)</a></li>`
+                    + `<li id="action_open_selected_new_tabs" class="disabled" role="presentation"><a class="dropdown-item" id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)<span style="margin-left: 10px;" class="label label-info">Requires Pop-ups to be enabled</span></a></li>`
+                    + `<li id="action_copy_all_selected_history_links" class="disabled" role="presentation"><a class="dropdown-item" id="action_copy_all_selected_history_links_atag" role="menuitem">Copy all selected history links (must not be pending)</a></li>`
                     + '<li role="separator" class="divider"></li>'
-                    + `<li id="action_delete_selected" class="disabled" role="presentation"><a id="action_delete_selected_atag" role="menuitem">Stop running selected rows (all rows selected must be 'running')</a></li>`
-                    + `<li id="action_disable" class="disabled" role="presentation"><a id="action_disable_atag" role="menuitem">Disable selected rows (all rows selected must be 'pending')</a></li>`
-                    + `<li id="action_enable" class="disabled" role="presentation"><a id="action_enable_atag" role="menuitem">Enable selected rows (all rows selected must be 'disabled')</a></li>`
-                    + `<li id="action_retry_incident" class="disabled" role="presentation"><a id="action_retry_incident_atag" role="menuitem">Retry all selected incident rows (all rows selected must be 'incident')</a></li>`
-                    + `<li id="action_retry_failed_to_start" class="disabled" role="presentation"><a id="action_retry_failed_to_start_atag" role="menuitem">Retry all selected failed to start rows (all rows selected must be 'failedToStart')</a></li>`
-                    + `<li id="action_mark_as_resolved" class="disabled" role="presentation"><a id="action_mark_as_resolved_atag" role="menuitem">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
+                    + `<li id="action_delete_selected" class="disabled" role="presentation"><a class="dropdown-item" id="action_delete_selected_atag" role="menuitem">Stop running selected rows (all rows selected must be 'running')</a></li>`
+                    + `<li id="action_disable" class="disabled" role="presentation"><a class="dropdown-item" id="action_disable_atag" role="menuitem">Disable selected rows (all rows selected must be 'pending')</a></li>`
+                    + `<li id="action_enable" class="disabled" role="presentation"><a class="dropdown-item" id="action_enable_atag" role="menuitem">Enable selected rows (all rows selected must be 'disabled')</a></li>`
+                    + `<li id="action_retry_incident" class="disabled" role="presentation"><a class="dropdown-item" id="action_retry_incident_atag" role="menuitem">Retry all selected incident rows (all rows selected must be 'incident')</a></li>`
+                    + `<li id="action_retry_failed_to_start" class="disabled" role="presentation"><a class="dropdown-item" id="action_retry_failed_to_start_atag" role="menuitem">Retry all selected failed to start rows (all rows selected must be 'failedToStart')</a></li>`
+                    + `<li id="action_mark_as_resolved" class="disabled" role="presentation"><a class="dropdown-item" id="action_mark_as_resolved_atag" role="menuitem">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
                     + `<#include "adaptation-process-actions.ftl">`
                     + `</ul></div>`).appendTo(".above-table-buttons");
 
                 //add our download dropdown button to the div that datatables created (created in dom: above)
-                $('<div class="btn-group"><button id="action-download-group" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><img height="16" width="16" src="/${base}/images/save_light.svg" />&nbsp;Download &nbsp;'
+                $('<div class="btn-group" style="margin-bottom: 5px"><button id="action-download-group" class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown"><img height="16" width="16" src="/${base}/images/save_light.svg" />&nbsp;Download &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="action-download-group">'
-                    + `<li id="action_download_selected_list" class="disabled" role="presentation"><a id="action_download_selected_list_atag" role="menuitem">Download list of selected processes (must select at least one row)</a></li>`
-                    + `<li id="action_download_selected_json" class="disabled" role="presentation"><a id="action_download_selected_json_atag" role="menuitem">Download logs of selected processes (JSON) (all rows selected must not be pending)</a></li>`
-                    + `<li id="action_download_selected_csv" class="disabled" role="presentation"><a id="action_download_selected_csv_atag" role="menuitem">Download logs of selected processes (CSV) (all rows selected must not be pending)</a></li>`
+                    + `<li id="action_download_selected_list" class="disabled" role="presentation"><a class="dropdown-item" id="action_download_selected_list_atag" role="menuitem">Download list of selected processes (must select at least one row)</a></li>`
+                    + `<li id="action_download_selected_json" class="disabled" role="presentation"><a class="dropdown-item" id="action_download_selected_json_atag" role="menuitem">Download logs of selected processes (JSON) (all rows selected must not be pending)</a></li>`
+                    + `<li id="action_download_selected_csv" class="disabled" role="presentation"><a class="dropdown-item" id="action_download_selected_csv_atag" role="menuitem">Download logs of selected processes (CSV) (all rows selected must not be pending)</a></li>`
                     + `<#include "adaptation-process-actions.ftl">`
                     + `</ul></div>`).appendTo(".above-table-buttons");
 

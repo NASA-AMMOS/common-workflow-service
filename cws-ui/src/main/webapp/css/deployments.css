@@ -222,3 +222,7 @@
 .disabled td {
     font-style: italic;
 }
+
+.bar-completed {
+    background-color: green;
+}

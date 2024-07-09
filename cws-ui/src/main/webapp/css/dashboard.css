@@ -428,8 +428,8 @@ a.nav-link img {
   margin-left: 12px;
   margin-top: 50px;
   position: absolute;
-  left: 125px;
-  width: calc(100% - 155px);
+  left: 85px;
+  width: calc(100% - 95px);
 }
 
 :target {
@@ -438,8 +438,13 @@ a.nav-link img {
 
 .dt-input {
   margin-right: 5px;
+  width: 45px;
 }
 
 #datepicker-div {
   width: 150px;
+}
+
+.above-table-length {
+  margin-bottom: 5px;
 }

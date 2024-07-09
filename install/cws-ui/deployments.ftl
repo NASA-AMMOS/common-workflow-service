@@ -591,9 +591,11 @@
 				listWorkersInModal(dataProcKey);
 			});
 			//HANDLES HIDE SUSPENDED PROC DEF CHECKBOX BEHAVIOR
+
 			$("#hide-sus-btn").on("click", function () {
+				console.log($("#process-table").DataTable().column(5).search("Active"));
 				if ($(this).prop("checked")) {
-					$("#process-table").DataTable().column(5).search("Active", false, true).draw();
+					$("#process-table").DataTable().column(5).search("Active").draw();
 					localStorage.setItem(hideSuspendedProcVar, "1");
 					refreshStats();
 				} else {
@@ -761,7 +763,7 @@
 					$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
 					$("#status-txt-" + procDefKey).html("Suspended");
 					$("#" + procDefKey).addClass("disabled");
-					$("#pv-" + procDefKey).addClass("disabled");
+					$("#pv-" + procDefKey).removeClass("btn-danger").addClass("btn-secondary").text("view");
 				},
 				error: function (data) {
 					console.log("error suspending");
@@ -965,7 +967,7 @@
 			</div>
 			<div class="modal-footer">
 				<button id="delete-proc-def" type="button" class="btn btn-primary">Yes</button>
-				<button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
 			</div>
 		</div> <!-- modal-content -->
 	</div> <!-- modal-dialog -->
@@ -1224,7 +1226,7 @@
 					$("#pv-" + rows[i].pdk).removeClass("btn-default").addClass("btn-danger");
 					$("#pv-" + rows[i].pdk).text("enable");
 				} else {
-					$("#pv-" + rows[i].pdk).removeClass("btn-danger").addClass("btn-default");
+					$("#pv-" + rows[i].pdk).removeClass("btn-danger").addClass("btn-secondary");
 					$("#pv-" + rows[i].pdk).text("view");
 				}
 			}
