@@ -4,13 +4,12 @@
 <head>
 	<meta charset="utf-8">
 	<title>CWS - Initiators</title>
-	<script src="/${base}/js/jquery.min.js"></script>
-	<script src="/${base}/js/jquery.migrate.js"></script>
+	    <script src="/${base}/js/jquery.min.js"></script>
+    <script src="/${base}/js/popper.min.js"></script>
+    <script src="/${base}/js/bootstrap.min.js"></script>
 	<script src="/${base}/js/ace/ace.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
-	<script src="/${base}/js/bootstrap.min.js"></script>
-	<script src="/${base}/js/popper.min.js"></script>
 
 	<style type="text/css">
 	#save-table td:nth-child(2){

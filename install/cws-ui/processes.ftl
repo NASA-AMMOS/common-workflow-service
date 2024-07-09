@@ -1516,13 +1516,13 @@
                     url: "/${base}/rest/processes/delete",
                     Accept: "application/json",
                     contentType: "application/json",
-                    data: JSON.stringify(procInstIds)
-                    })
-                    .success(function (msg) {
-                        //clear table
-                        table.clear().draw();
-                        //reload table
-                        fetchAndDisplayProcesses();
+                    data: JSON.stringify(procInstIds),
+                    success: function (msg) {
+                                            //clear table
+                                            table.clear().draw();
+                                            //reload table
+                                            fetchAndDisplayProcesses();
+                                        }
                     })
                     .fail(function (xhr, err) {
                         console.error(xhr.responseTextmsg);
@@ -1839,8 +1839,8 @@
                     Accept: "application/json",
                     contentType: "application/json",
                     dataType: "json",
-                    async: false
-                }).success(function (data) {
+                    async: false,
+                    success: function (data) {
                     var status = data.state;
                     if (data.state === "COMPLETED") {
                         status = "Complete";
@@ -1867,6 +1867,7 @@
                         const row = [date, entry["type"], entry["activity"], outputMessage(entry["message"])];
                         logLines.push(row);
                     }
+                    }
                 }).fail(function (xhr, err) {
                     console.error("Error getting instance JSON: " + xhr.responseText);
                 });
@@ -1877,8 +1878,8 @@
                     Accept: "application/json",
                     contentType: "application/json",
                     dataType: "json",
-                    async: false
-                }).success(function (data) {
+                    async: false,
+                    success: function (data) {
                     var finished = false;
                     scrollId = data._scroll_id;
                     if (data.hits) {
@@ -1916,6 +1917,7 @@
                             }
                         });
                     }
+                }
                 }).fail(function (xhr, err) {
                     console.error("Error getting instance JSON: " + xhr.responseText);
                 });
@@ -2114,8 +2116,8 @@
                     Accept : "application/json",
                     contentType: "application/json",
                     dataType: "json",
-                    async: false
-                }).success(function(data) {
+                    async: false,
+                    success: function(data) {
                     var status = data.state;
                     if (data.state === "COMPLETED") {
                         status = "Complete";
@@ -2137,6 +2139,7 @@
                         const row = [date, entry["type"], entry["activity"], outputMessage(entry["message"])];
                         logLines.push(row);
                     }
+                }
                 }).fail(function(xhr, err) {
                     console.error("Error getting instance JSON: " + xhr.responseText);
                 });
@@ -2147,8 +2150,8 @@
                     Accept : "application/json",
                     contentType: "application/json",
                     dataType: "json",
-                    async: false
-                }).success(function(data) {
+                    async: false,
+                    success:function(data) {
                     var finished = false;
                     scrollId = data._scroll_id;
                     if (data.hits) {
@@ -2186,6 +2189,7 @@
                             }
                         });
                     }
+                }
                 }).fail(function(xhr, err) {
                     console.error("Error getting instance JSON: " + xhr.responseText);
                 });
