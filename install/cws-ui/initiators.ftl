@@ -55,7 +55,7 @@
 	<div class="row">
 		<#include "sidebar.ftl">
 		
-		<div class="main-content">
+		<div class="main-content" style="width: calc(100% - 105px);">
 			<span id="statusMessageDiv"><h2>${msg}</h2></span>
 
 			<h2 class="sub-header">Initiators</h2>
@@ -81,7 +81,7 @@
 						</tr>
 					</tbody>
 				</table>
-				<div id="beans-table">
+				<div id="beans-table" style="margin-bottom: 35px;">
 					<div class="ajax-spinner"></div>
 					<#include "initiators-table.ftl" />
 				</div>
@@ -90,12 +90,12 @@
 	</div>
 </div>
 
-<div class="modal fade" id="saveMsg" role="dialog">
+<div class="modal fade" id="saveMsg">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				<h4 class="modal-title">WARNING!</h4>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 
             <div class="modal-body">
@@ -104,7 +104,7 @@
             </div>
 
 			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
 				<button type="button" class="btn btn-primary" id="saveConfirmBtn">Confirm</button>
 			</div>
 		</div> <!-- modal-content -->
