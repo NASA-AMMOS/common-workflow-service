@@ -5,6 +5,7 @@
 
 	<script src="/${base}/js/jquery.min.js"></script>
 	<script src="/${base}/js/docs.min.js"></script>
+	<script src="/${base}/js/popper.min.js"></script>
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
 	<script src="/${base}/js/moment.js"></script>
@@ -484,12 +485,12 @@
 		});
 
 		$('<div class="dropdown" style="display:inline;">'
-			+ '<button id="downloadButton" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Download &nbsp;'
+			+ '<button id="downloadButton" class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">&nbsp;Download &nbsp;'
 			+ '<span class="caret"></span>'
 			+ '</button>'
-			+ '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
-			+ '<li id="action_download_json" class="enabled" role="presentation"><a id="json-bttn" role="menuitem" href="#">Download as JSON</a></li>'
-			+ '<li id="action_download_csv" class="enabled" role="presentation"><a id="csv-bttn" role="menuitem" href="#">Download as CSV</a></li>'
+			+ '<ul id="action-list" class="dropdown-menu">'
+			+ '<li id="action_download_json" class="enabled" role="presentation"><a id="json-bttn" role="menuitem" href="#" class="dropdown-item">Download as JSON</a></li>'
+			+ '<li id="action_download_csv" class="enabled" role="presentation"><a id="csv-bttn" role="menuitem" href="#" class="dropdown-item">Download as CSV</a></li>'
   			+ '</ul>'
   			+ '</div>').appendTo(".above-table-buttons");
 
@@ -930,34 +931,35 @@
         Accept : "application/json",
         contentType: "application/json",
         dataType: "json",
-        async: false
-    }).success(function(data) {
-        var status = data.state;
-        if (data.state === "COMPLETED") {
-            status = "Complete";
-        }
-        else if (data.state === "ACTIVE") {
-            status = "Running";
-        }
-        var proc_info = {
-            "process_definition": data.procDefKey,
-            "process_instance": data.procInstId,
-            "start_time": data.startTime,
-            "end_time": data.endTime,
-            "duration": convertMillis(data.duration),
-            "status": status,
-            "input_variables": data.inputVariables,
-            "output_variables": data.outputVariables
-        };
-        outputJSON["process_info"] = proc_info;
-        for (const entry of data.details) {
-            let date = entry["date"];
-            if (entry["message"].startsWith("Ended ")) {
-                date += " ";
-            }
-            const row = [date, entry["type"], entry["activity"], outputMessage(entry["message"])];
-            logLines.push(row);
-        }
+        async: false,
+        success: function(data) {
+	        var status = data.state;
+	        if (data.state === "COMPLETED") {
+	            status = "Complete";
+	        }
+	        else if (data.state === "ACTIVE") {
+	            status = "Running";
+	        }
+	        var proc_info = {
+	            "process_definition": data.procDefKey,
+	            "process_instance": data.procInstId,
+	            "start_time": data.startTime,
+	            "end_time": data.endTime,
+	            "duration": convertMillis(data.duration),
+	            "status": status,
+	            "input_variables": data.inputVariables,
+	            "output_variables": data.outputVariables
+	        };
+	        outputJSON["process_info"] = proc_info;
+	        for (const entry of data.details) {
+	            let date = entry["date"];
+	            if (entry["message"].startsWith("Ended ")) {
+	                date += " ";
+	            }
+	            const row = [date, entry["type"], entry["activity"], outputMessage(entry["message"])];
+	            logLines.push(row);
+	        }
+    	}
     }).fail(function(xhr, err) {
         console.error("Error getting instance JSON: " + xhr.responseText);
     });
@@ -968,45 +970,46 @@
         Accept : "application/json",
         contentType: "application/json",
         dataType: "json",
-        async: false
-    }).success(function(data) {
-        var finished = false;
-        scrollId = data._scroll_id;
-        if (data.hits) {
-            for (const hit of data.hits.hits) {
-                const source = hit._source;
-                const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
-                logLines.push(row);
-                
-            }
-        }
-        while (!finished) {
-            $.ajax({
-                type: "POST",
-                url: "/${base}/rest/logs/get/scroll",
-                data: "scrollId=" + scrollId,
-                async: false,
-                success: function(data) {
-                    if (data.hits) {
-                        
-                        if (data.hits.hits.length > 0) {
-                            for (const hit of data.hits.hits) {
-                                const source = hit._source;
-                                const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
-                                logLines.push(row);
-                            }
-                            scrollId = data._scroll_id;
-                        }
-                        else {
-                            finished = true;
-                        }
-                    }
-                },
-                error: function(e) {
-                    alert("Error retrieving history data.");
-                }
-            });
-        }
+        async: false,
+        success: function(data) {
+	        var finished = false;
+	        scrollId = data._scroll_id;
+	        if (data.hits) {
+	            for (const hit of data.hits.hits) {
+	                const source = hit._source;
+	                const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
+	                logLines.push(row);
+	                
+	            }
+	        }
+	        while (!finished) {
+	            $.ajax({
+	                type: "POST",
+	                url: "/${base}/rest/logs/get/scroll",
+	                data: "scrollId=" + scrollId,
+	                async: false,
+	                success: function(data) {
+	                    if (data.hits) {
+	                        
+	                        if (data.hits.hits.length > 0) {
+	                            for (const hit of data.hits.hits) {
+	                                const source = hit._source;
+	                                const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
+	                                logLines.push(row);
+	                            }
+	                            scrollId = data._scroll_id;
+	                        }
+	                        else {
+	                            finished = true;
+	                        }
+	                    }
+	                },
+	                error: function(e) {
+	                    alert("Error retrieving history data.");
+	                }
+	            });
+	        }
+	    }
     }).fail(function(xhr, err) {
         console.error("Error getting instance JSON: " + xhr.responseText);
     });
@@ -1196,11 +1199,11 @@ function convertMillis(millis) {
 <body>
 	<#include "navbar.ftl">
 
-	<div class="container-fluid" style="margin-left: 20px;">
+	<div class="container-fluid" style="margin-left: 20px; margin-top: 25px;">
 		
 		<h2 class="sub-header">History</h2>
 		<div class="row">
-			<table align="center" class="table table-bordered " style="width: 1%; font-size: 95%;">
+			<table align="center" class="table table-bordered " style="width: 1%; font-size: 95%; margin-top: 15px;">
 				<thead>
 					<tr>
 						<th colspan="2" style="text-align: center;">Process Details</th>
@@ -1260,9 +1263,9 @@ function convertMillis(millis) {
 			<div class="ajax-spinner"></div>
 		</div>
 		<div class="row">
-			<div class="col-md-12 main">
-				<div id="log-div">
-					<table id="logData" class="table table-striped table-bordered sortable">
+			<div class="col main">
+				<div id="log-div" style="width: 100%;">
+					<table id="logData" class="table table-striped table-bordered sortable" style="width: 95%; margin-top: 25px;">
 						<thead>
 							<tr>
 								<th id="timeStampColumn" style="width: 185px">Time Stamp</th>
