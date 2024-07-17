@@ -209,7 +209,7 @@
 						extend: 'colvis',
 						columns: ':not(.noVis)',
 						className: 'btn btn-primary',
-						text: '<div class="icon-button"><img height="16" width="16" src="/${base}/images/visible_show.svg" style="margin-right: 5px;" />Columns</div>',
+						text: '<img height="16" width="16" src="/${base}/images/visible_show_dark.svg" style="margin-right: 5px; margin-bottom: 3px;" />Columns',
 					}
 				],
 				dom: "<'above-table-div'<'above-table-buttons'B><'above-table-length'i><'above-table-filler'><'above-table-filter'f>>"
@@ -688,7 +688,7 @@
 						</div>
 					</div>
 					
-					<div id="log-div">
+					<div id="log-div" style="width: 98%;">
 						<div class="ajax-spinner"></div>
 						<table id="logData"class="table table-striped table-bordered sortable" style="width: 100%">
 							<thead>
