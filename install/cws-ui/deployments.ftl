@@ -528,11 +528,11 @@
 							} else {
 								var html = `<div id="stat-txt-` + data + `" class="stat-txt"></div>`
 										+ `<div id="stat-bar-` + data + `" class="progress" data-pdk="` + data + `">`
-										+ `<div class="progress-bar progress-bar-danger bar-error"`
+										+ `<div class="progress-bar bg-danger bar-error"`
 										+ `data-bs-toggle="tooltip" data-bs-title="0 Errors">`
 										+ `<span class="sr-only"></span>`
 										+ `</div>`
-										+ `<div class="progress-bar progress-bar-warning bar-pending"`
+										+ `<div class="progress-bar bg-warning bar-pending"`
 										+ `data-bs-toggle="tooltip" data-bs-title="0 Pending">`
 										+ `<span class="sr-only"></span>`
 										+ `</div>`
@@ -879,12 +879,12 @@
 					<label>Process status summary:</label>
 					<div id="stat-txt-cws-reserved-total" class="stat-txt">-</div>
 					<div id="stat-bar-cws-reserved-total" class="progress">
-						<div class="progress-bar progress-bar-danger bar-error" data-bs-toggle="tooltip"
+						<div class="progress-bar bg-danger bar-error" data-bs-toggle="tooltip"
 							 data-bs-title="0 Errors">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar progress-bar-warning bar-pending" data-bs-toggle="tooltip"
+						<div class="progress-bar bg-warning bar-pending" data-bs-toggle="tooltip"
 							 data-bs-title="0 Pending">
 							<span class="sr-only"></span>
 						</div>

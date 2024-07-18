@@ -177,6 +177,16 @@
 		//	CALLED WHEN USER CLICKS ON TAGS '+' ICON
 		//
 		function expandTags(workerId) {
+			$(".copy").on('click', function (e) {
+                e.preventDefault();
+                var copyValue = $(this).attr('data-copyValue');
+                copyInput(copyValue, false);
+                $(this).attr('aria-label', 'Copied!');
+                setTimeout(function () {
+                    $('.copy').attr('aria-label', 'Copy');
+                }, 2000);
+            });
+
 			$("#"+workerId+"_plus_tags").hide();
 			$("#"+workerId+"_minus_tags").show();
 			$("#"+workerId+"_tagsTable").show();
@@ -279,16 +289,6 @@
 		$( window ).load(function() {
 			console.log( "window loaded" );
 		});
-
-		$(document).on('click', '.copy', function (e) {
-                    e.preventDefault();
-                    var copyValue = $(this).attr('data-copyValue');
-                    copyInput(copyValue, false);
-                    $(this).attr('aria-label', 'Copied!');
-                    setTimeout(function () {
-                        $('.copy').attr('aria-label', 'Copy');
-                    }, 2000);
-                });
 	</script>
 	
 	<!-- Just for debugging purposes. Don''t actually copy this line! -->
