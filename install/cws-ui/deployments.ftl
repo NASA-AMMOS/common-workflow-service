@@ -195,7 +195,9 @@
 			// Update the tooltips
 			document.querySelectorAll('.progress-bar[data-bs-toggle="tooltip"]').forEach(el => {
 				const tooltipInstance = bootstrap.Tooltip.getInstance(el);
-				tooltipInstance._config.title = el.dataset.bsTitle;
+				if (tooltipInstance._config) {
+					tooltipInstance._config.title = el.dataset.bsTitle;	
+				}
 				tooltipInstance.update();
 			});
 
@@ -593,38 +595,38 @@
 			//HANDLES HIDE SUSPENDED PROC DEF CHECKBOX BEHAVIOR
 
 			$("#hide-sus-btn").on("click", function () {
-				console.log($("#process-table").DataTable().column(5).search("Active"));
+				const table = $("#process-table").DataTable();
 				if ($(this).prop("checked")) {
-					$("#process-table").DataTable().column(5).search("Active").draw();
+					table.columns(5).search("Active").draw()
 					localStorage.setItem(hideSuspendedProcVar, "1");
 					refreshStats();
 				} else {
-					$("#process-table").DataTable().column(5).search("").draw();
+					table.columns().search('').draw();
 					localStorage.setItem(hideSuspendedProcVar, "0");
 					refreshStats();
 				}
-				$("#process-table").DataTable().rows().every(function () {
-					$("#process-table").DataTable().rows().every(function (rowIdx, tableLoop, rowLoop) {
-						var status = this.data()["suspended"];
-						var procDefKey = this.data()["key"];
-						var procDefId = this.data()["id"];
-						if (status == "false") {
-							$("#suspend-" + procDefKey).attr("src", "/${base}/images/pin_pause.svg");
-							$("#suspend-" + procDefKey).css("color", "#d9534f");
-							$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
-							$("#status-txt-" + procDefKey).html("Active");
-							$("#" + procDefKey).removeClass("disabled");
-							$("#pv-" + procDefKey).removeClass("disabled");
-						} else {
-							$("#suspend-" + procDefKey).attr("src", "/${base}/images/play.svg");
-							$("#suspend-" + procDefKey).css("color", "green");
-							$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
-							$("#status-txt-" + procDefKey).html("Suspended");
-							$("#" + procDefKey).addClass("disabled");
-							$("#pv-" + procDefKey).addClass("disabled");
-						}
-					});
-				});
+				// $("#process-table").DataTable().rows().every(function () {
+				// 	$("#process-table").DataTable().rows().every(function (rowIdx, tableLoop, rowLoop) {
+				// 		var status = this.data()["suspended"];
+				// 		var procDefKey = this.data()["key"];
+				// 		var procDefId = this.data()["id"];
+				// 		if (status == "false") {
+				// 			$("#suspend-" + procDefKey).attr("src", "/${base}/images/pin_pause.svg");
+				// 			$("#suspend-" + procDefKey).css("color", "#d9534f");
+				// 			$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
+				// 			$("#status-txt-" + procDefKey).html("Active");
+				// 			$("#" + procDefKey).removeClass("disabled");
+				// 			$("#pv-" + procDefKey).removeClass("disabled");
+				// 		} else {
+				// 			$("#suspend-" + procDefKey).attr("src", "/${base}/images/play.svg");
+				// 			$("#suspend-" + procDefKey).css("color", "green");
+				// 			$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
+				// 			$("#status-txt-" + procDefKey).html("Suspended");
+				// 			$("#" + procDefKey).addClass("disabled");
+				// 			$("#pv-" + procDefKey).addClass("disabled");
+				// 		}
+				// 	});
+				// });
 			});
 
 			//INIT STATE OF HIDE SUSPENDED PROC DEF CHECKBOX
@@ -756,14 +758,19 @@
 				url: "/${base}/rest/deployments/suspend/" + encodeURIComponent(procDefId),
 				type: "POST",
 				success: function (data) {
-					console.log("successfully suspended");
 					//change the glyphicon to play & make green
 					$("#suspend-" + procDefKey).attr("src", "/${base}/images/play.svg");
 					$("#suspend-" + procDefKey).css("color", "green");
 					$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
-					$("#status-txt-" + procDefKey).html("Suspended");
+					// $("#status-txt-" + procDefKey).html("Suspended");
 					$("#" + procDefKey).addClass("disabled");
 					$("#pv-" + procDefKey).removeClass("btn-danger").addClass("btn-secondary").text("view");
+
+					const table = $("#process-table").DataTable();
+					const rowData = table.row("#" + procDefKey).data();
+					rowData.suspended = "true";
+					table.row("#" + procDefKey).data(rowData).draw();
+
 				},
 				error: function (data) {
 					console.log("error suspending");
