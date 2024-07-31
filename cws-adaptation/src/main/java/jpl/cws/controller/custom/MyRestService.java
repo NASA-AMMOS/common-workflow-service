@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Controller
 @RequestMapping("/api")
@@ -27,6 +28,7 @@ public class MyRestService {
 	 * Example POST service
 	 * 
 	 */
+	@ApiIgnore
 	@RequestMapping(value = "/example", method = POST)
 	public @ResponseBody String example(
 			final HttpSession session) {
