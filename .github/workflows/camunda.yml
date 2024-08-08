@@ -29,6 +29,12 @@ jobs:
           MYSQL_ROOT_PASSWORD: adminpw
         options: >-
           --name mdb103
+      es:
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.10.0
+        ports:
+          - 9200:9200
+        options: >-
+          --env discovery.type=single-node
 
     steps:
       - uses: actions/checkout@v4
@@ -68,12 +74,14 @@ jobs:
       - name: Set up Elasticsearch
         run: |
           cd install/docker/es-only
-          docker compose up -d
+        #  docker compose up -d
 
       - name: Show Docker containers
         run: |
           sleep 5s
           docker ps -a
+          mysql -h 127.0.0.1 -u root -padminpw -e "SHOW DATABASES;"
+          curl http://localhost:9200
 
       - name: Build CWS
         id: build
