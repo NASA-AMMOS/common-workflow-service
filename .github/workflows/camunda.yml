@@ -74,6 +74,8 @@ jobs:
       - name: Set up Elasticsearch
         run: |
           cd install/docker/es-only
+          ls -al ~/.m2/
+          cat ~/.m2/settings.xml
         #  docker compose up -d
 
       - name: Show Docker containers
