@@ -67,9 +67,10 @@ public class DbService {
 			int maxInstances) {
 		log.trace("Inserting into cws_worker_proc_def table...");
 		int numRowsAffected = jdbcTemplate.update(
-			"INSERT IGNORE INTO cws_worker_proc_def " +
+			"INSERT INTO cws_worker_proc_def " +
 			"(worker_id, proc_def_key, max_instances, deployment_id, accepting_new) " +
-			"VALUES (?,?,?,?,?) ", 
+			"VALUES (?,?,?,?,?) " +
+			"ON CONFLICT (worker_id, proc_def_key) DO NOTHING", 
 			new Object[] {workerId, procDefKey, maxInstances, deploymentId, true});
 		if (numRowsAffected >= 1) {
 			log.info("Inserted " + numRowsAffected + " rows into cws_worker_proc_def table.");

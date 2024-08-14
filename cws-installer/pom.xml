@@ -50,15 +50,11 @@
 			<artifactId>joda-time</artifactId>
 		</dependency>
 			
-		<!-- MySQL connection, used for validation of database connection/privileges -->
-		<!-- Database drivers (MariaDB and MySQL supported) -->
+		<!-- PostgreSQL connection, used for validation of database connection/privileges -->
+		<!-- Database driver (PostgreSQL supported) -->
 		<dependency>
-			<groupId>org.mariadb.jdbc</groupId>
-			<artifactId>mariadb-java-client</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
 		</dependency>
 
 		<!-- HikariCP database connection pool -->

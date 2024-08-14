@@ -211,11 +211,8 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
 	DB_USER=`grep database_user ${CWS_INSTALLER_PRESET_FILE} | grep -v "^#" | cut -d"=" -f 2`
 	DB_PASS=`grep database_password ${CWS_INSTALLER_PRESET_FILE} | grep -v "^#" | cut -d"=" -f 2`
 
-	echo "[mysql]" > ${ROOT}/config/my.cnf
-	echo "host=${DB_HOST}" >> ${ROOT}/config/my.cnf
-	echo "user=\"${DB_USER}\"" >> ${ROOT}/config/my.cnf
-	echo "password=\"${DB_PASS}\"" >> ${ROOT}/config/my.cnf
-	chmod 644 ${ROOT}/config/my.cnf
+	echo "${DB_HOST}:5432:${DB_NAME}:${DB_USER}:${DB_PASS}" > ${ROOT}/config/pg_conn.conf
+	chmod 600 ${ROOT}/config/pg_conn.conf
 
 	# ----------------------------------------
 	# RUN SQL TO CREATE DATABASE IF NECESSARY.
@@ -235,17 +232,17 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
 		if [[ $REPLY =~ $(echo "^(y|Y)$") ]]
 		then
 			print "Checking whether database ${DB_NAME} already exists..."
-			RES=`mysql --defaults-file=${ROOT}/config/my.cnf -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${DB_NAME}'"`
+			RES=`PGPASSFILE=${ROOT}/config/pg_conn.conf psql -h ${DB_HOST} -U ${DB_USER} -tAc "SELECT 1 FROM pg_database WHERE datname='${DB_NAME}'" | tr -d '[:space:]'`
 
 			if [[ $? -gt 0 ]]; then
 				print "ERROR: Problem checking for database. "
 				print "  Please check your database configuration, and try again."
-				rm -f ${ROOT}/config/my.cnf
+				rm -f ${ROOT}/config/pg_conn.conf
 				exit 1
 			fi
 
-			FOUND=`echo $RES | grep ${DB_NAME} | wc -l`
-			if [[ ${FOUND} -eq 1 ]]; then
+			# FOUND=`echo $RES | grep ${DB_NAME} | wc -l`
+			if [[ ${RES} -eq 1 ]]; then
 				print "  Database already exists."
 				print "  ** It is recommended that you start your installation with a clean database (no tables) **"
 				print "     Do you want this script to drop and re-create the database for you,"
@@ -264,12 +261,12 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
 				if [[ ${RECREATE_DB} =~ $(echo "^(y|Y)$") ]]
 				then
 					print "  Dropping database ${DB_NAME}..."
-					mysql --defaults-file=${ROOT}/config/my.cnf -e "DROP DATABASE ${DB_NAME}"
+					PGPASSFILE=${ROOT}/config/pg_conn.conf psql -h ${DB_HOST} -U ${DB_USER} -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 
 					if [[ $? -gt 0 ]]; then
 						print "ERROR: Problem dropping database."
 						print "  Please check your database configuration, and try again."
-						rm -rf ${ROOT}/config/my.cnf
+						rm -f ${ROOT}/config/pg_conn.conf
 						exit 1
 					fi
 
@@ -278,12 +275,12 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
 					rm -f ${ROOT}/.adaptationTablesCreated
 
 					print "  Creating database ${DB_NAME}..."
-					mysql --defaults-file=${ROOT}/config/my.cnf -e "CREATE DATABASE ${DB_NAME}"
+					PGPASSFILE=${ROOT}/config/pg_conn.conf psql -h ${DB_HOST} -U ${DB_USER} -c "CREATE DATABASE ${DB_NAME}"
 
 					if [[ $? -gt 0 ]]; then
 						print "ERROR: Problem creating database."
 						print "  Please check your database configuration, and try again."
-						rm -rf ${ROOT}/config/my.cnf
+						rm -f ${ROOT}/config/pg_conn.conf
 						exit 1
 					fi
 				else
@@ -293,12 +290,12 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
 				# CREATE DATABASE
 				print "  Database doesn't already exist."
 				print "  Creating database: ${DB_NAME}..."
-				mysql --defaults-file=${ROOT}/config/my.cnf -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME}"
+				PGPASSFILE=${ROOT}/config/pg_conn.conf psql -h ${DB_HOST} -U ${DB_USER} -c "CREATE DATABASE ${DB_NAME}"
 
 				if [[ $? -gt 0 ]]; then
 					print "ERROR: Problem creating database."
 					print "  Please check your database configuration, and try again."
-					rm ${ROOT}/config/my.cnf
+					rm ${ROOT}/config/pg_conn.conf
 					exit 1
 				fi
 			fi
@@ -307,11 +304,11 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
 			touch ${ROOT}/.databaseCreated
 
 			print "Creating core tables..."
-            mysql --defaults-file=${ROOT}/config/my.cnf ${DB_NAME} < ${ROOT}/sql/cws/core.sql
+            PGPASSFILE=${ROOT}/config/pg_conn.conf psql -h ${DB_HOST} -U ${DB_USER} -d ${DB_NAME} -f ${ROOT}/sql/cws/core.sql
             if [[ $? -gt 0 ]]; then
                 print "ERROR: Problem creating core tables."
                 print "  Please check your database configuration, and try again."
-                rm -rf ${ROOT}/config/my.cnf
+                rm -f ${ROOT}/config/pg_conn.conf
                 exit 1
             fi
 
@@ -330,11 +327,8 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
                   	ADAPT_DB_USER=`grep adaptation_db_username ${CWS_INSTALLER_PRESET_FILE} | grep -v "^#" | cut -d"=" -f 2`
                   	ADAPT_DB_PASS=`grep adaptation_db_password ${CWS_INSTALLER_PRESET_FILE} | grep -v "^#" | cut -d"=" -f 2`
 
-                  	echo "[mysql]" > ${ROOT}/config/myadapt.cnf
-                  	echo "host=${ADAPT_DB_HOST}" >> ${ROOT}/config/myadapt.cnf
-                  	echo "user=\"${ADAPT_DB_USER}\"" >> ${ROOT}/config/myadapt.cnf
-                  	echo "password=\"${ADAPT_DB_PASS}\"" >> ${ROOT}/config/myadapt.cnf
-                  	chmod 644 ${ROOT}/config/myadapt.cnf
+                  	echo "${ADAPT_DB_HOST}:5432:${ADAPT_DB_NAME}:${ADAPT_DB_USER}:${ADAPT_DB_PASS}" > ${ROOT}/config/pg_adapt_conn.conf
+                  	chmod 600 ${ROOT}/config/pg_adapt_conn.conf
 
 
                   	# ----------------------------------------
@@ -346,33 +340,33 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
 
 
               			print "Checking whether database ${ADAPT_DB_NAME} already exists..."
-              			RES=`mysql --defaults-file=${ROOT}/config/myadapt.cnf -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${ADAPT_DB_NAME}'"`
+              			RES=`PGPASSFILE=${ROOT}/config/pg_adapt_conn.conf psql -h ${ADAPT_DB_HOST} -U ${ADAPT_DB_USER} -tAc "SELECT 1 FROM pg_database WHERE datname='${ADAPT_DB_NAME}'" | tr -d '[:space:]'`
 
               			if [[ $? -gt 0 ]]; then
               				print "ERROR: Problem checking for database. "
               				print "  Please check your database configuration, and try again."
-              				rm -f ${ROOT}/config/myadapt.cnf
+              				rm -f ${ROOT}/config/pg_adapt_conn.conf
               				exit 1
               			fi
               			print "  Database ${ADAPT_DB_NAME} exists."
 
                     print "Creating adaptation tables in External DB..."
-                    mysql --defaults-file=${ROOT}/config/my.cnf ${DB_NAME} < ${ROOT}/sql/cws/adaptation_core.sql
-                    mysql --defaults-file=${ROOT}/config/myadapt.cnf ${ADAPT_DB_NAME} < ${ROOT}/sql/cws/adaptation_external.sql
+                    PGPASSFILE=${ROOT}/config/pg_conn.conf psql -h ${DB_HOST} -U ${DB_USER} -d ${DB_NAME} -f ${ROOT}/sql/cws/adaptation_core.sql
+                    PGPASSFILE=${ROOT}/config/pg_adapt_conn.conf psql -h ${ADAPT_DB_HOST} -U ${ADAPT_DB_USER} -d ${ADAPT_DB_NAME} -f ${ROOT}/sql/cws/adaptation_external.sql
                     if [[ $? -gt 0 ]]; then
                         print "ERROR: Problem creating adaptation tables."
                         print "  Please check your database configuration and/or adaptation script '${ROOT}/sql/cws/adaptation_external.sql', and try again."
-                        rm -rf ${ROOT}/config/myadapt.cnf
+                        rm -f ${ROOT}/config/pg_adapt_conn.conf
                         exit 1
                     fi
 				        else
                     print "Creating adaptation tables in Default Core DB..."
                     if [[ -f ${ROOT}/sql/cws/adaptation.sql ]]; then
-                        mysql --defaults-file=${ROOT}/config/my.cnf ${DB_NAME} < ${ROOT}/sql/cws/adaptation.sql
+                        PGPASSFILE=${ROOT}/config/pg_conn.conf psql -h ${DB_HOST} -U ${DB_USER} -d ${DB_NAME} -f ${ROOT}/sql/cws/adaptation.sql
                         if [[ $? -gt 0 ]]; then
                             print "ERROR: Problem creating adaptation tables."
                             print "  Please check your database configuration and/or adaptation script '${ROOT}/sql/cws/adaptation.sql', and try again."
-                            rm -rf ${ROOT}/config/my.cnf
+                            rm -f ${ROOT}/config/pg_conn.conf
                             exit 1
                         fi
                     fi
@@ -394,7 +388,7 @@ if [[ "${CWS_INSTALL_TYPE}" = "1" ]] || [[ "${CWS_INSTALL_TYPE}" = "2" ]]; then
 	done
 fi
 
-rm -f ${ROOT}/config/my.cnf
-rm -f ${ROOT}/config/myadapt.cnf
+rm -f ${ROOT}/config/pg_conn.conf
+rm -f ${ROOT}/config/pg_adapt_conn.conf
 
 print "Finished"

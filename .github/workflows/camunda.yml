@@ -20,15 +20,15 @@ jobs:
       WORKERS: 1
 
     services:
-      mdb103:
-        image: mariadb:10.6
+      postgres:
+        image: postgres:13
         ports:
-          - 3306:3306
+          - 5432:5432
         env:
-          MYSQL_DATABASE: cws_dev
-          MYSQL_ROOT_PASSWORD: adminpw
+          POSTGRES_DB: cws_dev
+          POSTGRES_PASSWORD: adminpw
         options: >-
-          --name mdb103
+          --name postgres
 
     steps:
       - uses: actions/checkout@v4
@@ -150,15 +150,15 @@ jobs:
       WORKERS: 2
 
     services:
-      mdb103:
-        image: mariadb:10.6
+      postgres:
+        image: postgres:13
         ports:
-          - 3306:3306
+          - 5432:5432
         env:
-          MYSQL_DATABASE: cws_dev
-          MYSQL_ROOT_PASSWORD: adminpw
+          POSTGRES_DB: cws_dev
+          POSTGRES_PASSWORD: adminpw
         options: >-
-          --name mdb103
+          --name postgres
 
     steps:
       - uses: actions/checkout@v4

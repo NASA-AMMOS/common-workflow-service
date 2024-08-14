@@ -111,9 +111,8 @@ cp ${INSTALL_DIR}/tomcat_root/not_authenticated.html ${CWS_TOMCAT_ROOT}/webapps/
 rm -rf ${CWS_TOMCAT_ROOT}/webapps/docs
 
 print 'Installing DB drivers to Tomcat...'
-cp ${ROOT}/cws-installer/cws-installer-libs/mysql-connector-java-*.jar ${TOMCAT_LIB_DIR}
-cp ${ROOT}/cws-installer/cws-installer-libs/mariadb-java-client-*.jar  ${TOMCAT_LIB_DIR}
-cp ${ROOT}/cws-installer/cws-installer-libs/HikariCP-*.jar             ${TOMCAT_LIB_DIR}
+cp ${ROOT}/cws-installer/cws-installer-libs/postgresql-*.jar ${TOMCAT_LIB_DIR}
+cp ${ROOT}/cws-installer/cws-installer-libs/HikariCP-*.jar   ${TOMCAT_LIB_DIR}
 
 print 'Installing core libraries to Tomcat...'
 cp ${ROOT}/cws-core/target/cws-core.jar                     ${TOMCAT_LIB_DIR}

@@ -10,12 +10,12 @@ echo ES_HOST = $ES_HOST
 echo ES_PORT = $ES_PORT
 
 counter=1
-while ! mysql --host="${DB_HOST}" --user="${DB_USER}" --password="${DB_PW}" -e "SHOW DATABASES;" > /dev/null 2>&1; do
+while ! PGPASSWORD="${DB_PW}" psql -h "${DB_HOST}" -U "${DB_USER}" -c '\l' > /dev/null 2>&1; do
     sleep 1
     counter=`expr $counter + 1`
     echo "Retry wait for DB: $counter"
     if [ $counter -gt $maxcounter ]; then
-        >&2 echo "We have been waiting for MySQL too long already; failing."
+        >&2 echo "We have been waiting for PostgreSQL too long already; failing."
         exit 1
     fi;
 done
@@ -25,7 +25,7 @@ while ! curl -s "${ES_PROTOCOL}://${ES_HOST}:${ES_PORT}"; do
 	echo "Retry wait for ES"
 done
 
->&2 echo "MariaDb and ES are up..."
+>&2 echo "PostgreSQL and ES are up..."
 
 # If starting a worker only, wait for console to startup
 install_type=$(grep install_type config.properties | cut -d '=' -f2)

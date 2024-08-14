@@ -121,7 +121,7 @@ public class CwsInstaller {
 
 	// The set of valid database types
 	private static final HashSet<String> VALID_DATABASES = new HashSet<String>() {
-		{add("mysql"); add("mariadb");}
+		{add("postgresql");}
 	};
 
 	// The set of valid history level types
@@ -664,16 +664,16 @@ public class CwsInstaller {
 		cws_db_type = getPreset("database_type");
 
 		if (cws_db_type == null) {
-			cws_db_type = "mariadb";
+			cws_db_type = "postgresql";
 		}
 
 		// DB TYPE
 		if (cws_installer_mode.equals("interactive")) {
-			String read_cws_db_type = readLine("Enter type of database (mysql | mariadb). " +
+			String read_cws_db_type = readLine("Enter type of database (postgresql). " +
 					"Default is " + cws_db_type + ": ", cws_db_type);
 
 			while (!VALID_DATABASES.contains(read_cws_db_type.toLowerCase())) {
-				print("  ERROR: Invalid database, must be one of (mysql | mariadb).");
+				print("  ERROR: Invalid database, must be postgresql.");
 				read_cws_db_type = readLine("Enter type of database: " +
 						"Default is " + cws_db_type + ": ", cws_db_type);
 			}
@@ -682,7 +682,7 @@ public class CwsInstaller {
 		} else {
 			if (!VALID_DATABASES.contains(cws_db_type.toLowerCase())) {
 				print("ERROR: '" + cws_db_type + "' database not supported!");
-				print("Must be one of (mysql | mariadb).");
+				print("Must be postgresql.");
 				exit(1);
 			}
 		}
@@ -735,13 +735,8 @@ public class CwsInstaller {
 		log.debug("cws_db_name: " + cws_db_name);
 
 		// CREATE DB URL AND DRIVER
-		cws_db_url = "jdbc:" + cws_db_type + "://" + cws_db_host + ":" + cws_db_port + "/" + cws_db_name + "?autoReconnect=true";
-
-		if (cws_db_type.equals("mariadb")) {
-			cws_db_driver = "org.mariadb.jdbc.Driver";
-		} else {
-			cws_db_driver = "com.mysql.jdbc.Driver";
-		}
+		cws_db_url = "jdbc:postgresql://" + cws_db_host + ":" + cws_db_port + "/" + cws_db_name;
+		cws_db_driver = "org.postgresql.Driver";
 
 		log.debug("cws_db_driver: " + cws_db_driver);
 
@@ -1748,11 +1743,7 @@ public class CwsInstaller {
 		if (cws_adapt_use_shared_db != null) {
 			if (cws_adapt_use_shared_db.equalsIgnoreCase("y")) {
 
-				if (cws_adapt_db_type.equals("mariadb")) {
-					cws_adapt_db_driver = "org.mariadb.jdbc.Driver";
-				} else if (cws_adapt_db_type.equals("mysql")) {
-					cws_adapt_db_driver = "com.mysql.jdbc.Driver";
-				}
+				cws_adapt_db_driver = "org.postgresql.Driver";
 				print("  CWS Adapt Database ");
 				print("    Database Type                 = " + cws_adapt_db_type);
 				print("    Database URL                  = " + cws_adapt_db_url);
@@ -1951,7 +1942,7 @@ public class CwsInstaller {
 		if (cws_db_password == null || cws_db_password.length() < 1) {
 			cws_db_password = null;
 		}
-		if ( cws_db_type.equals("mysql") || cws_db_type.equals("mariadb")) {
+		if (cws_db_type.equals("postgresql")) {
 			print("");
 			print("checking database configuration...");
 			try {
@@ -1963,17 +1954,19 @@ public class CwsInstaller {
 
 				// ---------------------------------------
 				// CHECK FOR EXISTENCE OF DATABASE SCHEMA
-				camunda_schema_exists = statm.execute("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME=\'" + cws_db_name + "\'");
+				if (cws_db_type.equals("postgresql")) {
+					camunda_schema_exists = statm.execute("SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = \'" + cws_db_name + "\')");
+				} else {
+					camunda_schema_exists = statm.execute("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME=\'" + cws_db_name + "\'");
+				}
 
 				if (!camunda_schema_exists) {
 					print("   [WARNING]");
 					print("       Unable to connect to DB and/or detect " + cws_db_name + " database schema at host "
 							+ cws_db_host + ":" + cws_db_port + ", with username/password");
 					print("       This problem may be due to insufficient permissions on the database.");
-					print("       Try running: select * from mysql.user where User=\'" + cws_db_username + "\'");
-					print("       Sometimes the 'Host' column needs to be fully qualified");
-					print("       (i.e. \'" + cws_db_host + ".domain.org\' instead of just \'" + cws_db_host +"\'");
-					print("       Also, always remember to flush! (your privileges, that is)");
+					print("       Try running: SELECT * FROM pg_user WHERE usename=\'" + cws_db_username + "\'");
+					print("       Ensure that the user has the necessary permissions on the database.");
 					warningCount++;
 				}
 				else {
@@ -1989,14 +1982,14 @@ public class CwsInstaller {
 				Timestamp thisMachineTime = new Timestamp(DateTime.now().getMillis());
 				Timestamp databaseTime;
 
-				try (ResultSet rs = statm.executeQuery("SELECT CURRENT_TIMESTAMP()")) {
+				try (ResultSet rs = statm.executeQuery(cws_db_type.equals("postgresql") ? "SELECT CURRENT_TIMESTAMP" : "SELECT CURRENT_TIMESTAMP()")) {
 					rs.next();
 					databaseTime = rs.getTimestamp(1);
 				}
 
 				String dbTimeZone;
 
-				try (ResultSet rs1 = statm.executeQuery("SELECT @@global.time_zone")) {
+				try (ResultSet rs1 = statm.executeQuery("SHOW TIME ZONE")) {
 					rs1.next();
 					dbTimeZone = rs1.getString(1);
 				}

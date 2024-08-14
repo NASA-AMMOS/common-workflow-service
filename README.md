@@ -27,36 +27,36 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
   - For Home-brew users:
     - Install Maven using: `brew install maven`
     - Verify installation using: `mvn -v`
-- [**Docker**](https://docs.docker.com/get-docker/): Used to run external Elasticsearch, and create and configure MariaDB database container
+- [**Docker**](https://docs.docker.com/get-docker/): Used to run external Elasticsearch, and create and configure PostgreSQL database container
   - Recommended minimum system requirements from Docker Resources window:
-      - CPUs: 5
-      - Memory: 14.00 GB
-      - Swap: 1 GB
-      - Disk image size: 64 GB
-- MariaDB or MySQL database set up on either your local machine or a remote host. You will also need to create the following:
-    - A database for CWS to use. `cws_dev` is a good default name.
-    - A database user with full access to the above database.
+    - CPUs: 5
+    - Memory: 14.00 GB
+    - Swap: 1 GB
+    - Disk image size: 64 GB
+- PostgreSQL database set up on either your local machine or a remote host. You will also need to create the following:
+  - A database for CWS to use. `cws_dev` is a good default name.
+  - A database user with full access to the above database.
 - [**ITerm2**](https://iterm2.com/): Currently these build scripts include commands to open new terminal windows using ITerm2, so they are best run from that terminal.
 - **Logstash 8.12.0+**: Download Logstash for your platform. Uncompress it (only if it is a .tar.gz) and then ZIP back it up with the filename 'logstash-8.12.0.zip' and place in `install/logging/`. This is a temporary workaround while we clean up our installation process. You can find the zip download [here](https://www.elastic.co/downloads/logstash).
 - **Elasticsearch 8.12.0+**: CWS requires an externally-configured elasticsearch cluster to be set up. You can use an SSL Secure Elasticsearch with or without authentication, or an Insecure HTTP Elasticsearch.
   - The "Elasticsearch Setup" instruction below provides a contained Dockerized way of running Elasticsearch. This serves as an alternative to installing Elasticsearch.
 - Tomcat **keystore, truststore, storepass files** (needed for CWS web console to work properly). To generate an open-source **.keystore** and **cws_truststore.jks** use the script `./generate-certs.sh` [here](https://github.com/NASA-AMMOS/common-workflow-service/tree/develop/cws-certs)
-    - You will need to add your own Tomcat keystore file to this path: `install/.keystore`
-    - You will need to add your own truststore file to this path: `install/tomcat_lib/cws_truststore.jks`
-    - See: https://tomcat.apache.org/tomcat-9.0-doc/ssl-howto.html
+  - You will need to add your own Tomcat keystore file to this path: `install/.keystore`
+  - You will need to add your own truststore file to this path: `install/tomcat_lib/cws_truststore.jks`
+  - See: https://tomcat.apache.org/tomcat-9.0-doc/ssl-howto.html
 - **Store Your Keystore Password**: You will need to add your own creds file, which carries the keystore password, to this path: `~/.cws/creds`
   - Set the permissions for the **~/.cws/** directory and **creds** file as Owner-Only.
     - **~/.cws/** directory: `chmod 700 ~/.cws/`
     - **~/.cws/creds** file: `chmod 600 ~/.cws/creds`
 
-
 ### **Development Environment Configuration**
 
-### _MariaDB Setup_
+### _PostgreSQL Setup_
 
-Generate MariaDB Docker Container and Create Database Instance for CWS:
+Generate PostgreSQL Docker Container and Create Database Instance for CWS:
+
 ```
-docker run -d -p 3306:3306 -e MYSQL_DATABASE=__DB_NAME__ -e MYSQL_ROOT_PASSWORD=__ROOT_PW__ -e TZ=America/Los_Angeles --name mdb106 mariadb:10.6
+docker run -d -p 5432:5432 -e POSTGRES_DB=__DB_NAME__ -e POSTGRES_PASSWORD=__ROOT_PW__ -e TZ=America/Los_Angeles --name postgres14 postgres:14
 ```
 
 Replace `__DB_NAME__` with your desired database name. <br />
@@ -64,22 +64,25 @@ Replace `__ROOT_PW__` with your desired password.
 
 `__DB_NAME__` and `__ROOT_PW__` must match parameters set in script file: `<personal-dev>.sh`
 
-Directly access MariaDB with:
+Directly access PostgreSQL with:
 
 ```
-mysql -h 127.0.0.1 -u root -p
+psql -h 127.0.0.1 -U postgres -d __DB_NAME__
 ```
+
 Enter the password above when prompted.
 
-_CWS must have been built, in this case using a build script, in order to directly access MariaDB with the MySQL monitor, as the build
+_CWS must have been built, in this case using a build script, in order to directly access PostgreSQL with the psql client, as the build
 script contains required information to access the database. See the **Building CWS** section for an example build script._
 
-_Make sure `cws_dev` database in created MariaDB instance before moving forward to build CWS_
+_Make sure `cws_dev` database in created PostgreSQL instance before moving forward to build CWS_
 
 ### _Elasticsearch Setup_
+
 Open new Shell terminal designated for running ElasticSearch.
 
-* `cd` into `install/docker/es-only` directory and run Docker Compose:
+- `cd` into `install/docker/es-only` directory and run Docker Compose:
+
 ```
 docker-compose up
 ```
@@ -87,23 +90,23 @@ docker-compose up
 #### _Updating Presets and Default Settings_
 
 Preset configuration variables like `default_smtp_hostname` and `default_cws_ldap_url` can be found in files:
+
 - `/install/installerPresets.properties`
 - `/install/example-cws-configuration.properties`
 - `utils.sh`
------
-## Building CWS
 
+---
+
+## Building CWS
 
 _In a different terminal window `cd` into root of **common-workflow-service** folder and follow Build CWS instructions._
 
-
-
 For development we tend to create our own separate build script `<personal-dev.sh>` (firstinitial-lastname.sh), i.e.:`jsmith.sh`, that calls `dev.sh`. Here's an template for your personal build script that will work for development on a local machine:
 
-* Correctly set the Elasticsearch configuration within your personal script by assigning the proper protocol, `HTTP` or `HTTPS`, to `ES_PROTOCOL` with Elasticsearch hostname assigned to `ES_HOST`.
-    * Example: 
-      * `ES_PROTOCOL="HTTP"`
-      * `ES_HOST="locahost"`
+- Correctly set the Elasticsearch configuration within your personal script by assigning the proper protocol, `HTTP` or `HTTPS`, to `ES_PROTOCOL` with Elasticsearch hostname assigned to `ES_HOST`.
+  - Example:
+    - `ES_PROTOCOL="HTTP"`
+    - `ES_HOST="locahost"`
 
 ```
 #File: jsmith.sh
@@ -121,12 +124,12 @@ SECURITY="camunda"
 ./stop_dev.sh
 
 # DB config
-DB_TYPE=mariadb
+DB_TYPE=postgresql
 DB_HOST=127.0.0.1
 DB_NAME=cws_dev # needs to match the db you set up beforehand
-DB_USER=root # needs to match the user you set up beforehand
+DB_USER=postgres # needs to match the user you set up beforehand
 DB_PASS=     # could also be specified with environment vars
-DB_PORT=3306 # mariadb default
+DB_PORT=5432 # postgresql default
 
 USER=   # Username
 CLOUD=  # Enable cloudwatch monitoring
@@ -160,13 +163,12 @@ WORKER_ABANDONED_DAYS=1
 ```
 
 ###### Run Personal Dev Script
+
 To build and run CWS, use your <personal-dev.sh> i.e.:`jsmith.sh` script - its usage is as follows:
 
 ```
 ./jsmith.sh
 ```
-
-
 
 The above script will build CWS, verify your configuration, then will start the CWS console and workers. The script will provide a link to access the console dashboard once everything has started up!
 

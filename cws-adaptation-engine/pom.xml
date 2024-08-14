@@ -81,14 +81,10 @@
 			<artifactId>h2</artifactId>
 		</dependency>
 		
-		<!-- Database drivers (MariaDB and MySQL supported) -->
+		<!-- Database driver (PostgreSQL supported) -->
 		<dependency>
-			<groupId>org.mariadb.jdbc</groupId>
-			<artifactId>mariadb-java-client</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
 		</dependency>
 
 		<!-- HikariCP database connection pool -->

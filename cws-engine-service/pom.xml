@@ -196,14 +196,11 @@
 			<artifactId>h2</artifactId>
 		</dependency>
 		
-		<!-- Database drivers (MariaDB and MySQL supported) -->
+		<!-- Database driver (PostgreSQL) -->
 		<dependency>
-			<groupId>org.mariadb.jdbc</groupId>
-			<artifactId>mariadb-java-client</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.6.0</version>
 		</dependency>
 
 		<!-- HikariCP database connection pool -->

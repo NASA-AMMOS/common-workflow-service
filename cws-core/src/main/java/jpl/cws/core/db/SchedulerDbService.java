@@ -76,9 +76,11 @@ public class SchedulerDbService extends DbService implements InitializingBean {
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     public static final String PROC_INST_STATUS_SQL =
-            " IF (PI.END_TIME_ IS NULL, 'running', " +
-                    "IF (AI.ACT_TYPE_ in ('noneEndEvent','endEvent','escalationEndEvent','compensationEndEvent','signalEndEvent','terminateEndEvent') AND " +
-                    "PI.END_TIME_ IS NOT NULL, 'complete', 'fail')) ";
+            " CASE " +
+                    "WHEN PI.END_TIME_ IS NULL THEN 'running' " +
+                    "WHEN AI.ACT_TYPE_ IN ('noneEndEvent','endEvent','escalationEndEvent','compensationEndEvent','signalEndEvent','terminateEndEvent') " +
+                    "AND PI.END_TIME_ IS NOT NULL THEN 'complete' " +
+                    "ELSE 'fail' END ";
 
 
     public SchedulerDbService() {
@@ -578,9 +580,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
     public long getDbSize() throws Exception {
 
         List<Map<String, Object>> list = jdbcTemplate.queryForList(
-                "SELECT SUM(data_length + index_length) AS size " +
-                        "FROM information_schema.TABLES " +
-                        "WHERE table_schema = (SELECT DATABASE())");
+                "SELECT pg_database_size(current_database()) AS size");
 
         if (list.size() != 1) {
             throw new Exception("Could not get database size.");
@@ -977,7 +977,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
                         (statusList != null ? "status IN " + statusClause + " AND " : "") +
                         "  proc_inst_id IS NULL " + // don't get any started processes
                         "ORDER BY created_time " + dateOrderBy + " " +
-                        "LIMIT ?,?";
+                        "LIMIT ? OFFSET ?";
 
         List<Map<String, Object>> cwsRows = jdbcTemplate.queryForList(cwsQuery, whereObjs.toArray());
 
@@ -1012,7 +1012,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
                         (maxDate != null ? "PI.start_time <= ? AND " : "") +
                         " 1=1 " +
                         "ORDER BY PI.start_time " + dateOrderBy + " " +
-                        "LIMIT ?,?";
+                        "LIMIT ? OFFSET ?";
 
         List<Map<String, Object>> camundaRows = jdbcTemplate.queryForList(camundaQuery, whereObjs.toArray());
 
@@ -1302,9 +1302,10 @@ public class SchedulerDbService extends DbService implements InitializingBean {
         // If the row already existed, then update the row.
         //
         int numUpdated = jdbcTemplate.update(
-                "INSERT IGNORE INTO cws_worker_tags " +
+                "INSERT INTO cws_worker_tags " +
                         "(worker_id, name, value) " +
-                        "VALUES (?, ?, ?)",
+                        "VALUES (?, ?, ?) " +
+                        "ON CONFLICT (worker_id, name) DO NOTHING",
                 new Object[]{workerId, name, value});
         if (numUpdated == 0) {
             // row was already there, so just update it
@@ -1335,9 +1336,10 @@ public class SchedulerDbService extends DbService implements InitializingBean {
             // If the row already existed, then update the row.
             //
             numUpdated = jdbcTemplate.update(
-                    "INSERT IGNORE INTO cws_worker_proc_def " +
+                    "INSERT INTO cws_worker_proc_def " +
                             "(worker_id, proc_def_key, max_instances, deployment_id, accepting_new) " +
-                            "VALUES (?, ?, ?, ?, ?)",
+                            "VALUES (?, ?, ?, ?, ?) " +
+                            "ON CONFLICT (worker_id, proc_def_key) DO NOTHING",
                     new Object[]{workerId, procDefKey, DEFAULT_WORKER_PROC_DEF_MAX_INSTANCES, deploymentId, isEnabled});
             if (numUpdated == 0) { // row was already there, so just update it
                 numUpdated = jdbcTemplate.update(
@@ -1465,12 +1467,12 @@ public class SchedulerDbService extends DbService implements InitializingBean {
      */
     public List<Map<String, Object>> getProcDefWorkerCount() {
         return jdbcTemplate.queryForList(
-                "SELECT prc.KEY_ AS pdk , IFNULL(SUM(pd.accepting_new),0) AS workers " +
+                "SELECT prc.KEY_ AS pdk, COALESCE(SUM(CASE WHEN pd.accepting_new THEN 1 ELSE 0 END), 0) AS workers " +
                         "FROM ACT_RE_PROCDEF AS prc " +
-                        "LEFT JOIN cws_worker_proc_def AS pd ON prc.KEY_=pd.proc_def_key GROUP BY KEY_");
+                        "LEFT JOIN cws_worker_proc_def AS pd ON prc.KEY_=pd.proc_def_key GROUP BY prc.KEY_");
 
         // Simpler? :
-        // select proc_def_key as pdk, sum(accepting_new) as workers from cws_worker_proc_def group by proc_def_key;
+        // SELECT proc_def_key AS pdk, SUM(CASE WHEN accepting_new THEN 1 ELSE 0 END) AS workers FROM cws_worker_proc_def GROUP BY proc_def_key;
     }
 
 
@@ -1513,11 +1515,19 @@ public class SchedulerDbService extends DbService implements InitializingBean {
      *
      */
     public void insertCwsToken(String cwsToken, String username, Timestamp expirationTime) {
-        jdbcTemplate.update(
-                "INSERT IGNORE INTO cws_token " +
-                        "(token, username, expiration_time) " +
-                        "VALUES (?, ?, ?)",
-                new Object[]{cwsToken, username, expirationTime});
+        // First, try to update an existing row
+        int updatedRows = jdbcTemplate.update(
+                "UPDATE cws_token SET expiration_time = ? " +
+                        "WHERE token = ? AND username = ?",
+                new Object[]{expirationTime, cwsToken, username});
+        
+        // If no rows were updated, insert a new row
+        if (updatedRows == 0) {
+            jdbcTemplate.update(
+                    "INSERT INTO cws_token (token, username, expiration_time) " +
+                            "VALUES (?, ?, ?)",
+                    new Object[]{cwsToken, username, expirationTime});
+        }
     }
 
 

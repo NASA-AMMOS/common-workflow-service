@@ -1162,12 +1162,12 @@ public class RestService extends MvcCore {
 			int count = Integer.parseInt(procs.get(workerId));
 			
 			// Get number of external tasks locked for this worker
-			int numLocked = (int)externalTaskService.createExternalTaskQuery().workerId(workerId).locked().count();
+			long numLocked = externalTaskService.createExternalTaskQuery().workerId(workerId).locked().count();
 			
 			// For now just add them together
-			int total = count + numLocked;
+			long total = count + numLocked;
 
-			procs.put(workerId, Integer.toString(total));
+			procs.put(workerId, Long.toString(total));
 		}
 
 		return procs;

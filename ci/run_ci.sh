@@ -13,12 +13,12 @@ SECURITY=${1} # parameter is passed as an env through workflow file
 #./stop_dev.sh
 
 # DB config
-DB_TYPE=mariadb
+DB_TYPE=postgresql
 DB_HOST=127.0.0.1
 DB_NAME=cws_dev # needs to match the db you set up beforehand
-DB_USER=root # needs to match the user you set up beforehand
+DB_USER=postgres # default PostgreSQL superuser
 DB_PASS=adminpw # could also be specified with environment vars
-DB_PORT=3306 # mariadb default
+DB_PORT=5432 # PostgreSQL default port
 
 USER=cwsci
 CLOUD=n # Enable cloudwatch monitoring

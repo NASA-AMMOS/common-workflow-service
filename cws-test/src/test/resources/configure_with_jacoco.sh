@@ -189,11 +189,11 @@ if [ "${CWS_INSTALL_TYPE}" = "1" ] || [ "${CWS_INSTALL_TYPE}" = "2" ]; then
 	echo "DB HOST          is ${DB_HOST}"
 	echo "DB NAME          is ${DB_NAME}"
 	echo "DB USER          is ${DB_USER}"
-	echo "[mysql]" > ${ROOT}/config/my.cnf
-	echo "host=${DB_HOST}" >> ${ROOT}/config/my.cnf
-	echo "user=\"${DB_USER}\"" >> ${ROOT}/config/my.cnf
-	echo "password=\"${DB_PASS}\"" >> ${ROOT}/config/my.cnf
-	chmod 644 ${ROOT}/config/my.cnf
+	echo "host=${DB_HOST}" > ${ROOT}/config/pg_conn.conf
+	echo "dbname=${DB_NAME}" >> ${ROOT}/config/pg_conn.conf
+	echo "user=${DB_USER}" >> ${ROOT}/config/pg_conn.conf
+	echo "password=${DB_PASS}" >> ${ROOT}/config/pg_conn.conf
+	chmod 600 ${ROOT}/config/pg_conn.conf
 	
 	
 	# -----------------------------------------
@@ -208,50 +208,42 @@ if [ "${CWS_INSTALL_TYPE}" = "1" ] || [ "${CWS_INSTALL_TYPE}" = "2" ]; then
 	echo "This script will now create the database, necessary for CWS to function."
 	echo
 	
-	RES=`mysql --defaults-file=${ROOT}/config/my.cnf -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${DB_NAME}'"`
-		while [[ $? -gt 0 ]]; do
-			echo "Problem checking for database. Please check your database configuration, and try again."
-			cat ${ROOT}/config/my.cnf
-			rm ${ROOT}/config/my.cnf
-			exit 1
-		done
-			FOUND=`echo $RES | grep ${DB_NAME} | wc -l`
-			if [ ${FOUND} -eq 1 ]; then
-				echo "  Database already exists."
-				echo "  ** It is recommended that you start your installation with a clean database (no tables) **"
-				echo "     ------------------------------------------------------------------------------------"
-				echo "     Do you want this script to drop and re-create the database for you,"
-				echo "     so that you have a clean install?"
-				#
-				# CREATE DATABASE
-				#
-				echo
-				echo "  Database doesn't already exist."
-				echo
-				echo "Creating database: ${DB_NAME}..."
-				mysql --defaults-file=${ROOT}/config/my.cnf -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME}"
-				while [[ $? -gt 0 ]]; do
-					echo "Problem creating database. Please check your database configuration, and try again."
-					rm ${ROOT}/config/my.cnf
-					rm -f ${ROOT}/.databaseCreated
-					exit 1
-				done
-			else
-				#
-				# CREATE DATABASE
-				#
-				echo
-				echo "  Database doesn't already exist."
-				echo
-				echo "Creating database: ${DB_NAME}..."
-				mysql --defaults-file=${ROOT}/config/my.cnf -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME}"
-				while [[ $? -gt 0 ]]; do
-					echo "Problem creating database. Please check your database configuration, and try again."
-					rm ${ROOT}/config/my.cnf
-					rm -f ${ROOT}/.databaseCreated
-					exit 1
-				done
+	RES=$(PGPASSFILE=${ROOT}/config/pg_conn.conf psql -h ${DB_HOST} -U ${DB_USER} -tAc "SELECT 1 FROM pg_database WHERE datname='${DB_NAME}'")
+	if [ $? -ne 0 ]; then
+		echo "Problem checking for database. Please check your database configuration, and try again."
+		cat ${ROOT}/config/pg_conn.conf
+		rm ${ROOT}/config/pg_conn.conf
+		exit 1
+	fi
+
+	if [ "$RES" = "1" ]; then
+		echo "  Database already exists."
+		echo "  ** It is recommended that you start your installation with a clean database (no tables) **"
+		echo "     ------------------------------------------------------------------------------------"
+		echo "     Do you want this script to drop and re-create the database for you,"
+		echo "     so that you have a clean install?"
+		read -p "     Enter 'yes' to drop and recreate, or any other key to continue: " DROPCHOICE
+		if [ "$DROPCHOICE" = "yes" ]; then
+			echo "Dropping and recreating database: ${DB_NAME}..."
+			PGPASSFILE=${ROOT}/config/pg_conn.conf psql -h ${DB_HOST} -U ${DB_USER} -c "DROP DATABASE IF EXISTS ${DB_NAME}"
+			PGPASSFILE=${ROOT}/config/pg_conn.conf psql -h ${DB_HOST} -U ${DB_USER} -c "CREATE DATABASE ${DB_NAME}"
+			if [ $? -ne 0 ]; then
+				echo "Problem recreating database. Please check your database configuration, and try again."
+				rm ${ROOT}/config/pg_conn.conf
+				rm -f ${ROOT}/.databaseCreated
+				exit 1
+			fi
 		fi
+	else
+		echo "  Database doesn't exist. Creating it now..."
+		PGPASSFILE=${ROOT}/config/pg_conn.conf psql -h ${DB_HOST} -U ${DB_USER} -c "CREATE DATABASE ${DB_NAME}"
+		if [ $? -ne 0 ]; then
+			echo "Problem creating database. Please check your database configuration, and try again."
+			rm ${ROOT}/config/pg_conn.conf
+			rm -f ${ROOT}/.databaseCreated
+			exit 1
+		fi
+	fi
 			
 			#
 			# Record the fact that database is now created
@@ -259,7 +251,7 @@ if [ "${CWS_INSTALL_TYPE}" = "1" ] || [ "${CWS_INSTALL_TYPE}" = "2" ]; then
 			touch ${ROOT}/.databaseCreated
 fi
 
-rm -f ${ROOT}/config/my.cnf
+rm -f ${ROOT}/config/pg_conn.conf
 
 sleep 1
 

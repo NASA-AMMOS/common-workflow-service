@@ -55,7 +55,7 @@
 		<joda-time.version>2.1</joda-time.version>
 		<junit.version>4.13.1</junit.version>
 		<jython-standalone.version>2.7.2b3</jython-standalone.version>
-		<mariadb-java-client.version>2.7.2</mariadb-java-client.version>
+		<postgresql.version>42.6.0</postgresql.version>
 
 		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
 		<maven-dependency-plugin.version>3.0.1</maven-dependency-plugin.version>
@@ -66,7 +66,6 @@
 		<maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
 		<mockito.version>4.3.1</mockito.version>
 		<mybatis.version>3.5.6</mybatis.version>
-		<mysql-connector.version>8.0.28</mysql-connector.version>
 		<hikaricp.version>4.0.3</hikaricp.version>
 		<phantomjsdriver.version>1.0.4</phantomjsdriver.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -306,16 +305,11 @@
 				<version>2.0.1</version>
 			</dependency>
 
-			<!-- Database drivers (MariaDB and MySQL supported) -->
+			<!-- Database driver (PostgreSQL supported) -->
 			<dependency>
-				<groupId>org.mariadb.jdbc</groupId>
-				<artifactId>mariadb-java-client</artifactId>
-				<version>${mariadb-java-client.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>mysql</groupId>
-				<artifactId>mysql-connector-java</artifactId>
-				<version>${mysql-connector.version}</version>
+				<groupId>org.postgresql</groupId>
+				<artifactId>postgresql</artifactId>
+				<version>${postgresql.version}</version>
 			</dependency>
 
 			<!-- HikariCP database connection pool -->

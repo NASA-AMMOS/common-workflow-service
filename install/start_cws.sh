@@ -176,11 +176,7 @@ if [[ "${INSTALL_TYPE}" = "1" ]] || [[ "${INSTALL_TYPE}" = "2" ]]; then
 	DB_USER=`grep database_user ${CWS_INSTALLER_CONFIG_FILE} | grep -v "^#" | cut -d"=" -f 2`
 	DB_PASS=`grep database_password ${CWS_INSTALLER_CONFIG_FILE} | grep -v "^#" | cut -d"=" -f 2`
 
-	echo "[mysql]" > ${ROOT}/config/my.cnf
-	echo "host=${DB_HOST}" >> ${ROOT}/config/my.cnf
-	echo "user=\"${DB_USER}\"" >> ${ROOT}/config/my.cnf
-	echo "password=\"${DB_PASS}\"" >> ${ROOT}/config/my.cnf
-	chmod 644 ${ROOT}/config/my.cnf
+	export PGPASSWORD="${DB_PASS}"
 
 	print "Your database configuration is:"
 	print "  DB HOST:   ${DB_HOST}"
@@ -188,22 +184,21 @@ if [[ "${INSTALL_TYPE}" = "1" ]] || [[ "${INSTALL_TYPE}" = "2" ]]; then
 	print "  DB USER:   ${DB_USER}"
 
     print "Checking whether database ${DB_NAME} already exists..."
-    RES=`mysql --defaults-file=${ROOT}/config/my.cnf -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${DB_NAME}'"`
+    RES=$(psql -h "${DB_HOST}" -U "${DB_USER}" -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='${DB_NAME}'")
 
     if [[ $? -gt 0 ]]; then
         print "ERROR: Problem checking for database."
         print "  Please check your database configuration, and try again."
-        rm -rf ${ROOT}/config/my.cnf
+        unset PGPASSWORD
         exit 1
     fi
 
-    FOUND=`echo ${RES} | grep ${DB_NAME} | wc -l`
-    if [[ ${FOUND} -eq 1 ]]; then
+    if [[ ${RES} -eq 1 ]]; then
         print "  Database already exists."
     else
         print "ERROR: Database ${DB_NAME} could not be found, unable to start CWS."
         print "  Please run configure.sh to create the database and necessary tables."
-        rm -rf ${ROOT}/config/my.cnf
+        unset PGPASSWORD
         exit 1
     fi
 fi
@@ -287,15 +282,15 @@ print "CWS Server Started."
 if [ "${INSTALL_TYPE}" = "1" ] || [ "${INSTALL_TYPE}" = "2" ]; then
 
     echo "Creating triggers for status tables..."
-    mysql --defaults-file=${ROOT}/config/my.cnf ${DB_NAME} < ${ROOT}/sql/cws/core.afterstartup.sql
+    psql -h "${DB_HOST}" -U "${DB_USER}" -d "${DB_NAME}" -f "${ROOT}/sql/cws/core.afterstartup.sql"
     while [[ $? -gt 0 ]]; do
         echo "Problem creating triggers for status tables. Please check your database configuration, and try again."
-        rm -rf ${ROOT}/config/my.cnf
+        unset PGPASSWORD
         exit 1
     done
     echo "  Done."
 
-    rm -rf ${ROOT}/config/my.cnf
+    unset PGPASSWORD
 fi
 
 # =======================
