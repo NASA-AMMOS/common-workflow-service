@@ -54,7 +54,7 @@ jobs:
           chmod 600 ~/.cws/creds
 
       - name: Download Logstash
-        uses: carlosperate/download-file-action@v1
+        uses: carlosperate/download-file-action@v2
         with:
           file-url: https://artifacts.elastic.co/downloads/logstash/logstash-8.12.0-windows-x86_64.zip
           file-name: logstash-8.12.0.zip
@@ -68,7 +68,7 @@ jobs:
       - name: Set up Elasticsearch
         run: |
           cd install/docker/es-only
-          docker-compose up -d
+          docker compose up -d
 
       - name: Show Docker containers
         run: |
@@ -184,7 +184,7 @@ jobs:
           chmod 600 ~/.cws/creds
 
       - name: Download Logstash
-        uses: carlosperate/download-file-action@v1
+        uses: carlosperate/download-file-action@v2
         with:
           file-url: https://artifacts.elastic.co/downloads/logstash/logstash-8.12.0-windows-x86_64.zip
           file-name: logstash-8.12.0.zip
@@ -198,7 +198,7 @@ jobs:
       - name: Set up Elasticsearch
         run: |
           cd install/docker/es-only
-          docker-compose up -d
+          docker compose up -d
 
       - name: Show Docker containers
         run: |
