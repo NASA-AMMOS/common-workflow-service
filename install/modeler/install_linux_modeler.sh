@@ -41,7 +41,7 @@ while [[ ! $REPLY =~ ^(y|Y|n|N)$ ]]; do
 
 echo
 echo "Downloading camunda modeler now..."
-curl -LO https://downloads.camunda.cloud/release/camunda-modeler/5.11.0/camunda-modeler-5.11.0-linux-x64.tar.gz
+curl -LO https://downloads.camunda.cloud/release/camunda-modeler/5.24.0/camunda-modeler-5.24.0-linux-x64.tar.gz
 tar zxvf *.tar.gz
 
 rm camunda*.tar.gz

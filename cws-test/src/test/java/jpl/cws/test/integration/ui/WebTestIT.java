@@ -230,7 +230,7 @@ public class WebTestIT extends WebTestUtil {
 			sleep(1000);
 
 			findOnPage("ls");
-			findOnPage("Hello World");
+			findOnPage("Hello World.");
 			findOnPage("Command 'ls' exit code: 0");
 
 			sleep(9000);

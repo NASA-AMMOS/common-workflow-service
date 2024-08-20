@@ -191,22 +191,23 @@ function auto_conf_data () {
     DB_PASS=${9}
     ES_PROTOCOL=${10}
     ES_HOST=${11}
-    ES_PORT=${12}
-    ES_USE_AUTH=${13}
-    ES_USERNAME=${14}
-    ES_PASSWORD=${15}
-    ENABLE_CLOUD_AS=${16}
-    SECURITY_SCHEME=${17}
-    THIS_HOSTNAME=${18}
-    NOTIFICATION_EMAILS=${19}
-    ADMIN_FIRSTNAME=${20}
-    ADMIN_LASTNAME=${21}
-    ADMIN_EMAIL=${22}
-    NUM_WORKERS=${23}
-    WORKER_MAX_NUM_RUNNING_PROCS=${24}
-    WORKER_ABANDONED_DAYS=${25}
+    ES_INDEX_PREFIX=${12}
+    ES_PORT=${13}
+    ES_USE_AUTH=${14}
+    ES_USERNAME=${15}
+    ES_PASSWORD=${16}
+    ENABLE_CLOUD_AS=${17}
+    SECURITY_SCHEME=${18}
+    THIS_HOSTNAME=${19}
+    NOTIFICATION_EMAILS=${20}
+    ADMIN_FIRSTNAME=${21}
+    ADMIN_LASTNAME=${22}
+    ADMIN_EMAIL=${23}
+    NUM_WORKERS=${24}
+    WORKER_MAX_NUM_RUNNING_PROCS=${25}
+    WORKER_ABANDONED_DAYS=${26}
 
-    OUTPUT_FILE=${26}
+    OUTPUT_FILE=${27}
 
     source ${ROOT}/utils.sh
 
@@ -281,6 +282,7 @@ function auto_conf_data () {
     database_password=${DB_PASS}
     elasticsearch_protocol=${ES_PROTOCOL}
     elasticsearch_host=${ES_HOST}
+    elasticsearch_index_prefix=${ES_INDEX_PREFIX}
     elasticsearch_port=${ES_PORT}
     elasticsearch_use_auth=${ES_USE_AUTH}
     elasticsearch_username=${ES_USERNAME}

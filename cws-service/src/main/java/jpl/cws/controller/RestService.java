@@ -103,6 +103,7 @@ public class RestService extends MvcCore {
 
 	@Value("${cws.elasticsearch.protocol}") private String elasticsearchProtocolName;
 	@Value("${cws.elasticsearch.hostname}") private String elasticsearchHostname;
+	@Value("${cws.elasticsearch.index.prefix}") private String elasticsearchIndexPrefix;
 	@Value("${cws.elasticsearch.port}") private String elasticsearchPort;
 
 	@Value("${cws.elasticsearch.use.auth}") private String elasticsearchUseAuth;
@@ -769,8 +770,7 @@ public class RestService extends MvcCore {
 	@ApiOperation(value = "Gets the total number of log rows.", tags = {"Logs"}, produces = "application/json")
 	@RequestMapping(value="/logs/get/count", method = GET, produces="application/json")
 	public @ResponseBody String getNumLogs() {
-		String urlString = constructElasticsearchUrl("/_count");
-
+		String urlString = constructElasticsearchUrl("/" + elasticsearchIndexPrefix + "-logstash-*/_count");
 		log.trace("REST getNumLogs query = " + urlString);
 
 		try {
@@ -804,8 +804,7 @@ public class RestService extends MvcCore {
 	@RequestMapping(value = "/logs/get/noScroll", method = GET, produces="application/json")
 	public @ResponseBody String getLogsNoScroll(
 			@RequestParam(value = "source") String source) {
-		String urlString = constructElasticsearchUrl("/_search");
-
+		String urlString = constructElasticsearchUrl("/" + elasticsearchIndexPrefix + "-logstash-*/_search");
 		log.debug("REST logs/get/noScroll query = " + urlString);
 
 		try {
@@ -843,8 +842,7 @@ public class RestService extends MvcCore {
 	@RequestMapping(value = "/logs/get", method = GET, produces="application/json")
 	public @ResponseBody String getLogs(
 			@RequestParam(value = "source") String source) {
-		String urlString = constructElasticsearchUrl("/_search?scroll=5m&source=" + source + "&source_content_type=application/json");
-		
+		String urlString = constructElasticsearchUrl("/" + elasticsearchIndexPrefix + "-logstash-*/_search?scroll=5m&source=" + source + "&source_content_type=application/json");
 		log.trace("REST getLogs query = " + urlString);
 		
 		try {
@@ -881,7 +879,7 @@ public class RestService extends MvcCore {
 			HttpServletResponse response,
 			@PathVariable String procDefKey
 			) {
-		String urlString = constructElasticsearchUrl("/*/_delete_by_query");
+		String urlString = constructElasticsearchUrl("/" + elasticsearchIndexPrefix + "-logstash*/_delete_by_query");
 		log.debug("REST deleteLogsByProcDefKey url = " + urlString);
 		
 		String data = "{ \"query\": { \"bool\": { \"must\": [ { \"match\": { \"procDefKey\": \"" + procDefKey + "\" } } ] } } }";
