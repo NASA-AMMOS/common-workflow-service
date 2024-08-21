@@ -874,7 +874,7 @@
 						</select>
 					</div>
 				</div>
-
+				<div class="col-md-1" />
 				<div class="status-div col-md-7 col-md-offset-1">
 					<label>Process status summary:</label>
 					<div id="stat-txt-cws-reserved-total" class="stat-txt">-</div>
@@ -920,12 +920,12 @@
 				<thead>
 				<tr>
 					<th style="width: 30px"></th>
-					<th>Name</th>
+					<th style="width: 250px">Name</th>
 					<th>Key</th>
 					<th>Version</th>
 					<th>Workers</th>
 					<th>Status</th>
-					<th style="width:500px">Instance Statistics</th>
+					<th>Instance Statistics</th>
 				</tr>
 				</thead>
 				<tbody>
