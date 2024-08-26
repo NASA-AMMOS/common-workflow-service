@@ -422,17 +422,17 @@
 								var returnVal = `<div class="proc-name-btns">`;
 								if (data.suspended == "true") {
 									returnVal += `<a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="resumeProcDef('` + data.id + `', '` + data.key + `')" aria-label="Resume" data-microtip-position="top-right" role="tooltip">`
-											+ `<img height="22" width="22" src="/${base}/images/play.svg" style="cursor: pointer; float: right; color: green;" id="suspend-`
+											+ `<img height="16" width="16" src="/${base}/images/play.svg" style="cursor: pointer; float: right; color: green;" id="suspend-`
 											+ data.key + `" />`
 											+ `</a>`;
 								} else {
 									returnVal += `<a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="suspendProcDef('` + data.id + `', '` + data.key + `')" aria-label="Suspend" data-microtip-position="top-right" role="tooltip">`
-											+ `<img height="22" width="22" src="/${base}/images/pin_pause.svg" style="cursor: pointer; float: right; color: #d9534f;" id="suspend-`
+											+ `<img height="16" width="16" src="/${base}/images/pin_pause.svg" style="cursor: pointer; float: right; color: #d9534f;" id="suspend-`
 											+ data.key + `" /></a>`;
 								}
 
 								returnVal += `<a href="/${base}/modeler?procDefKey=` + data.key + `" target="_blank" aria-label="Edit" data-microtip-position="top-right" role="tooltip">`
-										+ `<span style="float: right;" id="edit-` + data.key + `"><img height="22" width="22" src="/${base}/images/pen.svg" /></span></a>`
+										+ `<span style="float: right;" id="edit-` + data.key + `"><img height="16" width="16" src="/${base}/images/pen.svg" /></span></a>`
 										+ `<a data-proc-key="` + data.key + `" onClick="handleDeleteProcDef('` + data.key + `')" aria-label="Delete" data-microtip-position="top-right" role="tooltip">`
 										+ `<img height="22" width="22" src="/${base}/images/trash_red.svg" style="cursor: pointer; float: right; color: #d9534f;" id="delete-`
 										+ data.key + `" /></a>`;
@@ -472,7 +472,6 @@
 					//VERSION COLUMN
 					{
 						data: "version",
-						type: "string",
 						render: function (data, type) {
 							if (type !== 'display') {
 								return data;
@@ -488,6 +487,7 @@
 					//WORKERS BUTTON COLUMN
 					{
 						data: "key",
+						type: "string",
 						render: function (data, type) {
 							if (type !== 'display') {
 								return "";
@@ -523,6 +523,7 @@
 					//INSTANCE STATISTICS COLUMN
 					{
 						data: "key",
+						type: "string",
 						render: function (data, type) {
 							if (type !== 'display') {
 								return "";
@@ -832,7 +833,7 @@
 
 			<div class="row">
 				<div class="col-md-6">
-					<h2 class="sub-header">Deployed Process Definitions</h2>
+					<h2 class="sub-header fs-3">Deployed Process Definitions</h2>
 				</div>
 				<div class="col-md-6">
 					<form id="bpmn-form" action="/${base}/rest/deployments/deployProcessDefinition"
@@ -875,8 +876,7 @@
 						</select>
 					</div>
 				</div>
-				<div class="col-md-1" />
-				<div class="status-div col-md-7 col-md-offset-1">
+				<div class="status-div col-md-6 offset-md-1">
 					<label>Process status summary:</label>
 					<div id="stat-txt-cws-reserved-total" class="stat-txt">-</div>
 					<div id="stat-bar-cws-reserved-total" class="progress">

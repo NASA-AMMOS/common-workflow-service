@@ -425,11 +425,12 @@ a.nav-link img {
 }
 
 .main-content {
-  margin-left: 12px;
+  margin-left: 25px;
   margin-top: 50px;
   position: absolute;
-  left: 85px;
-  width: calc(100% - 95px);
+  left: 70px;
+  width: calc(100% - 110px);
+  font-size: 14px;
 }
 
 :target {

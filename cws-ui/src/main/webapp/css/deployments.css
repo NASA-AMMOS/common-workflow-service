@@ -33,6 +33,10 @@
     gap: 10px;
 }
 
+.above-table-buttons button {
+    font-size: 14px;
+}
+
 .btn-icon {
     margin-right: 5px;
 }
@@ -118,26 +122,29 @@
 
 #process-table tr td:nth-child(3) {
     overflow-wrap: break-word;
-    max-width: 200px;
+    max-width: 250px;
 }
 
 #process-table tr td:nth-child(4) {
     text-align: center;
-    max-width: 50px;
+    max-width: 25px;
 }
 
 #process-table tr td:nth-child(5) {
-    text-align: center;
     width: 70px;
+}
+
+#process-table tr td:nth-child(5) button {
+    font-size: 14px;
 }
 
 #process-table tr td:nth-child(6) {
-    text-align: center;
-    width: 70px;
+    padding-left: 10px;
+    width: 25px;
 }
 
 #process-table tr td:nth-child(7) {
-    min-width: 400px;
+    min-width: 200px;
 }
 
 .progress {
@@ -225,4 +232,8 @@
 
 .bar-completed {
     background-color: green;
+}
+
+.form-control option {
+    font-size: 14px;
 }
