@@ -3,7 +3,7 @@ version: '3.2'
 services:
   db:
     restart: always
-    image: mariadb:10.6
+    image: public.ecr.aws/docker/library/mariadb:10.6
     container_name: cws-db
     ports:
       - "3306:3306"
@@ -17,11 +17,13 @@ services:
       interval: 3s
       timeout: 1s
       retries: 5
+    networks:
+      - external-network
   es:
     labels:
       com.example.service: "es"
       com.example.description: "For searching and indexing data"
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    image: public.ecr.aws/docker/library/elasticsearch:8.12.0
     container_name: cws-es
     ports:
       - "9200:9200"
@@ -32,6 +34,8 @@ services:
       - cluster.name=docker-cluster
       - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    networks:
+      - external-network
     healthcheck:
         test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
         interval: 5s
@@ -89,10 +93,11 @@ services:
     labels:
       com.example.service: "cws-server"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.6.0    # update this each CWS release
+    image: cae-artifactory.jpl.nasa.gov:16002/gov/nasa/jpl/ammos/ids/cws:2.6.0    # update this each CWS release
     depends_on:
       - db
       - es
+      - ldapsearch
 #      - logstash
 #      - kibana
     ports:
@@ -116,16 +121,19 @@ services:
       - ./config.properties:/home/cws_user/config.properties:ro
       - ~/.cws/creds:/root/.cws/creds:ro
       - console-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
+    networks:
+      - external-network
   cws-worker:
     container_name: cws-worker1
     labels:
       com.example.service: "cws-worker1"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.6.0    # update this each CWS release
+    image: cae-artifactory.jpl.nasa.gov:16002/gov/nasa/jpl/ammos/ids/cws:2.6.0    # update this each CWS release
     depends_on:
       - db
       - es
       - cws
+      - ldapsearch
     hostname: cws-worker1
     environment:
       - DB_HOST=db
@@ -138,11 +146,22 @@ services:
       - ./worker-config.properties:/home/cws_user/config.properties:ro
       - ~/.cws/creds:/root/.cws/creds:ro
       - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
+    networks:
+      - external-network
+  ldapsearch:
+    container_name: ldapsearch_container
+    image: ghcr.io/nasa-ammos/common-workflow-service/openldap:v2.6
+    ports:
+      - 389:389
+    networks:
+      - external-network
+
 
 volumes:
   console-logs-volume:
   worker1-logs-volume:
 
 networks:
-  cws-network:
-    external: true
+  external-network:
+    external:
+      name: cws-network
