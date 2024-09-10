@@ -80,6 +80,11 @@ jobs:
           cd install/docker/es-only
           docker compose up -d
 
+      - name: Set up CWS LDAP Server
+        run: |
+          cd cws-opensource-ldap
+          docker compose up -d
+
       - name: Show Docker containers
         run: |
           sleep 5s
