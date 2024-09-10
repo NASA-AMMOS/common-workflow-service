@@ -3,7 +3,7 @@ version: '3.2'
 services:
   db:
     restart: always
-    image: public.ecr.aws/docker/library/mariadb:10.6
+    image: mariadb:10.6
     container_name: cws-db
     ports:
       - "3306:3306"
@@ -23,7 +23,7 @@ services:
     labels:
       com.example.service: "es"
       com.example.description: "For searching and indexing data"
-    image: public.ecr.aws/docker/library/elasticsearch:8.12.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
     container_name: cws-es
     ports:
       - "9200:9200"
@@ -93,7 +93,7 @@ services:
     labels:
       com.example.service: "cws-server"
       com.example.description: "Common Workflow Service"
-    image: cae-artifactory.jpl.nasa.gov:16002/gov/nasa/jpl/ammos/ids/cws:2.6.0    # update this each CWS release
+    image: nasa-ammos/common-workflow-service:2.6.0    # update this each CWS release
     depends_on:
       - db
       - es
@@ -128,7 +128,7 @@ services:
     labels:
       com.example.service: "cws-worker1"
       com.example.description: "Common Workflow Service"
-    image: cae-artifactory.jpl.nasa.gov:16002/gov/nasa/jpl/ammos/ids/cws:2.6.0    # update this each CWS release
+    image: nasa-ammos/common-workflow-service:2.6.0    # update this each CWS release
     depends_on:
       - db
       - es
