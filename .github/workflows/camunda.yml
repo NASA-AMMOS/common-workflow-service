@@ -37,7 +37,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y curl wget iproute2 unzip maven jq sed mysql-client gnupg
-          curl --version
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -177,7 +176,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y curl wget iproute2 unzip maven jq sed mysql-client gnupg
-          curl --version
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
