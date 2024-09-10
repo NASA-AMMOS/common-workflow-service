@@ -20,21 +20,21 @@ jobs:
       WORKERS: 1
 
     services:
-      mdb103:
-        image: mariadb:10.6
+      mdb106:
+        image: public.ecr.aws/docker/library/mariadb:10.6
         ports:
           - 3306:3306
         env:
           MYSQL_DATABASE: cws_dev
           MYSQL_ROOT_PASSWORD: adminpw
         options: >-
-          --name mdb103
+          --name mdb106
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
