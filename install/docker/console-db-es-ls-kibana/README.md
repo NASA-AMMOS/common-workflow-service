@@ -14,7 +14,8 @@
 2. Build `common-workflow-service` Docker Image using the `build.sh` script in the cws-image dir
    1. Update the version in the `build.sh` script if necessary
 3. Update the `config.properties` and `docker-compose.yml` accordingly.
-4. Run the command `docker network create cws-network` to create a shared network space for other workers to join
+4. Create a creds file on your machine in path `~/.cws/creds` and set the file permission with `chmod 700 ~/.cws/creds`
+5. Run the command `docker network create cws-network` to create a shared network space for other workers to join
 
 To run use the command:
     
