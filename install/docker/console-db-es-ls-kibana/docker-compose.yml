@@ -17,6 +17,8 @@ services:
       interval: 3s
       timeout: 1s
       retries: 5
+    networks:
+      - external-network
   es:
     labels:
       com.example.service: "es"
@@ -32,6 +34,8 @@ services:
       - cluster.name=docker-cluster
       - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    networks:
+      - external-network
     healthcheck:
         test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
         interval: 5s
@@ -93,6 +97,7 @@ services:
     depends_on:
       - db
       - es
+      - ldapsearch
 #      - logstash
 #      - kibana
     ports:
@@ -116,6 +121,8 @@ services:
       - ./config.properties:/home/cws_user/config.properties:ro
       - ~/.cws/creds:/root/.cws/creds:ro
       - console-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
+    networks:
+      - external-network
   cws-worker:
     container_name: cws-worker1
     labels:
@@ -126,6 +133,7 @@ services:
       - db
       - es
       - cws
+      - ldapsearch
     hostname: cws-worker1
     environment:
       - DB_HOST=db
@@ -138,11 +146,22 @@ services:
       - ./worker-config.properties:/home/cws_user/config.properties:ro
       - ~/.cws/creds:/root/.cws/creds:ro
       - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
+    networks:
+      - external-network
+  ldapsearch:
+    container_name: ldapsearch_container
+    image: ghcr.io/nasa-ammos/common-workflow-service/openldap:v2.6
+    ports:
+      - 389:389
+    networks:
+      - external-network
+
 
 volumes:
   console-logs-volume:
   worker1-logs-volume:
 
 networks:
-  cws-network:
-    external: true
+  external-network:
+    external:
+      name: cws-network
