@@ -329,10 +329,10 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_0tftgbi" sourceRef="Task_153ch63" targetRef="ExclusiveGateway_0pi2f5r" />
     <bpmn:sequenceFlow id="SequenceFlow_17ubkbm" sourceRef="ExclusiveGateway_0pi2f5r" targetRef="Task_169nxbp">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${Task_153ch63_exitValue != "5" || Task_153ch63_success != "false"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${Task_153ch63_out.jsonPath("$.exitCode").numberValue() != 5 || Task_153ch63_out.jsonPath("$.success").boolValue() == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0zrbl5f" sourceRef="ExclusiveGateway_0pi2f5r" targetRef="Task_09xvn30">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${Task_153ch63_exitValue == "5" &amp;&amp; Task_153ch63_success == "false"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${Task_153ch63_out.jsonPath("$.exitCode").numberValue() == 5 &amp;&amp; Task_153ch63_out.jsonPath("$.success").boolValue() == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="Task_09xvn30" name="LOG: SUCCESS, EXEC 5" camunda:modelerTemplate="jpl.cws.task.LogTask" camunda:class="jpl.cws.task.LogTask">
       <bpmn:extensionElements>
@@ -1150,7 +1150,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_1jeej0r" sourceRef="SubProcess_18wkc4m" targetRef="ExclusiveGateway_1mqy34e" />
     <bpmn:sequenceFlow id="SequenceFlow_1tsitl7" sourceRef="ExclusiveGateway_1mqy34e" targetRef="ServiceTask_1ufgxlc">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ServiceTask_0f2syr4_output == "count = 9" &amp;&amp; ServiceTask_0f2syr4_success == "true"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ServiceTask_0f2syr4_out.jsonPath("$.stdout").stringValue() == "count = 9" &amp;&amp; ServiceTask_0f2syr4_out.jsonPath("$.success").boolValue() == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0i1vvi9" sourceRef="ExclusiveGateway_1mqy34e" targetRef="ServiceTask_1al0pck" />
     <bpmn:endEvent id="EndEvent_10r6hd2" name="EXEC 13 FAILED">
