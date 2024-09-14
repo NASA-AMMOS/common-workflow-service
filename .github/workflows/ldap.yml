@@ -20,7 +20,7 @@ jobs:
       WORKERS: 1
 
     services:
-      mdb103:
+      mdb106:
         image: mariadb:10.6
         ports:
           - 3306:3306
@@ -28,7 +28,7 @@ jobs:
           MYSQL_DATABASE: cws_dev
           MYSQL_ROOT_PASSWORD: adminpw
         options: >-
-          --name mdb103
+          --name mdb106
 
     steps:
       - uses: actions/checkout@v4
@@ -38,7 +38,14 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: maven
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
 
       - name: Create open-source certs
         run: |
@@ -54,11 +61,8 @@ jobs:
           chmod 600 ~/.cws/creds
 
       - name: Download Logstash
-        uses: carlosperate/download-file-action@v2
-        with:
-          file-url: https://artifacts.elastic.co/downloads/logstash/logstash-8.12.0-windows-x86_64.zip
-          file-name: logstash-8.12.0.zip
-          location: install/logging/
+        run: |
+          curl -o install/logging/logstash-8.12.0.zip https://artifacts.elastic.co/downloads/logstash/logstash-8.12.0-windows-x86_64.zip
 
       - name: Check for Logstash
         run: |
@@ -94,9 +98,9 @@ jobs:
           ls -al
 
       - name: Set up Google Chrome
-        run: |
-          sudo apt-get update
-          sudo apt-get --only-upgrade install google-chrome-stable
+        run:  |
+          sudo apt update
+          sudo apt install -y google-chrome-stable
 
       - name: Display Google Chrome version
         run: google-chrome --version
