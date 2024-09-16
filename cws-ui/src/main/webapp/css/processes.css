@@ -22,6 +22,7 @@ summary {
 
 #pd-select {
     width: 90%;
+    font-size: 14px;
 }
 
 #status-select {
@@ -39,10 +40,15 @@ summary {
     /*width:40%;*/
     margin-bottom: 1em;
     float: left;
+    font-size: 14px;
+}
+
+#max-return-num {
+    font-size: 14px;
 }
 
 .tr-fail {
-    color: #D9534F;
+    color: #d9534f;
 }
 
 .tr-complete {
@@ -50,15 +56,15 @@ summary {
 }
 
 .tr-running {
-    color: #5BC0DE;
+    color: #5bc0de;
 }
 
 .tr-pending {
-    color: #F0AD4E;
+    color: #f0ad4e;
 }
 
 .tr-incident {
-    color: #C347ED;
+    color: #c347ed;
 }
 
 #hide-subprocs-div {
@@ -71,7 +77,6 @@ summary {
 
 #super-proc-inst-id {
     background: #ededed;
-    ;
     padding: 5px;
     border-radius: 8px;
     margin-left: 8px;
@@ -98,7 +103,7 @@ summary {
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: flex-end;
-    align-items: flex-end;
+    align-items: center;
     gap: 10px;
 }
 
@@ -151,10 +156,18 @@ summary {
     width: 85%;
     max-width: 300px;
     min-height: 25px;
-    float:left;
+    float: left;
     overflow-wrap: break-word;
 }
 
 .var-row-div-flex-sub-2 {
     flex-grow: 1;
+}
+
+#dt-search-0 {
+    width: 250px;
+}
+
+h5 {
+    font-size: 1.15rem;
 }

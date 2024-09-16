@@ -112,17 +112,17 @@
                             </div>
                             <br />
                             <div style="display: flex; gap: 10px; align-items: baseline;">
-                                <input type="button" id="filter-submit-btn" class="btn btn-info pull-right"
+                                <input type="button" id="filter-submit-btn" class="btn btn-info btn-sm pull-right"
                                     value="Filter" />
-                                <h5 class="pull-right" style="margin-right: 8px;">Matched Processes: <span
-                                        id="numMatchProcesses"></span></h5>
-                                <h5 class="pull-right" id="procCountWarning" style="color: red; margin-right: 8px;">
-                                </h5>
+                                <h6 class="pull-right" style="margin-right: 8px;">Matched Processes: <span
+                                        id="numMatchProcesses"></span></h6>
+                                <h6 class="pull-right" id="procCountWarning" style="color: red; margin-right: 8px;">
+                                </h6>
                             </div>
                         </div>
 
                         <!-- Toggle visibility of filters button -->
-                        <div id="filters-btn" class="btn btn-warning"><img height="16" width="16" src="/${base}/images/filter.svg" />&nbsp;Filters&nbsp;<img height="16" width="16" src="/${base}/images/chevron_up.svg" />
+                        <div id="filters-btn" class="btn btn-warning btn-sm"><img height="16" width="16" src="/${base}/images/filter.svg" />&nbsp;Filters&nbsp;<img height="16" width="16" src="/${base}/images/chevron_up.svg" />
                         </div>
 
                         <!-- Shows superprocess ID when displaying subprocesses, hidden otherwise -->
@@ -334,11 +334,11 @@
                             render: function (data, type) {
                                 if (type === 'display') {
                                     if (data == null) {
-                                        return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" ><button style=\"margin-bottom: 5px;\" class="btn btn-secondary btn-sm disabled">History</button></a>' +
-                                            "<a style=\"margin-bottom: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" ><button class=\"btn btn-secondary btn-sm disabled\" style=\"margin-bottom: 5px\">Subprocs</button></a>";
+                                        return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" ><button style=\"margin-bottom: 5px;\" class="btn btn-outline-dark btn-sm disabled">History</button></a>' +
+                                            "<a style=\"margin-bottom: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" ><button class=\"btn btn-outline-dark btn-sm disabled\" style=\"margin-bottom: 5px\">Subprocs</button></a>";
                                     }
-                                    return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" ><button style=\"margin-bottom: 5px;\" class="btn btn-secondary btn-sm">History</button></a>' +
-                                        "<a style=\"margin-bottom: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" ><button class=\"btn btn-secondary btn-sm\">Subprocs</button></a>";
+                                    return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" ><button style=\"margin-bottom: 5px;\" class="btn btn-outline-dark btn-sm">History</button></a>' +
+                                        "<a style=\"margin-bottom: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" ><button class=\"btn btn-outline-dark btn-sm\">Subprocs</button></a>";
                                 }
                                 return data;
                             }
@@ -926,6 +926,7 @@
                         + "<'below-table-div'ip>",
                     //tells datatables we want to use one of the predefined buttons
                     buttons: [
+                        "selectAll",
                         {
                             extend: 'colvis',
                             columns: ':not(.noVis)',
@@ -977,7 +978,7 @@
                 });
 
                 //add our action dropdown button to the div that datatables created (created in dom: above)
-                $('<div class="btn-group" style="margin-bottom: 5px"><button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><img height="16" width="16" src="/${base}/images/waterfall_light.svg" />&nbsp;Actions &nbsp;'
+                $('<div class="btn-group" style="margin-bottom: 5px"><button id="menu3" class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><img height="16" width="16" src="/${base}/images/waterfall_light.svg" />&nbsp;Actions &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
@@ -994,7 +995,7 @@
                     + `</ul></div>`).appendTo(".above-table-buttons");
 
                 //add our download dropdown button to the div that datatables created (created in dom: above)
-                $('<div class="btn-group" style="margin-bottom: 5px"><button id="action-download-group" class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown"><img height="16" width="16" src="/${base}/images/save_light.svg" />&nbsp;Download &nbsp;'
+                $('<div class="btn-group" style="margin-bottom: 5px"><button id="action-download-group" class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"><img height="16" width="16" src="/${base}/images/save_light.svg" />&nbsp;Download &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="action-download-group">'
@@ -1490,13 +1491,21 @@
                     $("#action_download_selected_list_atag").attr("href", "javascript:downloadListJSON();");
                     if (numPendingSelected === 0) {
                         $("#action_open_selected_new_tabs").removeClass("disabled");
-                        $("#action_open_selected_new_tabs_atag").attr("href", "javascript:action_open_selected_new_tabs();");
+                        
+                        $("#action_open_selected_new_tabs_atag").on("click", function() {action_open_selected_new_tabs();})
+                        // $("#action_open_selected_new_tabs_atag").attr("href", "javascript:action_open_selected_new_tabs();");
+                        
                         $("#action_copy_all_selected_history_links").removeClass("disabled");
-                        $("#action_copy_all_selected_history_links_atag").attr("href", "javascript:action_copy_all_selected_history_links();");
+                        $("#action_copy_all_selected_history_links_atag").on("click", function() {action_copy_all_selected_history_links();})
                         $("#action_download_selected_json").removeClass("disabled");
-                        $("#action_download_selected_json_atag").attr("href", "javascript:downloadSelectedJSON();");
+
+                        $("#action_download_selected_json_atag").on("click", function() {downloadSelectedJSON();})
+                        // $("#action_download_selected_json_atag").attr("href", "javascript:downloadSelectedJSON();");
+                        
                         $("#action_download_selected_csv").removeClass("disabled");
-                        $("#action_download_selected_csv_atag").attr("href", "javascript:downloadSelectedCSV();");
+
+                        $("#action_download_selected_csv_atag").on("click", function() {downloadSelectedCSV();})
+                        // $("#action_download_selected_csv_atag").attr("href", "javascript:downloadSelectedCSV();");
                     }
                 }
 
@@ -1542,6 +1551,7 @@
 
             //copies selected rows' history page links to clipboard
             function action_copy_all_selected_history_links() {
+                console.log("action_copy_all_selected_history_links");
                 var table = $("#processes-table").DataTable();
                 const protocol = window.location.protocol;
                 const host = window.location.host;
