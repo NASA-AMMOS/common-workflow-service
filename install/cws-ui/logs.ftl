@@ -203,6 +203,10 @@
 						targets: [4],
 						width: "150px"
 					},
+					{
+						targets: [7],
+						width: "300px"
+					},
 				],
 				buttons: [
 					{
