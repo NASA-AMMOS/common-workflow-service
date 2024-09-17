@@ -430,6 +430,7 @@
 
 	function downloadLogJSON() {
 		console.log($("#procInstId").html());
+		debugger;
         var mainJSON = getInstanceJSON($('#procInstId').html(), "${base}");
         $.fn.dataTable.fileSave(
             new Blob([JSON.stringify(mainJSON)]),
@@ -485,7 +486,7 @@
 		});
 
 		$('<div class="dropdown" style="display:inline;">'
-			+ '<button id="downloadButton" class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">&nbsp;Download &nbsp;'
+			+ '<button id="downloadButton" class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">&nbsp;Download &nbsp;'
 			+ '<span class="caret"></span>'
 			+ '</button>'
 			+ '<ul id="action-list" class="dropdown-menu">'
@@ -1193,10 +1194,10 @@ function convertMillis(millis) {
 		
 		<h2 class="sub-header">History</h2>
 		<div class="row">
-			<table align="center" class="table table-bordered " style="width: 1%; font-size: 95%; margin-top: 15px;">
+			<table align="center" class="table" style="width: 50%; font-size: 14px; margin-top: 15px;">
 				<thead>
 					<tr>
-						<th colspan="2" style="text-align: center;">Process Details</th>
+						<th colspan="2" style="text-align: center;"><h6>Process Details</h6></th>
 					</tr>
 				</thead>
 				<tbody>
