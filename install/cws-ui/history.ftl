@@ -1259,10 +1259,10 @@ function convertMillis(millis) {
 					<table id="logData" class="table table-striped table-bordered sortable" style="width: 95%; margin-top: 25px;">
 						<thead>
 							<tr>
-								<th id="timeStampColumn" style="width: 185px">Time Stamp</th>
-								<th style="width: 125px;">Type</th>
-								<th style="width: 200px;">Source</th>
-								<th>Details</th>
+								<th id="timeStampColumn" style="width: 150px">Time Stamp</th>
+								<th style="width: 100px;">Type</th>
+								<th style="width: 150px;">Source</th>
+								<th style="width: auto;">Details</th>
 							</tr>
 						</thead>
 					</table>
