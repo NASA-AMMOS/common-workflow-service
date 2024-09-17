@@ -1551,7 +1551,6 @@
 
             //copies selected rows' history page links to clipboard
             function action_copy_all_selected_history_links() {
-                console.log("action_copy_all_selected_history_links");
                 var table = $("#processes-table").DataTable();
                 const protocol = window.location.protocol;
                 const host = window.location.host;

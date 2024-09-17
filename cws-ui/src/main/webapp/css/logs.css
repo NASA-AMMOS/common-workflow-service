@@ -4,6 +4,7 @@
 
 #pd-select {
     width: 100%;
+    font-size: 14px;
 }
 
 #log-level-sel {
@@ -13,7 +14,7 @@
 }
 
 #log-level-sel input {
-    margin-right: 5px
+    margin-right: 5px;
 }
 
 #log-level-sel label {
@@ -50,7 +51,8 @@ tr.debug {
     padding: 4px 15px;
 }
 
-#sh-cols div input, #sh-cols div label {
+#sh-cols div input,
+#sh-cols div label {
     margin-right: 8px;
     cursor: pointer;
 }
@@ -59,7 +61,8 @@ tr.debug {
     border: none;
 }
 
-#start-date, #end-date {
+#start-date,
+#end-date {
     width: 100%;
 }
 
@@ -67,7 +70,8 @@ tr.debug {
     text-wrap: normal;
 }
 
-div.dts tbody th, div.dts tbody td {
+div.dts tbody th,
+div.dts tbody td {
     white-space: normal !important;
     overflow-wrap: anywhere;
 }
@@ -79,6 +83,7 @@ div.dts tbody th, div.dts tbody td {
     justify-content: flex-start;
     align-items: center;
     gap: 10px;
+    margin-bottom: 10px;
 }
 
 .above-table-buttons {
@@ -91,7 +96,7 @@ div.dts tbody th, div.dts tbody td {
 }
 
 .above-table-filter {
-    margin-right: 15px;
+    /*    margin-right: 15px;*/
 }
 
 .above-table-filler {
@@ -127,6 +132,7 @@ div.dts tbody th, div.dts tbody td {
     justify-content: space-between;
     align-items: center;
     height: 50px;
+    margin-right: 20px;
 }
 
 .scrollTable {
@@ -159,6 +165,17 @@ div.dts tbody th, div.dts tbody td {
     width: 33%;
 }
 
+#filters-div-col-1 .autocomplete,
+#filters-div-col-1 #pd-select,
+#filters-div-col-3 input {
+    margin-bottom: 0.5rem;
+}
+
+#filters-div-col-1 h6,
+#filters-div-col-3 h6 {
+    margin-bottom: 0.25rem;
+}
+
 #filters-div-col-2 {
     flex-grow: 1;
     width: 33%;
@@ -173,7 +190,7 @@ div.dts tbody th, div.dts tbody td {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    justify-content: flex-end;
+    justify-content: flex-start;
     align-items: center;
     gap: 10px;
     margin-left: 15px;
@@ -185,12 +202,25 @@ div.dts tbody th, div.dts tbody td {
     padding-top: 0px;
 }
 
-.ajax-spinner{
+.ajax-spinner {
     height: 100%;
-    width:100%;
+    width: 100%;
     position: absolute;
     z-index: 10;
-    background: #fff url('../images/ajax-spin.gif') no-repeat center;
+    background: #fff url("../images/ajax-spin.gif") no-repeat center;
     opacity: 0.8;
     display: none;
-  }
+}
+
+#pi-text,
+#pd-select,
+#worker-id-text,
+#search-text,
+#start-date,
+#end-date {
+    font-size: 14px;
+}
+
+#dt-search-0 {
+    width: 250px;
+}

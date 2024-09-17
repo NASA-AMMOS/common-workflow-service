@@ -189,7 +189,7 @@
 					},
 					{
 						targets: [0],
-						width: "215px",
+						width: "150px",
 					},
 					{
 						targets: [1],
@@ -204,8 +204,12 @@
 						width: "150px"
 					},
 					{
+						targets: [5],
+						width: "150px"
+					},
+					{
 						targets: [7],
-						width: "300px"
+						width: "250px"
 					},
 				],
 				buttons: [

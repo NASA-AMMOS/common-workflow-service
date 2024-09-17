@@ -16,6 +16,7 @@ body {
 .sub-header {
   padding-bottom: 10px;
   border-bottom: 1px solid #eee;
+  font-size: 1.75rem;
 }
 
 #login-form {
@@ -448,4 +449,13 @@ a.nav-link img {
 
 .above-table-length {
   margin-bottom: 5px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+.dt-buttons {
+  display: flex;
+  align-items: baseline;
 }

@@ -18,7 +18,7 @@
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: baseline;
     gap: 10px;
     margin-bottom: 5px;
     margin-top: 15px;
@@ -31,6 +31,10 @@
     justify-content: flex-end;
     align-items: baseline;
     gap: 10px;
+}
+
+.dt-input {
+    width: 250px;
 }
 
 .above-table-buttons button {
@@ -106,7 +110,7 @@
 }
 
 #process-table {
-    margin-top: 2rem;
+    margin-top: 1.25rem;
 }
 
 #process-table tr td {
@@ -234,6 +238,8 @@
     background-color: green;
 }
 
-.form-control option {
+#refresh-rate,
+#stats-last-num-hours {
     font-size: 14px;
+    line-height: 14px;
 }
