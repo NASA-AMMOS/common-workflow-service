@@ -429,12 +429,11 @@
 	}
 
 	function downloadLogJSON() {
-		console.log($("#procInstId").html());
-		debugger;
-        var mainJSON = getInstanceJSON($('#procInstId').html(), "${base}");
+		console.log($("#procInstId").text());
+        var mainJSON = getInstanceJSON($('#procInstId').text(), "${base}");
         $.fn.dataTable.fileSave(
             new Blob([JSON.stringify(mainJSON)]),
-            'history-' + $("#procInstId").html() + '.json'
+            'history-' + $("#procInstId").text() + '.json'
         );
     }
 
@@ -1256,13 +1255,13 @@ function convertMillis(millis) {
 		<div class="row">
 			<div class="col main">
 				<div id="log-div" style="width: 100%;">
-					<table id="logData" class="table table-striped table-bordered sortable" style="width: 95%; margin-top: 25px;">
+					<table id="logData" class="table table-striped table-bordered sortable" style="margin-top: 25px;">
 						<thead>
 							<tr>
-								<th id="timeStampColumn" style="width: 150px">Time Stamp</th>
-								<th style="width: 100px;">Type</th>
-								<th style="width: 150px;">Source</th>
-								<th style="width: auto;">Details</th>
+								<th id="timeStampColumn" class="col-1" scope="col">Time Stamp</th>
+								<th class="col-1" scope="col">Type</th>
+								<th class="col-1" scope="col">Source</th>
+								<th class="col-3" scope="col">Details</th>
 							</tr>
 						</thead>
 					</table>

@@ -195,8 +195,10 @@
 			// Update the tooltips
 			document.querySelectorAll('.progress-bar[data-bs-toggle="tooltip"]').forEach(el => {
 				const tooltipInstance = bootstrap.Tooltip.getInstance(el);
-				if (tooltipInstance._config) {
-					tooltipInstance._config.title = el.dataset.bsTitle;	
+				if (tooltipInstance){
+					if (tooltipInstance._config) {
+						tooltipInstance._config.title = el.dataset.bsTitle;	
+					}
 				}
 				tooltipInstance.update();
 			});
@@ -241,13 +243,7 @@
 
 					if (data.status === "SUCCESS") {
 
-						var tableRow = $("td").filter(function () {
-							return $(this).text() === proc_def_key;
-						}).closest("tr");
-
-						if (tableRow) {
-							tableRow.remove();
-						}
+						$("#process-table").DataTable().row("#"+proc_def_key).remove().draw()
 
 						deleteProcDefEsLogs(proc_def_key);
 					} else {
@@ -492,7 +488,7 @@
 							if (type !== 'display') {
 								return "";
 							} else {
-								var html = `<button type="button" id="pv-` + data + `" class="btn btn-default worker-view-btn"`
+								var html = `<button type="button" id="pv-` + data + `" class="btn btn-info worker-view-btn"`
 										+ `data-proc-key="` + data + `">view</button>`;
 								return html;
 							}
@@ -766,7 +762,7 @@
 					$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
 					// $("#status-txt-" + procDefKey).html("Suspended");
 					$("#" + procDefKey).addClass("disabled");
-					$("#pv-" + procDefKey).removeClass("btn-danger").addClass("btn-secondary").text("view");
+					$("#pv-" + procDefKey).removeClass("btn-danger").addClass("btn-info").text("view");
 
 					const table = $("#process-table").DataTable();
 					const rowData = table.row("#" + procDefKey).data();
@@ -797,7 +793,7 @@
 					$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
 					$("#status-txt-" + procDefKey).html("Active");
 					$("#" + procDefKey).removeClass("disabled");
-					$("#pv-" + procDefKey).removeClass("disabled");
+					$("#pv-" + procDefKey).removeClass("disabled").removeClass("btn-info").addClass("btn").text("enable");
 				},
 				error: function (data) {
 					console.log("error activating");
@@ -1234,7 +1230,7 @@
 					$("#pv-" + rows[i].pdk).removeClass("btn-default").addClass("btn-danger");
 					$("#pv-" + rows[i].pdk).text("enable");
 				} else {
-					$("#pv-" + rows[i].pdk).removeClass("btn-danger").addClass("btn-secondary");
+					$("#pv-" + rows[i].pdk).removeClass("btn-danger").addClass("btn-info");
 					$("#pv-" + rows[i].pdk).text("view");
 				}
 			}

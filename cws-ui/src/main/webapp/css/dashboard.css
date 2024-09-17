@@ -292,12 +292,12 @@ div[class*="bar-"] {
 #log-div {
   clear: both;
 }
-#logData th:nth-child(1) {
+/*#logData th:nth-child(1) {
   width: 100px;
 }
 #logData th:nth-child(3) {
   width: 100px;
-}
+}*/
 .no-results {
   text-align: center;
   color: red;
