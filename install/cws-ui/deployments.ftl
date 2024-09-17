@@ -478,7 +478,8 @@
 									return data;
 								}
 							}
-						}
+						},
+						width: "80px"
 					},
 					//WORKERS BUTTON COLUMN
 					{
@@ -919,7 +920,7 @@
 					<th style="width: 30px"></th>
 					<th style="width: 250px">Name</th>
 					<th>Key</th>
-					<th>Version</th>
+					<th style="width: 80px;">Version</th>
 					<th>Workers</th>
 					<th>Status</th>
 					<th>Instance Statistics</th>
