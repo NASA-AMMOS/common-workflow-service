@@ -667,12 +667,12 @@
 							</div>
 							<div class="filter-div-submit">
 								<b style="margin-top: auto; margin-bottom: auto; color: red; display: none;" id="warning-msg">Warning: Only the first 10,000 entries are displayed. Please narrow your search criteria.</b>
-								<a id="filter-submit-btn" class="btn btn-info" href="#">Filter</a>
+								<a id="filter-submit-btn" class="btn btn-info btn-sm" href="#">Filter</a>
 							</div>
 						</div>
 						<div id="filter-btn-refresh-flexbox">
 							<div class="icon-button">
-								<div id="filters-btn"class="btn btn-warning"><img height="16" width="16" src="/${base}/images/filter.svg" />
+								<div id="filters-btn"class="btn btn-warning btn-sm"><img height="16" width="16" src="/${base}/images/filter.svg" />
 								</span>&nbsp;Filters&nbsp;<img id="filter-arrow" height="16" width="16" src="/${base}/images/chevron_up.svg" />
 							</div>
 						</div>
