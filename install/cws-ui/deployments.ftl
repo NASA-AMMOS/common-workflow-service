@@ -488,7 +488,7 @@
 							if (type !== 'display') {
 								return "";
 							} else {
-								var html = `<button type="button" id="pv-` + data + `" class="btn btn-info worker-view-btn"`
+								var html = `<button type="button" id="pv-` + data + `" class="btn btn-sm worker-view-btn"`
 										+ `data-proc-key="` + data + `">view</button>`;
 								return html;
 							}
@@ -582,7 +582,7 @@
 			$("#process-table").DataTable().draw();
 
 			//ADD DOWNLOAD BUTTON & HIDE SUSPENDED CHECKBOX TO DIVS CREATED BY DATATABLE (DOM OPTION)
-			$('<button id="download-btn" class="btn btn-primary" onclick="downloadJSON()"><img height="16" width="16" src="/${base}/images/download.svg" style="margin-right: 3px;" />Download</button>').appendTo(".above-table-buttons");
+			$('<button id="download-btn" class="btn btn-primary btn-sm" onclick="downloadJSON()"><img height="16" width="16" src="/${base}/images/download.svg" style="margin-right: 3px;" />Download</button>').appendTo(".above-table-buttons");
 			$('<div class="form-check form-check-inline"><input class="form-check-input" name="hide-suspended" id="hide-sus-btn" type="checkbox" style="align-self: center;"><label class="form-check-label" for="hide-sus-btn">Hide All Suspended Processes</label></div>').appendTo(".above-table-buttons");
 
 			//HANDLES MODAL POPUP FOR WORKER BUTTON
@@ -762,7 +762,7 @@
 					$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
 					// $("#status-txt-" + procDefKey).html("Suspended");
 					$("#" + procDefKey).addClass("disabled");
-					$("#pv-" + procDefKey).removeClass("btn-danger").addClass("btn-info").text("view");
+					$("#pv-" + procDefKey).removeClass("btn-danger").addClass("btn-outline-dark").text("view");
 
 					const table = $("#process-table").DataTable();
 					const rowData = table.row("#" + procDefKey).data();
@@ -793,7 +793,7 @@
 					$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
 					$("#status-txt-" + procDefKey).html("Active");
 					$("#" + procDefKey).removeClass("disabled");
-					$("#pv-" + procDefKey).removeClass("disabled").removeClass("btn-info").addClass("btn").text("enable");
+					$("#pv-" + procDefKey).removeClass("disabled").removeClass("btn-outline-dark").addClass("btn").text("enable");
 				},
 				error: function (data) {
 					console.log("error activating");
@@ -1230,7 +1230,7 @@
 					$("#pv-" + rows[i].pdk).removeClass("btn-default").addClass("btn-danger");
 					$("#pv-" + rows[i].pdk).text("enable");
 				} else {
-					$("#pv-" + rows[i].pdk).removeClass("btn-danger").addClass("btn-info");
+					$("#pv-" + rows[i].pdk).removeClass("btn-danger").addClass("btn-outline-dark");
 					$("#pv-" + rows[i].pdk).text("view");
 				}
 			}
