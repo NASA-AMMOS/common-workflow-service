@@ -1011,18 +1011,8 @@
         console.error("Error getting instance JSON: " + xhr.responseText);
     });
     logLines.sort(function(a, b) {
-        var aTemp = a[0];
-        //if there is a space in the last char, remove it
-        if (aTemp.charAt(aTemp.length - 1) == " ") {
-            aTemp = aTemp.substring(0, aTemp.length - 1);
-        }
-        var bTemp = b[0];
-        //if there is a space in the last char, remove it
-        if (bTemp.charAt(bTemp.length - 1) == " ") {
-            bTemp = bTemp.substring(0, bTemp.length - 1);
-        }
-        var aDate = moment(aTemp);
-        var bDate = moment(bTemp);
+        var aDate = moment(a[0].trim());
+        var bDate = moment(b[0].trim());
         if (aDate.isBefore(bDate)) return -1;
         if (bDate.isBefore(aDate)) return 1;
         return 0;

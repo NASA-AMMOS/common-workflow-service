@@ -63,7 +63,7 @@ public class SystemLevelTestIT extends WebTestUtil {
 			
 			log.info("Checking if 1 worker is up, 0 are down, and none are running...");
 			if (findOnPage("1 Workers (1 up, 0 down)")
-					&& findOnPage("0 running")) {
+					&& findOnPage("Idle")) {
 				log.info("SUCCESS: 1 worker is up, 0 are down, and none are running.");
 				WebElement myTable = driver.findElement(By.id("workers-table"));
 				List<WebElement> myRows = myTable.findElements(By.tagName("td"));
