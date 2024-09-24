@@ -1,3 +1,4 @@
+
 package jpl.cws.test.integration.ui;
 
 import static org.junit.Assert.assertTrue;
@@ -206,17 +207,17 @@ public class InitiatorsTestIT extends WebTestUtil {
 			goToPage("processes");
 
 			log.info("Filtering results for Test Initiators Page test.");
-			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
+			waitForElementXPath("//input[@id=\'dt-search-0\']");
 
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_initiators_page");
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).click();
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys("test_initiators_page");
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 
 			log.info("Clicking on Test Initiators Page history.");
 			sleep(5000);
-			WebElement historyButton = findElByXPath("//a[contains(text(),'History')]");
+			WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
 			waitForElement(historyButton);
 			historyButton.sendKeys(Keys.RETURN);
 

@@ -60,18 +60,18 @@ public class HistoryTestIT extends WebTestUtil {
 
 			goToPage("processes");
 
-			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
+			waitForElementXPath("//input[@id=\'dt-search-0\']");
 
 			sleep(5000);
 
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_history_page");
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).click();
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys("test_history_page");
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 
 			log.info("Verifying the header and output from the model.");
-			WebElement historyButton = findElByXPath("//a[contains(text(),'History')]");
+			WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
 			waitForElement(historyButton);
 			scrollTo(historyButton);
 			historyButton.click();

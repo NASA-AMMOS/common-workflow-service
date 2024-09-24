@@ -118,16 +118,16 @@ public class SnippetsTestIT extends WebTestUtil {
 			goToPage("processes");
 			sleep(8000);
 
-			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
+			waitForElementXPath("//input[@id=\'dt-search-0\']");
 
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_snippets_page");
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).click();
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys("test_snippets_page");
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 
 			log.info("Clicking on Test Snippets Page history.");
-			WebElement historyButton = findElByXPath("//a[contains(text(),'History')]");
+			WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
 			waitForElement(historyButton);
 			scrollTo(historyButton);
 			historyButton.click();
