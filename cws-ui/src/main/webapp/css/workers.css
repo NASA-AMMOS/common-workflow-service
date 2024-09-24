@@ -1,6 +1,6 @@
 .value_flexbox {
-    display: flex; 
-    flex-wrap: nowrap; 
+    display: flex;
+    flex-wrap: nowrap;
     justify-content: space-between;
 }
 
@@ -9,7 +9,11 @@
 }
 
 .copy_span {
-    display: flex; 
-    justify-content: flex-end; 
+    display: flex;
+    justify-content: flex-end;
     align-items: center;
+}
+
+.worker-section {
+    margin-bottom: 10px;
 }

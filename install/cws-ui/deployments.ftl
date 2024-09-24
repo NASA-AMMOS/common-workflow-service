@@ -6,6 +6,8 @@
 
 	<!-- JAVASCRIPT LINKS -->
 	<script src="/${base}/js/jquery.min.js"></script>
+	<script src="/${base}/js/popper.min.js"></script>
+	<script src="/${base}/js/bootstrap.min.js"></script>
 	<script src="/${base}/js/bootstrap-toggle.min.js"></script>
 	<script src="/${base}/js/DataTables/datatables.js"></script>
 	<script src="/${base}/js/cws.js"></script>
@@ -13,10 +15,8 @@
 	<!-- CSS LINKS -->
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/${base}/css/bootstrap-toggle.min.css" rel="stylesheet">
-	<script src="/${base}/js/bootstrap-toggle.min.js"></script>
 	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css"/>
 	<!-- Custom styles for this template -->
-	<link href="/${base}/js/DataTables/datatables.css" rel="stylesheet">
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<link href="/${base}/css/deployments.css" rel="stylesheet">
 	<link href="/${base}/css/microtip.css" rel="stylesheet">
@@ -30,6 +30,9 @@
 		const lastNumHoursVar = "CWS_DASH_DEPLOY_LAST_NUM_HOURS-" + username;
 		const refreshRateVar = "CWS_DASH_DEPLOY_REFRESH_RATE-" + username;
 		const hideSuspendedProcVar = "CWS_DASH_DEPLOY_HIDE_SUS-" + username;
+
+		const tooltipTriggerList = document.querySelectorAll('.progress-bar[data-bs-toggle="tooltip"]')
+		const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
 		//GLOBAL VARIABLES
 
@@ -181,13 +184,27 @@
 			$("#stat-bar-" + name + " div.bar-failedToStart").css('width', statsPercent.fts + '%');
 			$("#stat-bar-" + name + " div.bar-incident").css('width', statsPercent.incident + '%');
 			//set the tooltip text of each bar
-			$("#stat-bar-" + name + " div.bar-pending").attr('data-original-title', statsCounts.pending + " Pending");
-			$("#stat-bar-" + name + " div.bar-disabled").attr('data-original-title', statsCounts.disabled + " Disabled");
-			$("#stat-bar-" + name + " div.bar-active").attr('data-original-title', statsCounts.active + " Running");
-			$("#stat-bar-" + name + " div.bar-completed").attr('data-original-title', statsCounts.completed + " Completed");
-			$("#stat-bar-" + name + " div.bar-error").attr('data-original-title', statsCounts.error + " Failed");
-			$("#stat-bar-" + name + " div.bar-failedToStart").attr('data-original-title', statsCounts.fts + " Failed to Start");
-			$("#stat-bar-" + name + " div.bar-incident").attr('data-original-title', statsCounts.incident + " Incidents");
+			$("#stat-bar-" + name + " div.bar-pending").attr('data-bs-title', statsCounts.pending + " Pending");
+			$("#stat-bar-" + name + " div.bar-disabled").attr('data-bs-title', statsCounts.disabled + " Disabled");
+			$("#stat-bar-" + name + " div.bar-active").attr('data-bs-title', statsCounts.active + " Running");
+			$("#stat-bar-" + name + " div.bar-completed").attr('data-bs-title', statsCounts.completed + " Completed");
+			$("#stat-bar-" + name + " div.bar-error").attr('data-bs-title', statsCounts.error + " Failed");
+			$("#stat-bar-" + name + " div.bar-failedToStart").attr('data-bs-title', statsCounts.fts + " Failed to Start");
+			$("#stat-bar-" + name + " div.bar-incident").attr('data-bs-title', statsCounts.incident + " Incidents");
+
+			// Update the tooltips
+			document.querySelectorAll('.progress-bar[data-bs-toggle="tooltip"]').forEach(el => {
+				const tooltipInstance = bootstrap.Tooltip.getInstance(el);
+				if (tooltipInstance){
+					if (tooltipInstance._config) {
+						tooltipInstance._config.title = el.dataset.bsTitle;	
+					}
+				}
+				tooltipInstance.update();
+			});
+
+			
+
 		}
 
 		//HANDLER FUNCTION FOR DELETING A PROCESS DEFINITION
@@ -226,13 +243,7 @@
 
 					if (data.status === "SUCCESS") {
 
-						var tableRow = $("td").filter(function () {
-							return $(this).text() === proc_def_key;
-						}).closest("tr");
-
-						if (tableRow) {
-							tableRow.remove();
-						}
+						$("#process-table").DataTable().row("#"+proc_def_key).remove().draw()
 
 						deleteProcDefEsLogs(proc_def_key);
 					} else {
@@ -407,20 +418,20 @@
 								var returnVal = `<div class="proc-name-btns">`;
 								if (data.suspended == "true") {
 									returnVal += `<a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="resumeProcDef('` + data.id + `', '` + data.key + `')" aria-label="Resume" data-microtip-position="top-right" role="tooltip">`
-											+ `<span style="cursor: pointer; float: right; color: green;" id="suspend-`
-											+ data.key + `" class="glyphicon glyphicon-play"></span>`
+											+ `<img height="16" width="16" src="/${base}/images/play.svg" style="cursor: pointer; float: right; color: green;" id="suspend-`
+											+ data.key + `" />`
 											+ `</a>`;
 								} else {
 									returnVal += `<a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="suspendProcDef('` + data.id + `', '` + data.key + `')" aria-label="Suspend" data-microtip-position="top-right" role="tooltip">`
-											+ `<span style="cursor: pointer; float: right; color: #d9534f;" id="suspend-`
-											+ data.key + `" class="glyphicon glyphicon-pause"></span></a>`;
+											+ `<img height="16" width="16" src="/${base}/images/pin_pause.svg" style="cursor: pointer; float: right; color: #d9534f;" id="suspend-`
+											+ data.key + `" /></a>`;
 								}
 
 								returnVal += `<a href="/${base}/modeler?procDefKey=` + data.key + `" target="_blank" aria-label="Edit" data-microtip-position="top-right" role="tooltip">`
-										+ `<span style="float: right;" id="edit-` + data.key + `" class="glyphicon glyphicon-pencil"></span></a>`
+										+ `<span style="float: right;" id="edit-` + data.key + `"><img height="16" width="16" src="/${base}/images/pen.svg" /></span></a>`
 										+ `<a data-proc-key="` + data.key + `" onClick="handleDeleteProcDef('` + data.key + `')" aria-label="Delete" data-microtip-position="top-right" role="tooltip">`
-										+ `<span style="cursor: pointer; float: right; color: #d9534f;" id="delete-`
-										+ data.key + `" class="glyphicon glyphicon-trash"></span></a>`;
+										+ `<img height="22" width="22" src="/${base}/images/trash_red.svg" style="cursor: pointer; float: right; color: #d9534f;" id="delete-`
+										+ data.key + `" /></a>`;
 
 								returnVal += `</div>`;
 								return returnVal;
@@ -467,16 +478,18 @@
 									return data;
 								}
 							}
-						}
+						},
+						width: "80px"
 					},
 					//WORKERS BUTTON COLUMN
 					{
 						data: "key",
+						type: "string",
 						render: function (data, type) {
 							if (type !== 'display') {
 								return "";
 							} else {
-								var html = `<button id="pv-` + data + `" class="btn btn-default worker-view-btn"`
+								var html = `<button type="button" id="pv-` + data + `" class="btn btn-sm worker-view-btn"`
 										+ `data-proc-key="` + data + `">view</button>`;
 								return html;
 							}
@@ -507,41 +520,41 @@
 					//INSTANCE STATISTICS COLUMN
 					{
 						data: "key",
+						type: "string",
 						render: function (data, type) {
 							if (type !== 'display') {
 								return "";
 							} else {
 								var html = `<div id="stat-txt-` + data + `" class="stat-txt"></div>`
 										+ `<div id="stat-bar-` + data + `" class="progress" data-pdk="` + data + `">`
-										+ `<div class="progress-bar progress-bar-danger bar-error"`
-										+ `data-toggle="tooltip" title="0 Errors">`
+										+ `<div class="progress-bar bg-danger bar-error"`
+										+ `data-bs-toggle="tooltip" data-bs-title="0 Errors">`
 										+ `<span class="sr-only"></span>`
 										+ `</div>`
-										+ `<div class="progress-bar progress-bar-warning bar-pending"`
-										+ `data-toggle="tooltip" title="0 Pending">`
+										+ `<div class="progress-bar bg-warning bar-pending"`
+										+ `data-bs-toggle="tooltip" data-bs-title="0 Pending">`
 										+ `<span class="sr-only"></span>`
 										+ `</div>`
 										+ `<div class="progress-bar progress-bar-disabled bar-disabled"`
-										+ `data-toggle="tooltip" title="0 Disabled">`
+										+ `data-bs-toggle="tooltip" data-bs-title="0 Disabled">`
 										+ `<span class="sr-only"></span>`
 										+ `</div>`
 										+ `<div class="progress-bar progress-bar-info bar-active"`
-										+ `data-toggle="tooltip" title="0 Active">`
+										+ `data-bs-toggle="tooltip" data-bs-title="0 Active">`
 										+ `<span class="sr-only"></span>`
 										+ `</div>`
 										+ `<div class="progress-bar progress-bar-success bar-completed"`
-										+ `data-toggle="tooltip" title="0 Completed">`
+										+ `data-bs-toggle="tooltip" data-bs-title="0 Completed">`
 										+ `<span class="sr-only"></span>`
 										+ `</div>`
-										+ `<div class="progress-bar bar-failedToStart" data-toggle="tooltip"`
-										+ `title="0 Failed to Start">`
+										+ `<div class="progress-bar bar-failedToStart" data-bs-toggle="tooltip"`
+										+ `data-bs-title="0 Failed to Start">`
 										+ `<span class="sr-only"></span>`
 										+ `</div>`
-										+ `<div class="progress-bar bar-incident" data-toggle="tooltip"`
-										+ `title="0 Incidents">`
+										+ `<div class="progress-bar bar-incident" data-bs-toggle="tooltip"`
+										+ `data-bs-title="0 Incidents">`
 										+ `<span class="sr-only"></span>`
 										+ `</div>`
-										+ `<span class="sr-only">No Instance Statistics...</span>`
 										+ `</div>`;
 								return html;
 							}
@@ -559,9 +572,9 @@
 				//DISABLES PAGINATION (ONE LONG TABLE) (https://datatables.net/reference/option/paging)
 				"paging": false,
 				//SETS WHAT ELEMENTS ARE CREATED BY DATATABLE AND WHERE ELEMENTS ARE PUT (https://datatables.net/reference/option/dom)
-				dom: "<'above-table-div'<'above-table-buttons'>f>"
-						+ "t"
-						+ "<'below-table-div'i>",
+				dom: "<'above-table-div form-inline'<'above-table-buttons form-group mb-2'>f>"
+					+ "t"
+					+ "<'below-table-div'i>",
 			});
 
 			//OUR DATA COMES FROM FREEMARKER TEMPLATE - ADD THAT ARRAY TO THE DATATABLE
@@ -570,8 +583,8 @@
 			$("#process-table").DataTable().draw();
 
 			//ADD DOWNLOAD BUTTON & HIDE SUSPENDED CHECKBOX TO DIVS CREATED BY DATATABLE (DOM OPTION)
-			$('<button id="download-btn" class="btn btn-primary" onclick="downloadJSON()"><i class="glyphicon glyphicon-save btn-icon"></i>Download</button>').appendTo(".above-table-buttons");
-			$('<input name="hide-suspended" id="hide-sus-btn" type="checkbox" style="align-self: center;"><label for="hide-sus-btn">Hide All Suspended Processes</label>').appendTo(".above-table-buttons");
+			$('<button id="download-btn" class="btn btn-primary btn-sm" onclick="downloadJSON()"><img height="16" width="16" src="/${base}/images/download.svg" style="margin-right: 3px;" />Download</button>').appendTo(".above-table-buttons");
+			$('<div class="form-check form-check-inline"><input class="form-check-input" name="hide-suspended" id="hide-sus-btn" type="checkbox" style="align-self: center;"><label class="form-check-label" for="hide-sus-btn">Hide All Suspended Processes</label></div>').appendTo(".above-table-buttons");
 
 			//HANDLES MODAL POPUP FOR WORKER BUTTON
 			$(".worker-view-btn").on("click", function () {
@@ -579,40 +592,40 @@
 				listWorkersInModal(dataProcKey);
 			});
 			//HANDLES HIDE SUSPENDED PROC DEF CHECKBOX BEHAVIOR
+
 			$("#hide-sus-btn").on("click", function () {
+				const table = $("#process-table").DataTable();
 				if ($(this).prop("checked")) {
-					$("#process-table").DataTable().column(5).search("Active", false, true).draw();
+					table.columns(5).search("Active").draw()
 					localStorage.setItem(hideSuspendedProcVar, "1");
 					refreshStats();
 				} else {
-					$("#process-table").DataTable().column(5).search("").draw();
+					table.columns().search('').draw();
 					localStorage.setItem(hideSuspendedProcVar, "0");
 					refreshStats();
 				}
-				$("#process-table").DataTable().rows().every(function () {
-					$("#process-table").DataTable().rows().every(function (rowIdx, tableLoop, rowLoop) {
-						var status = this.data()["suspended"];
-						var procDefKey = this.data()["key"];
-						var procDefId = this.data()["id"];
-						if (status == "false") {
-							$("#suspend-" + procDefKey).removeClass("glyphicon-play");
-							$("#suspend-" + procDefKey).addClass("glyphicon-pause");
-							$("#suspend-" + procDefKey).css("color", "#d9534f");
-							$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
-							$("#status-txt-" + procDefKey).html("Active");
-							$("#" + procDefKey).removeClass("disabled");
-							$("#pv-" + procDefKey).removeClass("disabled");
-						} else {
-							$("#suspend-" + procDefKey).removeClass("glyphicon-pause");
-							$("#suspend-" + procDefKey).addClass("glyphicon-play");
-							$("#suspend-" + procDefKey).css("color", "green");
-							$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
-							$("#status-txt-" + procDefKey).html("Suspended");
-							$("#" + procDefKey).addClass("disabled");
-							$("#pv-" + procDefKey).addClass("disabled");
-						}
-					});
-				});
+				// $("#process-table").DataTable().rows().every(function () {
+				// 	$("#process-table").DataTable().rows().every(function (rowIdx, tableLoop, rowLoop) {
+				// 		var status = this.data()["suspended"];
+				// 		var procDefKey = this.data()["key"];
+				// 		var procDefId = this.data()["id"];
+				// 		if (status == "false") {
+				// 			$("#suspend-" + procDefKey).attr("src", "/${base}/images/pin_pause.svg");
+				// 			$("#suspend-" + procDefKey).css("color", "#d9534f");
+				// 			$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
+				// 			$("#status-txt-" + procDefKey).html("Active");
+				// 			$("#" + procDefKey).removeClass("disabled");
+				// 			$("#pv-" + procDefKey).removeClass("disabled");
+				// 		} else {
+				// 			$("#suspend-" + procDefKey).attr("src", "/${base}/images/play.svg");
+				// 			$("#suspend-" + procDefKey).css("color", "green");
+				// 			$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
+				// 			$("#status-txt-" + procDefKey).html("Suspended");
+				// 			$("#" + procDefKey).addClass("disabled");
+				// 			$("#pv-" + procDefKey).addClass("disabled");
+				// 		}
+				// 	});
+				// });
 			});
 
 			//INIT STATE OF HIDE SUSPENDED PROC DEF CHECKBOX
@@ -744,15 +757,19 @@
 				url: "/${base}/rest/deployments/suspend/" + encodeURIComponent(procDefId),
 				type: "POST",
 				success: function (data) {
-					console.log("successfully suspended");
 					//change the glyphicon to play & make green
-					$("#suspend-" + procDefKey).removeClass("glyphicon-pause");
-					$("#suspend-" + procDefKey).addClass("glyphicon-play");
+					$("#suspend-" + procDefKey).attr("src", "/${base}/images/play.svg");
 					$("#suspend-" + procDefKey).css("color", "green");
 					$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
-					$("#status-txt-" + procDefKey).html("Suspended");
+					// $("#status-txt-" + procDefKey).html("Suspended");
 					$("#" + procDefKey).addClass("disabled");
-					$("#pv-" + procDefKey).addClass("disabled");
+					$("#pv-" + procDefKey).removeClass("btn-danger").addClass("btn-outline-dark").text("view");
+
+					const table = $("#process-table").DataTable();
+					const rowData = table.row("#" + procDefKey).data();
+					rowData.suspended = "true";
+					table.row("#" + procDefKey).data(rowData).draw();
+
 				},
 				error: function (data) {
 					console.log("error suspending");
@@ -772,13 +789,12 @@
 				success: function (data) {
 					console.log("successfully activated");
 					//change the glyphicon to pause & make color #d9534f
-					$("#suspend-" + procDefKey).removeClass("glyphicon-play");
-					$("#suspend-" + procDefKey).addClass("glyphicon-pause");
+					$("#suspend-" + procDefKey).attr("src", "/${base}/images/pin_pause.svg");
 					$("#suspend-" + procDefKey).css("color", "#d9534f");
 					$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
 					$("#status-txt-" + procDefKey).html("Active");
 					$("#" + procDefKey).removeClass("disabled");
-					$("#pv-" + procDefKey).removeClass("disabled");
+					$("#pv-" + procDefKey).removeClass("disabled").removeClass("btn-outline-dark").addClass("btn").text("enable");
 				},
 				error: function (data) {
 					console.log("error activating");
@@ -786,6 +802,7 @@
 			})
 
 		}
+
 	</script>
 
 	<!-- Just for debugging purposes. Don't actually copy this line! -->
@@ -804,17 +821,16 @@
 
 <#include "navbar.ftl">
 
-<div class="container-fluid">
+<div class="container-fluid" style="padding-left: 0; margin-top: 7px;">
 	<div class="row">
-
-		<#include "sidebar.ftl">
-
-		<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+		<div class="col main">
+			<#include "sidebar.ftl">
+				<div class="main-content">
 			<span id="statusMessageDiv">${msg}</span>
 
 			<div class="row">
 				<div class="col-md-6">
-					<h2 class="sub-header">Deployed Process Definitions</h2>
+					<h2 class="sub-header fs-3">Deployed Process Definitions</h2>
 				</div>
 				<div class="col-md-6">
 					<form id="bpmn-form" action="/${base}/rest/deployments/deployProcessDefinition"
@@ -857,46 +873,43 @@
 						</select>
 					</div>
 				</div>
-
-				<div class="status-div col-md-7 col-md-offset-1">
+				<div class="status-div col-md-6 offset-md-1">
 					<label>Process status summary:</label>
 					<div id="stat-txt-cws-reserved-total" class="stat-txt">-</div>
 					<div id="stat-bar-cws-reserved-total" class="progress">
-						<div class="progress-bar progress-bar-danger bar-error" data-toggle="tooltip"
-							 title="0 Errors">
+						<div class="progress-bar bg-danger bar-error" data-bs-toggle="tooltip"
+							 data-bs-title="0 Errors">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar progress-bar-warning bar-pending" data-toggle="tooltip"
-							 title="0 Pending">
+						<div class="progress-bar bg-warning bar-pending" data-bs-toggle="tooltip"
+							 data-bs-title="0 Pending">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar progress-bar-disabled bar-disabled" data-toggle="tooltip"
-							 title="0 Disabled">
+						<div class="progress-bar progress-bar-disabled bar-disabled" data-bs-toggle="tooltip"
+							 data-bs-title="0 Disabled">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar progress-bar-info bar-active" data-toggle="tooltip"
-							 title="0 Active">
+						<div class="progress-bar progress-bar-info bar-active" data-bs-toggle="tooltip"
+							 data-bs-title="0 Active">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar progress-bar-success bar-completed" data-toggle="tooltip"
-							 title="0 Completed">
+						<div class="progress-bar progress-bar-success bar-completed" data-bs-toggle="tooltip"
+							 data-bs-title="0 Completed">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar bar-failedToStart" data-toggle="tooltip"
-							 title="0 Failed to Start">
+						<div class="progress-bar bar-failedToStart" data-bs-toggle="tooltip"
+							 data-bs-title="0 Failed to Start">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar bar-incident" data-toggle="tooltip" title="0 Incidents">
+						<div class="progress-bar bar-incident" data-bs-toggle="tooltip" data-bs-title="0 Incidents">
 							<span class="sr-only"></span>
 						</div>
-
-						<span class="sr-only">No Summary Statistics...</span>
 					</div>
 				</div>
 			</div>
@@ -905,12 +918,12 @@
 				<thead>
 				<tr>
 					<th style="width: 30px"></th>
-					<th>Name</th>
+					<th style="width: 250px">Name</th>
 					<th>Key</th>
-					<th>Version</th>
+					<th style="width: 80px;">Version</th>
 					<th>Workers</th>
 					<th>Status</th>
-					<th style="width:500px">Instance Statistics</th>
+					<th>Instance Statistics</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -959,7 +972,7 @@
 			</div>
 			<div class="modal-footer">
 				<button id="delete-proc-def" type="button" class="btn btn-primary">Yes</button>
-				<button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
 			</div>
 		</div> <!-- modal-content -->
 	</div> <!-- modal-dialog -->
@@ -980,7 +993,7 @@
 			</div>
 
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" data-dismiss="modal">Dismiss</button>
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Dismiss</button>
 			</div>
 		</div> <!-- modal-content -->
 	</div> <!-- modal-dialog -->
@@ -1014,6 +1027,7 @@
 			<div class="modal-footer">
 				<button id="done-workers-btn" type="button" class="btn btn-primary">Done</button>
 			</div>
+		</div>
 		</div> <!-- modal-content -->
 	</div> <!-- modal-dialog -->
 </div> <!-- .modal .fade -->
@@ -1217,7 +1231,7 @@
 					$("#pv-" + rows[i].pdk).removeClass("btn-default").addClass("btn-danger");
 					$("#pv-" + rows[i].pdk).text("enable");
 				} else {
-					$("#pv-" + rows[i].pdk).removeClass("btn-danger").addClass("btn-default");
+					$("#pv-" + rows[i].pdk).removeClass("btn-danger").addClass("btn-outline-dark");
 					$("#pv-" + rows[i].pdk).text("view");
 				}
 			}

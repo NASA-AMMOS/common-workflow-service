@@ -75,11 +75,11 @@ public class ProcessesTestIT extends WebTestUtil {
 			sleep(8000);
       
 			log.info("Locating Test Processes Page from table rows and verifying that it completed.");
-			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
+			waitForElementXPath("//input[@id=\'dt-search-0\']");
 
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_snippets_page");
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).click();
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys("test_snippets_page");
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 			//selenium: check if "test_processes_page" is on the page

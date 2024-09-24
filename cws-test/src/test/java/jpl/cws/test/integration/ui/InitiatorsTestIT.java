@@ -1,3 +1,4 @@
+
 package jpl.cws.test.integration.ui;
 
 import static org.junit.Assert.assertTrue;
@@ -130,7 +131,10 @@ public class InitiatorsTestIT extends WebTestUtil {
 			driver.findElement(By.id("saveXmlBtn")).click();
 
 			waitForElementID("saveConfirmBtn");
-			driver.findElement(By.id("saveConfirmBtn")).click();
+			WebElement saveConfirmBtn = driver.findElement(By.id("saveConfirmBtn"));
+            
+            js.executeScript("arguments[0].scrollIntoViewIfNeeded();", saveConfirmBtn);
+			saveConfirmBtn.click();
 
 			wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("saveConfirmBtn")));
 
@@ -175,7 +179,12 @@ public class InitiatorsTestIT extends WebTestUtil {
 				String color = driver.findElement(By.className("progress-bar-success")).getCssValue("background-color");
 				log.info(color);
 
-				if (color.equals("rgba(92, 184, 92, 1)")) { //color = green
+				WebElement progressBar = driver.findElement(By.className("progress-bar-success"));
+				js.executeScript("arguments[0].scrollIntoViewIfNeeded();", progressBar);
+				sleep(1000);
+				screenShot("InitiatorTestIT-runStartInitiatorTestColor");
+
+				if (color.equals("rgba(0, 128, 0, 1)")) { 
 					scriptPass = true;
 					testCasesCompleted++;
 				}
@@ -198,22 +207,24 @@ public class InitiatorsTestIT extends WebTestUtil {
 			goToPage("processes");
 
 			log.info("Filtering results for Test Initiators Page test.");
-			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
+			waitForElementXPath("//input[@id=\'dt-search-0\']");
 
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_initiators_page");
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).click();
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys("test_initiators_page");
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 
 			log.info("Clicking on Test Initiators Page history.");
-			WebElement historyButton = findElByXPath("//a[contains(text(),'History')]");
+			sleep(5000);
+			WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
 			waitForElement(historyButton);
 			historyButton.sendKeys(Keys.RETURN);
 
 			findOnPage("CWS - History");
 
 			log.info("Looking for 'variable1 = foo' and 'variable2 = bar'");
+
 			if (findOnPage("Setting (string) variable1 = foo")
 					&& findOnPage("Setting (string) variable2 = bar")) {
 				scriptPass = true;
@@ -320,7 +331,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 				String color = driver.findElement(By.className("progress-bar-success")).getCssValue("background-color");
 				log.info(color);
 
-				if (color.equals("rgba(92, 184, 92, 1)")) { //color = green
+				if (color.equals("rgba(0, 128, 0, 1)")) {
 					scriptPass = true;
 					procCounter = procCounter + 2;
 					testCasesCompleted++;
