@@ -61,6 +61,7 @@ public class WorkersTestIT extends WebTestUtil {
 
 	
 	public void runWorkersCheckBoxTest() throws IOException {
+		JavascriptExecutor js = (JavascriptExecutor) driver;
 		Boolean scriptPass = false;
 		try {
 			log.info("------ START WorkersTestIT:runWorkersCheckBoxTest ------");
@@ -69,8 +70,11 @@ public class WorkersTestIT extends WebTestUtil {
 			
 			WebElement enable = findElById("pv-test_workers_page");
 			log.info("Enabling worker0000 only...");
+			js.executeScript("arguments[0].scrollIntoViewIfNeeded();", enable);
+			sleep(1000);
 			enable.click();
 			
+			log.info("Looking for worker0000 checkbox.");
 			waitForElementXPath("//label[contains(text(),'worker0000')]");
 			
 			driver.findElement(By.xpath("//label[contains(text(),'worker0000')]")).click();
@@ -117,6 +121,8 @@ public class WorkersTestIT extends WebTestUtil {
 				//Enable all workers again.
 				goToPage("deployments");
 				WebElement enableWorker = findElById("pv-test_workers_page");
+				js.executeScript("arguments[0].scrollIntoViewIfNeeded();", enableWorker);
+				sleep(1000);
 				log.info("Disabling worker0000...");
 				enableWorker.click();
 				
