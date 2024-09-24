@@ -184,7 +184,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 				sleep(1000);
 				screenShot("InitiatorTestIT-runStartInitiatorTestColor");
 
-				if (color.equals("rgba(13, 110, 253, 1)")) { //color = blue
+				if (color.equals("rgba(0, 128, 0, 1)")) { 
 					scriptPass = true;
 					testCasesCompleted++;
 				}
@@ -331,7 +331,7 @@ public class InitiatorsTestIT extends WebTestUtil {
 				String color = driver.findElement(By.className("progress-bar-success")).getCssValue("background-color");
 				log.info(color);
 
-				if (color.equals("rgba(13, 110, 253, 1)")) { //color = blue
+				if (color.equals("rgba(0, 128, 0, 1)")) {
 					scriptPass = true;
 					procCounter = procCounter + 2;
 					testCasesCompleted++;

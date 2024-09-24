@@ -76,7 +76,7 @@ public class HistoryTestIT extends WebTestUtil {
 			scrollTo(historyButton);
 			historyButton.click();
 
-			findOnPage("CWS - History");
+			findOnPage("History");
 
 			WebElement hideLineCheckbox = findElByXPath("//input[@id='showall']");
 			waitForElement(hideLineCheckbox);
