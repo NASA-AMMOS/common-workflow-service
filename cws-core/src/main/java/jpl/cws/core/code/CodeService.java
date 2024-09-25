@@ -45,17 +45,17 @@ public class CodeService implements InitializingBean {
 	public static List<URL> urls  = new ArrayList<URL>();
 	
 	public CodeService() {
-		log.trace("CodeService constructor...");
+		log.info("CodeService constructor...");
 	}
 	
 	@SuppressWarnings("resource")
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		log.trace("jdbcTemplate = "+jdbcTemplate);
+		log.info("jdbcTemplate = "+jdbcTemplate);
 		TEMP_DIR_PATH = File.createTempFile("foo", ".dummy").getParentFile().getAbsolutePath();
-		log.trace("temp dir path = "+TEMP_DIR_PATH);
-		log.trace("made dir = " + new File(TEMP_DIR_PATH+"/jpl").mkdir());
-		log.trace("made dirs = " + new File(TEMP_DIR_PATH+"/jpl/cws/core/code").mkdirs());
+		log.info("temp dir path = "+TEMP_DIR_PATH);
+		log.info("made dir = " + new File(TEMP_DIR_PATH+"/jpl").mkdir());
+		log.info("made dirs = " + new File(TEMP_DIR_PATH+"/jpl/cws/core/code").mkdirs());
 		
 		// Construct the set of URLs
 		File outputDir = new File(TEMP_DIR_PATH);
@@ -66,7 +66,7 @@ public class CodeService implements InitializingBean {
 		while (parent != null) {
 			for (URL url : parent.getURLs()) {
 				urls.add(url);
-				log.trace("CC ["+parent+"] URL: " + url);
+				log.info("CC ["+parent+"] URL: " + url);
 			}
 			parent = (URLClassLoader) parent.getParent(); // traverse up chain..
 		}
@@ -85,7 +85,7 @@ public class CodeService implements InitializingBean {
 	 */
 	public void updateToLatestCode() throws Exception {
 		String latestCode = getLatestCode();
-		log.trace("latestCode = " + latestCode);
+		log.info("latestCode = " + latestCode);
 
 		// If code is successfully compiled,
 		// then replace current Spring bean with new class
@@ -101,7 +101,7 @@ public class CodeService implements InitializingBean {
 			Method method = compiledClass.getMethod("setCwsConfig", new Class[]{CwsConfig.class});
 			method.invoke(bean, cwsConfig);
 			
-			log.trace("after replaceBean");
+			log.info("after replaceBean");
 		}
 		else {
 			log.error("Spring context bean not replaced, since error(s) occurred while compiling class ("+errors+")");
@@ -152,11 +152,11 @@ public class CodeService implements InitializingBean {
 		try {
 			loader = new URLClassLoader(urls.toArray(new URL[0]), this.getClass().getClassLoader());
 			clazz = loader.loadClass("jpl.cws.core.code.Snippets");
-			log.trace("LOADED CLASS: " + clazz);
+			log.info("LOADED CLASS: " + clazz);
 			Object classObj = clazz.newInstance();
 			if (log.isTraceEnabled()) {
 				for (Method m : classObj.getClass().getDeclaredMethods()) {
-					log.trace(" DECLARED METHOD :::: " + m);
+					log.info(" DECLARED METHOD :::: " + m);
 				}
 			}
 		} catch (Exception e) {
@@ -205,7 +205,7 @@ public class CodeService implements InitializingBean {
 	 * 
 	 */
 	public String compileCode(String code) {
-		log.trace("Compiling code...");
+		log.info("Compiling code...");
 		String classPath = System.getProperty("java.class.path");
 		
 		// Write code to temporary file
@@ -242,7 +242,7 @@ public class CodeService implements InitializingBean {
 			for (URL url : urls) {
 				classPath += url.toString().replaceFirst("file:", ":");
 			}
-			log.trace("classPath: "+classPath);
+			log.info("classPath: "+classPath);
 			optionList.addAll(Arrays.asList("-classpath", classPath));
 			
 			// specify where compiled class goes
@@ -252,7 +252,7 @@ public class CodeService implements InitializingBean {
 			optionList.addAll(Arrays.asList(options));
 			
 			// log what the options are
-			for (String op : optionList) { log.trace("option: "+op); }
+			for (String op : optionList) { log.info("option: "+op); }
 			
 			DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
 			boolean compileSuccess = jc.getTask(null, sjfm, diagnostics, optionList, null, fileObjects).call();
@@ -277,7 +277,7 @@ public class CodeService implements InitializingBean {
 		}
 		finally {
 			// close std Java file manager
-			log.trace("closing sjfm...");
+			log.info("closing sjfm...");
 			try {
 				sjfm.close();
 			} catch (IOException e) {
@@ -287,7 +287,7 @@ public class CodeService implements InitializingBean {
 		
 		// Finally, clean up the temp file
 		if (tempJavaFile != null && tempJavaFile.exists()) {
-			log.trace("Deleting the temporary Java code file...");
+			log.info("Deleting the temporary Java code file...");
 			tempJavaFile.delete();
 		}
 		
