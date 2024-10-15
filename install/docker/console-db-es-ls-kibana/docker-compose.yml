@@ -1,9 +1,9 @@
-version: '3.2'
+version: "3.2"
 
 services:
   db:
     restart: always
-    image: mariadb:10.6
+    image: mariadb:10.11
     container_name: cws-db
     ports:
       - "3306:3306"
@@ -13,7 +13,7 @@ services:
       - MYSQL_ROOT_PASSWORD=test
       - TZ=America/Los_Angeles
     healthcheck:
-      test: "/usr/bin/mysql --user=root --password=test --execute \"SHOW DATABASES;\""
+      test: '/usr/bin/mysql --user=root --password=test --execute "SHOW DATABASES;"'
       interval: 3s
       timeout: 1s
       retries: 5
@@ -37,83 +37,91 @@ services:
     networks:
       - external-network
     healthcheck:
-        test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
-        interval: 5s
-        timeout: 2s
-        retries: 12
+      test:
+        [
+          "CMD-SHELL",
+          "curl --silent --fail localhost:9200/_cluster/health || exit 1",
+        ]
+      interval: 5s
+      timeout: 2s
+      retries: 12
     #ulimits:
-      #memlock:
-        #soft: -1
-        #hard: -1
-      #nofile:
-        #soft: 65536
-        #hard: 65536
+    #memlock:
+    #soft: -1
+    #hard: -1
+    #nofile:
+    #soft: 65536
+    #hard: 65536
     #mem_limit: 2g
-#  kibana:
-#    labels:
-#      com.example.service: "kibana"
-#      com.example.description: "Data visualisation and for log aggregation"
-#    image: kibana:8.12.0
-#    container_name: cws-kibana
-#    ports:
-#      - "5601:5601"
-#    networks:
-#      - frontend
-#      - backend
-#    environment:
-#      - ELASTICSEARCH_HOSTS=http://es:9200
-#    depends_on:
-#      - es
-#  logstash:
-#    labels:
-#      com.example.service: "logstash"
-#      com.example.description: "For logging data"
-#    image: logstash:8.12.0
-#    container_name: cws-logstash
-#    volumes:
-#      - ./cws-logstash.conf:/home/cws_user/cws-logstash.conf:ro
-#      - logs-volume:/cws_logs
-#    command: logstash -f /home/cws_user/cws-logstash.conf
-#    environment:
-#      - XPACK_MONITORING_ENABLED=false
-#    healthcheck:
-#        test: ["CMD-SHELL", "curl --silent --fail localhost:9600 || exit 1"]
-#        interval: 5s
-#        timeout: 2s
-#        retries: 12
-#    depends_on:
-#    - es
-#    ports:
-#      - "9600:9600"
-#    networks:
-#      - frontend
-#      - backend
+  #  kibana:
+  #    labels:
+  #      com.example.service: "kibana"
+  #      com.example.description: "Data visualisation and for log aggregation"
+  #    image: kibana:8.12.0
+  #    container_name: cws-kibana
+  #    ports:
+  #      - "5601:5601"
+  #    networks:
+  #      - frontend
+  #      - backend
+  #    environment:
+  #      - ELASTICSEARCH_HOSTS=http://es:9200
+  #    depends_on:
+  #      - es
+  #  logstash:
+  #    labels:
+  #      com.example.service: "logstash"
+  #      com.example.description: "For logging data"
+  #    image: logstash:8.12.0
+  #    container_name: cws-logstash
+  #    volumes:
+  #      - ./cws-logstash.conf:/home/cws_user/cws-logstash.conf:ro
+  #      - logs-volume:/cws_logs
+  #    command: logstash -f /home/cws_user/cws-logstash.conf
+  #    environment:
+  #      - XPACK_MONITORING_ENABLED=false
+  #    healthcheck:
+  #        test: ["CMD-SHELL", "curl --silent --fail localhost:9600 || exit 1"]
+  #        interval: 5s
+  #        timeout: 2s
+  #        retries: 12
+  #    depends_on:
+  #    - es
+  #    ports:
+  #      - "9600:9600"
+  #    networks:
+  #      - frontend
+  #      - backend
   cws:
     container_name: cws-console
     labels:
       com.example.service: "cws-server"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.6.0    # update this each CWS release
+    image: nasa-ammos/common-workflow-service:2.6.0 # update this each CWS release
     depends_on:
       - db
       - es
       - ldapsearch
-#      - logstash
-#      - kibana
+    #      - logstash
+    #      - kibana
     ports:
       - "38080:38080"
       - "38443:38443"
       - "31616:31616"
     hostname: cws-console
     environment:
-       - DB_HOST=db
-       - DB_USER=root
-       - DB_PW=test
-       - ES_PROTOCOL=http
-       - ES_HOST=es
-       - ES_PORT=9200
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PW=test
+      - ES_PROTOCOL=http
+      - ES_HOST=es
+      - ES_PORT=9200
     healthcheck:
-      test: ["CMD-SHELL", "curl -k --silent --fail https://localhost:38443/cws-ui/login || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -k --silent --fail https://localhost:38443/cws-ui/login || exit 1",
+        ]
       interval: 5s
       timeout: 2s
       retries: 12
@@ -128,7 +136,7 @@ services:
     labels:
       com.example.service: "cws-worker1"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.6.0    # update this each CWS release
+    image: nasa-ammos/common-workflow-service:2.6.0 # update this each CWS release
     depends_on:
       - db
       - es
@@ -155,7 +163,6 @@ services:
       - 389:389
     networks:
       - external-network
-
 
 volumes:
   console-logs-volume:
