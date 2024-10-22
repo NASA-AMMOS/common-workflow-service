@@ -19,9 +19,9 @@
 					<td>
 						<!--<img id="disable_${x.initiatorId}_icon"  src="/${base}/images/pause.20.png" onClick="setEnabled('${x.initiatorId}', false);" style="display: none;" />
 						<img id="enable_${x.initiatorId}_icon"  src="/${base}/images/play.20.png" onClick="setEnabled('${x.initiatorId}', true);" style="display: none;" />-->
-						<div class="slide-switch">
-							<input id="toggle_${x.initiatorId}" type="checkbox" onClick="setEnabled('${x.initiatorId}');" />
-							<label for="toggle_${x.initiatorId}"><span>Power</span></label>
+						<div class="form-check form-switch">
+						  <input class="form-check-input" type="checkbox" role="switch" id="toggle_${x.initiatorId}" onClick="setEnabled('${x.initiatorId}');">
+						  <label class="form-check-label" for="toggle_${x.initiatorId}"></label>
 						</div>
 					</td>
 				</tr>

@@ -4,13 +4,12 @@
 <head>
 	<meta charset="utf-8">
 	<title>CWS - Initiators</title>
-	<script src="/${base}/js/jquery.min.js"></script>
-	<script src="/${base}/js/jquery.migrate.js"></script>
+	    <script src="/${base}/js/jquery.min.js"></script>
+    <script src="/${base}/js/popper.min.js"></script>
+    <script src="/${base}/js/bootstrap.min.js"></script>
 	<script src="/${base}/js/ace/ace.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
-	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
-	<script src="/${base}/js/bootstrap.min.js"></script>
 
 	<style type="text/css">
 	#save-table td:nth-child(2){
@@ -56,7 +55,7 @@
 	<div class="row">
 		<#include "sidebar.ftl">
 		
-		<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+		<div class="main-content" style="width: calc(100% - 105px);">
 			<span id="statusMessageDiv"><h2>${msg}</h2></span>
 
 			<h2 class="sub-header">Initiators</h2>
@@ -74,15 +73,15 @@
 							<td><input id="saveXmlBtn" type="button" class="btn btn-primary" value="Save the XML file"/></td>
 							<td>
 								<label>Enable All</label>
-								<div class="slide-switch" id="active-all">
-									<input id="activate-all-inits" type="checkbox">
-									<label for="activate-all-inits"><span>Power</span></label>
+								<div class="form-check form-switch" id="active-all">
+								  <input class="form-check-input" type="checkbox" role="switch" id="activate-all-inits">
+								  <label class="form-check-label" for="activate-all-inits"></label>
 								</div>
 							</td>
 						</tr>
 					</tbody>
 				</table>
-				<div id="beans-table">
+				<div id="beans-table" style="margin-bottom: 35px;">
 					<div class="ajax-spinner"></div>
 					<#include "initiators-table.ftl" />
 				</div>
@@ -91,12 +90,12 @@
 	</div>
 </div>
 
-<div class="modal fade" id="saveMsg" role="dialog">
+<div class="modal fade" id="saveMsg">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				<h4 class="modal-title">WARNING!</h4>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 
             <div class="modal-body">
@@ -105,7 +104,7 @@
             </div>
 
 			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
 				<button type="button" class="btn btn-primary" id="saveConfirmBtn">Confirm</button>
 			</div>
 		</div> <!-- modal-content -->
@@ -198,7 +197,7 @@
 		});*/
 
 	$("#saveXmlBtn").on("click", function(){
-		$("#saveMsg").modal();
+		$("#saveMsg").modal("show");
 	});
 
 	$("#saveConfirmBtn").on("click", function() {
@@ -323,9 +322,11 @@
 		//if there is no "false" in the list, then all are enabled.
 		if (Object.values(initiatorEnabled).indexOf("false") == -1) {
 			$("#active-all input").prop('checked', true);
+			$("#active-all label").text("On");
 		}
 		else {
 			$("#active-all input").prop('checked', false);
+			$("#active-all label").text("Off");
 		}
 
 		//

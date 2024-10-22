@@ -6,13 +6,12 @@
     <meta charset="utf-8">
     <title>CWS - Processes</title>
     <script src="/${base}/js/jquery.min.js"></script>
+    <script src="/${base}/js/popper.min.js"></script>
     <script src="/${base}/js/bootstrap.min.js"></script>
     <script src="/${base}/js/moment.js"></script>
     <script src="/${base}/js/DataTables/datatables.js"></script>
     <script src="/${base}/js/bootstrap-datepicker.min.js"></script>
     <script src="/${base}/js/DataTablesDateFilter.js"></script>
-    <script src="/${base}/js/DataTables/dataTables.responsive.min.js"></script>
-    <script src="/${base}/js/DataTables/responsive.bootstrap.min.js"></script>
     <!-- Custom js adaptation script; override this file from your adaptation project -->
     <script src="/${base}/js/adaptation-process-actions.js"></script>
     <script src="/${base}/js/cws.js"></script>
@@ -23,7 +22,6 @@
     <link href="/${base}/css/microtip.css" rel="stylesheet">
     <link href="/${base}/css/processes.css" rel="stylesheet">
     <link href="/${base}/js/DataTables/datatables.css" rel="stylesheet">
-    <link href="/${base}/js/DataTables/responsive.bootstrap.min.css" rel="stylesheet">
 
     <!-- Just for debugging purposes. Don't actually copy this line! -->
     <!--[if lt IE 9]>
@@ -44,7 +42,7 @@
         <div class="container-fluid">
             <div class="row">
                 <#include "sidebar.ftl">
-                    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+                    <div class="main-content">
 
                         <span id="statusMessageDiv">
                             <h2>${msg}</h2>
@@ -54,48 +52,49 @@
 
                         <!-- Filters box (top of page) -->
                         <div id="filters-div">
-                            <h3 style="margin-top: 10px;">Filters:</h3>
+                            <h4 style="margin-top: 10px;">Filters:</h4>
                             <p>Select filters before retrieving data to reduce loading time.</p>
-                            <div class="col-md-4">
-                                <h4>Process Definition:</h4>
-                                <select id="pd-select">
-                                    <option value="def">Select PD</option>
-                                    <#list procDefs as pd>
-                                        <option value="${pd.key}">${pd.name}</option>
-                                    </#list>
-                                </select>
+                            <div style="display: flex; gap: 20px;">
                                 <div>
-                                    <h4 style="margin-top: 15px;">Subprocess & Superprocess:</h4>
+                                    <h4>Process Definition:</h4>
+                                    <select id="pd-select">
+                                        <option value="def">Select PD</option>
+                                        <#list procDefs as pd>
+                                            <option value="${pd.key}">${pd.name}</option>
+                                        </#list>
+                                    </select>
+                                </div>
+                                <div style="width: 200px;">
+                                    <h4>Subprocess & Superprocess:</h4>
                                     <input id="super-proc-inst-id-in" style="width: 90%" type="text"
                                         class="form-control" placeholder="Superprocess Instance ID" />
-                                </div>
-                                <div style="margin-top: 10px" id="hide-subprocs-div">
+                                    <div style="margin-top: 10px" id="hide-subprocs-div">
                                     <label for="hide-subprocs">Hide Subprocesses</label>
                                     <input name="hide-subprocs" id="hide-subprocs-btn" type="checkbox">
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <h4>Status:</h4>
-                                <div id="status-select">
-                                    <input id="fail" type="checkbox" value="fail" />
-                                    <label for="fail">Failed</label><br />
-                                    <input id="complete" type="checkbox" value="complete" />
-                                    <label for="complete">Complete</label><br />
-                                    <input id="resolved" type="checkbox" value="resolved" />
-                                    <label for="resolved">Resolved</label><br />
-                                    <input id="running" type="checkbox" value="running" />
-                                    <label for="running">Running</label><br />
-                                    <input id="pending" type="checkbox" value="pending" />
-                                    <label for="pending">Pending</label><br />
-                                    <input id="disabled" type="checkbox" value="disabled" />
-                                    <label for="disabled">Disabled</label><br />
-                                    <input id="failedToStart" type="checkbox" value="failedToStart" />
-                                    <label for="failedToStart">Failed to Start</label><br />
-                                    <input id="incident" type="checkbox" value="incident" />
-                                    <label for="incident">Incident</label><br />
                                 </div>
-                            </div>
-                            <div class="col-md-4">
+
+                                <div>
+                                    <h4>Status:</h4>
+                                    <div id="status-select">
+                                        <input id="fail" type="checkbox" value="fail" />
+                                        <label for="fail">Failed</label><br />
+                                        <input id="complete" type="checkbox" value="complete" />
+                                        <label for="complete">Complete</label><br />
+                                        <input id="resolved" type="checkbox" value="resolved" />
+                                        <label for="resolved">Resolved</label><br />
+                                        <input id="running" type="checkbox" value="running" />
+                                        <label for="running">Running</label><br />
+                                        <input id="pending" type="checkbox" value="pending" />
+                                        <label for="pending">Pending</label><br />
+                                        <input id="disabled" type="checkbox" value="disabled" />
+                                        <label for="disabled">Disabled</label><br />
+                                        <input id="failedToStart" type="checkbox" value="failedToStart" />
+                                        <label for="failedToStart">Failed to Start</label><br />
+                                        <input id="incident" type="checkbox" value="incident" />
+                                        <label for="incident">Incident</label><br />
+                                    </div>
+                                </div>
                                 <div id="datepicker-div">
                                     <h4>Created Date:</h4>
                                     <input id="min-date" class="form-control" data-date-format="yyyy-mm-dd" type="text"
@@ -112,26 +111,24 @@
                                 </div>
                             </div>
                             <br />
-                            <div class="col-md-12">
-                                <input type="button" id="filter-submit-btn" class="btn btn-info pull-right"
+                            <div style="display: flex; gap: 10px; align-items: baseline;">
+                                <input type="button" id="filter-submit-btn" class="btn btn-info btn-sm pull-right"
                                     value="Filter" />
-                                <h5 class="pull-right" style="margin-right: 8px;">Matched Processes: <span
-                                        id="numMatchProcesses"></span></h5>
-                                <h5 class="pull-right" id="procCountWarning" style="color: red; margin-right: 8px;">
-                                </h5>
+                                <h6 class="pull-right" style="margin-right: 8px;">Matched Processes: <span
+                                        id="numMatchProcesses"></span></h6>
+                                <h6 class="pull-right" id="procCountWarning" style="color: red; margin-right: 8px;">
+                                </h6>
                             </div>
                         </div>
 
                         <!-- Toggle visibility of filters button -->
-                        <div id="filters-btn" class="btn btn-warning"><span class="glyphicon glyphicon-filter">
-                            </span>&nbsp;Filters&nbsp;<span id="filter-arrow"
-                                class="glyphicon glyphicon-chevron-up"></span>
+                        <div id="filters-btn" class="btn btn-warning btn-sm"><img height="16" width="16" src="/${base}/images/filter.svg" />&nbsp;Filters&nbsp;<img height="16" width="16" src="/${base}/images/chevron_up.svg" />
                         </div>
 
                         <!-- Shows superprocess ID when displaying subprocesses, hidden otherwise -->
                         <div id="display-subprocs-div">
-                            <h3>Displaying Subprocesses for Process Instance ID: <span
-                                    id="super-proc-inst-id">34374-349083748</span></h3>
+                            <h4>Displaying Subprocesses for Process Instance ID: <span
+                                    id="super-proc-inst-id">34374-349083748</span></h4>
                         </div>
                         <div id="action_msg"></div>
 
@@ -149,8 +146,7 @@
                                                     class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                                                     aria-haspopup="true" aria-label="Select Options"
                                                     style="background-color: transparent; border-color: transparent; box-shadow: none; display: flex; justify-content: center; width: 14px; border: 0px solid transparent; padding-left: 15px; padding-right: 15px">
-                                                    <span class="glyphicon glyphicon-chevron-down"
-                                                        aria-hidden="true"></span>
+                                                    <img height="16" width="16" src="/${base}/images/chevron_down.svg" />
                                                 </button>
                                                 <ul class="dropdown-menu">
                                                     <li><a id="selectOnPage" onclick="selectPage()">Select x processes
@@ -237,12 +233,13 @@
                     todayHighlight: true
                 });
 
+                
                 //Toggle direction of chevron on filter visiblity toggle button
                 $("#filters-btn").on("click", function () {
                     if ($("#filters-div").is(":visible"))
-                        $("#filter-arrow").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
+                        $("#filter-arrow").attr("src", "/${base}/images/chevron_down.svg");
                     else
-                        $("#filter-arrow").removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
+                        $("#filter-arrow").attr("src","/${base}/images/chevron_up.svg");
                     $("#filters-div").slideToggle();
                 });
 
@@ -315,7 +312,7 @@
                     //allows for editing what buttons / text says on/in the table
                     language: {
                         searchBuilder: {
-                            add: "<i class=\"glyphicon glyphicon-search btn-icon\"></i>Add Local Filter",
+                            add: "Add Local Filter",
                         }
                     },
                     //delays rendering the data in the dom until it has to (ex: don't render page 10 until we browse to page 10)
@@ -338,11 +335,11 @@
                             render: function (data, type) {
                                 if (type === 'display') {
                                     if (data == null) {
-                                        return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" class="btn btn-default btn-sm disabled">History</a>' +
-                                            "<a style=\"margin-top: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" class=\"btn btn-default btn-sm disabled\">Subprocs</a>";
+                                        return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" ><button style=\"margin-bottom: 5px;\" class="btn btn-outline-dark btn-sm disabled">History</button></a>' +
+                                            "<a style=\"margin-bottom: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" ><button class=\"btn btn-outline-dark btn-sm disabled\" style=\"margin-bottom: 5px\">Subprocs</button></a>";
                                     }
-                                    return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" class="btn btn-default btn-sm">History</a>' +
-                                        "<a style=\"margin-top: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" class=\"btn btn-default btn-sm\">Subprocs</a>";
+                                    return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" ><button style=\"margin-bottom: 5px;\" class="btn btn-outline-dark btn-sm">History</button></a>' +
+                                        "<a style=\"margin-bottom: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" ><button class=\"btn btn-outline-dark btn-sm\">Subprocs</button></a>";
                                 }
                                 return data;
                             }
@@ -934,7 +931,7 @@
                             extend: 'colvis',
                             columns: ':not(.noVis)',
                             className: 'btn btn-primary',
-                            text: '<i class="glyphicon glyphicon-eye-open btn-icon"></i>Columns',
+                            text: '<img height="16" width="16" src="/${base}/images/visible_show_dark.svg" style="margin-right: 5px; margin-bottom: 3px;" />Columns',
                         }
                     ],
                     //enables the complex search builder, tells it what columns should be able to be searched
@@ -981,35 +978,45 @@
                 });
 
                 //add our action dropdown button to the div that datatables created (created in dom: above)
-                $('<div class="btn-group"><button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><i class="glyphicon glyphicon-tasks btn-icon"></i>&nbsp;Actions &nbsp;'
+                $('<div class="btn-group" style="margin-bottom: 5px"><div style="display: flex; align-items: center;"><input id="select-all-btn" type="checkbox">Select All</select></div></div><div class="btn-group" style="margin-bottom: 5px"><button id="menu3" class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><img height="16" width="16" src="/${base}/images/waterfall_light.svg" />&nbsp;Actions &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
-                    + `<li id="action_open_selected_new_tabs" class="disabled" role="presentation"><a id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)<span style="margin-left: 10px;" class="label label-info">Requires Pop-ups to be enabled</span></a></li>`
-                    + `<li id="action_copy_all_selected_history_links" class="disabled" role="presentation"><a id="action_copy_all_selected_history_links_atag" role="menuitem">Copy all selected history links (must not be pending)</a></li>`
+                    + `<li id="action_open_selected_new_tabs" class="disabled" role="presentation"><a class="dropdown-item" id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)<span style="margin-left: 10px;" class="label label-info">Requires Pop-ups to be enabled</span></a></li>`
+                    + `<li id="action_copy_all_selected_history_links" class="disabled" role="presentation"><a class="dropdown-item" id="action_copy_all_selected_history_links_atag" role="menuitem">Copy all selected history links (must not be pending)</a></li>`
                     + '<li role="separator" class="divider"></li>'
-                    + `<li id="action_delete_selected" class="disabled" role="presentation"><a id="action_delete_selected_atag" role="menuitem">Stop running selected rows (all rows selected must be 'running')</a></li>`
-                    + `<li id="action_disable" class="disabled" role="presentation"><a id="action_disable_atag" role="menuitem">Disable selected rows (all rows selected must be 'pending')</a></li>`
-                    + `<li id="action_enable" class="disabled" role="presentation"><a id="action_enable_atag" role="menuitem">Enable selected rows (all rows selected must be 'disabled')</a></li>`
-                    + `<li id="action_retry_incident" class="disabled" role="presentation"><a id="action_retry_incident_atag" role="menuitem">Retry all selected incident rows (all rows selected must be 'incident')</a></li>`
-                    + `<li id="action_retry_failed_to_start" class="disabled" role="presentation"><a id="action_retry_failed_to_start_atag" role="menuitem">Retry all selected failed to start rows (all rows selected must be 'failedToStart')</a></li>`
-                    + `<li id="action_mark_as_resolved" class="disabled" role="presentation"><a id="action_mark_as_resolved_atag" role="menuitem">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
+                    + `<li id="action_delete_selected" class="disabled" role="presentation"><a class="dropdown-item" id="action_delete_selected_atag" role="menuitem">Stop running selected rows (all rows selected must be 'running')</a></li>`
+                    + `<li id="action_disable" class="disabled" role="presentation"><a class="dropdown-item" id="action_disable_atag" role="menuitem">Disable selected rows (all rows selected must be 'pending')</a></li>`
+                    + `<li id="action_enable" class="disabled" role="presentation"><a class="dropdown-item" id="action_enable_atag" role="menuitem">Enable selected rows (all rows selected must be 'disabled')</a></li>`
+                    + `<li id="action_retry_incident" class="disabled" role="presentation"><a class="dropdown-item" id="action_retry_incident_atag" role="menuitem">Retry all selected incident rows (all rows selected must be 'incident')</a></li>`
+                    + `<li id="action_retry_failed_to_start" class="disabled" role="presentation"><a class="dropdown-item" id="action_retry_failed_to_start_atag" role="menuitem">Retry all selected failed to start rows (all rows selected must be 'failedToStart')</a></li>`
+                    + `<li id="action_mark_as_resolved" class="disabled" role="presentation"><a class="dropdown-item" id="action_mark_as_resolved_atag" role="menuitem">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
                     + `<#include "adaptation-process-actions.ftl">`
                     + `</ul></div>`).appendTo(".above-table-buttons");
 
                 //add our download dropdown button to the div that datatables created (created in dom: above)
-                $('<div class="btn-group"><button id="action-download-group" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><i class="glyphicon glyphicon-save btn-icon"></i>&nbsp;Download &nbsp;'
+                $('<div class="btn-group" style="margin-bottom: 5px"><button id="action-download-group" class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"><img height="16" width="16" src="/${base}/images/save_light.svg" />&nbsp;Download &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="action-download-group">'
-                    + `<li id="action_download_selected_list" class="disabled" role="presentation"><a id="action_download_selected_list_atag" role="menuitem">Download list of selected processes (must select at least one row)</a></li>`
-                    + `<li id="action_download_selected_json" class="disabled" role="presentation"><a id="action_download_selected_json_atag" role="menuitem">Download logs of selected processes (JSON) (all rows selected must not be pending)</a></li>`
-                    + `<li id="action_download_selected_csv" class="disabled" role="presentation"><a id="action_download_selected_csv_atag" role="menuitem">Download logs of selected processes (CSV) (all rows selected must not be pending)</a></li>`
+                    + `<li id="action_download_selected_list" class="disabled" role="presentation"><a class="dropdown-item" id="action_download_selected_list_atag" role="menuitem">Download list of selected processes (must select at least one row)</a></li>`
+                    + `<li id="action_download_selected_json" class="disabled" role="presentation"><a class="dropdown-item" id="action_download_selected_json_atag" role="menuitem">Download logs of selected processes (JSON) (all rows selected must not be pending)</a></li>`
+                    + `<li id="action_download_selected_csv" class="disabled" role="presentation"><a class="dropdown-item" id="action_download_selected_csv_atag" role="menuitem">Download logs of selected processes (CSV) (all rows selected must not be pending)</a></li>`
                     + `<#include "adaptation-process-actions.ftl">`
                     + `</ul></div>`).appendTo(".above-table-buttons");
 
                 //datatable is now setup - fetch our data on initial page load
                 fetchAndDisplayProcesses();
+
+             //when the select-all checkbox is clicked, select/deselect all rows
+            $("#select-all-btn").on('change', function() {
+                if($(this).is(":checked")) {
+                    selectAll();
+                } else {
+                    deselectAll(); 
+                }
+            });
+
             });
             //DOCUMENT.READY END
 
@@ -1494,13 +1501,21 @@
                     $("#action_download_selected_list_atag").attr("href", "javascript:downloadListJSON();");
                     if (numPendingSelected === 0) {
                         $("#action_open_selected_new_tabs").removeClass("disabled");
-                        $("#action_open_selected_new_tabs_atag").attr("href", "javascript:action_open_selected_new_tabs();");
+                        
+                        $("#action_open_selected_new_tabs_atag").on("click", function() {action_open_selected_new_tabs();})
+                        // $("#action_open_selected_new_tabs_atag").attr("href", "javascript:action_open_selected_new_tabs();");
+                        
                         $("#action_copy_all_selected_history_links").removeClass("disabled");
-                        $("#action_copy_all_selected_history_links_atag").attr("href", "javascript:action_copy_all_selected_history_links();");
+                        $("#action_copy_all_selected_history_links_atag").on("click", function() {action_copy_all_selected_history_links();})
                         $("#action_download_selected_json").removeClass("disabled");
-                        $("#action_download_selected_json_atag").attr("href", "javascript:downloadSelectedJSON();");
+
+                        $("#action_download_selected_json_atag").on("click", function() {downloadSelectedJSON();})
+                        // $("#action_download_selected_json_atag").attr("href", "javascript:downloadSelectedJSON();");
+                        
                         $("#action_download_selected_csv").removeClass("disabled");
-                        $("#action_download_selected_csv_atag").attr("href", "javascript:downloadSelectedCSV();");
+
+                        $("#action_download_selected_csv_atag").on("click", function() {downloadSelectedCSV();})
+                        // $("#action_download_selected_csv_atag").attr("href", "javascript:downloadSelectedCSV();");
                     }
                 }
 
@@ -1520,13 +1535,13 @@
                     url: "/${base}/rest/processes/delete",
                     Accept: "application/json",
                     contentType: "application/json",
-                    data: JSON.stringify(procInstIds)
-                    })
-                    .success(function (msg) {
-                        //clear table
-                        table.clear().draw();
-                        //reload table
-                        fetchAndDisplayProcesses();
+                    data: JSON.stringify(procInstIds),
+                    success: function (msg) {
+                                            //clear table
+                                            table.clear().draw();
+                                            //reload table
+                                            fetchAndDisplayProcesses();
+                                        }
                     })
                     .fail(function (xhr, err) {
                         console.error(xhr.responseTextmsg);
@@ -1843,8 +1858,8 @@
                     Accept: "application/json",
                     contentType: "application/json",
                     dataType: "json",
-                    async: false
-                }).success(function (data) {
+                    async: false,
+                    success: function (data) {
                     var status = data.state;
                     if (data.state === "COMPLETED") {
                         status = "Complete";
@@ -1871,6 +1886,7 @@
                         const row = [date, entry["type"], entry["activity"], outputMessage(entry["message"])];
                         logLines.push(row);
                     }
+                    }
                 }).fail(function (xhr, err) {
                     console.error("Error getting instance JSON: " + xhr.responseText);
                 });
@@ -1881,8 +1897,8 @@
                     Accept: "application/json",
                     contentType: "application/json",
                     dataType: "json",
-                    async: false
-                }).success(function (data) {
+                    async: false,
+                    success: function (data) {
                     var finished = false;
                     scrollId = data._scroll_id;
                     if (data.hits) {
@@ -1920,6 +1936,7 @@
                             }
                         });
                     }
+                }
                 }).fail(function (xhr, err) {
                     console.error("Error getting instance JSON: " + xhr.responseText);
                 });
@@ -2118,8 +2135,8 @@
                     Accept : "application/json",
                     contentType: "application/json",
                     dataType: "json",
-                    async: false
-                }).success(function(data) {
+                    async: false,
+                    success: function(data) {
                     var status = data.state;
                     if (data.state === "COMPLETED") {
                         status = "Complete";
@@ -2141,6 +2158,7 @@
                         const row = [date, entry["type"], entry["activity"], outputMessage(entry["message"])];
                         logLines.push(row);
                     }
+                }
                 }).fail(function(xhr, err) {
                     console.error("Error getting instance JSON: " + xhr.responseText);
                 });
@@ -2151,8 +2169,8 @@
                     Accept : "application/json",
                     contentType: "application/json",
                     dataType: "json",
-                    async: false
-                }).success(function(data) {
+                    async: false,
+                    success:function(data) {
                     var finished = false;
                     scrollId = data._scroll_id;
                     if (data.hits) {
@@ -2190,6 +2208,7 @@
                             }
                         });
                     }
+                }
                 }).fail(function(xhr, err) {
                     console.error("Error getting instance JSON: " + xhr.responseText);
                 });
@@ -2267,6 +2286,8 @@
                 } );
                 return outputCSV;
             };
+
+           
         </script>
 
 </body>

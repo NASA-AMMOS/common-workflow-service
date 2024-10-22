@@ -22,8 +22,12 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.JavascriptExecutor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  *
@@ -284,9 +288,13 @@ public class WebTestUtil {
 
 	public void enableWorkers(String procDef) {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-
-		wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
+		sleep(5000);
 		WebElement enable = findElById("pv-"+procDef);
+		
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+	  	js.executeScript("arguments[0].scrollIntoViewIfNeeded();", enable);
+      	sleep(5000);
+
 		enable.click();
 		sleep(1000);
 
@@ -312,6 +320,11 @@ public class WebTestUtil {
 
 		wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
 		WebElement enable = findElById("pv-"+procDef);
+
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+	  	js.executeScript("arguments[0].scrollIntoViewIfNeeded();", enable);
+	  	sleep(1000);
+
 		enable.click();
 		sleep(1000);
 
@@ -447,8 +460,10 @@ public class WebTestUtil {
 		if(driver.getPageSource().contains(procName)) {
 			disableWorkers(procName);
 
-			wait.until(ExpectedConditions.elementToBeClickable(By.id("delete-"+procName)));
 			WebElement delButton = driver.findElement(By.id("delete-"+procName));
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+		  	js.executeScript("arguments[0].scrollIntoViewIfNeeded();", delButton);
+
 			delButton.click();
 
 			waitForElementID("delete-proc-def");
