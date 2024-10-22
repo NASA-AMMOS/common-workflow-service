@@ -2277,7 +2277,15 @@
             };
 
             $("#select-all-btn").on("click", function() {
+                var table = $("#processes-table").DataTable();
+                var hasSelected = table.rows({selected: true}).count() > 0;
                 
+                if (hasSelected) {
+                    table.rows().deselect();
+                } else {
+                    table.rows().select();
+                }
+                updateActionList();
             })
         </script>
 
