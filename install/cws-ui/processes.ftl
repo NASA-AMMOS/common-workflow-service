@@ -957,6 +957,15 @@
                     updateActionList();
                 });
 
+                //when the select-all checkbox is clicked, select/deselect all rows
+                $("#select-all-btn").on('change', function() {
+                    if($(this).is(":checked")) {
+                        selectAll();
+                    } else {
+                        deselectAll(); 
+                    }
+                });
+
                 //when we click the copy button next to an input/output variable, we want to copy the value to the clipboard
                 $(document).on('click', '.copy', function (e) {
                     e.preventDefault();
