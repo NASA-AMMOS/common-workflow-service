@@ -957,15 +957,6 @@
                     updateActionList();
                 });
 
-                //when the select-all checkbox is clicked, select/deselect all rows
-                $("#select-all-btn").on('change', function() {
-                    if($(this).is(":checked")) {
-                        selectAll();
-                    } else {
-                        deselectAll(); 
-                    }
-                });
-
                 //when we click the copy button next to an input/output variable, we want to copy the value to the clipboard
                 $(document).on('click', '.copy', function (e) {
                     e.preventDefault();
@@ -987,7 +978,7 @@
                 });
 
                 //add our action dropdown button to the div that datatables created (created in dom: above)
-                $('<div class="btn-group" style="margin-bottom: 5px"><input id="select-all-btn" type="checkbox">Select All</select><button id="menu3" class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><img height="16" width="16" src="/${base}/images/waterfall_light.svg" />&nbsp;Actions &nbsp;'
+                $('<div class="btn-group" style="margin-bottom: 5px"><div style="display: flex; align-items: center;"><input id="select-all-btn" type="checkbox">Select All</select></div></div><div class="btn-group" style="margin-bottom: 5px"><button id="menu3" class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><img height="16" width="16" src="/${base}/images/waterfall_light.svg" />&nbsp;Actions &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
@@ -1016,6 +1007,16 @@
 
                 //datatable is now setup - fetch our data on initial page load
                 fetchAndDisplayProcesses();
+
+             //when the select-all checkbox is clicked, select/deselect all rows
+            $("#select-all-btn").on('change', function() {
+                if($(this).is(":checked")) {
+                    selectAll();
+                } else {
+                    deselectAll(); 
+                }
+            });
+
             });
             //DOCUMENT.READY END
 
