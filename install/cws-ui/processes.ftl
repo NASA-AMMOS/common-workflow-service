@@ -926,7 +926,6 @@
                         + "<'below-table-div'ip>",
                     //tells datatables we want to use one of the predefined buttons
                     buttons: [
-                        "selectAll",
                         {
                             extend: 'colvis',
                             columns: ':not(.noVis)',
@@ -978,7 +977,7 @@
                 });
 
                 //add our action dropdown button to the div that datatables created (created in dom: above)
-                $('<div class="btn-group" style="margin-bottom: 5px"><button id="menu3" class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><img height="16" width="16" src="/${base}/images/waterfall_light.svg" />&nbsp;Actions &nbsp;'
+                $('<div class="btn-group" style="margin-bottom: 5px"><input id="select-all-btn" type="checkbox">Select All</select><button id="menu3" class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><img height="16" width="16" src="/${base}/images/waterfall_light.svg" />&nbsp;Actions &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
@@ -2276,6 +2275,10 @@
                 } );
                 return outputCSV;
             };
+
+            $("#select-all-btn").on("click", function() {
+                
+            })
         </script>
 
 </body>
