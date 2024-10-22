@@ -233,6 +233,7 @@
                     todayHighlight: true
                 });
 
+                
                 //Toggle direction of chevron on filter visiblity toggle button
                 $("#filters-btn").on("click", function () {
                     if ($("#filters-div").is(":visible"))
@@ -2276,17 +2277,7 @@
                 return outputCSV;
             };
 
-            $("#select-all-btn").on("click", function() {
-                var table = $("#processes-table").DataTable();
-                var hasSelected = table.rows({selected: true}).count() > 0;
-                
-                if (hasSelected) {
-                    table.rows().deselect();
-                } else {
-                    table.rows().select();
-                }
-                updateActionList();
-            })
+           
         </script>
 
 </body>
