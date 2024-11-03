@@ -1189,7 +1189,7 @@ function convertMillis(millis) {
 <body>
 	<#include "navbar.ftl">
 
-	<div class="container-fluid" style="margin-left: 20px; margin-top: 25px;">
+	<div class="container-fluid" style="max-width: 100%; margin: 25px auto; padding: 0 20px;">
 		
 		<h2 class="sub-header">History</h2>
 		<div class="row">
@@ -1243,9 +1243,11 @@ function convertMillis(millis) {
 				</tbody>
 			</table>
 		</div>
-      <div id="resolveButtonDiv" class="row" style="text-align: center; display: none;">
-        <button id="resolveButton" class="btn btn-primary" type="button" onclick="markAsResolved($('#procInstId').text())">Mark as Resolved</button>
-		<button id="retryIncidentButton" class="btn btn-primary" type="button" onclick="retryIncident($('#procInstId').text())">Retry Incident</button>
+      <div id="resolveButtonDiv" class="row" style="text-align: center; display: none; gap: 10px;">
+        <div style="display: inline-flex; gap: 10px;">
+          <button id="resolveButton" class="btn btn-primary btn-sm" type="button" onclick="markAsResolved($('#procInstId').text())">Mark as Resolved</button>
+          <button id="retryIncidentButton" class="btn btn-primary btm-sm" type="button" onclick="retryIncident($('#procInstId').text())">Retry Incident</button>
+        </div>
       </div>
 		</div>
 	
@@ -1255,7 +1257,7 @@ function convertMillis(millis) {
 		<div class="row">
 			<div class="col main">
 				<div id="log-div" style="width: 100%;">
-					<table id="logData" class="table table-striped table-bordered sortable" style="margin-top: 25px;">
+					<table id="logData" class="table table-striped table-bordered sortable" style="margin: 25px 20px; width: 98%;">
 						<thead>
 							<tr>
 								<th id="timeStampColumn" class="col-1" scope="col">Time Stamp</th>
