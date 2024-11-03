@@ -193,7 +193,11 @@
 					},
 					{
 						targets: [1],
-						width: "75px"
+						width: "100px"
+					},
+					{
+						targets: [2],
+						width: "100px"
 					},
 					{
 						targets: [3],
@@ -205,7 +209,11 @@
 					},
 					{
 						targets: [5],
-						width: "150px"
+						width: "100px"
+					},
+					{
+						targets: [6],
+						width: "100px"
 					},
 					{
 						targets: [7],
