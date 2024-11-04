@@ -489,7 +489,7 @@
 							if (type !== 'display') {
 								return "";
 							} else {
-								var html = `<button type="button" id="pv-` + data + `" class="btn btn-sm worker-view-btn"`
+								var html = `<button type="button" id="pv-` + data + `" class="btn btn-sm worker-view-btn btn-outline-dark"`
 										+ `data-proc-key="` + data + `">view</button>`;
 								return html;
 							}
@@ -794,7 +794,21 @@
 					$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
 					$("#status-txt-" + procDefKey).html("Active");
 					$("#" + procDefKey).removeClass("disabled");
-					$("#pv-" + procDefKey).removeClass("disabled").removeClass("btn-outline-dark").addClass("btn").text("enable");
+					$.get("/${base}/rest/processes/getProcDefWorkerCount", function(data) {
+						var rows = JSON.parse(data);
+						var hasWorker = false;
+						for (i in rows) {
+							if (rows[i].pdk === procDefKey && rows[i].workers > 0) {
+								hasWorker = true;
+								break;
+							}
+						}
+						if (hasWorker) {
+							$("#pv-" + procDefKey).removeClass("disabled btn-danger").addClass("btn-outline-dark").text("view");
+						} else {
+							$("#pv-" + procDefKey).removeClass("disabled btn-outline-dark").addClass("btn-danger").text("enable");
+						}
+					});
 				},
 				error: function (data) {
 					console.log("error activating");
@@ -1227,12 +1241,15 @@
 		$.get("/${base}/rest/processes/getProcDefWorkerCount", function (data) {
 			var rows = JSON.parse(data)
 			for (i in rows) {
-				if (rows[i].workers == 0) {
-					$("#pv-" + rows[i].pdk).removeClass("btn-default").addClass("btn-danger");
-					$("#pv-" + rows[i].pdk).text("enable");
+				const table = $("#process-table").DataTable();
+				const rowData = table.row("#" + rows[i].pdk).data();
+				
+				if (rowData && rowData.suspended === "true") {
+					$("#pv-" + rows[i].pdk).removeClass("btn-danger").addClass("btn-outline-dark").text("view");
+				} else if (rows[i].workers == 0) {
+					$("#pv-" + rows[i].pdk).removeClass("btn-default").addClass("btn-danger").text("enable").removeClass("btn-outline-dark");
 				} else {
-					$("#pv-" + rows[i].pdk).removeClass("btn-danger").addClass("btn-outline-dark");
-					$("#pv-" + rows[i].pdk).text("view");
+					$("#pv-" + rows[i].pdk).removeClass("btn-danger").addClass("btn-outline-dark").text("view").addClass("btn-outline-dark");
 				}
 			}
 		});

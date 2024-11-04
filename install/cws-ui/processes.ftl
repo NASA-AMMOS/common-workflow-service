@@ -1554,11 +1554,8 @@
                     contentType: "application/json",
                     data: JSON.stringify(procInstIds),
                     success: function (msg) {
-                                            //clear table
-                                            table.clear().draw();
-                                            //reload table
-                                            fetchAndDisplayProcesses();
-                                        }
+                        fetchAndDisplayProcesses();
+                    }
                     })
                     .fail(function (xhr, err) {
                         console.error(xhr.responseTextmsg);
