@@ -214,7 +214,7 @@
                     if (qStringObj["cache"] == null || qStringObj["cache"] == undefined) {
                         //we have no cache param - load from cache
                         if(!(isEqual(parseQueryString(qString), getQueryString()))){
-                            applyParamsToFilters(parseQueryString(qString));
+                            applyParamsToFilters(getQueryString());
                             updateLocation(false, 0);
                         }
                     }
@@ -336,10 +336,10 @@
                                 if (type === 'display') {
                                     if (data == null) {
                                         return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" ><button style=\"margin-bottom: 5px;\" class="btn btn-outline-dark btn-sm disabled">History</button></a>' +
-                                            "<a style=\"margin-bottom: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" ><button class=\"btn btn-outline-dark btn-sm disabled\" style=\"margin-bottom: 5px\">Subprocs</button></a>";
+                                            "<a style=\"margin-bottom: 5px;\" onclick=\"viewSubProcs('" + data + "')\"><button class=\"btn btn-outline-dark btn-sm disabled\" style=\"margin-bottom: 5px\">Subprocs</button></a>";
                                     }
                                     return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" ><button style=\"margin-bottom: 5px;\" class="btn btn-outline-dark btn-sm">History</button></a>' +
-                                        "<a style=\"margin-bottom: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" ><button class=\"btn btn-outline-dark btn-sm\">Subprocs</button></a>";
+                                        "<a style=\"margin-bottom: 5px;\" onclick=\"viewSubProcs('" + data + "')\"><button class=\"btn btn-outline-dark btn-sm\">Subprocs</button></a>";
                                 }
                                 return data;
                             }
@@ -778,7 +778,6 @@
                                             } else if (tempKey.includes("{")) {
                                                 var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
                                                 tempKey = tempKey.substring(tempKey.indexOf("]")+1, tempKey.indexOf(" {"));
-                                                console.log(tempKey);
                                                 temp = `<div class="var-row-div-flex">`
                                                     + `<div class="var-row-div-flex-sub-1">`
                                                     + `<b>` + tempKey + `: </b>`
@@ -978,7 +977,7 @@
                 });
 
                 //add our action dropdown button to the div that datatables created (created in dom: above)
-                $('<div class="btn-group" style="margin-bottom: 5px"><div style="display: flex; align-items: center;"><input id="select-all-btn" type="checkbox">Select All</select></div></div><div class="btn-group" style="margin-bottom: 5px"><button id="menu3" class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><img height="16" width="16" src="/${base}/images/waterfall_light.svg" />&nbsp;Actions &nbsp;'
+                $('<div class="btn-group" style="margin-bottom: 5px"><div style="display: flex; align-items: center; gap: 5px;"><input id="select-all-btn" type="checkbox">Select All</select></div></div><div class="btn-group" style="margin-bottom: 5px"><button id="menu3" class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><img height="16" width="16" src="/${base}/images/waterfall_light.svg" />&nbsp;Actions &nbsp;'
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
@@ -1191,7 +1190,6 @@
             //applies filters given by user & refreshes the page to apply to URL
             function updateLocation(changeHideSubs, sbDetailCheck) {
                 var localParams = {};
-
                 if ($("#pd-select").val() != "def") {
                     localParams["procDefKey"] = $("#pd-select").val();
                 }
@@ -1326,8 +1324,9 @@
                         $("#hide-subprocs-btn").prop('checked', true);
                         $("#display-subprocs-div").css('display', 'none');
                     } else {
+                        $("#hide-subprocs-btn").prop('checked', false);
                         $("#super-proc-inst-id-in").show();
-                        $("#hide-subprocs-div").css('display', 'none');
+                        $("#hide-subprocs-div").css('display', 'block');
                         $("#super-proc-inst-id").html(params.superProcInstId);
                     }
                     //$("#status-select").val(params.status);
@@ -1365,9 +1364,27 @@
 
             // loads the sub-processes page of a process
             function viewSubProcs(procInstId) {
-
                 if (procInstId !== '') {
-                    window.location = "/${base}/processes?superProcInstId=" + procInstId;
+                    // Update URL params
+                    params["superProcInstId"] = procInstId;
+                    delete params["cache"];
+                    
+                    // Update UI elements
+                    $("#hide-subprocs-btn").prop('checked', false);
+                    $("#super-proc-inst-id-in").val(procInstId);
+                    $("#super-proc-inst-id-in").show();
+                    
+                    // Save state and reload data
+                    localStorage.setItem(hideSubProcsVar, false);
+                    fetchAndDisplayProcesses();
+                    
+                    // Update URL without page reload
+                    var qstring = "?";
+                    for (p in params) {
+                        qstring += encodeURI(p) + "=" + encodeURI(params[p]) + "&";
+                    }
+                    qstring = qstring.substring(0, qstring.length - 1);
+                    window.history.pushState({}, '', "/${base}/processes" + qstring);
                 } else {
                     return false;
                 }
@@ -1588,7 +1605,7 @@
                 })
                     .done(function (msg) {
                         $("#action_msg").html(msg.message);
-                        table.ajax.reload();
+                        fetchAndDisplayProcesses();
                     })
                     .fail(function (xhr, err) {
                         $("#action_msg").html(xhr.responseTextmsg.message);
@@ -1610,7 +1627,7 @@
                 })
                     .done(function (msg) {
                         $("#action_msg").html(msg.message);
-                        table.ajax.reload();
+                        fetchAndDisplayProcesses();
                     })
                     .fail(function (xhr, err) {
                         $("#action_msg").html(xhr.responseTextmsg.message);
@@ -1654,7 +1671,7 @@
                 })
                     .done(function (msg) {
                         $("#action_msg").html(msg.message);
-                        table.ajax.reload();
+                        fetchAndDisplayProcesses();
                     })
                     .fail(function (xhr, err) {
                         $("#action_msg").html(xhr.responseTextmsg.message);
@@ -1669,11 +1686,14 @@
                 $.ajax({
                     type: "POST",
                     url: "/${base}/rest/processes/markResolved",
+                    Accept: "application/json",
+                    contentType: "application/json",
+                    dataType: "json",
                     data: JSON.stringify(getSelectedRowUuids())
                 })
                     .done(function (msg) {
                         $("#action_msg").html(msg.message);
-                        table.ajax.reload();
+                        fetchAndDisplayProcesses();
                     })
                     .fail(function (xhr, err) {
                         $("#action_msg").html(xhr.responseTextmsg.message);
