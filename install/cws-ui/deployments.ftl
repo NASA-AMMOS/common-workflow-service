@@ -565,7 +565,13 @@
 				rowId: "key",
 				//DISABLES ORDERING ON BUTTON, WORKER, AND INSTANCE STATISTICS COLUMNS (https://datatables.net/reference/option/columnDefs)
 				columnDefs: [
-					{orderable: false, targets: [0, 6, 4]}
+					{orderable: false, targets: [0, 6, 4]},
+					{width: "120px", targets: 0},
+					{width: "250px", targets: 1},
+					{width: "200px", targets: 2},
+					{width: "80px", targets: 3},
+					{width: "100px", targets: 4},
+					{width: "100px", targets: 5}
 				],
 				//SETS DEFAULT ORDERING TO BE THE "NAME" COLUMN, ASCENDING (https://datatables.net/reference/option/order)
 				order: [[1, "asc"]],
@@ -766,9 +772,7 @@
 					$("#pv-" + procDefKey).removeClass("btn-danger").addClass("btn-outline-dark").text("view");
 
 					const table = $("#process-table").DataTable();
-					const rowData = table.row("#" + procDefKey).data();
-					rowData.suspended = "true";
-					table.row("#" + procDefKey).data(rowData).draw();
+					table.cell("#" + procDefKey, 5).data("<div class='status-div-text' id='status-txt-" + procDefKey + "'><i style='color: dimgray;'>Suspended</i></div>").draw(false);
 
 				},
 				error: function (data) {
@@ -792,8 +796,8 @@
 					$("#suspend-" + procDefKey).attr("src", "/${base}/images/pin_pause.svg");
 					$("#suspend-" + procDefKey).css("color", "#d9534f");
 					$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
-					$("#status-txt-" + procDefKey).html("Active");
-					$("#" + procDefKey).removeClass("disabled");
+					const table = $("#process-table").DataTable();
+					table.cell("#" + procDefKey, 5).data("<div class='status-div-text' id='status-txt-" + procDefKey + "' style='font-style: normal;'>Active</div>").draw(false);
 					$.get("/${base}/rest/processes/getProcDefWorkerCount", function(data) {
 						var rows = JSON.parse(data);
 						var hasWorker = false;
@@ -808,6 +812,7 @@
 						} else {
 							$("#pv-" + procDefKey).removeClass("disabled btn-outline-dark").addClass("btn-danger").text("enable");
 						}
+						$("#" + procDefKey).removeClass("disabled");
 					});
 				},
 				error: function (data) {
@@ -931,12 +936,12 @@
 			<table id="process-table" class="table table-striped sortable" style="width: 100%;">
 				<thead>
 				<tr>
-					<th style="width: 30px"></th>
+					<th style="width: 120px"></th>
 					<th style="width: 250px">Name</th>
-					<th>Key</th>
-					<th style="width: 80px;">Version</th>
-					<th>Workers</th>
-					<th>Status</th>
+					<th style="width: 200px">Key</th>
+					<th style="width: 80px">Version</th>
+					<th style="width: 100px">Workers</th>
+					<th style="width: 100px">Status</th>
 					<th>Instance Statistics</th>
 				</tr>
 				</thead>
