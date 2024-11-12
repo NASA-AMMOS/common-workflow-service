@@ -703,16 +703,16 @@
 					var tempVal = data[fullKeysInOrder[key]];
 					var tempKey = fullKeysInOrder[key].substring(7);
 					if (tempKey.includes("(file, image")) {
-						tempKey = tempKey.replace("file, ", "");
+						tempKey = tempKey.replace("file, ", "");	
 						temp = `<div class="proc-var-flex-main">`
-							+ `<div class="proc-var-flex-main-sub-1">`
-							+ `<div class="proc-var-flex-main-sub-2"><b>` + tempKey + `: </b></div>`
-							+ `<div class="proc-var-flex-main-sub-3">`
-							+ `<img class="grow historyLimitSize" src='` + tempVal + `'></div></div>`
-							+ `<div class="proc-var-flex-btn">`
-							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''>`
-							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
-							+ `</span></div></div>`;
+						+ `<div class="proc-var-flex-main-sub-1">`
+						+ `<div class="proc-var-flex-main-sub-2"><b>` + tempKey + `: </b></div>`
+						+ `<div class="proc-var-flex-main-sub-3">`
+						+ `<img class="grow historyLimitSize" src='` + tempVal + `'></div></div>`
+						+ `<div class="proc-var-flex-btn">`
+						+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''>`
+						+ `<img src="images/copy.svg" class="copy-icon clipboard">`
+						+ `</span></div></div>`;
 					} else if (tempKey.includes("{")) {
 						var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
 						tempKey = tempKey.substring(tempKey.indexOf("]")+1, tempKey.indexOf(" {"));
@@ -760,8 +760,9 @@
 							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''>`
 							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
 							+ `</span></div></div>`;
-					output = output + temp;
+
 				}
+				output = output + temp;
 			}
 				//now we need to add any keys that were not in the fullKeysInOrder array
 				//first, determine which keys were not in the fullKeysInOrder array

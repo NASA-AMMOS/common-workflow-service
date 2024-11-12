@@ -71,8 +71,9 @@ function copyInput(varValue, isImage) {
         if (sanitizedB64.indexOf("data:") !== -1) {
             sanitizedB64 = sanitizedB64.replace(/data:.*base64, /g, "");
         }
+        const imageType = varValue.match(/(image\/.*);/)[1];
         const item = new ClipboardItem({
-            "image/png": base64ToBlob(sanitizedB64, "image/png"),
+            [imageType]: base64ToBlob(sanitizedB64, imageType),
         });
         navigator.clipboard.write([item]);
     }
