@@ -981,15 +981,15 @@
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
-                    + `<li id="action_open_selected_new_tabs" class="disabled" role="presentation"><a class="dropdown-item" id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)<span style="margin-left: 10px;" class="label label-info">Requires Pop-ups to be enabled</span></a></li>`
-                    + `<li id="action_copy_all_selected_history_links" class="disabled" role="presentation"><a class="dropdown-item" id="action_copy_all_selected_history_links_atag" role="menuitem">Copy all selected history links (must not be pending)</a></li>`
+                    + `<li id="action_open_selected_new_tabs" role="presentation"><a class="dropdown-item disabled" id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)<span style="margin-left: 10px;" class="label label-info">Requires Pop-ups to be enabled</span></a></li>`
+                    + `<li id="action_copy_all_selected_history_links" role="presentation"><a class="dropdown-item disabled" id="action_copy_all_selected_history_links_atag" role="menuitem">Copy all selected history links (must not be pending)</a></li>`
                     + '<li role="separator" class="divider"></li>'
-                    + `<li id="action_delete_selected" class="disabled" role="presentation"><a class="dropdown-item" id="action_delete_selected_atag" role="menuitem">Stop running selected rows (all rows selected must be 'running')</a></li>`
-                    + `<li id="action_disable" class="disabled" role="presentation"><a class="dropdown-item" id="action_disable_atag" role="menuitem">Disable selected rows (all rows selected must be 'pending')</a></li>`
-                    + `<li id="action_enable" class="disabled" role="presentation"><a class="dropdown-item" id="action_enable_atag" role="menuitem">Enable selected rows (all rows selected must be 'disabled')</a></li>`
-                    + `<li id="action_retry_incident" class="disabled" role="presentation"><a class="dropdown-item" id="action_retry_incident_atag" role="menuitem">Retry all selected incident rows (all rows selected must be 'incident')</a></li>`
-                    + `<li id="action_retry_failed_to_start" class="disabled" role="presentation"><a class="dropdown-item" id="action_retry_failed_to_start_atag" role="menuitem">Retry all selected failed to start rows (all rows selected must be 'failedToStart')</a></li>`
-                    + `<li id="action_mark_as_resolved" class="disabled" role="presentation"><a class="dropdown-item" id="action_mark_as_resolved_atag" role="menuitem">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
+                    + `<li id="action_delete_selected" role="presentation"><a class="dropdown-item disabled" id="action_delete_selected_atag" role="menuitem">Stop running selected rows (all rows selected must be 'running')</a></li>`
+                    + `<li id="action_disable" role="presentation"><a class="dropdown-item disabled" id="action_disable_atag" role="menuitem">Disable selected rows (all rows selected must be 'pending')</a></li>`
+                    + `<li id="action_enable" role="presentation"><a class="dropdown-item disabled" id="action_enable_atag" role="menuitem">Enable selected rows (all rows selected must be 'disabled')</a></li>`
+                    + `<li id="action_retry_incident" role="presentation"><a class="dropdown-item disabled" id="action_retry_incident_atag" role="menuitem">Retry all selected incident rows (all rows selected must be 'incident')</a></li>`
+                    + `<li id="action_retry_failed_to_start" role="presentation"><a class="dropdown-item disabled" id="action_retry_failed_to_start_atag" role="menuitem">Retry all selected failed to start rows (all rows selected must be 'failedToStart')</a></li>`
+                    + `<li id="action_mark_as_resolved" role="presentation"><a class="dropdown-item disabled" id="action_mark_as_resolved_atag" role="menuitem">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
                     + `<#include "adaptation-process-actions.ftl">`
                     + `</ul></div>`).appendTo(".above-table-buttons");
 
@@ -998,9 +998,9 @@
                     + '<span class="caret"></span>'
                     + '</button>'
                     + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="action-download-group">'
-                    + `<li id="action_download_selected_list" class="disabled" role="presentation"><a class="dropdown-item" id="action_download_selected_list_atag" role="menuitem">Download list of selected processes (must select at least one row)</a></li>`
-                    + `<li id="action_download_selected_json" class="disabled" role="presentation"><a class="dropdown-item" id="action_download_selected_json_atag" role="menuitem">Download logs of selected processes (JSON) (all rows selected must not be pending)</a></li>`
-                    + `<li id="action_download_selected_csv" class="disabled" role="presentation"><a class="dropdown-item" id="action_download_selected_csv_atag" role="menuitem">Download logs of selected processes (CSV) (all rows selected must not be pending)</a></li>`
+                    + `<li id="action_download_selected_list" role="presentation"><a class="dropdown-item disabled" id="action_download_selected_list_atag" role="menuitem">Download list of selected processes (must select at least one row)</a></li>`
+                    + `<li id="action_download_selected_json" role="presentation"><a class="dropdown-item disabled" id="action_download_selected_json_atag" role="menuitem">Download logs of selected processes (JSON) (all rows selected must not be pending)</a></li>`
+                    + `<li id="action_download_selected_csv" role="presentation"><a class="dropdown-item disabled" id="action_download_selected_csv_atag" role="menuitem">Download logs of selected processes (CSV) (all rows selected must not be pending)</a></li>`
                     + `<#include "adaptation-process-actions.ftl">`
                     + `</ul></div>`).appendTo(".above-table-buttons");
 
@@ -1446,28 +1446,28 @@
                 }
 
                 // Disable everything
-                $("#action_disable").addClass("disabled");
-                $("#action_disable").removeClass("enabled");
-                $("#action_enable").addClass("disabled");
-                $("#action_enable").removeClass("enabled");
-                $("#action_retry_incident").addClass("disabled");
-                $("#action_retry_incident").removeClass("enabled");
-                $("#action_retry_failed_to_start").addClass("disabled");
-                $("#action_retry_failed_to_start").removeClass("enabled");
-                $("#action_mark_as_resolved").addClass("disabled");
-                $("#action_mark_as_resolved").removeClass("enabled");
-                $("#action_open_selected_new_tabs").addClass("disabled");
-                $("#action_open_selected_new_tabs").removeClass("enabled");
-                $("#action_copy_all_selected_history_links").addClass("disabled");
-                $("#action_copy_all_selected_history_links").removeClass("enabled");
-                $("#action_download_selected_json").addClass("disabled");
-                $("#action_download_selected_json").removeClass("enabled");
-                $("#action_download_selected_csv").addClass("disabled");
-                $("#action_download_selected_csv").removeClass("enabled");
-                $("#action_download_selected_list").addClass("disabled");
-                $("#action_download_selected_list").removeClass("enabled");
-                $("#action_delete_selected").addClass("disabled");
-                $("#action_delete_selected").removeClass("enabled");
+                $("#action_disable_atag").addClass("disabled");
+                $("#action_disable_atag").removeClass("enabled");
+                $("#action_enable_atag").addClass("disabled");
+                $("#action_enable_atag").removeClass("enabled");
+                $("#action_retry_incident_atag").addClass("disabled");
+                $("#action_retry_incident_atag").removeClass("enabled");
+                $("#action_retry_failed_to_start_atag").addClass("disabled");
+                $("#action_retry_failed_to_start_atag").removeClass("enabled");
+                $("#action_mark_as_resolved_atag").addClass("disabled");
+                $("#action_mark_as_resolved_atag").removeClass("enabled");
+                $("#action_open_selected_new_tabs_atag").addClass("disabled");
+                $("#action_open_selected_new_tabs_atag").removeClass("enabled");
+                $("#action_copy_all_selected_history_links_atag").addClass("disabled");
+                $("#action_copy_all_selected_history_links_atag").removeClass("enabled");
+                $("#action_download_selected_json_atag").addClass("disabled");
+                $("#action_download_selected_json_atag").removeClass("enabled");
+                $("#action_download_selected_csv_atag").addClass("disabled");
+                $("#action_download_selected_csv_atag").removeClass("enabled");
+                $("#action_download_selected_list_atag").addClass("disabled");
+                $("#action_download_selected_list_atag").removeClass("enabled");
+                $("#action_delete_selected_atag").addClass("disabled");
+                $("#action_delete_selected_atag").removeClass("enabled");
 
                 // Remove hrefs from the anchor tags
                 $("#action_disable_atag").removeAttr("href");
@@ -1486,50 +1486,50 @@
 
                 // only disabled rows are selected
                 if (disabled) {
-                    $("#action_enable").removeClass("disabled");
+                    $("#action_enable_atag").removeClass("disabled");
                     $("#action_enable_atag").attr("href", "javascript:action_enable_rows();");
                 }
                 // only pending rows are selected
                 else if (pending) {
-                    $("#action_disable").removeClass("disabled");
+                    $("#action_disable_atag").removeClass("disabled");
                     $("#action_disable_atag").attr("href", "javascript:action_disable_rows();");
                 }
                 // only incident rows are selected
                 else if (incident) {
-                    $("#action_retry_incident").removeClass("disabled");
+                    $("#action_retry_incident_atag").removeClass("disabled");
                     $("#action_retry_incident_atag").attr("href", "javascript:action_retry_incident_rows()");
                 }
                 // only failedToStart rows are selected
                 else if (failedToStart) {
-                    $("#action_retry_failed_to_start").removeClass("disabled");
+                    $("#action_retry_failed_to_start_atag").removeClass("disabled");
                     $("#action_retry_failed_to_start_atag").attr("href", "javascript:action_retry_failed_to_start();");
                 }
                 // only failed rows are selected
                 else if (failed) {
-                    $("#action_mark_as_resolved").removeClass("disabled");
+                    $("#action_mark_as_resolved_atag").removeClass("disabled");
                     $("#action_mark_as_resolved_atag").attr("href", "javascript:action_mark_as_resolved();");
                 } else if (running) {
-                    $("#action_delete_selected").removeClass("disabled");
+                    $("#action_delete_selected_atag").removeClass("disabled");
                     $("#action_delete_selected_atag").attr("href", "javascript:action_delete_selected();");
                 }
 
                 if ((numSelected > 0)) {
-                    $("#action_download_selected_list").removeClass("disabled");
+                    $("#action_download_selected_list_atag").removeClass("disabled");
                     $("#action_download_selected_list_atag").attr("href", "javascript:downloadListJSON();");
                     if (numPendingSelected === 0) {
-                        $("#action_open_selected_new_tabs").removeClass("disabled");
+                        $("#action_open_selected_new_tabs_atag").removeClass("disabled");
                         
                         $("#action_open_selected_new_tabs_atag").on("click", function() {action_open_selected_new_tabs();})
                         // $("#action_open_selected_new_tabs_atag").attr("href", "javascript:action_open_selected_new_tabs();");
                         
-                        $("#action_copy_all_selected_history_links").removeClass("disabled");
+                        $("#action_copy_all_selected_history_links_atag").removeClass("disabled");
                         $("#action_copy_all_selected_history_links_atag").on("click", function() {action_copy_all_selected_history_links();})
-                        $("#action_download_selected_json").removeClass("disabled");
+                        $("#action_download_selected_json_atag").removeClass("disabled");
 
                         $("#action_download_selected_json_atag").on("click", function() {downloadSelectedJSON();})
                         // $("#action_download_selected_json_atag").attr("href", "javascript:downloadSelectedJSON();");
                         
-                        $("#action_download_selected_csv").removeClass("disabled");
+                        $("#action_download_selected_csv_atag").removeClass("disabled");
 
                         $("#action_download_selected_csv_atag").on("click", function() {downloadSelectedCSV();})
                         // $("#action_download_selected_csv_atag").attr("href", "javascript:downloadSelectedCSV();");
