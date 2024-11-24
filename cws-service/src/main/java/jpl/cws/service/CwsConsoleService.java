@@ -35,7 +35,6 @@ import org.camunda.bpm.model.bpmn.instance.Process;
 import org.camunda.bpm.model.bpmn.instance.StartEvent;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.camunda.bpm.model.xml.type.ModelElementType;
-import org.checkerframework.checker.units.qual.m2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -604,19 +603,6 @@ public class CwsConsoleService {
 
         for (HistoricVariableInstance historicVariableInstance : historicVariableInstances) {
             String varName = historicVariableInstance.getName();
-            // Skip any input var other than those in m20Vars list
-            List<String> m20Vars = new ArrayList<String>(List.of("s3obj", "startedonworkerid", "initiationkey"));
-           
-            log.info("INPUT VAR NAME " + varName);
-            boolean nonM20Var = true;
-            for(String m20Var : m20Vars){
-                if (varName.toLowerCase().contains(m20Var)){
-                    nonM20Var = false;
-                }
-             }
-            if (nonM20Var) {
-                continue;
-            }
             if (!(varName.toUpperCase().startsWith("TASK_") && (varName.toUpperCase().endsWith("_IN") || varName.toUpperCase().endsWith("_OUT"))) && !(varName.toUpperCase().startsWith("OUTPUT_"))) {
                 String varType = historicVariableInstance.getTypeName();
                 //if varType is not a file, then get the value as a string and put it in the outputVarMap
