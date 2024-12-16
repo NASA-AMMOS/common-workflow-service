@@ -68,7 +68,6 @@
 		}
 		var copyValue = $(this).attr('data-copyValue');
 		var isImage = $(this).attr('data-isImage');
-		console.log(isImage);
 		copyInput(copyValue, isImage);
 		$(this).attr('aria-label', 'Copied!');
 		setTimeout(function () {
@@ -671,7 +670,7 @@
 						+ `<div class="proc-var-flex-main-sub-3">`
 						+ tempVal + `</div></div>`
 						+ `<div class="proc-var-flex-btn">`
-						+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''>`
+						+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''>`
 						+ `<img src="images/copy.svg" class="copy-icon clipboard">`
 						+ `</span></div></div>`;
 				}
@@ -757,7 +756,7 @@
 							+ `<div class="proc-var-flex-main-sub-3">`
 							+ tempVal + `</div></div>`
 							+ `<div class="proc-var-flex-btn">`
-							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''>`
+							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''>`
 							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
 							+ `</span></div></div>`;
 
@@ -830,7 +829,7 @@
 							+ `<div class="proc-var-flex-main-sub-3">`
 							+ tempVal + `</div></div>`
 							+ `<div class="proc-var-flex-btn">`
-							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''>`
+							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''>`
 							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
 							+ `</span></div></div>`;
 					}
@@ -897,7 +896,7 @@
 							+ `<div class="proc-var-flex-main-sub-3">`
 							+ tempVal + `</div></div>`
 							+ `<div class="proc-var-flex-btn">`
-							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''>`
+							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''>`
 							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
 							+ `</span></div></div>`;
 					}
