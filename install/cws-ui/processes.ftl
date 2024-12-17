@@ -328,18 +328,20 @@
                             orderable: false
                         },
                         {
-                            data: "procInstId",
+                            data: { procInstId: "procInstId", status: "status" },
                             defaultContent: '',
                             className: 'details-control',
                             orderable: false,
                             render: function (data, type) {
                                 if (type === 'display') {
-                                    if (data == null) {
-                                        return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" ><button style=\"margin-bottom: 5px;\" class="btn btn-outline-dark btn-sm disabled">History</button></a>' +
-                                            "<a style=\"margin-bottom: 5px;\" onclick=\"viewSubProcs('" + data + "')\"><button class=\"btn btn-outline-dark btn-sm disabled\" style=\"margin-bottom: 5px\">Subprocs</button></a>";
+                                    var isDisabled = (data.status === 'pending' || data.status === 'disabled');
+                    
+                                    if (data == null || isDisabled) {
+                                        return '<a onclick="return false;"><button style=\"margin-bottom: 5px;\" class="btn btn-outline-dark btn-sm disabled">History</button></a>' +
+                                            "<a style=\"margin-bottom: 5px;\" onclick=\"return false;\"><button class=\"btn btn-outline-dark btn-sm disabled\" style=\"margin-bottom: 5px\">Subprocs</button></a>";
                                     }
-                                    return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" ><button style=\"margin-bottom: 5px;\" class="btn btn-outline-dark btn-sm">History</button></a>' +
-                                        "<a style=\"margin-bottom: 5px;\" onclick=\"viewSubProcs('" + data + "')\"><button class=\"btn btn-outline-dark btn-sm\">Subprocs</button></a>";
+                                    return '<a onclick="viewHistory(\'' + data.procInstId + '\')" href="/${base}/history?procInstId=' + data.procInstId + '" ><button style=\"margin-bottom: 5px;\" class="btn btn-outline-dark btn-sm">History</button></a>' +
+                                        "<a style=\"margin-bottom: 5px;\" onclick=\"viewSubProcs('" + data.procInstId + "')\"><button class=\"btn btn-outline-dark btn-sm\">Subprocs</button></a>";
                                 }
                                 return data;
                             }
