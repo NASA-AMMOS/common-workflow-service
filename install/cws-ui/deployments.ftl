@@ -737,61 +737,40 @@
 				idleTimer = setInterval(idleMode, idleInterval);
 			});
 
-			$(".bar-error").on("click", function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=fail&cache=false";
-				} else {
-					window.location = "/${base}/processes?status=fail&cache=false";
-				}
+			// Handle clicks on status bars using event delegation
+			$(document).on("click", ".bar-error", function() {
+				var id = $(this).closest(".progress").attr("data-pdk");
+				window.location = "/${base}/processes?procDefKey=" + (id || "") + "&status=fail&cache=false";
 			});
-			$(".bar-completed").on("click", function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=complete,resolved&cache=false";
-				} else {
-					window.location = "/${base}/processes?status=complete,resolved&cache=false";
-				}
+
+			$(document).on("click", ".bar-completed", function() {
+				var id = $(this).closest(".progress").attr("data-pdk"); 
+				window.location = "/${base}/processes?procDefKey=" + (id || "") + "&status=complete,resolved&cache=false";
 			});
-			$(".bar-pending").on("click", function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=pending&cache=false";
-				} else {
-					window.location = "/${base}/processes?status=pending&cache=false";
-				}
+
+			$(document).on("click", ".bar-pending", function() {
+				var id = $(this).closest(".progress").attr("data-pdk");
+				window.location = "/${base}/processes?procDefKey=" + (id || "") + "&status=pending&cache=false";
 			});
-			$(".bar-disabled").on("click", function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=disabled&cache=false";
-				} else {
-					window.location = "/${base}/processes?status=disabled&cache=false";
-				}
+
+			$(document).on("click", ".bar-disabled", function() {
+				var id = $(this).closest(".progress").attr("data-pdk");
+				window.location = "/${base}/processes?procDefKey=" + (id || "") + "&status=disabled&cache=false";
 			});
-			$(".bar-active").on("click", function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=running&cache=false";
-				} else {
-					window.location = "/${base}/processes?status=running&cache=false";
-				}
+
+			$(document).on("click", ".bar-active", function() {
+				var id = $(this).closest(".progress").attr("data-pdk");
+				window.location = "/${base}/processes?procDefKey=" + (id || "") + "&status=running&cache=false";
 			});
-			$(".bar-failedToStart").on("click", function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=failedToStart&cache=false";
-				} else {
-					window.location = "/${base}/processes?status=failedToStart&cache=false";
-				}
+
+			$(document).on("click", ".bar-failedToStart", function() {
+				var id = $(this).closest(".progress").attr("data-pdk");
+				window.location = "/${base}/processes?procDefKey=" + (id || "") + "&status=failedToStart&cache=false";
 			});
-			$(".bar-incident").on("click", function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=incident&cache=false";
-				} else {
-					window.location = "/${base}/processes?status=incident&cache=false";
-				}
+
+			$(document).on("click", ".bar-incident", function() {
+				var id = $(this).closest(".progress").attr("data-pdk");
+				window.location = "/${base}/processes?procDefKey=" + (id || "") + "&status=incident&cache=false";
 			});
 
 			adjustWorkersButton();
