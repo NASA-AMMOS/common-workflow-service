@@ -1051,7 +1051,9 @@
                 var qstring = "?";
                 if (params != null) {
                     for (p in params) {
-                        qstring += encodeURI(p) + "=" + encodeURI(params[p]) + "&";
+                        if (params[p]) {
+                            qstring += encodeURI(p) + "=" + encodeURI(params[p]) + "&";
+                        }
                     }
                 }
                 qstring = qstring.substring(0, qstring.length - 1);
