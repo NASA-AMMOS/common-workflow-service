@@ -826,6 +826,8 @@
                                             if (tempKey === "startedOnWorkerId") {
                                                 after = after + temp;
                                                 count += 2;
+                                            } else if (key.startsWith("output_summary") || key.startsWith("output_thumbnail")) {
+                                                before = before + temp;
                                             } else if (count <= 2) {
                                                 before = before + temp;
                                             } else {
