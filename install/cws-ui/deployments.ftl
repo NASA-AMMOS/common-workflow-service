@@ -203,7 +203,7 @@
 			$("#stat-bar-" + name + " div.bar-failedToStart").attr('data-bs-title', statsCounts.fts + " Failed to Start");
 			$("#stat-bar-" + name + " div.bar-incident").attr('data-bs-title', statsCounts.incident + " Incidents");
 
-			// Update the tooltips
+			// Update/initialize the tooltips
 			document.querySelectorAll('.progress-bar[data-bs-toggle="tooltip"]').forEach(el => {
 				const tooltipInstance = bootstrap.Tooltip.getInstance(el);
 				if (tooltipInstance) {
@@ -211,10 +211,10 @@
 						tooltipInstance._config.title = el.dataset.bsTitle;	
 					}
 					tooltipInstance.update();
+				} else {
+					new bootstrap.Tooltip(el);
 				}
 			});
-
-			
 
 		}
 
