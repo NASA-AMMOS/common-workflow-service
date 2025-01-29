@@ -31,9 +31,7 @@
 		const refreshRateVar = "CWS_DASH_DEPLOY_REFRESH_RATE-" + username;
 		const hideSuspendedProcVar = "CWS_DASH_DEPLOY_HIDE_SUS-" + username;
 
-		// Initialize tooltips for process status summary only
-		const summaryTooltips = document.querySelectorAll('#stat-bar-cws-reserved-total .progress-bar[data-bs-toggle="tooltip"]')
-		const tooltipList = [...summaryTooltips].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+		
 
 		//GLOBAL VARIABLES
 
@@ -204,7 +202,12 @@
 			$("#stat-bar-" + name + " div.bar-failedToStart").attr('data-bs-title', statsCounts.fts + " Failed to Start");
 			$("#stat-bar-" + name + " div.bar-incident").attr('data-bs-title', statsCounts.incident + " Incidents");
 
-
+			document.querySelectorAll('#stat-bar-cws-reserved-total [data-bs-toggle="tooltip"]').forEach(el => {
+				const tooltip = bootstrap.Tooltip.getInstance(el);
+				if (tooltip) {
+					tooltip.setContent({ '.tooltip-inner': el.dataset.bsTitle });
+				}
+			});
 		}
 
 		//HANDLER FUNCTION FOR DELETING A PROCESS DEFINITION
@@ -297,7 +300,12 @@
 			if (statsCookieValue == -1) {
 				statsCookieValue = null;
 			}
-
+								document.querySelectorAll('#process-table [data-bs-toggle="tooltip"]').forEach(el => {
+						const tooltip = bootstrap.Tooltip.getInstance(el);
+						if (tooltip) {
+							tooltip.dispose();
+						}
+					})			;
 			$.ajax({
 				url: "/${base}/rest/stats/processInstanceStatsJSON",
 				data: statsCookieValue ? "lastNumHours=" + statsCookieValue : "",
@@ -456,8 +464,46 @@
 				$("#stats-last-num-hours").val(24);
 			}
 
+			// Function to run after DataTable redraws
+			function afterTableDraw() {
+				// $('[data-bs-toggle="tooltip"]').each((_, el) => {
+				// 	if (el.width) {
+				// 		el.tooltip();
+				// 	}
+				// })
+				// console.log("redraw!");
+				// console.log($('[data-bs-toggle="tooltip"]'));
+				// $('[data-bs-toggle="tooltip"]').tooltip("dispose");
+
+				// // Destroy all the existing tooltips
+				// $('[data-bs-toggle="tooltip"]').tooltip();
+				// $('[data-bs-toggle="tooltip"]').on("mouseleave", e => {
+				// 	console.log(e.target)
+				// })
+			}
+			
 			//DATATABLE INITIALIZATION FOR PROCESS DEFINITION TABLE
 			$("#process-table").DataTable({
+				// preDrawCallback: _ => {
+				// 	console.log("diposing");
+				// 	document.querySelectorAll('#process-table [data-bs-toggle="tooltip"]').forEach(el => {
+				// 		const tooltip = bootstrap.Tooltip.getInstance(el);
+				// 		if (tooltip) {
+				// 			tooltip.dispose();
+				// 		}
+				// 	})				},
+				initComplete: function(settings) {
+					const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+					const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+				},
+				drawCallback: _ => {
+					document.querySelectorAll('#process-table [data-bs-toggle="tooltip"]').forEach(el => {
+						const tooltip = bootstrap.Tooltip.getInstance(el);
+						if (!tooltip) {
+							new bootstrap.Tooltip(el);
+						}
+					});
+				},
 				//SET OPTIONS FOR DATATABLE HERE... ALL OPTIONS CAN BE FOUND HERE: https://datatables.net/reference/option/
 				//SET HOW DATA IS DISPLAYED IN EACH COLUMN (IN ORDER) (https://datatables.net/reference/option/columns)
 				columns: [
@@ -606,19 +652,26 @@
 							
 							var html = '<div class="stat-txt">' + instanceText.join('&nbsp;&nbsp;') + '</div>' +
 								'<div class="progress" data-pdk="' + data.key + '">' +
-								'<div class="progress-bar bg-danger bar-error" style="width:' + pcts.error + '%" data-bs-toggle="tooltip" data-bs-title="' + (stats.error || 0) + ' Failed">' +
+								'<div class="progress-bar bg-danger bar-error" style="width:' + pcts.error + '%"' +
+								' data-bs-toggle="tooltip" title="' + (stats.error || 0) + ' Errors">' +
 								'<span class="sr-only"></span></div>' +
-								'<div class="progress-bar bg-warning bar-pending" style="width:' + pcts.pending + '%" data-bs-toggle="tooltip" data-bs-title="' + (stats.pending || 0) + ' Pending">' +
+								'<div class="progress-bar bg-warning bar-pending" style="width:' + pcts.pending + '%"' +
+								' data-bs-toggle="tooltip" title="' + (stats.pending || 0) + ' Pending">' +
 								'<span class="sr-only"></span></div>' +
-								'<div class="progress-bar progress-bar-disabled bar-disabled" style="width:' + pcts.disabled + '%" data-bs-toggle="tooltip" data-bs-title="' + (stats.disabled || 0) + ' Disabled">' +
+								'<div class="progress-bar progress-bar-disabled bar-disabled" style="width:' + pcts.disabled + '%"' +
+								' data-bs-toggle="tooltip" title="' + (stats.disabled || 0) + ' Disabled">' +
 								'<span class="sr-only"></span></div>' +
-								'<div class="progress-bar progress-bar-info bar-active" style="width:' + pcts.active + '%" data-bs-toggle="tooltip" data-bs-title="' + (stats.active || 0) + ' Running">' +
+								'<div class="progress-bar progress-bar-info bar-active" style="width:' + pcts.active + '%"' +
+								' data-bs-toggle="tooltip" title="' + (stats.active || 0) + ' Running">' +
 								'<span class="sr-only"></span></div>' +
-								'<div class="progress-bar progress-bar-success bar-completed" style="width:' + pcts.completed + '%" data-bs-toggle="tooltip" data-bs-title="' + (stats.completed || 0) + ' Completed">' +
+								'<div class="progress-bar progress-bar-success bar-completed" style="width:' + pcts.completed + '%"' +
+								' data-bs-toggle="tooltip" title="' + (stats.completed || 0) + ' Completed">' +
 								'<span class="sr-only"></span></div>' +
-								'<div class="progress-bar bar-failedToStart" style="width:' + pcts.fts + '%" data-bs-toggle="tooltip" data-bs-title="' + (stats.fts || 0) + ' Failed to Start">' +
+								'<div class="progress-bar bar-failedToStart" style="width:' + pcts.fts + '%"' +
+								' data-bs-toggle="tooltip" title="' + (stats.fts || 0) + ' Failed to Start">' +
 								'<span class="sr-only"></span></div>' +
-								'<div class="progress-bar bar-incident" style="width:' + pcts.incident + '%" data-bs-toggle="tooltip" data-bs-title="' + (stats.incident || 0) + ' Incidents">' +
+								'<div class="progress-bar bar-incident" style="width:' + pcts.incident + '%"' +
+								' data-bs-toggle="tooltip" title="' + (stats.incident || 0) + ' Incidents">' +
 								'<span class="sr-only"></span></div></div>';
 							return html;
 						}
@@ -781,7 +834,7 @@
 				window.location = "/${base}/processes?procDefKey=" + (id || "") + "&status=incident&cache=false";
 			});
 
-			adjustWorkersButton();
+			adjustWorkersButton(); 
 		});
 		//DOCUMENT.READY ENDS HERE
 
@@ -913,37 +966,31 @@
 					<label>Process status summary:</label>
 					<div id="stat-txt-cws-reserved-total" class="stat-txt">-</div>
 					<div id="stat-bar-cws-reserved-total" class="progress">
-						<div class="progress-bar bg-danger bar-error" data-bs-toggle="tooltip"
-							 data-bs-title="0 Errors">
+						<div class="progress-bar bg-danger bar-error" data-bs-toggle="tooltip" data-bs-placement="top" title="0 Errors">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar bg-warning bar-pending" data-bs-toggle="tooltip"
-							 data-bs-title="0 Pending">
+						<div class="progress-bar bg-warning bar-pending" data-bs-toggle="tooltip" data-bs-placement="top" title="0 Pending">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar progress-bar-disabled bar-disabled" data-bs-toggle="tooltip"
-							 data-bs-title="0 Disabled">
+						<div class="progress-bar progress-bar-disabled bar-disabled" data-bs-toggle="tooltip" data-bs-placement="top" title="0 Disabled">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar progress-bar-info bar-active" data-bs-toggle="tooltip"
-							 data-bs-title="0 Running">
+						<div class="progress-bar progress-bar-info bar-active" data-bs-toggle="tooltip" data-bs-placement="top" title="0 Active">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar progress-bar-success bar-completed" data-bs-toggle="tooltip"
-							 data-bs-title="0 Completed">
+						<div class="progress-bar progress-bar-success bar-completed" data-bs-toggle="tooltip" data-bs-placement="top" title="0 Completed">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar bar-failedToStart" data-bs-toggle="tooltip"
-							 data-bs-title="0 Failed to Start">
+						<div class="progress-bar bar-failedToStart" data-bs-toggle="tooltip" data-bs-placement="top" title="0 Failed to Start">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar bar-incident" data-bs-toggle="tooltip" data-bs-title="0 Incidents">
+						<div class="progress-bar bar-incident" data-bs-toggle="tooltip" data-bs-placement="top" title="0 Incidents">
 							<span class="sr-only"></span>
 						</div>
 					</div>
