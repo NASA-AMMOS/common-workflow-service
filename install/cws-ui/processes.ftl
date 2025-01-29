@@ -1654,11 +1654,17 @@
                 $.ajax({
                     type: "POST",
                     url: "/${base}/rest/processes/markResolved",
+                    Accept: "application/json",
+                    contentType: "application/json",
+                    dataType: "json",
                     data: JSON.stringify(getSelectedRowUuids())
                 })
                     .done(function (msg) {
                         $("#action_msg").html(msg.message);
-                        table.ajax.reload();
+                        //clear table
+                        table.clear().draw();
+                        //reload table
+                        fetchAndDisplayProcesses();
                     })
                     .fail(function (xhr, err) {
                         $("#action_msg").html(xhr.responseTextmsg.message);
