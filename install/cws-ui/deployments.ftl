@@ -181,13 +181,13 @@
 			$("#stat-bar-" + name + " div.bar-failedToStart").css('width', statsPercent.fts + '%');
 			$("#stat-bar-" + name + " div.bar-incident").css('width', statsPercent.incident + '%');
 			//set the tooltip text of each bar
-			$("#stat-bar-" + name + " div.bar-pending").attr('data-original-title', statsCounts.pending + " Pending");
-			$("#stat-bar-" + name + " div.bar-disabled").attr('data-original-title', statsCounts.disabled + " Disabled");
-			$("#stat-bar-" + name + " div.bar-active").attr('data-original-title', statsCounts.active + " Running");
-			$("#stat-bar-" + name + " div.bar-completed").attr('data-original-title', statsCounts.completed + " Completed");
-			$("#stat-bar-" + name + " div.bar-error").attr('data-original-title', statsCounts.error + " Failed");
-			$("#stat-bar-" + name + " div.bar-failedToStart").attr('data-original-title', statsCounts.fts + " Failed to Start");
-			$("#stat-bar-" + name + " div.bar-incident").attr('data-original-title', statsCounts.incident + " Incidents");
+			$("#stat-bar-" + name + " div.bar-pending").tooltip().attr('data-original-title', statsCounts.pending + " Pending");
+			$("#stat-bar-" + name + " div.bar-disabled").tooltip().attr('data-original-title', statsCounts.disabled + " Disabled");
+			$("#stat-bar-" + name + " div.bar-active").tooltip().attr('data-original-title', statsCounts.active + " Running");
+			$("#stat-bar-" + name + " div.bar-completed").tooltip().attr('data-original-title', statsCounts.completed + " Completed");
+			$("#stat-bar-" + name + " div.bar-error").tooltip().attr('data-original-title', statsCounts.error + " Failed");
+			$("#stat-bar-" + name + " div.bar-failedToStart").tooltip().attr('data-original-title', statsCounts.fts + " Failed to Start");
+			$("#stat-bar-" + name + " div.bar-incident").tooltip().attr('data-original-title', statsCounts.incident + " Incidents");
 		}
 
 		//HANDLER FUNCTION FOR DELETING A PROCESS DEFINITION
