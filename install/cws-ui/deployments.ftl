@@ -464,34 +464,8 @@
 				$("#stats-last-num-hours").val(24);
 			}
 
-			// Function to run after DataTable redraws
-			function afterTableDraw() {
-				// $('[data-bs-toggle="tooltip"]').each((_, el) => {
-				// 	if (el.width) {
-				// 		el.tooltip();
-				// 	}
-				// })
-				// console.log("redraw!");
-				// console.log($('[data-bs-toggle="tooltip"]'));
-				// $('[data-bs-toggle="tooltip"]').tooltip("dispose");
-
-				// // Destroy all the existing tooltips
-				// $('[data-bs-toggle="tooltip"]').tooltip();
-				// $('[data-bs-toggle="tooltip"]').on("mouseleave", e => {
-				// 	console.log(e.target)
-				// })
-			}
-			
 			//DATATABLE INITIALIZATION FOR PROCESS DEFINITION TABLE
 			$("#process-table").DataTable({
-				// preDrawCallback: _ => {
-				// 	console.log("diposing");
-				// 	document.querySelectorAll('#process-table [data-bs-toggle="tooltip"]').forEach(el => {
-				// 		const tooltip = bootstrap.Tooltip.getInstance(el);
-				// 		if (tooltip) {
-				// 			tooltip.dispose();
-				// 		}
-				// 	})				},
 				initComplete: function(settings) {
 					const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
 					const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
@@ -653,7 +627,7 @@
 							var html = '<div class="stat-txt">' + instanceText.join('&nbsp;&nbsp;') + '</div>' +
 								'<div class="progress" data-pdk="' + data.key + '">' +
 								'<div class="progress-bar bg-danger bar-error" style="width:' + pcts.error + '%"' +
-								' data-bs-toggle="tooltip" title="' + (stats.error || 0) + ' Errors">' +
+								' data-bs-toggle="tooltip" title="' + (stats.error || 0) + ' Failed">' +
 								'<span class="sr-only"></span></div>' +
 								'<div class="progress-bar bg-warning bar-pending" style="width:' + pcts.pending + '%"' +
 								' data-bs-toggle="tooltip" title="' + (stats.pending || 0) + ' Pending">' +
