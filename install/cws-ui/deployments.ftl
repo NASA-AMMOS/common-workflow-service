@@ -610,7 +610,7 @@
 								(stats.completed || 0) + (stats.error || 0) + (stats.fts || 0) + (stats.incident || 0);
 							
 							if (total === 0) {
-								return '<div class="stat-txt">No stats for this process</div>';
+								return '<div class="stat-txt" id="stat-txt-' + data.key + '">No stats for this process</div>';
 							}
 
 							var pcts = calculatePercentages(stats, total);
@@ -624,7 +624,7 @@
 							if (stats.fts) instanceText.push('<b>failed-start</b>:&nbsp;' + stats.fts);
 							if (stats.incident) instanceText.push('<b>incidents</b>:&nbsp;' + stats.incident);
 							
-							var html = '<div class="stat-txt">' + instanceText.join('&nbsp;&nbsp;') + '</div>' +
+							var html = '<div class="stat-txt" id="stat-txt-' + data.key + '">' + instanceText.join('&nbsp;&nbsp;') + '</div>' +
 								'<div class="progress" data-pdk="' + data.key + '">' +
 								'<div class="progress-bar bg-danger bar-error" style="width:' + pcts.error + '%"' +
 								' data-bs-toggle="tooltip" title="' + (stats.error || 0) + ' Failed">' +

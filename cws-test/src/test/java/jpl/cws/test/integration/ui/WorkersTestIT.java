@@ -43,14 +43,20 @@ public class WorkersTestIT extends WebTestUtil {
 			
 			if (Integer.toString(testCasesCompleted).equals(expectedTestsCompleted)) {
 				scriptPass = true;
+				log.info("All test cases passed successfully (" + testCasesCompleted + "/" + expectedTestsCompleted + ")");
 			} else {
-				log.info("Not all test cases passed. " +
-						 "Only " + testCasesCompleted + "/" + expectedTestsCompleted + " passed.");
+				log.error("Test suite failed: Only " + testCasesCompleted + "/" + expectedTestsCompleted + " test cases passed");
+				log.error("Failed test cases:");
+				if (testCasesCompleted < 1) log.error("- Number Active Test failed");
+				if (testCasesCompleted < 2) log.error("- Thread Limit Test failed"); 
+				if (testCasesCompleted < 3) log.error("- Workers Checkbox Test failed");
+				if (testCasesCompleted < 4) log.error("- Workers Status Test failed");
 			}
 			log.info("------ END WorkersTestIT:runWorkersPageTest ------");
 		}
 		catch (Throwable e) {
-			System.out.println(e.toString());
+			log.error("Test suite failed with exception:", e);
+			log.error("Stack trace: " + e.getMessage());
 			scriptPass = false;
 		}
 		deleteProc("test_workers_page");
@@ -68,10 +74,12 @@ public class WorkersTestIT extends WebTestUtil {
 			
 			goToPage("deployments");
 			
-			WebElement enable = findElById("pv-test_workers_page");
 			log.info("Enabling worker0000 only...");
+			WebElement enable = findElById("pv-test_workers_page");
 			js.executeScript("arguments[0].scrollIntoViewIfNeeded();", enable);
 			sleep(1000);
+			// Refresh element before clicking
+			enable = findElById("pv-test_workers_page");
 			enable.click();
 			
 			log.info("Looking for worker0000 checkbox.");
@@ -120,10 +128,12 @@ public class WorkersTestIT extends WebTestUtil {
 				testCasesCompleted++;
 				//Enable all workers again.
 				goToPage("deployments");
+				log.info("Disabling worker0000...");
 				WebElement enableWorker = findElById("pv-test_workers_page");
 				js.executeScript("arguments[0].scrollIntoViewIfNeeded();", enableWorker);
 				sleep(1000);
-				log.info("Disabling worker0000...");
+				// Refresh element before clicking
+				enableWorker = findElById("pv-test_workers_page");
 				enableWorker.click();
 				
 				waitForElementXPath("//label[contains(text(),'worker0000')]");
@@ -296,18 +306,19 @@ public class WorkersTestIT extends WebTestUtil {
 			log.info("Adjusting refresh rate to 1 second...");
 			select.selectByValue("1");
 			
-			log.info("Getting data from status bar of Test Thread Limit periodically now...");
-			WebElement statsText = driver.findElement(By.id("stat-txt-test_thread_limit"));
-			String child = statsText.getText();
-			log.info(child);
 					
 			// Each of the 3 test_thread_limit tasks is configured to sleep for 15 seconds and since they should be
 			// running in parallel, we expect them all to complete after 30 seconds, but before 90 (which would be
 			// the case running serially).
 			sleep(80000);
 			
-			child = statsText.getText();
-
+			// Wait for element to be present and not stale
+			wait.until(ExpectedConditions.presenceOfElementLocated(By.id("stat-txt-test_thread_limit")));
+			WebElement statsElement = wait.until(ExpectedConditions.refreshed(
+				ExpectedConditions.presenceOfElementLocated(By.id("stat-txt-test_thread_limit"))
+			));
+			String child = statsElement.getText();
+			log.info("Stats text after waiting: " + child);
 			if (child.contains("completed: 6")) {
 				log.info("Found the expected number of procs completed after 40 seconds.");
 				scriptPass = true;
