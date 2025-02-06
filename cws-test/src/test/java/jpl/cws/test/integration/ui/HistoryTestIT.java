@@ -71,9 +71,14 @@ public class HistoryTestIT extends WebTestUtil {
 			waitForElementID("processes-table");
 
 			log.info("Verifying the header and output from the model.");
+			// Get fresh reference to history button
 			WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
 			waitForElement(historyButton);
+			// Refresh element before scrolling
+			historyButton = findElByXPath("//button[contains(text(),'History')]");
 			scrollTo(historyButton);
+			// Refresh element before clicking
+			historyButton = findElByXPath("//button[contains(text(),'History')]");
 			historyButton.click();
 
 			findOnPage("History");
