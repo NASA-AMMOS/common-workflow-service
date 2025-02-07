@@ -367,6 +367,8 @@ public class DeploymentsTestIT extends WebTestUtil {
 			disableWorkers("test_deployments_page");
 			WebElement enable = findElById("pv-test_deployments_page");
 			waitForElement(enable);
+			// Refresh element before clicking
+			enable = findElById("pv-test_deployments_page");
 			enable.click();
 
 			log.info("Enabling one worker.");
@@ -376,14 +378,19 @@ public class DeploymentsTestIT extends WebTestUtil {
 
 			WebElement oneWorkerDone = findElById("done-workers-btn");
 			waitForElement(oneWorkerDone);
+			// Refresh element before clicking
+			oneWorkerDone = findElById("done-workers-btn");
 			oneWorkerDone.click();
 
 			wait.until(ExpectedConditions.invisibilityOf(oneWorkerDone));
 
-			wait.until(ExpectedConditions.elementToBeClickable(enable));
-
+			wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-test_deployments_page")));
+			// Get fresh reference before second click
+			enable = findElById("pv-test_deployments_page");
 			enable.click();
 
+			// Get fresh reference to done button
+			oneWorkerDone = findElById("done-workers-btn");
 			waitForElement(oneWorkerDone);
 
 			List<WebElement> selectElements = driver.findElements(By.cssSelector("input[class='worker-checkbox']"));

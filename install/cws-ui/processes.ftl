@@ -971,7 +971,6 @@
                     }
                     var copyValue = $(this).attr('data-copyValue');
                     var isImage = $(this).attr('data-isImage');
-                    console.log(isImage);
                     copyInput(copyValue, isImage);
                     $(this).attr('aria-label', 'Copied!');
                     setTimeout(function () {

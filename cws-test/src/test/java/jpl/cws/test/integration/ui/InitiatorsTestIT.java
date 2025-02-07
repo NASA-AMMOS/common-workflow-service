@@ -169,10 +169,13 @@ public class InitiatorsTestIT extends WebTestUtil {
 
 			sleep(20000);
 
-			log.info("Getting info from progress bar of Test Initiators Page.");
-			WebElement statsText = driver.findElement(By.id("stat-txt-test_initiators_page"));
-			String child = statsText.getText();
-			log.info(child);
+			// Wait for element to be present and not stale
+			wait.until(ExpectedConditions.presenceOfElementLocated(By.id("stat-txt-test_initiators_page")));
+			WebElement statsElement = wait.until(ExpectedConditions.refreshed(
+				ExpectedConditions.presenceOfElementLocated(By.id("stat-txt-test_initiators_page"))
+			));
+			String child = statsElement.getText();
+			log.info("Stats text after waiting: " + child);
 
 			//analyze string to check how many procs completed.
 			if (child.contains("completed: 10")) {
