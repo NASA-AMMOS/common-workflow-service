@@ -724,20 +724,6 @@ public class WorkerService implements InitializingBean {
 
 				int queryLimit = Math.min(MaxNumForProcsOnWorker, workerMaxProcQueryLimit);
 
-				// Adjust queryLimitForProcSet to ensure total claimed won't exceed workerMaxProcQueryLimit
-				int totalPossibleClaims = 0;
-				for (Integer limit : queryLimitForProcSet.values()) {
-					totalPossibleClaims += limit;
-				}
-				if (totalPossibleClaims > queryLimit) {
-					// Scale down individual limits proportionally
-					double scaleFactor = (double)queryLimit / totalPossibleClaims;
-					for (Map.Entry<String,Integer> entry : queryLimitForProcSet.entrySet()) {
-						int newLimit = Math.max(1, (int)(entry.getValue() * scaleFactor));
-						queryLimitForProcSet.put(entry.getKey(), Math.min(newLimit, queryLimit));
-					}
-				}
-
 				Map<String,List<String>> claimRowData =
 					schedulerDbService.claimHighestPriorityStartReq(
 						workerId, currentCounts, queryLimitForProcSet, queryLimit); // pass list of procDefkey and a map of queryLimit per procDefKey
