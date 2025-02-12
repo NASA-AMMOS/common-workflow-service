@@ -49,7 +49,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
     public static final int PROCESSES_PAGE_SIZE = 50;
 
     public static final String FIND_CLAIMABLE_ROWS_SQL =
-            "SELECT uuid FROM cws_sched_worker_proc_inst " +
+            "SELECT uuid, priority FROM cws_sched_worker_proc_inst " +
                     "WHERE " +
                     "  status='" + PENDING + "' AND " +
                     "  proc_def_key=? " +
@@ -251,10 +251,10 @@ public class SchedulerDbService extends DbService implements InitializingBean {
     public Map<String, List<String>> claimHighestPriorityStartReq(String workerId, Map<String, Integer> workerProcsList, Map<String, Integer> limitsPerProcs, int limit) {
         List<String> claimUuids = new ArrayList<String>();
         List<String> rowUuids = new ArrayList<String>();
-        List<String> rowUuidsPerProcDefKey = new ArrayList<String>();
+        List<Map<String, Object>> rowUuidsPerProcDefKey = new ArrayList<Map<String, Object>>();
         LinkedHashMap<String, String> uuidAndProcDefKeyPair = new LinkedHashMap<String, String>();
         List<String> clearOutUnclaimedInst = new ArrayList<String>();
-        List<String> unfilteredRowUuids = new ArrayList<String>();
+        List<Map<String, Object>> unfilteredProcesses = new ArrayList<Map<String, Object>>();
         List<String> claimedRowUuids = new ArrayList<String>();
         long t0 = System.currentTimeMillis();
         int numClaimed = 0;
@@ -268,16 +268,21 @@ public class SchedulerDbService extends DbService implements InitializingBean {
                 // Find claimable rows
                 //
                 for (Map.Entry<String, Integer> procs : limitsPerProcs.entrySet()) {
-                    rowUuidsPerProcDefKey = jdbcTemplate.queryForList(FIND_CLAIMABLE_ROWS_SQL, String.class,
-                            new Object[]{procs.getKey(), procs.getValue() * 2});
+                    rowUuidsPerProcDefKey = jdbcTemplate.queryForList(FIND_CLAIMABLE_ROWS_SQL, new Object[] {procs.getKey(), procs.getValue()*2});
                     // get list of uuids using array of procdefkeys IN (keys)
-                    unfilteredRowUuids.addAll(rowUuidsPerProcDefKey);
+                    unfilteredProcesses.addAll(rowUuidsPerProcDefKey);
                 }
 
-                Collections.sort(unfilteredRowUuids);
-                for (String id : unfilteredRowUuids) {
-                    String procDefKeyString = getProcDefKeyFromUuid(id);
-                    uuidAndProcDefKeyPair.put(id, procDefKeyString);
+                unfilteredProcesses.sort(new Comparator<Map<String, Object>>() {
+                    public int compare(Map<String, Object> one, Map<String, Object> two) {
+                        return ((Integer) one.get("priority")).compareTo((Integer) two.get("priority"));
+                    }
+                });
+
+                for (Map<String, Object> proc : unfilteredProcesses) {
+                    String uuid = (String) proc.get("uuid");
+                    String procDefKeyString = getProcDefKeyFromUuid(uuid);
+                    uuidAndProcDefKeyPair.put(uuid, procDefKeyString);
                 }
 
                 for (Map.Entry<String, Integer> procLimit : limitsPerProcs.entrySet()) {
