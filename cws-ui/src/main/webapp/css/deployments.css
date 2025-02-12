@@ -6,7 +6,7 @@
 }
 
 .dataTables_wrapper .mylength .dataTables_length {
-    float: right
+    float: right;
 }
 
 .dataTables_wrapper .download-button {
@@ -18,7 +18,7 @@
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: baseline;
     gap: 10px;
     margin-bottom: 5px;
     margin-top: 15px;
@@ -29,8 +29,16 @@
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: flex-end;
-    align-items: flex-end;
+    align-items: baseline;
     gap: 10px;
+}
+
+.dt-input {
+    width: 250px;
+}
+
+.above-table-buttons button {
+    font-size: 14px;
 }
 
 .btn-icon {
@@ -57,11 +65,11 @@
 }
 
 .bar-failedToStart {
-    background-color: #D8860B;
+    background-color: #d8860b;
 }
 
 .bar-incident {
-    background-color: #C347ED;
+    background-color: #c347ed;
     /*#F142F4;*/
 }
 
@@ -77,15 +85,15 @@
 }
 
 .progress-bar-warning {
-    background-color: #E7B814;
+    background-color: #e7b814;
 }
 
 .progress-bar-disabled {
-    background-color: #CCCCCC;
+    background-color: #cccccc;
 }
 
 .progress-bar-info {
-    background-color: #4363CF;
+    background-color: #4363cf;
 }
 
 #selAll-label {
@@ -102,7 +110,7 @@
 }
 
 #process-table {
-    margin-top: 2rem;
+    margin-top: 1.25rem;
 }
 
 #process-table tr td {
@@ -113,31 +121,34 @@
 #process-table tr td:nth-child(2) {
     min-width: 200px;
     overflow: hidden;
-    text-wrap: none
+    text-wrap: none;
 }
 
 #process-table tr td:nth-child(3) {
     overflow-wrap: break-word;
-    max-width: 200px;
+    max-width: 250px;
 }
 
 #process-table tr td:nth-child(4) {
     text-align: center;
-    max-width: 50px;
+    max-width: 25px;
 }
 
 #process-table tr td:nth-child(5) {
-    text-align: center;
     width: 70px;
+}
+
+#process-table tr td:nth-child(5) button {
+    font-size: 14px;
 }
 
 #process-table tr td:nth-child(6) {
-    text-align: center;
-    width: 70px;
+    padding-left: 10px;
+    width: 25px;
 }
 
 #process-table tr td:nth-child(7) {
-    min-width: 400px;
+    min-width: 200px;
 }
 
 .progress {
@@ -153,7 +164,6 @@
     display: none;
     justify-content: center;
     align-items: center;
-
 }
 
 .loader {
@@ -201,7 +211,7 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
-    align-items: stretch;
+    align-items: center;
     align-content: space-between;
     gap: 10px;
 }
@@ -222,4 +232,14 @@
 
 .disabled td {
     font-style: italic;
+}
+
+.bar-completed {
+    background-color: green;
+}
+
+#refresh-rate,
+#stats-last-num-hours {
+    font-size: 14px;
+    line-height: 14px;
 }

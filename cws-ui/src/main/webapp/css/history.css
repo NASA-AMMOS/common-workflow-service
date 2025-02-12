@@ -1,7 +1,22 @@
-.dataTables_wrapper .filter .dataTables_filter{float:right; padding-top: 15px; display: inline; margin-right: 15px;}
-.dataTables_wrapper .download-button {padding-top: 15px;}
-.dataTables_wrapper .button {float:left; display: inline; margin-top: 15px; margin-right: 15px;}
-.dataTables_wrapper {margin-left: 5px; margin-right: -10px;}
+.dataTables_wrapper .filter .dataTables_filter {
+    float: right;
+    padding-top: 15px;
+    display: inline;
+    margin-right: 15px;
+}
+.dataTables_wrapper .download-button {
+    padding-top: 15px;
+}
+.dataTables_wrapper .button {
+    float: left;
+    display: inline;
+    margin-top: 15px;
+    margin-right: 15px;
+}
+.dataTables_wrapper {
+    margin-left: 5px;
+    margin-right: -10px;
+}
 summary {
     display: list-item;
     width: 100px;
@@ -20,6 +35,7 @@ summary {
     margin-bottom: 0px !important;
 }
 .above-table-div {
+    /*    width: 95%;*/
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
@@ -27,6 +43,7 @@ summary {
     align-items: flex-end;
     gap: 10px;
     margin-bottom: 5px;
+    margin-left: 22px;
 }
 
 .above-table-buttons {
@@ -42,24 +59,26 @@ summary {
     flex-grow: 1;
 }
 
-#logData{
-    font-size:95%;
+#logData {
+    width: 100%;
+    margin-left: 15px;
+    font-size: 95%;
 }
-#logData tr th{
+#logData tr th {
     white-space: nowrap;
 }
 /* log level header*/
-#logData tr th:nth-child(5){
+#logData tr th:nth-child(5) {
     padding-right: 25px;
 }
-#logData tr td{
+#logData tr td {
     line-height: 1;
 }
-#logData tr td:nth-child(4){
+#logData tr td:nth-child(4) {
     /*overflow: auto;*/
     word-wrap: break-word;
     word-break: break-all;
-    font-family: courier,consolas;
+    font-family: courier, consolas;
     /*white-space: normal !important;*/
 }
 
@@ -100,4 +119,8 @@ summary {
 
 .procInstId-cell {
     width: 300px;
+}
+
+#dt-search-0 {
+    width: 250px;
 }

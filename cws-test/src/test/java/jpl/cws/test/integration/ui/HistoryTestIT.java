@@ -60,29 +60,58 @@ public class HistoryTestIT extends WebTestUtil {
 
 			goToPage("processes");
 
-			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
+			waitForElementXPath("//input[@id=\'dt-search-0\']");
 
 			sleep(5000);
 
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_history_page");
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).click();
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys("test_history_page");
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 
 			log.info("Verifying the header and output from the model.");
-			WebElement historyButton = findElByXPath("//a[contains(text(),'History')]");
-			waitForElement(historyButton);
-			scrollTo(historyButton);
-			historyButton.click();
+			
+			// Try up to 3 times to interact with the history button
+			int maxRetries = 3;
+			boolean succeeded = false;
+			
+			for (int attempt = 1; attempt <= maxRetries && !succeeded; attempt++) {
+				try {
+					log.info("Attempt " + attempt + " to interact with history button");
+					// Get fresh reference to history button
+					WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
+					waitForElement(historyButton);
+					
+					// Refresh element before scrolling
+					historyButton = findElByXPath("//button[contains(text(),'History')]");
+					scrollTo(historyButton);
+					
+					// Refresh element before clicking
+					historyButton = findElByXPath("//button[contains(text(),'History')]");
+					historyButton.click();
+					
+					succeeded = true;
+					log.info("Successfully interacted with history button on attempt " + attempt);
+				} catch (org.openqa.selenium.StaleElementReferenceException e) {
+					if (attempt == maxRetries) {
+						log.error("Failed to interact with history button after " + maxRetries + " attempts");
+						throw e;
+					}
+					log.warn("Stale element on attempt " + attempt + ", retrying...");
+					sleep(1000); // Brief pause before retry
+				}
+			}
 
-			findOnPage("CWS - History");
+			findOnPage("History");
 
 			WebElement hideLineCheckbox = findElByXPath("//input[@id='showall']");
 			waitForElement(hideLineCheckbox);
 
 			sleep(10000);
 
+			// Refresh element before clicking
+			hideLineCheckbox = findElByXPath("//input[@id='showall']");
 			hideLineCheckbox.click();
 
 			if (findOnPage("History Page.")

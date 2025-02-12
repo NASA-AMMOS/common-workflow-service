@@ -1,47 +1,47 @@
 //parses query string. returns null if empty
-function getQueryString(){
+function getQueryString() {
     /*
-    * PARSE THE QUERY STRING
-    */
+     * PARSE THE QUERY STRING
+     */
     var qstring = document.location.search;
     qstring = qstring.substring(1);
 
-    var keyValPair = qstring.split('&');
+    var keyValPair = qstring.split("&");
 
-    if(keyValPair.length == 1 && keyValPair[0] == ""){
+    if (keyValPair.length == 1 && keyValPair[0] == "") {
         return null;
     }
 
     var params = {};
-    for(entry in keyValPair){
+    for (entry in keyValPair) {
         var key = keyValPair[entry].split("=")[0];
         var val = keyValPair[entry].split("=")[1];
         params[key] = val;
     }
-    
+
     return params;
 }
 
 //parses query string. returns null if empty
-function parseQueryString(qstring){
+function parseQueryString(qstring) {
     /*
-    * PARSE THE QUERY STRING
-    */
+     * PARSE THE QUERY STRING
+     */
     qstring = qstring.substring(1);
 
-    var keyValPair = qstring.split('&');
+    var keyValPair = qstring.split("&");
 
-    if(keyValPair.length == 1 && keyValPair[0] == ""){
+    if (keyValPair.length == 1 && keyValPair[0] == "") {
         return null;
     }
 
     var params = {};
-    for(entry in keyValPair){
+    for (entry in keyValPair) {
         var key = keyValPair[entry].split("=")[0];
         var val = keyValPair[entry].split("=")[1];
         params[key] = val;
     }
-    
+
     return params;
 }
 
@@ -60,18 +60,20 @@ function base64ToBlob(base64Data, mime) {
         var byteArray = new Uint8Array(byteNumbers);
         byteArrays.push(byteArray);
     }
-    return new Blob(byteArrays, {type: mime});
+    return new Blob(byteArrays, { type: mime });
 }
 
 function copyInput(varValue, isImage) {
+    console.log("Copying String: " + varValue);
     if (isImage == "true") {
         var sanitizedB64 = varValue;
         //if it exists, replace everything between data: and "base64, " with nothing
         if (sanitizedB64.indexOf("data:") !== -1) {
             sanitizedB64 = sanitizedB64.replace(/data:.*base64, /g, "");
         }
+        const imageType = varValue.match(/(image\/.*);/)[1];
         const item = new ClipboardItem({
-            "image/png": base64ToBlob(sanitizedB64, "image/png")
+            [imageType]: base64ToBlob(sanitizedB64, imageType),
         });
         navigator.clipboard.write([item]);
     }
@@ -79,21 +81,29 @@ function copyInput(varValue, isImage) {
 }
 
 function checkForURL(potentialURL) {
-    if (potentialURL === undefined || potentialURL === null || potentialURL === "") {
+    if (
+        potentialURL === undefined ||
+        potentialURL === null ||
+        potentialURL === ""
+    ) {
         return false;
-    } else if (potentialURL.startsWith("www.") || potentialURL.startsWith("http://") || potentialURL.startsWith("https://") || potentialURL.startsWith("s3://")) {
+    } else if (
+        potentialURL.startsWith("www.") ||
+        potentialURL.startsWith("http://") ||
+        potentialURL.startsWith("https://") ||
+        potentialURL.startsWith("s3://")
+    ) {
         return true;
     }
     try {
         new URL(potentialURL);
         return true;
-    }
-    catch (e) {
+    } catch (e) {
         return false;
     }
 }
 
-function isEqual (a, b) {
+function isEqual(a, b) {
     for (const key in a) {
         if (b[key] !== undefined) {
             if (a[key] !== b[key]) {
@@ -108,22 +118,30 @@ function isEqual (a, b) {
 
 function autocomplete(inp, arr) {
     var currentFocus;
-    inp.addEventListener("input", function(e) {
-        var a, b, i, val = this.value;
+    inp.addEventListener("input", function (e) {
+        var a,
+            b,
+            i,
+            val = this.value;
         closeAllLists();
-        if (!val || val.length < 2) { return false;}
+        if (!val || val.length < 2) {
+            return false;
+        }
         currentFocus = -1;
         a = document.createElement("DIV");
         a.setAttribute("id", this.id + "autocomplete-list");
         a.setAttribute("class", "autocomplete-items autocomplete-items-cws");
         this.parentNode.appendChild(a);
         for (i = 0; i < arr.length; i++) {
-            if (arr[i].substr(0, val.length).toUpperCase() === val.toUpperCase()) {
+            if (
+                arr[i].substr(0, val.length).toUpperCase() === val.toUpperCase()
+            ) {
                 b = document.createElement("DIV");
-                b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                b.innerHTML =
+                    "<strong>" + arr[i].substr(0, val.length) + "</strong>";
                 b.innerHTML += arr[i].substr(val.length);
                 b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
-                b.addEventListener("click", function(e) {
+                b.addEventListener("click", function (e) {
                     inp.value = this.getElementsByTagName("input")[0].value;
                     closeAllLists();
                 });
@@ -131,7 +149,7 @@ function autocomplete(inp, arr) {
             }
         }
     });
-    inp.addEventListener("keydown", function(e) {
+    inp.addEventListener("keydown", function (e) {
         var x = document.getElementById(this.id + "autocomplete-list");
         if (x) x = x.getElementsByTagName("div");
         if (e.keyCode === 40) {
@@ -153,7 +171,7 @@ function addActive(x) {
     if (!x) return false;
     removeActive(x);
     if (currentFocus >= x.length) currentFocus = 0;
-    if (currentFocus < 0) currentFocus = (x.length - 1);
+    if (currentFocus < 0) currentFocus = x.length - 1;
     x[currentFocus].classList.add("autocomplete-active");
 }
 

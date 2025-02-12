@@ -5,6 +5,7 @@
 
 	<script src="/${base}/js/jquery.min.js"></script>
 	<script src="/${base}/js/docs.min.js"></script>
+	<script src="/${base}/js/popper.min.js"></script>
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
 	<script src="/${base}/js/moment.js"></script>
@@ -67,7 +68,6 @@
 		}
 		var copyValue = $(this).attr('data-copyValue');
 		var isImage = $(this).attr('data-isImage');
-		console.log(isImage);
 		copyInput(copyValue, isImage);
 		$(this).attr('aria-label', 'Copied!');
 		setTimeout(function () {
@@ -428,11 +428,11 @@
 	}
 
 	function downloadLogJSON() {
-		console.log($("#procInstId").html());
-        var mainJSON = getInstanceJSON($('#procInstId').html(), "${base}");
+		console.log($("#procInstId").text());
+        var mainJSON = getInstanceJSON($('#procInstId').text(), "${base}");
         $.fn.dataTable.fileSave(
             new Blob([JSON.stringify(mainJSON)]),
-            'history-' + $("#procInstId").html() + '.json'
+            'history-' + $("#procInstId").text() + '.json'
         );
     }
 
@@ -484,12 +484,12 @@
 		});
 
 		$('<div class="dropdown" style="display:inline;">'
-			+ '<button id="downloadButton" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;Download &nbsp;'
+			+ '<button id="downloadButton" class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">&nbsp;Download &nbsp;'
 			+ '<span class="caret"></span>'
 			+ '</button>'
-			+ '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
-			+ '<li id="action_download_json" class="enabled" role="presentation"><a id="json-bttn" role="menuitem" href="#">Download as JSON</a></li>'
-			+ '<li id="action_download_csv" class="enabled" role="presentation"><a id="csv-bttn" role="menuitem" href="#">Download as CSV</a></li>'
+			+ '<ul id="action-list" class="dropdown-menu">'
+			+ '<li id="action_download_json" class="enabled" role="presentation"><a id="json-bttn" role="menuitem" href="#" class="dropdown-item">Download as JSON</a></li>'
+			+ '<li id="action_download_csv" class="enabled" role="presentation"><a id="csv-bttn" role="menuitem" href="#" class="dropdown-item">Download as CSV</a></li>'
   			+ '</ul>'
   			+ '</div>').appendTo(".above-table-buttons");
 
@@ -670,7 +670,7 @@
 						+ `<div class="proc-var-flex-main-sub-3">`
 						+ tempVal + `</div></div>`
 						+ `<div class="proc-var-flex-btn">`
-						+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''>`
+						+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''>`
 						+ `<img src="images/copy.svg" class="copy-icon clipboard">`
 						+ `</span></div></div>`;
 				}
@@ -702,16 +702,16 @@
 					var tempVal = data[fullKeysInOrder[key]];
 					var tempKey = fullKeysInOrder[key].substring(7);
 					if (tempKey.includes("(file, image")) {
-						tempKey = tempKey.replace("file, ", "");
+						tempKey = tempKey.replace("file, ", "");	
 						temp = `<div class="proc-var-flex-main">`
-							+ `<div class="proc-var-flex-main-sub-1">`
-							+ `<div class="proc-var-flex-main-sub-2"><b>` + tempKey + `: </b></div>`
-							+ `<div class="proc-var-flex-main-sub-3">`
-							+ `<img class="grow historyLimitSize" src='` + tempVal + `'></div></div>`
-							+ `<div class="proc-var-flex-btn">`
-							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''>`
-							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
-							+ `</span></div></div>`;
+						+ `<div class="proc-var-flex-main-sub-1">`
+						+ `<div class="proc-var-flex-main-sub-2"><b>` + tempKey + `: </b></div>`
+						+ `<div class="proc-var-flex-main-sub-3">`
+						+ `<img class="grow historyLimitSize" src='` + tempVal + `'></div></div>`
+						+ `<div class="proc-var-flex-btn">`
+						+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''>`
+						+ `<img src="images/copy.svg" class="copy-icon clipboard">`
+						+ `</span></div></div>`;
 					} else if (tempKey.includes("{")) {
 						var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
 						tempKey = tempKey.substring(tempKey.indexOf("]")+1, tempKey.indexOf(" {"));
@@ -756,11 +756,12 @@
 							+ `<div class="proc-var-flex-main-sub-3">`
 							+ tempVal + `</div></div>`
 							+ `<div class="proc-var-flex-btn">`
-							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''>`
+							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''>`
 							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
 							+ `</span></div></div>`;
-					output = output + temp;
+
 				}
+				output = output + temp;
 			}
 				//now we need to add any keys that were not in the fullKeysInOrder array
 				//first, determine which keys were not in the fullKeysInOrder array
@@ -828,7 +829,7 @@
 							+ `<div class="proc-var-flex-main-sub-3">`
 							+ tempVal + `</div></div>`
 							+ `<div class="proc-var-flex-btn">`
-							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''>`
+							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''>`
 							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
 							+ `</span></div></div>`;
 					}
@@ -895,7 +896,7 @@
 							+ `<div class="proc-var-flex-main-sub-3">`
 							+ tempVal + `</div></div>`
 							+ `<div class="proc-var-flex-btn">`
-							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick=''>`
+							+ `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick=''>`
 							+ `<img src="images/copy.svg" class="copy-icon clipboard">`
 							+ `</span></div></div>`;
 					}
@@ -930,34 +931,35 @@
         Accept : "application/json",
         contentType: "application/json",
         dataType: "json",
-        async: false
-    }).success(function(data) {
-        var status = data.state;
-        if (data.state === "COMPLETED") {
-            status = "Complete";
-        }
-        else if (data.state === "ACTIVE") {
-            status = "Running";
-        }
-        var proc_info = {
-            "process_definition": data.procDefKey,
-            "process_instance": data.procInstId,
-            "start_time": data.startTime,
-            "end_time": data.endTime,
-            "duration": convertMillis(data.duration),
-            "status": status,
-            "input_variables": data.inputVariables,
-            "output_variables": data.outputVariables
-        };
-        outputJSON["process_info"] = proc_info;
-        for (const entry of data.details) {
-            let date = entry["date"];
-            if (entry["message"].startsWith("Ended ")) {
-                date += " ";
-            }
-            const row = [date, entry["type"], entry["activity"], outputMessage(entry["message"])];
-            logLines.push(row);
-        }
+        async: false,
+        success: function(data) {
+	        var status = data.state;
+	        if (data.state === "COMPLETED") {
+	            status = "Complete";
+	        }
+	        else if (data.state === "ACTIVE") {
+	            status = "Running";
+	        }
+	        var proc_info = {
+	            "process_definition": data.procDefKey,
+	            "process_instance": data.procInstId,
+	            "start_time": data.startTime,
+	            "end_time": data.endTime,
+	            "duration": convertMillis(data.duration),
+	            "status": status,
+	            "input_variables": data.inputVariables,
+	            "output_variables": data.outputVariables
+	        };
+	        outputJSON["process_info"] = proc_info;
+	        for (const entry of data.details) {
+	            let date = entry["date"];
+	            if (entry["message"].startsWith("Ended ")) {
+	                date += " ";
+	            }
+	            const row = [date, entry["type"], entry["activity"], outputMessage(entry["message"])];
+	            logLines.push(row);
+	        }
+    	}
     }).fail(function(xhr, err) {
         console.error("Error getting instance JSON: " + xhr.responseText);
     });
@@ -968,45 +970,46 @@
         Accept : "application/json",
         contentType: "application/json",
         dataType: "json",
-        async: false
-    }).success(function(data) {
-        var finished = false;
-        scrollId = data._scroll_id;
-        if (data.hits) {
-            for (const hit of data.hits.hits) {
-                const source = hit._source;
-                const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
-                logLines.push(row);
-                
-            }
-        }
-        while (!finished) {
-            $.ajax({
-                type: "POST",
-                url: "/${base}/rest/logs/get/scroll",
-                data: "scrollId=" + scrollId,
-                async: false,
-                success: function(data) {
-                    if (data.hits) {
-                        
-                        if (data.hits.hits.length > 0) {
-                            for (const hit of data.hits.hits) {
-                                const source = hit._source;
-                                const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
-                                logLines.push(row);
-                            }
-                            scrollId = data._scroll_id;
-                        }
-                        else {
-                            finished = true;
-                        }
-                    }
-                },
-                error: function(e) {
-                    alert("Error retrieving history data.");
-                }
-            });
-        }
+        async: false,
+        success: function(data) {
+	        var finished = false;
+	        scrollId = data._scroll_id;
+	        if (data.hits) {
+	            for (const hit of data.hits.hits) {
+	                const source = hit._source;
+	                const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
+	                logLines.push(row);
+	                
+	            }
+	        }
+	        while (!finished) {
+	            $.ajax({
+	                type: "POST",
+	                url: "/${base}/rest/logs/get/scroll",
+	                data: "scrollId=" + scrollId,
+	                async: false,
+	                success: function(data) {
+	                    if (data.hits) {
+	                        
+	                        if (data.hits.hits.length > 0) {
+	                            for (const hit of data.hits.hits) {
+	                                const source = hit._source;
+	                                const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
+	                                logLines.push(row);
+	                            }
+	                            scrollId = data._scroll_id;
+	                        }
+	                        else {
+	                            finished = true;
+	                        }
+	                    }
+	                },
+	                error: function(e) {
+	                    alert("Error retrieving history data.");
+	                }
+	            });
+	        }
+	    }
     }).fail(function(xhr, err) {
         console.error("Error getting instance JSON: " + xhr.responseText);
     });
@@ -1186,14 +1189,14 @@ function convertMillis(millis) {
 <body>
 	<#include "navbar.ftl">
 
-	<div class="container-fluid" style="margin-left: 20px;">
+	<div class="container-fluid" style="max-width: 100%; margin: 25px auto; padding: 0 20px;">
 		
 		<h2 class="sub-header">History</h2>
 		<div class="row">
-			<table align="center" class="table table-bordered " style="width: 1%; font-size: 95%;">
+			<table align="center" class="table" style="width: 50%; font-size: 14px; margin-top: 15px;">
 				<thead>
 					<tr>
-						<th colspan="2" style="text-align: center;">Process Details</th>
+						<th colspan="2" style="text-align: center;"><h6>Process Details</h6></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -1240,9 +1243,11 @@ function convertMillis(millis) {
 				</tbody>
 			</table>
 		</div>
-      <div id="resolveButtonDiv" class="row" style="text-align: center; display: none;">
-        <button id="resolveButton" class="btn btn-primary" type="button" onclick="markAsResolved($('#procInstId').text())">Mark as Resolved</button>
-		<button id="retryIncidentButton" class="btn btn-primary" type="button" onclick="retryIncident($('#procInstId').text())">Retry Incident</button>
+      <div id="resolveButtonDiv" class="row" style="text-align: center; display: none; gap: 10px;">
+        <div style="display: inline-flex; gap: 10px;">
+          <button id="resolveButton" class="btn btn-primary btn-sm" type="button" onclick="markAsResolved($('#procInstId').text())">Mark as Resolved</button>
+          <button id="retryIncidentButton" class="btn btn-primary btm-sm" type="button" onclick="retryIncident($('#procInstId').text())">Retry Incident</button>
+        </div>
       </div>
 		</div>
 	
@@ -1250,15 +1255,15 @@ function convertMillis(millis) {
 			<div class="ajax-spinner"></div>
 		</div>
 		<div class="row">
-			<div class="col-md-12 main">
-				<div id="log-div">
-					<table id="logData" class="table table-striped table-bordered sortable">
+			<div class="col main">
+				<div id="log-div" style="width: 100%;">
+					<table id="logData" class="table table-striped table-bordered sortable" style="margin: 25px 20px; width: 98%;">
 						<thead>
 							<tr>
-								<th id="timeStampColumn" style="width: 185px">Time Stamp</th>
-								<th style="width: 125px;">Type</th>
-								<th style="width: 200px;">Source</th>
-								<th>Details</th>
+								<th id="timeStampColumn" class="col-1" scope="col">Time Stamp</th>
+								<th class="col-1" scope="col">Type</th>
+								<th class="col-1" scope="col">Source</th>
+								<th class="col-3" scope="col">Details</th>
 							</tr>
 						</thead>
 					</table>
