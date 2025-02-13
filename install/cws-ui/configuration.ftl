@@ -3,6 +3,7 @@
 	<meta charset="utf-8">
 	<title>CWS - Configuration</title>
 	<script src="/${base}/js/jquery.min.js"></script>
+	<script src="/${base}/js/popper.min.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
@@ -178,8 +179,8 @@
 <div class="container-fluid">
 	<div class="row">
 		<#include "sidebar.ftl">
-		<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-
+		<div class="main-content">
+	
 			<span id="statusMessageDiv">
 				<h2>${msg}</h2>
 			</span>

@@ -117,27 +117,28 @@ public class LogsTestIT extends WebTestUtil {
 			findElByXPath("//div[@id='logData_wrapper']/div/div/div/button/span").click();
 
 			log.info("Checking CWS Host.");
-			findElByXPath("//a[text()='CWS Host']").click();
+			findElByXPath("//button/span[text()='CWS Host']").click();
 			sleep(1000);
 
 			log.info("Checking CWS Worker ID.");
-			findElByXPath("//a[text()='CWS Worker ID']").click();
+			findElByXPath("//button/span[text()='CWS Worker ID']").click();
 			sleep(1000);
 
 			log.info("Checking ProcDefKey.");
-			findElByXPath("//a[text()='Proc Def Key']").click();
+			findElByXPath("//button/span[text()='Proc Def Key']").click();
 			sleep(1000);
 
 			log.info("Checking ProcInstId.");
-			findElByXPath("//a[text()='Proc Inst ID']").click();
+			findElByXPath("//button/span[text()='Proc Inst ID']").click();
 			sleep(1000);
 			
-			wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.tagName("table")));
+			// wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.tagName("table")));
 			WebElement myTable = driver.findElement(By.tagName("table"));
 			
 			log.info("Checking data from table to ensure all checkboxes were clicked: " + myTable.getText());
+			log.info(myTable.getText());
 			
-			if (myTable.getText().contains("Time Stamp CWS Host CWS Worker ID Log Level Thread Name Proc Def Key Proc Inst ID Message")) {
+			if (myTable.getText().contains("Time Stamp\nCWS Host\nCWS Worker ID\nLog Level\nThread Name\nProc Def Key\nProc Inst ID\nMessage")) {
 				scriptPass = true;
 				log.info("All checkboxes were successfully checked.");
 				testCasesCompleted++;

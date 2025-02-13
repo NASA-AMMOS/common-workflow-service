@@ -5,7 +5,12 @@
 	<meta charset="utf-8">
 	<title>CWS - Executable Code</title>
 	<script src="/${base}/js/jquery.min.js"></script>
+	<script src="/${base}/js/bootstrap.min.js"></script>
+	<script src="/${base}/js/popper.min.js"></script>
+	
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/${base}/css/bootstrap-reboot.min.css" rel="stylesheet">
+	
 	<!-- Custom styles for this template -->
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 
@@ -35,7 +40,7 @@
 <div class="container-fluid">
 	<div class="row">
 		<#include "sidebar.ftl">
-		<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+		<div class="main-content">
 			
 			<span id="statusMessageDiv">
 				<h2>${msg}</h2>
@@ -48,18 +53,22 @@
 					This is useful, for example when you want to dynamically inject values such as email addresses, command-line arguments, etc.. into various aspects of your existing BPMN tasks.<br/>
 					<br/>
 					In order to call a method you define, use the following syntax in your BPMN model:<br/>
-					<pre>&#36;{cws.methodName([&#60;method_params&#62;...])}</pre><br/>
+					<div class="card">
+						<div class="card-body">
+					<code>&#36;{cws.methodName([&#60;method_params&#62;...])}</code>
+				</div></div>
 					<br/>
 					For example, here's a command line execution task that uses dynamically generated arguments:
-					<pre>/path/to/program.exe -arg1=&#36;{cws.getArg1('data', processVar1)} -arg2=&#36;{cws.getArg2()}</pre>
-					<br/>
+										<div class="card">
+						<div class="card-body">
+					<code>/path/to/program.exe -arg1=&#36;{cws.getArg1('data', processVar1)} -arg2=&#36;{cws.getArg2()}</code></div></div>
 					<hr/>
 					Edit the below code to add or modify methods that are available to your BPMN processes:
 					<div id="editorDiv">code goes here</div>
 					<input type="hidden" name="code" id="code" value="" />
 					<br/>
 					<input type="submit" class="btn btn-primary" id="validateAndSaveSnippetsSubmitBtn" value="Validate & Save" />
-					<input type="button" id="revertSnippetsSubmitBtn" width="60" value="Reload Editor with Last Successfully Compiled Code" />
+					<input class="btn btn-secondary" type="button" id="revertSnippetsSubmitBtn" width="60" value="Reload Editor with Last Successfully Compiled Code" />
 					<br/>
 					<br/>
 					<b>NOTE:</b> <b>For each external code library (JAR)</b> (referenced by Java import statements) <b>put the JAR in the following place</b>:
@@ -73,11 +82,7 @@
 	</div>
 </div>
 
-
-<script src="/${base}/js/bootstrap.min.js"></script>
-<script src="/${base}/js/docs.min.js"></script>
 <script src="/${base}/js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
-<script src="/${base}/js/jquery.min.js"></script>
 
 
 	<script>

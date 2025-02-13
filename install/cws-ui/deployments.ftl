@@ -6,6 +6,8 @@
 
 	<!-- JAVASCRIPT LINKS -->
 	<script src="/${base}/js/jquery.min.js"></script>
+	<script src="/${base}/js/popper.min.js"></script>
+	<script src="/${base}/js/bootstrap.min.js"></script>
 	<script src="/${base}/js/bootstrap-toggle.min.js"></script>
 	<script src="/${base}/js/DataTables/datatables.js"></script>
 	<script src="/${base}/js/cws.js"></script>
@@ -13,10 +15,8 @@
 	<!-- CSS LINKS -->
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/${base}/css/bootstrap-toggle.min.css" rel="stylesheet">
-	<script src="/${base}/js/bootstrap-toggle.min.js"></script>
 	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css"/>
 	<!-- Custom styles for this template -->
-	<link href="/${base}/js/DataTables/datatables.css" rel="stylesheet">
 	<link href="/${base}/css/dashboard.css" rel="stylesheet">
 	<link href="/${base}/css/deployments.css" rel="stylesheet">
 	<link href="/${base}/css/microtip.css" rel="stylesheet">
@@ -30,6 +30,8 @@
 		const lastNumHoursVar = "CWS_DASH_DEPLOY_LAST_NUM_HOURS-" + username;
 		const refreshRateVar = "CWS_DASH_DEPLOY_REFRESH_RATE-" + username;
 		const hideSuspendedProcVar = "CWS_DASH_DEPLOY_HIDE_SUS-" + username;
+
+		
 
 		//GLOBAL VARIABLES
 
@@ -61,13 +63,24 @@
 			"name": "${x.name}",
 			"version": "${x.version}",
 			"suspended": "${x.suspended?c}",
-			"id": "${x.id}"
+			"id": "${x.id}",
+			"numWorkers": 0
 		};
 		procDefArray.push(procDef);
 		</#list>
 
-		// REFRESH THE TEXTUAL STATS SUMMARY
-		function refreshStatUI(name, statsCounts) {
+		// Update statistics for a process definition
+		function refreshStatUI(key, stats) {
+			var table = $('#process-table').DataTable();
+			var row = table.row('#' + key);
+			if (row.length) {
+				var data = row.data();
+				data.stats = stats;
+				row.data(data).draw();
+			}
+		}
+
+		function refreshTotalStatUI(name, statsCounts) {
 			var statTotal =
 					statsCounts.pending +
 					statsCounts.disabled +
@@ -181,13 +194,20 @@
 			$("#stat-bar-" + name + " div.bar-failedToStart").css('width', statsPercent.fts + '%');
 			$("#stat-bar-" + name + " div.bar-incident").css('width', statsPercent.incident + '%');
 			//set the tooltip text of each bar
-			$("#stat-bar-" + name + " div.bar-pending").attr('data-original-title', statsCounts.pending + " Pending");
-			$("#stat-bar-" + name + " div.bar-disabled").attr('data-original-title', statsCounts.disabled + " Disabled");
-			$("#stat-bar-" + name + " div.bar-active").attr('data-original-title', statsCounts.active + " Running");
-			$("#stat-bar-" + name + " div.bar-completed").attr('data-original-title', statsCounts.completed + " Completed");
-			$("#stat-bar-" + name + " div.bar-error").attr('data-original-title', statsCounts.error + " Failed");
-			$("#stat-bar-" + name + " div.bar-failedToStart").attr('data-original-title', statsCounts.fts + " Failed to Start");
-			$("#stat-bar-" + name + " div.bar-incident").attr('data-original-title', statsCounts.incident + " Incidents");
+			$("#stat-bar-" + name + " div.bar-pending").attr('data-bs-title', statsCounts.pending + " Pending");
+			$("#stat-bar-" + name + " div.bar-disabled").attr('data-bs-title', statsCounts.disabled + " Disabled");
+			$("#stat-bar-" + name + " div.bar-active").attr('data-bs-title', statsCounts.active + " Running");
+			$("#stat-bar-" + name + " div.bar-completed").attr('data-bs-title', statsCounts.completed + " Completed");
+			$("#stat-bar-" + name + " div.bar-error").attr('data-bs-title', statsCounts.error + " Failed");
+			$("#stat-bar-" + name + " div.bar-failedToStart").attr('data-bs-title', statsCounts.fts + " Failed to Start");
+			$("#stat-bar-" + name + " div.bar-incident").attr('data-bs-title', statsCounts.incident + " Incidents");
+
+			document.querySelectorAll('#stat-bar-cws-reserved-total [data-bs-toggle="tooltip"]').forEach(el => {
+				const tooltip = bootstrap.Tooltip.getInstance(el);
+				if (tooltip) {
+					tooltip.setContent({ '.tooltip-inner': el.dataset.bsTitle });
+				}
+			});
 		}
 
 		//HANDLER FUNCTION FOR DELETING A PROCESS DEFINITION
@@ -226,13 +246,7 @@
 
 					if (data.status === "SUCCESS") {
 
-						var tableRow = $("td").filter(function () {
-							return $(this).text() === proc_def_key;
-						}).closest("tr");
-
-						if (tableRow) {
-							tableRow.remove();
-						}
+						$("#process-table").DataTable().row("#"+proc_def_key).remove().draw()
 
 						deleteProcDefEsLogs(proc_def_key);
 					} else {
@@ -286,7 +300,12 @@
 			if (statsCookieValue == -1) {
 				statsCookieValue = null;
 			}
-
+								document.querySelectorAll('#process-table [data-bs-toggle="tooltip"]').forEach(el => {
+						const tooltip = bootstrap.Tooltip.getInstance(el);
+						if (tooltip) {
+							tooltip.dispose();
+						}
+					})			;
 			$.ajax({
 				url: "/${base}/rest/stats/processInstanceStatsJSON",
 				data: statsCookieValue ? "lastNumHours=" + statsCookieValue : "",
@@ -352,7 +371,10 @@
 						}
 					});
 
-					refreshStatUI('cws-reserved-total', statsTotalVal);
+					refreshTotalStatUI('cws-reserved-total', statsTotalVal);
+			
+					// Initialize tooltips for progress bars
+					initializeTooltips();
 
 					refreshing = false;
 				},
@@ -362,6 +384,57 @@
 
 					refreshing = false;
 				}
+			});
+		}
+
+		// Helper function to calculate percentages for progress bars
+		function calculatePercentages(stats, total) {
+			var pcts = {};
+			var minPct = 1.5;
+			
+			// Calculate initial percentages
+			pcts.pending = ((stats.pending || 0) / total) * 100;
+			pcts.disabled = ((stats.disabled || 0) / total) * 100;
+			pcts.active = ((stats.active || 0) / total) * 100;
+			pcts.completed = ((stats.completed || 0) / total) * 100;
+			pcts.error = ((stats.error || 0) / total) * 100;
+			pcts.fts = ((stats.fts || 0) / total) * 100;
+			pcts.incident = ((stats.incident || 0) / total) * 100;
+			
+			// Adjust small non-zero values to minimum percentage
+			Object.keys(pcts).forEach(function(key) {
+				if (pcts[key] > 0 && pcts[key] < minPct) {
+					pcts[key] = minPct;
+				}
+			});
+			
+			// Normalize percentages to total 100%
+			var totalPct = Object.values(pcts).reduce(function(a, b) { return a + b; }, 0);
+			if (totalPct > 0) {
+				Object.keys(pcts).forEach(function(key) {
+					pcts[key] = (pcts[key] / totalPct) * 100;
+				});
+			}
+			
+			return pcts;
+		}
+
+		// Initialize tooltips for all progress bars
+		function initializeTooltips() {
+			const progressBars = document.querySelectorAll('.progress');
+			progressBars.forEach(container => {
+				const tooltipTriggers = container.querySelectorAll('.progress-bar[data-bs-toggle="tooltip"]');
+				tooltipTriggers.forEach(el => {
+					let tooltip = bootstrap.Tooltip.getInstance(el);
+					if (tooltip) {
+						tooltip.dispose();
+					}
+					new bootstrap.Tooltip(el, {
+						trigger: 'hover',
+						placement: 'top',
+						container: container
+					});
+				});
 			});
 		}
 
@@ -393,6 +466,18 @@
 
 			//DATATABLE INITIALIZATION FOR PROCESS DEFINITION TABLE
 			$("#process-table").DataTable({
+				initComplete: function(settings) {
+					const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+					const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+				},
+				drawCallback: _ => {
+					document.querySelectorAll('#process-table [data-bs-toggle="tooltip"]').forEach(el => {
+						const tooltip = bootstrap.Tooltip.getInstance(el);
+						if (!tooltip) {
+							new bootstrap.Tooltip(el);
+						}
+					});
+				},
 				//SET OPTIONS FOR DATATABLE HERE... ALL OPTIONS CAN BE FOUND HERE: https://datatables.net/reference/option/
 				//SET HOW DATA IS DISPLAYED IN EACH COLUMN (IN ORDER) (https://datatables.net/reference/option/columns)
 				columns: [
@@ -407,20 +492,20 @@
 								var returnVal = `<div class="proc-name-btns">`;
 								if (data.suspended == "true") {
 									returnVal += `<a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="resumeProcDef('` + data.id + `', '` + data.key + `')" aria-label="Resume" data-microtip-position="top-right" role="tooltip">`
-											+ `<span style="cursor: pointer; float: right; color: green;" id="suspend-`
-											+ data.key + `" class="glyphicon glyphicon-play"></span>`
+											+ `<img height="16" width="16" src="/${base}/images/play.svg" style="cursor: pointer; float: right; color: green;" id="suspend-`
+											+ data.key + `" />`
 											+ `</a>`;
 								} else {
 									returnVal += `<a id="btn-suspend-` + data.key + `" data-proc-id="` + data.key + `" onClick="suspendProcDef('` + data.id + `', '` + data.key + `')" aria-label="Suspend" data-microtip-position="top-right" role="tooltip">`
-											+ `<span style="cursor: pointer; float: right; color: #d9534f;" id="suspend-`
-											+ data.key + `" class="glyphicon glyphicon-pause"></span></a>`;
+											+ `<img height="16" width="16" src="/${base}/images/pin_pause.svg" style="cursor: pointer; float: right; color: #d9534f;" id="suspend-`
+											+ data.key + `" /></a>`;
 								}
 
 								returnVal += `<a href="/${base}/modeler?procDefKey=` + data.key + `" target="_blank" aria-label="Edit" data-microtip-position="top-right" role="tooltip">`
-										+ `<span style="float: right;" id="edit-` + data.key + `" class="glyphicon glyphicon-pencil"></span></a>`
+										+ `<span style="float: right;" id="edit-` + data.key + `"><img height="16" width="16" src="/${base}/images/pen.svg" /></span></a>`
 										+ `<a data-proc-key="` + data.key + `" onClick="handleDeleteProcDef('` + data.key + `')" aria-label="Delete" data-microtip-position="top-right" role="tooltip">`
-										+ `<span style="cursor: pointer; float: right; color: #d9534f;" id="delete-`
-										+ data.key + `" class="glyphicon glyphicon-trash"></span></a>`;
+										+ `<img height="22" width="22" src="/${base}/images/trash_red.svg" style="cursor: pointer; float: right; color: #d9534f;" id="delete-`
+										+ data.key + `" /></a>`;
 
 								returnVal += `</div>`;
 								return returnVal;
@@ -434,7 +519,8 @@
 							if (type !== 'display') {
 								return data.name;
 							} else {
-								var html = `<div class-"proc-name-name"><a style="cursor: pointer;" onClick='parent.location="/camunda/app/cockpit/default/#/process-definition/` + data.id + `/runtime"'/>` + data.name + `</a></div>`;
+								var style = data.suspended === "true" ? ' style="font-style: italic;"' : '';
+								var html = '<div class="proc-name-name"><a' + style + ' style="cursor: pointer;" onClick=\'parent.location="/camunda/app/cockpit/default/#/process-definition/' + data.id + '/runtime"\'/>' + data.name + '</a></div>';
 								return html;
 							}
 						}
@@ -442,42 +528,48 @@
 					//KEY COLUMN
 					{
 						data: "key",
-						render: function (data, type) {
+						render: function (data, type, row) {
 							if (type !== 'display') {
 								return data;
 							} else {
 								if (data === null || data === undefined || data === "null") {
 									return "ERROR";
 								} else {
-									return data;
+									var style = row.suspended === "true" ? ' style="font-style: italic;"' : '';
+									return '<span' + style + '>' + data + '</span>';
 								}
 							}
 						}
 					},
 					//VERSION COLUMN
 					{
-						data: "version",
+						data: {version: "version", suspended: "suspended"},
 						render: function (data, type) {
 							if (type !== 'display') {
-								return data;
+								return data.version;
 							} else {
-								if (data === null || data === undefined || data === "null") {
+								if (data.version === null || data.version === undefined || data.version === "null") {
 									return "ERROR";
 								} else {
-									return data;
+									var style = data.suspended === "true" ? ' style="font-style: italic;"' : '';
+									return '<span' + style + '>' + data.version + '</span>';
 								}
 							}
-						}
+						},
+						width: "80px"
 					},
 					//WORKERS BUTTON COLUMN
 					{
-						data: "key",
+						data: {key: "key", numWorkers: "numWorkers"},
+						type: "string", 
 						render: function (data, type) {
 							if (type !== 'display') {
 								return "";
 							} else {
-								var html = `<button id="pv-` + data + `" class="btn btn-default worker-view-btn"`
-										+ `data-proc-key="` + data + `">view</button>`;
+								var btnClass = data.numWorkers === 0 ? "btn-danger" : "btn-outline-dark";
+								var btnText = data.numWorkers === 0 ? "enable" : "view";
+								var html = `<button type="button" id="pv-` + data.key + `" class="btn btn-sm worker-view-btn ` + btnClass + `"`
+										+ `data-proc-key="` + data.key + `">` + btnText + `</button>`;
 								return html;
 							}
 						}
@@ -506,45 +598,56 @@
 					},
 					//INSTANCE STATISTICS COLUMN
 					{
-						data: "key",
-						render: function (data, type) {
+						data: {key: "key", stats: "stats"}, 
+						type: "string",
+						render: function (data, type, row) {
 							if (type !== 'display') {
 								return "";
-							} else {
-								var html = `<div id="stat-txt-` + data + `" class="stat-txt"></div>`
-										+ `<div id="stat-bar-` + data + `" class="progress" data-pdk="` + data + `">`
-										+ `<div class="progress-bar progress-bar-danger bar-error"`
-										+ `data-toggle="tooltip" title="0 Errors">`
-										+ `<span class="sr-only"></span>`
-										+ `</div>`
-										+ `<div class="progress-bar progress-bar-warning bar-pending"`
-										+ `data-toggle="tooltip" title="0 Pending">`
-										+ `<span class="sr-only"></span>`
-										+ `</div>`
-										+ `<div class="progress-bar progress-bar-disabled bar-disabled"`
-										+ `data-toggle="tooltip" title="0 Disabled">`
-										+ `<span class="sr-only"></span>`
-										+ `</div>`
-										+ `<div class="progress-bar progress-bar-info bar-active"`
-										+ `data-toggle="tooltip" title="0 Active">`
-										+ `<span class="sr-only"></span>`
-										+ `</div>`
-										+ `<div class="progress-bar progress-bar-success bar-completed"`
-										+ `data-toggle="tooltip" title="0 Completed">`
-										+ `<span class="sr-only"></span>`
-										+ `</div>`
-										+ `<div class="progress-bar bar-failedToStart" data-toggle="tooltip"`
-										+ `title="0 Failed to Start">`
-										+ `<span class="sr-only"></span>`
-										+ `</div>`
-										+ `<div class="progress-bar bar-incident" data-toggle="tooltip"`
-										+ `title="0 Incidents">`
-										+ `<span class="sr-only"></span>`
-										+ `</div>`
-										+ `<span class="sr-only">No Instance Statistics...</span>`
-										+ `</div>`;
-								return html;
 							}
+							
+							var stats = data.stats || {};
+							var total = (stats.pending || 0) + (stats.disabled || 0) + (stats.active || 0) + 
+								(stats.completed || 0) + (stats.error || 0) + (stats.fts || 0) + (stats.incident || 0);
+							
+							if (total === 0) {
+								return '<div class="stat-txt" id="stat-txt-' + data.key + '">No stats for this process</div>';
+							}
+
+							var pcts = calculatePercentages(stats, total);
+							
+							var instanceText = [];
+							if (stats.pending) instanceText.push('<b>pending</b>:&nbsp;' + stats.pending); 
+							if (stats.disabled) instanceText.push('<b>disabled</b>:&nbsp;' + stats.disabled);
+							if (stats.active) instanceText.push('<b>running</b>:&nbsp;' + stats.active);
+							if (stats.completed) instanceText.push('<b>completed</b>:&nbsp;' + stats.completed);
+							if (stats.error) instanceText.push('<b>failed</b>:&nbsp;' + stats.error);
+							if (stats.fts) instanceText.push('<b>failed-start</b>:&nbsp;' + stats.fts);
+							if (stats.incident) instanceText.push('<b>incidents</b>:&nbsp;' + stats.incident);
+							
+							var html = '<div class="stat-txt" id="stat-txt-' + data.key + '">' + instanceText.join('&nbsp;&nbsp;') + '</div>' +
+								'<div class="progress" data-pdk="' + data.key + '">' +
+								'<div class="progress-bar bg-danger bar-error" style="width:' + pcts.error + '%"' +
+								' data-bs-toggle="tooltip" title="' + (stats.error || 0) + ' Failed">' +
+								'<span class="sr-only"></span></div>' +
+								'<div class="progress-bar bg-warning bar-pending" style="width:' + pcts.pending + '%"' +
+								' data-bs-toggle="tooltip" title="' + (stats.pending || 0) + ' Pending">' +
+								'<span class="sr-only"></span></div>' +
+								'<div class="progress-bar progress-bar-disabled bar-disabled" style="width:' + pcts.disabled + '%"' +
+								' data-bs-toggle="tooltip" title="' + (stats.disabled || 0) + ' Disabled">' +
+								'<span class="sr-only"></span></div>' +
+								'<div class="progress-bar progress-bar-info bar-active" style="width:' + pcts.active + '%"' +
+								' data-bs-toggle="tooltip" title="' + (stats.active || 0) + ' Running">' +
+								'<span class="sr-only"></span></div>' +
+								'<div class="progress-bar progress-bar-success bar-completed" style="width:' + pcts.completed + '%"' +
+								' data-bs-toggle="tooltip" title="' + (stats.completed || 0) + ' Completed">' +
+								'<span class="sr-only"></span></div>' +
+								'<div class="progress-bar bar-failedToStart" style="width:' + pcts.fts + '%"' +
+								' data-bs-toggle="tooltip" title="' + (stats.fts || 0) + ' Failed to Start">' +
+								'<span class="sr-only"></span></div>' +
+								'<div class="progress-bar bar-incident" style="width:' + pcts.incident + '%"' +
+								' data-bs-toggle="tooltip" title="' + (stats.incident || 0) + ' Incidents">' +
+								'<span class="sr-only"></span></div></div>';
+							return html;
 						}
 					}
 				],
@@ -552,16 +655,22 @@
 				rowId: "key",
 				//DISABLES ORDERING ON BUTTON, WORKER, AND INSTANCE STATISTICS COLUMNS (https://datatables.net/reference/option/columnDefs)
 				columnDefs: [
-					{orderable: false, targets: [0, 6, 4]}
+					{orderable: false, targets: [0, 6, 4]},
+					{width: "120px", targets: 0},
+					{width: "250px", targets: 1},
+					{width: "200px", targets: 2},
+					{width: "80px", targets: 3},
+					{width: "100px", targets: 4},
+					{width: "100px", targets: 5}
 				],
 				//SETS DEFAULT ORDERING TO BE THE "NAME" COLUMN, ASCENDING (https://datatables.net/reference/option/order)
 				order: [[1, "asc"]],
 				//DISABLES PAGINATION (ONE LONG TABLE) (https://datatables.net/reference/option/paging)
 				"paging": false,
 				//SETS WHAT ELEMENTS ARE CREATED BY DATATABLE AND WHERE ELEMENTS ARE PUT (https://datatables.net/reference/option/dom)
-				dom: "<'above-table-div'<'above-table-buttons'>f>"
-						+ "t"
-						+ "<'below-table-div'i>",
+				dom: "<'above-table-div form-inline'<'above-table-buttons form-group mb-2'>f>"
+					+ "t"
+					+ "<'below-table-div'i>",
 			});
 
 			//OUR DATA COMES FROM FREEMARKER TEMPLATE - ADD THAT ARRAY TO THE DATATABLE
@@ -569,50 +678,54 @@
 			//REDRAW THE TABLE TO REFLECT THE NEW DATA
 			$("#process-table").DataTable().draw();
 
-			//ADD DOWNLOAD BUTTON & HIDE SUSPENDED CHECKBOX TO DIVS CREATED BY DATATABLE (DOM OPTION)
-			$('<button id="download-btn" class="btn btn-primary" onclick="downloadJSON()"><i class="glyphicon glyphicon-save btn-icon"></i>Download</button>').appendTo(".above-table-buttons");
-			$('<input name="hide-suspended" id="hide-sus-btn" type="checkbox" style="align-self: center;"><label for="hide-sus-btn">Hide All Suspended Processes</label>').appendTo(".above-table-buttons");
+			// Initialize tooltips for progress bars after initial table draw
+			initializeTooltips();
+			refreshStats();
 
-			//HANDLES MODAL POPUP FOR WORKER BUTTON
-			$(".worker-view-btn").on("click", function () {
+			//ADD DOWNLOAD BUTTON & HIDE SUSPENDED CHECKBOX TO DIVS CREATED BY DATATABLE (DOM OPTION)
+			$('<button id="download-btn" class="btn btn-primary btn-sm" onclick="downloadJSON()"><img height="16" width="16" src="/${base}/images/download.svg" style="margin-right: 3px;" />Download</button>').appendTo(".above-table-buttons");
+			$('<div class="form-check form-check-inline"><input class="form-check-input" name="hide-suspended" id="hide-sus-btn" type="checkbox" style="align-self: center;"><label class="form-check-label" for="hide-sus-btn">Hide All Suspended Processes</label></div>').appendTo(".above-table-buttons");
+
+			//HANDLES MODAL POPUP FOR WORKER BUTTON - using event delegation for dynamic elements
+			$("#process-table").on("click", ".worker-view-btn", function() {
 				dataProcKey = $(this).attr("data-proc-key");
 				listWorkersInModal(dataProcKey);
 			});
 			//HANDLES HIDE SUSPENDED PROC DEF CHECKBOX BEHAVIOR
+
 			$("#hide-sus-btn").on("click", function () {
+				const table = $("#process-table").DataTable();
 				if ($(this).prop("checked")) {
-					$("#process-table").DataTable().column(5).search("Active", false, true).draw();
+					table.columns(5).search("Active").draw()
 					localStorage.setItem(hideSuspendedProcVar, "1");
 					refreshStats();
 				} else {
-					$("#process-table").DataTable().column(5).search("").draw();
+					table.columns().search('').draw();
 					localStorage.setItem(hideSuspendedProcVar, "0");
 					refreshStats();
 				}
-				$("#process-table").DataTable().rows().every(function () {
-					$("#process-table").DataTable().rows().every(function (rowIdx, tableLoop, rowLoop) {
-						var status = this.data()["suspended"];
-						var procDefKey = this.data()["key"];
-						var procDefId = this.data()["id"];
-						if (status == "false") {
-							$("#suspend-" + procDefKey).removeClass("glyphicon-play");
-							$("#suspend-" + procDefKey).addClass("glyphicon-pause");
-							$("#suspend-" + procDefKey).css("color", "#d9534f");
-							$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
-							$("#status-txt-" + procDefKey).html("Active");
-							$("#" + procDefKey).removeClass("disabled");
-							$("#pv-" + procDefKey).removeClass("disabled");
-						} else {
-							$("#suspend-" + procDefKey).removeClass("glyphicon-pause");
-							$("#suspend-" + procDefKey).addClass("glyphicon-play");
-							$("#suspend-" + procDefKey).css("color", "green");
-							$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
-							$("#status-txt-" + procDefKey).html("Suspended");
-							$("#" + procDefKey).addClass("disabled");
-							$("#pv-" + procDefKey).addClass("disabled");
-						}
-					});
-				});
+				// $("#process-table").DataTable().rows().every(function () {
+				// 	$("#process-table").DataTable().rows().every(function (rowIdx, tableLoop, rowLoop) {
+				// 		var status = this.data()["suspended"];
+				// 		var procDefKey = this.data()["key"];
+				// 		var procDefId = this.data()["id"];
+				// 		if (status == "false") {
+				// 			$("#suspend-" + procDefKey).attr("src", "/${base}/images/pin_pause.svg");
+				// 			$("#suspend-" + procDefKey).css("color", "#d9534f");
+				// 			$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
+				// 			$("#status-txt-" + procDefKey).html("Active");
+				// 			$("#" + procDefKey).removeClass("disabled");
+				// 			$("#pv-" + procDefKey).removeClass("disabled");
+				// 		} else {
+				// 			$("#suspend-" + procDefKey).attr("src", "/${base}/images/play.svg");
+				// 			$("#suspend-" + procDefKey).css("color", "green");
+				// 			$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
+				// 			$("#status-txt-" + procDefKey).html("Suspended");
+				// 			$("#" + procDefKey).addClass("disabled");
+				// 			$("#pv-" + procDefKey).addClass("disabled");
+				// 		}
+				// 	});
+				// });
 			});
 
 			//INIT STATE OF HIDE SUSPENDED PROC DEF CHECKBOX
@@ -659,64 +772,43 @@
 				idleTimer = setInterval(idleMode, idleInterval);
 			});
 
-			$(".bar-error").on("click", function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=fail&cache=false";
-				} else {
-					window.location = "/${base}/processes?status=fail&cache=false";
-				}
-			});
-			$(".bar-completed").on("click", function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=complete,resolved&cache=false";
-				} else {
-					window.location = "/${base}/processes?status=complete,resolved&cache=false";
-				}
-			});
-			$(".bar-pending").on("click", function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=pending&cache=false";
-				} else {
-					window.location = "/${base}/processes?status=pending&cache=false";
-				}
-			});
-			$(".bar-disabled").on("click", function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=disabled&cache=false";
-				} else {
-					window.location = "/${base}/processes?status=disabled&cache=false";
-				}
-			});
-			$(".bar-active").on("click", function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=running&cache=false";
-				} else {
-					window.location = "/${base}/processes?status=running&cache=false";
-				}
-			});
-			$(".bar-failedToStart").on("click", function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=failedToStart&cache=false";
-				} else {
-					window.location = "/${base}/processes?status=failedToStart&cache=false";
-				}
-			});
-			$(".bar-incident").on("click", function () {
-				id = $(this).parent().attr("data-pdk");
-				if (id) {
-					window.location = "/${base}/processes?procDefKey=" + id + "&status=incident&cache=false";
-				} else {
-					window.location = "/${base}/processes?status=incident&cache=false";
-				}
+			// Handle clicks on status bars using event delegation
+			$(document).on("click", ".bar-error", function() {
+				var id = $(this).closest(".progress").attr("data-pdk");
+				window.location = "/${base}/processes?procDefKey=" + (id || "") + "&status=fail&cache=false";
 			});
 
-			adjustWorkersButton();
+			$(document).on("click", ".bar-completed", function() {
+				var id = $(this).closest(".progress").attr("data-pdk"); 
+				window.location = "/${base}/processes?procDefKey=" + (id || "") + "&status=complete,resolved&cache=false";
+			});
+
+			$(document).on("click", ".bar-pending", function() {
+				var id = $(this).closest(".progress").attr("data-pdk");
+				window.location = "/${base}/processes?procDefKey=" + (id || "") + "&status=pending&cache=false";
+			});
+
+			$(document).on("click", ".bar-disabled", function() {
+				var id = $(this).closest(".progress").attr("data-pdk");
+				window.location = "/${base}/processes?procDefKey=" + (id || "") + "&status=disabled&cache=false";
+			});
+
+			$(document).on("click", ".bar-active", function() {
+				var id = $(this).closest(".progress").attr("data-pdk");
+				window.location = "/${base}/processes?procDefKey=" + (id || "") + "&status=running&cache=false";
+			});
+
+			$(document).on("click", ".bar-failedToStart", function() {
+				var id = $(this).closest(".progress").attr("data-pdk");
+				window.location = "/${base}/processes?procDefKey=" + (id || "") + "&status=failedToStart&cache=false";
+			});
+
+			$(document).on("click", ".bar-incident", function() {
+				var id = $(this).closest(".progress").attr("data-pdk");
+				window.location = "/${base}/processes?procDefKey=" + (id || "") + "&status=incident&cache=false";
+			});
+
+			adjustWorkersButton(); 
 		});
 		//DOCUMENT.READY ENDS HERE
 
@@ -738,21 +830,15 @@
 		//suspend procDef given procDefId
 		function suspendProcDef(procDefId, procDefKey) {
 			console.log("Suspending procDefId: " + procDefId);
-			var result;
 			//make a post request to suspend the procDef
 			$.ajax({
 				url: "/${base}/rest/deployments/suspend/" + encodeURIComponent(procDefId),
-				type: "POST",
+				type: "POST", 
 				success: function (data) {
-					console.log("successfully suspended");
-					//change the glyphicon to play & make green
-					$("#suspend-" + procDefKey).removeClass("glyphicon-pause");
-					$("#suspend-" + procDefKey).addClass("glyphicon-play");
-					$("#suspend-" + procDefKey).css("color", "green");
-					$("#btn-suspend-" + procDefKey).attr("onclick", "resumeProcDef('" + procDefId + "', '" + procDefKey + "')");
-					$("#status-txt-" + procDefKey).html("Suspended");
-					$("#" + procDefKey).addClass("disabled");
-					$("#pv-" + procDefKey).addClass("disabled");
+					const table = $("#process-table").DataTable();
+					const rowData = table.row("#" + procDefKey).data();
+					rowData.suspended = "true";
+					table.row("#" + procDefKey).data(rowData).draw();
 				},
 				error: function (data) {
 					console.log("error suspending");
@@ -764,28 +850,22 @@
 		//resume procDef given procDefId
 		function resumeProcDef(procDefId, procDefKey) {
 			console.log("Resuming procDefId: " + procDefId);
-			var result;
-			//make a post request to suspend the procDef
 			$.ajax({
 				url: "/${base}/rest/deployments/activate/" + encodeURIComponent(procDefId),
 				type: "POST",
 				success: function (data) {
 					console.log("successfully activated");
-					//change the glyphicon to pause & make color #d9534f
-					$("#suspend-" + procDefKey).removeClass("glyphicon-play");
-					$("#suspend-" + procDefKey).addClass("glyphicon-pause");
-					$("#suspend-" + procDefKey).css("color", "#d9534f");
-					$("#btn-suspend-" + procDefKey).attr("onclick", "suspendProcDef('" + procDefId + "', '" + procDefKey + "')");
-					$("#status-txt-" + procDefKey).html("Active");
-					$("#" + procDefKey).removeClass("disabled");
-					$("#pv-" + procDefKey).removeClass("disabled");
+					const table = $("#process-table").DataTable();
+					const rowData = table.row("#" + procDefKey).data();
+					rowData.suspended = "false";
+					table.row("#" + procDefKey).data(rowData).draw();
 				},
 				error: function (data) {
 					console.log("error activating");
 				}
-			})
-
+			});
 		}
+
 	</script>
 
 	<!-- Just for debugging purposes. Don't actually copy this line! -->
@@ -804,17 +884,16 @@
 
 <#include "navbar.ftl">
 
-<div class="container-fluid">
+<div class="container-fluid" style="padding-left: 0; margin-top: 7px;">
 	<div class="row">
-
-		<#include "sidebar.ftl">
-
-		<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+		<div class="col main">
+			<#include "sidebar.ftl">
+				<div class="main-content">
 			<span id="statusMessageDiv">${msg}</span>
 
 			<div class="row">
 				<div class="col-md-6">
-					<h2 class="sub-header">Deployed Process Definitions</h2>
+					<h2 class="sub-header fs-3">Deployed Process Definitions</h2>
 				</div>
 				<div class="col-md-6">
 					<form id="bpmn-form" action="/${base}/rest/deployments/deployProcessDefinition"
@@ -857,46 +936,37 @@
 						</select>
 					</div>
 				</div>
-
-				<div class="status-div col-md-7 col-md-offset-1">
+				<div class="status-div col-md-6 offset-md-1">
 					<label>Process status summary:</label>
 					<div id="stat-txt-cws-reserved-total" class="stat-txt">-</div>
 					<div id="stat-bar-cws-reserved-total" class="progress">
-						<div class="progress-bar progress-bar-danger bar-error" data-toggle="tooltip"
-							 title="0 Errors">
+						<div class="progress-bar bg-danger bar-error" data-bs-toggle="tooltip" data-bs-placement="top" title="0 Errors">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar progress-bar-warning bar-pending" data-toggle="tooltip"
-							 title="0 Pending">
+						<div class="progress-bar bg-warning bar-pending" data-bs-toggle="tooltip" data-bs-placement="top" title="0 Pending">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar progress-bar-disabled bar-disabled" data-toggle="tooltip"
-							 title="0 Disabled">
+						<div class="progress-bar progress-bar-disabled bar-disabled" data-bs-toggle="tooltip" data-bs-placement="top" title="0 Disabled">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar progress-bar-info bar-active" data-toggle="tooltip"
-							 title="0 Active">
+						<div class="progress-bar progress-bar-info bar-active" data-bs-toggle="tooltip" data-bs-placement="top" title="0 Active">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar progress-bar-success bar-completed" data-toggle="tooltip"
-							 title="0 Completed">
+						<div class="progress-bar progress-bar-success bar-completed" data-bs-toggle="tooltip" data-bs-placement="top" title="0 Completed">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar bar-failedToStart" data-toggle="tooltip"
-							 title="0 Failed to Start">
+						<div class="progress-bar bar-failedToStart" data-bs-toggle="tooltip" data-bs-placement="top" title="0 Failed to Start">
 							<span class="sr-only"></span>
 						</div>
 
-						<div class="progress-bar bar-incident" data-toggle="tooltip" title="0 Incidents">
+						<div class="progress-bar bar-incident" data-bs-toggle="tooltip" data-bs-placement="top" title="0 Incidents">
 							<span class="sr-only"></span>
 						</div>
-
-						<span class="sr-only">No Summary Statistics...</span>
 					</div>
 				</div>
 			</div>
@@ -904,13 +974,13 @@
 			<table id="process-table" class="table table-striped sortable" style="width: 100%;">
 				<thead>
 				<tr>
-					<th style="width: 30px"></th>
-					<th>Name</th>
-					<th>Key</th>
-					<th>Version</th>
-					<th>Workers</th>
-					<th>Status</th>
-					<th style="width:500px">Instance Statistics</th>
+					<th style="width: 120px"></th>
+					<th style="width: 250px">Name</th>
+					<th style="width: 200px">Key</th>
+					<th style="width: 80px">Version</th>
+					<th style="width: 100px">Workers</th>
+					<th style="width: 100px">Status</th>
+					<th>Instance Statistics</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -959,7 +1029,7 @@
 			</div>
 			<div class="modal-footer">
 				<button id="delete-proc-def" type="button" class="btn btn-primary">Yes</button>
-				<button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
 			</div>
 		</div> <!-- modal-content -->
 	</div> <!-- modal-dialog -->
@@ -980,7 +1050,7 @@
 			</div>
 
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" data-dismiss="modal">Dismiss</button>
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Dismiss</button>
 			</div>
 		</div> <!-- modal-content -->
 	</div> <!-- modal-dialog -->
@@ -1014,6 +1084,7 @@
 			<div class="modal-footer">
 				<button id="done-workers-btn" type="button" class="btn btn-primary">Done</button>
 			</div>
+		</div>
 		</div> <!-- modal-content -->
 	</div> <!-- modal-dialog -->
 </div> <!-- .modal .fade -->
@@ -1151,10 +1222,6 @@
 		});
 	}
 
-	$(".worker-view-btn").click(function () {
-		dataProcKey = $(this).attr("data-proc-key");
-		listWorkersInModal(dataProcKey);
-	});
 
 	//
 	// CLICK ACTION FOR
@@ -1211,15 +1278,12 @@
 
 	function adjustWorkersButton() {
 		$.get("/${base}/rest/processes/getProcDefWorkerCount", function (data) {
-			var rows = JSON.parse(data)
+			var table = $("#process-table").DataTable();
+			var rows = JSON.parse(data);
 			for (i in rows) {
-				if (rows[i].workers == 0) {
-					$("#pv-" + rows[i].pdk).removeClass("btn-default").addClass("btn-danger");
-					$("#pv-" + rows[i].pdk).text("enable");
-				} else {
-					$("#pv-" + rows[i].pdk).removeClass("btn-danger").addClass("btn-default");
-					$("#pv-" + rows[i].pdk).text("view");
-				}
+				var rowData = table.row("#" + rows[i].pdk).data();
+				rowData.numWorkers = rows[i].workers;
+				table.row("#" + rows[i].pdk).data(rowData).draw();
 			}
 		});
 	}

@@ -5,8 +5,9 @@
 	<script src="/${base}/js/jquery.min.js"></script>
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<script src="/${base}/js/adaptation-workers.js"></script>
-	<script src="/${base}/js/DataTables/datatables.js"></script>
-	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.css" />
+	<script src="/${base}/js/popper.min.js"></script>
+	<script src="/${base}/js/DataTables/datatables.min.js"></script>
+	<link rel="stylesheet" href="/${base}/js/DataTables/datatables.min.css" />
 	<script src="/${base}/js/cws.js"></script>
 	<link href="/${base}/css/microtip.css" rel="stylesheet">
 	<link href="/${base}/css/workers.css" rel="stylesheet">
@@ -22,7 +23,7 @@
 
 		//STATE PERSISTANCE CONSTS
 		var username = document.cookie.substring(document.cookie.indexOf("cwsUsername=") + 12);
-		if (username.indexOf(";") > 0) {
+		if (username && username.indexOf(";") > 0) {
 			username = username.substring(0, username.indexOf(";"));
 		}
 		const hideDownWorkersVar = "CWS_DASH_WORKERS_HIDE_DOWN-" + username;
@@ -176,6 +177,16 @@
 		//	CALLED WHEN USER CLICKS ON TAGS '+' ICON
 		//
 		function expandTags(workerId) {
+			$(".copy").on('click', function (e) {
+                e.preventDefault();
+                var copyValue = $(this).attr('data-copyValue');
+                copyInput(copyValue, false);
+                $(this).attr('aria-label', 'Copied!');
+                setTimeout(function () {
+                    $('.copy').attr('aria-label', 'Copy');
+                }, 2000);
+            });
+
 			$("#"+workerId+"_plus_tags").hide();
 			$("#"+workerId+"_minus_tags").show();
 			$("#"+workerId+"_tagsTable").show();
@@ -278,16 +289,6 @@
 		$( window ).load(function() {
 			console.log( "window loaded" );
 		});
-
-		$(document).on('click', '.copy', function (e) {
-                    e.preventDefault();
-                    var copyValue = $(this).attr('data-copyValue');
-                    copyInput(copyValue, false);
-                    $(this).attr('aria-label', 'Copied!');
-                    setTimeout(function () {
-                        $('.copy').attr('aria-label', 'Copy');
-                    }, 2000);
-                });
 	</script>
 	
 	<!-- Just for debugging purposes. Don''t actually copy this line! -->
@@ -316,7 +317,7 @@
 	
 		<#include "sidebar.ftl">
 
-		<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+		<div class="main-content">
 
 			<span id="statusMessageDiv"><h2>${msg}</h2></span>
 			
@@ -326,7 +327,7 @@
 				<input name="hide-down" id="hide-down-btn" type="checkbox">
 			</div>
 			<h3 class="sub-header">Workers</h3>
-			<div class="table-responsive">
+			<div class="table-responsive worker-section">
 				<table id="workers-table" class="table table-striped table-bordered" border="1">
 					<thead>
 						<tr>
@@ -457,7 +458,7 @@
 			</div>
 			
 			<h3 class="sub-header">External Workers</h3>
-			<div class="table-responsive">
+			<div class="table-responsive worker-section">
 				<table id="ext-workers-table" class="table table-striped table-bordered" border="1">
 					<thead>
 						<tr>
@@ -485,7 +486,7 @@
 			</div>
 			
 			<h3 class="sub-header">AMQ Clients</h3>
-			<div class="table-responsive">
+			<div class="table-responsive worker-section">
 				<table id="amq-clients-table" class="table table-striped table-bordered">
 					<thead>
 						<tr>
@@ -518,7 +519,7 @@
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="/${base}/js/bootstrap.min.js"></script>
-<script src="/${base}/js/docs.min.js"></script>
+<!-- <script src="/${base}/js/docs.min.js"></script> -->
 
 <script type="text/javascript">
 	$("#hide-down-btn").click(function() {

@@ -118,16 +118,16 @@ public class SnippetsTestIT extends WebTestUtil {
 			goToPage("processes");
 			sleep(8000);
 
-			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
+			waitForElementXPath("//input[@id=\'dt-search-0\']");
 
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_snippets_page");
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).click();
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys("test_snippets_page");
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 
 			log.info("Clicking on Test Snippets Page history.");
-			WebElement historyButton = findElByXPath("//a[contains(text(),'History')]");
+			WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
 			waitForElement(historyButton);
 			scrollTo(historyButton);
 			historyButton.click();
@@ -160,7 +160,12 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			waitForElementID("validateAndSaveSnippetsSubmitBtn");
 			log.info("Clicking on 'Validate and Save' button.");
-			driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn")).click();
+			
+			WebElement validateAndSaveButton = driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn"));
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+	  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", validateAndSaveButton);
+
+	  		validateAndSaveButton.click();
 
 			log.info("Verifying 'Saved the snippets' shows up on the page.");
 			if(findOnPage("Saved the snippets")) {
@@ -219,7 +224,12 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			waitForElementID("validateAndSaveSnippetsSubmitBtn");
 			log.info("Clicking on 'Validate and Save' button...");
-			driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn")).click();
+
+			WebElement validateAndSaveButton = driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn"));
+	  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", validateAndSaveButton);
+	  		sleep(2000);
+
+	  		validateAndSaveButton.click();
 
 			log.info("Verifying 'Saved the snippets' shows up on the page.");
 			if(findOnPage("Saved the snippets")) {
@@ -255,7 +265,11 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			waitForElementID("validateAndSaveSnippetsSubmitBtn");
 			log.info("Clicking on 'Validate and Save' button");
-			driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn")).click();
+
+			WebElement validateAndSaveButton = driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn"));
+	  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", validateAndSaveButton);
+
+	  		validateAndSaveButton.click();
 
 			log.info("Looking for 'ERROR: invalid code.' on page.");
 			if(findOnPage("ERROR: invalid code.")) {
@@ -293,7 +307,11 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			waitForElementID("validateAndSaveSnippetsSubmitBtn");
 			log.info("Clicking on 'Validate and Save' button");
-			driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn")).click();
+
+			WebElement validateAndSaveButton = driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn"));
+	  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", validateAndSaveButton);
+
+			validateAndSaveButton.click();
 
 			log.info("Looking for 'ERROR: invalid code.' on page.");
 			if(findOnPage("ERROR: invalid code.")) {
@@ -304,8 +322,13 @@ public class SnippetsTestIT extends WebTestUtil {
 				driver.findElement(By.id("revertSnippetsSubmitBtn")).click();
 
 				waitForElementID("validateAndSaveSnippetsSubmitBtn");
+
+				validateAndSaveButton = driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn"));
+		  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", validateAndSaveButton);
+		  		sleep(2000);
+
 				log.info("Clicking on 'Validate and Save' button");
-				driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn")).click();
+				validateAndSaveButton.click();
 
 				log.info("Verifying 'Saved the snippets' shows up on the page.");
 				if(findOnPage("Saved the snippets")) {
