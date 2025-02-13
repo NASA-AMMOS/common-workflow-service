@@ -523,7 +523,19 @@
                             data: { inputVariables: "inputVariables", procStartTime: "procStartTime"},
                             render: function (data, type) {
                                 if (jQuery.isEmptyObject(data.inputVariables)) {
-                                    return "None";
+                                   if (jQuery.isEmptyObject(data.initiationKey)) {
+                                        return "None";
+                                   }
+                                   else {
+                                        temp = `<div class="var-row-div-flex">`
+                                                    + `<div class="var-row-div-flex-sub-1"><b>initiationKey: </b><p style="margin-bottom: 0px;">` + data.initiationKey + `</p></div>`
+                                                    + `<div class="var-row-div-flex-sub-2"></div>`
+                                                    + `<div class="copySpan" style="width: 30px;">`
+                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + data.initiationKey + `" onClick="">`
+                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                                    + `</span></div></div>`;
+                                         return temp;
+                                   }
                                 }
                                 if (type === 'display') {
                                     var output = "";
