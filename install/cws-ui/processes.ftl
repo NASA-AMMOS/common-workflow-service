@@ -1663,7 +1663,7 @@
                 })
                     .done(function (msg) {
                         $("#action_msg").html(msg.message);
-                        table.ajax.reload();
+                        fetchAndDisplayProcesses();
                     })
                     .fail(function (xhr, err) {
                         $("#action_msg").html(xhr.responseTextmsg.message);
