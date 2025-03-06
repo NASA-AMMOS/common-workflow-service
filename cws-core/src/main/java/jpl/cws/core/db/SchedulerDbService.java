@@ -49,7 +49,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
     public static final int PROCESSES_PAGE_SIZE = 50;
 
     public static final String FIND_CLAIMABLE_ROWS_SQL = 
-			"SELECT uuid, priority FROM cws_sched_worker_proc_inst " +
+			"SELECT uuid, priority, created_time FROM cws_sched_worker_proc_inst " +
 			"WHERE " +
 			"  status='"+PENDING+"' AND " +
 			"  proc_def_key=? " +
@@ -274,10 +274,14 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 				}
 
 				unfilteredProcesses.sort(new Comparator<Map<String, Object>>() {
-                    public int compare(Map<String, Object> one, Map<String, Object> two) {
-                        return ((Integer) one.get("priority")).compareTo((Integer) two.get("priority"));
-                    }
-                });
+					public int compare(Map<String, Object> one, Map<String, Object> two) {
+                        int initial_compare = ((Integer) one.get("priority")).compareTo((Integer) two.get("priority"));
+                        if (initial_compare == 0) {
+                            return ((Integer) one.get("created_time")).compareTo((Integer) two.get("created_time"));
+                        }
+						return initial_compare;
+					}
+				});
 				
 				for (Map<String, Object> proc : unfilteredProcesses) {
 					String uuid = (String) proc.get("uuid");
