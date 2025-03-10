@@ -1239,9 +1239,6 @@ public class RestService extends MvcCore {
 		try {
 			size = dbService.getFilteredProcessInstancesSize(
 					superProcInstId, procInstId, procDefKey, status, minDate, maxDate);
-			if (intMaxReturn > 0 && intMaxReturn < size) {
-				size = intMaxReturn;
-			}
 		}
 		catch (Exception e) {
 			log.error("Problem while getFilteredProcessInstancesSize", e);
