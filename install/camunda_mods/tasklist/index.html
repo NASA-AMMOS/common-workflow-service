@@ -2,20 +2,19 @@
 <html lang="en">
 <head>
   <meta http-equiv="X-UA-Compatible"
-        content="IE=edge" />
+        content="IE=edge"/>
 
   <title>Camunda Tasklist</title>
 
-  <meta charset="utf-8" />
+  <meta charset="utf-8"/>
   <meta name="viewport"
-        content="width=device-width, initial-scale=1.0" />
+        content="width=device-width, initial-scale=1.0"/>
 
   <meta name="description"
-        content="Camunda Tasklist" />
+        content="Camunda Tasklist"/>
   <meta name="author"
-        content="Camunda services GmbH" />
+        content="Camunda services GmbH"/>
 
-  <!--< base href="/" /> -->
   <base href="$BASE"
         admin-api="$APP_ROOT/api/admin/"
         cockpit-api="$APP_ROOT/api/cockpit/"
@@ -25,16 +24,11 @@
         app-root="$APP_ROOT"
         app-name="tasklist"/>
 
-  <link rel="icon" href="$APP_ROOT/favicon.ico">
-  <script defer src="$APP_ROOT/lib/runtime.js?bust=7.20.0" $CSP_NONCE charset="UTF-8"></script>
-  <script defer src="$APP_ROOT/lib/deps.js?bust=7.20.0" $CSP_NONCE charset="UTF-8"></script>
-  <script defer src="$APP_ROOT/app/tasklist/camunda-tasklist-bootstrap.js?bust=7.20.0" $CSP_NONCE charset="UTF-8"></script>
-  <link href="$APP_ROOT/app/tasklist/camunda-tasklist-bootstrap.css?bust=7.20.0" rel="stylesheet">
+  <link rel="icon" href="$APP_ROOT/favicon.ico"><script defer src="$APP_ROOT/lib/runtime.js?bust=7.21.0" $CSP_NONCE charset="UTF-8"></script><script defer src="$APP_ROOT/lib/deps.js?bust=7.21.0" $CSP_NONCE charset="UTF-8"></script><script defer src="$APP_ROOT/app/tasklist/camunda-tasklist-bootstrap.js?bust=7.21.0" $CSP_NONCE charset="UTF-8"></script><link href="$APP_ROOT/app/tasklist/camunda-tasklist-bootstrap.css?bust=7.21.0" rel="stylesheet">
 
   <link rel="stylesheet"
         type="text/css"
-        href="$APP_ROOT/app/tasklist/styles/user-styles.css?bust=7.20.0">
-
+        href="$APP_ROOT/app/tasklist/styles/user-styles.css?bust=7.21.0">
 </head>
 
 <body ng-controller="camTasklistAppCtrl">
@@ -56,68 +50,47 @@
       </view>
     </li>
      <li><a class="cam-widget-header" href="/cws-ui">CWS</a></li>
-    </ul>
-  </div>
+  </ul>
+</div>
 
-  <div class="site-wrap">
+<div class="site-wrap">
 
     <!-- # page-content -->
     <div class="page-wrap three-cols-layout" ng-view>
       <div class="app-splash"><div>
         <div class="spinner spinner-big"></div>
-      </div></div><!-- / .app-splash -->
-</div>
-    <!-- / page-content -->
-
+      </div>
+    </div><!-- / .app-splash -->
   </div>
+  <!-- / page-content -->
+
+</div>
 
 
-
-  <div notifications-panel
-       class="page-notifications"></div>
-
+<div notifications-panel
+     class="page-notifications"></div>
 
 
-  <!-- # page-footer -->
-  <footer cam-widget-footer
-          version="v7.20.0"></footer>
+<!-- # page-footer -->
+<footer cam-widget-footer
+        version="v7.21.0"></footer>
 
 
-  <script type="text/javascript" $CSP_NONCE>
-    // override the following line to include configuration
-    var tasklistConf = {
-  "apiUri": "$APP_ROOT/api/engine",
-  "mock": false,
-  "resources": {}
-};
-  </script>
+<script type="text/javascript" $CSP_NONCE>
+  window.tasklistConf = {
+    apiUri: '$APP_ROOT/api/engine',
+    mock: false,
 
-  <script type="text/javascript" $CSP_NONCE>
-    window.PLUGIN_DEPENDENCIES = $PLUGIN_DEPENDENCIES || [];
-    window.PLUGIN_PACKAGES = $PLUGIN_PACKAGES || [];
+    // overrides the settings above
+    resources: {}
+  };
 
-    window.require = {
-      waitSeconds: 0
-    };
-  </script>
+  window.PLUGIN_DEPENDENCIES = $PLUGIN_DEPENDENCIES || [];
+  window.PLUGIN_PACKAGES = $PLUGIN_PACKAGES || [];
 
-  <script type="application/javascript"
-          src="$APP_ROOT/lib/require.js" $CSP_NONCE></script>
-    <script type="text/javascript" $CSP_NONCE>
-
-window.__define = window.define;
-window.__require = window.require;
-window.define = undefined;
-window.require = undefined;
-window.bust = '7.20.0';
-
-requirejs.config({
-  baseUrl: '$APP_ROOT/app/tasklist',
-  urlArgs: 'bust=7.20.0'
-});
-requirejs(['$APP_ROOT/lib/deps.js'], function () {
-  requirejs(['$APP_ROOT/app/tasklist/camunda-tasklist-bootstrap.js'], function () {});
-});
-    </script>
+  window.require = {
+    waitSeconds: 0
+  };
+</script>
 </body>
 </html>

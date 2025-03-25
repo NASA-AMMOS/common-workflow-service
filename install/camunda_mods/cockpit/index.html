@@ -28,22 +28,20 @@
     <!-- an example of plugin/feature exclusion -->
     <!--
     <base href="$BASE"
+          admin-api="$APP_ROOT/api/admin/"
           cockpit-api="$APP_ROOT/api/cockpit/"
+          tasklist-api="$APP_ROOT/api/tasklist/"
+          welcome-api="$APP_ROOT/api/welcome/"
           engine-api="$APP_ROOT/api/engine/"
           app-root="$APP_ROOT"
           cam-exclude-plugins="cockpit.dashboard:process-definition-tiles" />
     -->
 
-
-    <link rel="icon" href="$APP_ROOT/favicon.ico">
-    <script defer src="$APP_ROOT/lib/runtime.js?bust=7.20.0" $CSP_NONCE charset="UTF-8"></script>
-    <script defer src="$APP_ROOT/lib/deps.js?bust=7.20.0" $CSP_NONCE charset="UTF-8"></script>
-    <script defer src="$APP_ROOT/app/cockpit/camunda-cockpit-bootstrap.js?bust=7.20.0" $CSP_NONCE charset="UTF-8"></script>
-    <link href="$APP_ROOT/app/cockpit/camunda-cockpit-bootstrap.css?bust=7.20.0" rel="stylesheet">
+    <link rel="icon" href="$APP_ROOT/favicon.ico"><script defer src="$APP_ROOT/lib/runtime.js?bust=7.21.0" $CSP_NONCE charset="UTF-8"></script><script defer src="$APP_ROOT/lib/deps.js?bust=7.21.0" $CSP_NONCE charset="UTF-8"></script><script defer src="$APP_ROOT/app/cockpit/camunda-cockpit-bootstrap.js?bust=7.21.0" $CSP_NONCE charset="UTF-8"></script><link href="$APP_ROOT/app/cockpit/camunda-cockpit-bootstrap.css?bust=7.21.0" rel="stylesheet">
 
     <link rel="stylesheet"
           type="text/css"
-          href="$APP_ROOT/app/cockpit/styles/user-styles.css?bust=7.20.0">
+          href="$APP_ROOT/app/cockpit/styles/user-styles.css?bust=7.21.0">
   </head>
   <body>
     <!-- navigation -->
@@ -60,7 +58,7 @@
         <li ng-repeat="actionProvider in menuActions"
             ng-if="actionProvider.accessible"
             ng-class="activeClass(actionProvider)">
-          <view provider="actionProvider"></view>
+            <view provider="actionProvider"></view>
         </li>
         <li class="dropdown"
             ng-if="dropdownActions.length"
@@ -72,7 +70,7 @@
             <li ng-repeat="actionProvider in dropdownActions"
                 ng-if="actionProvider.accessible"
                 ng-class="activeClass(actionProvider)">
-              <view provider="actionProvider"></view>
+                <view provider="actionProvider"></view>
             </li>
           </ul>
         </li>
@@ -103,36 +101,17 @@
 
     <!-- footer -->
     <footer cam-widget-footer
-            version="v7.20.0"></footer>
+            version="v7.21.0"></footer>
 
     <script type="application/javascript" $CSP_NONCE>
-      var cockpitConf = window.camCockpitConf = {};
+        window.camCockpitConf = {};
 
-      window.PLUGIN_DEPENDENCIES = $PLUGIN_DEPENDENCIES || [];
-      window.PLUGIN_PACKAGES = $PLUGIN_PACKAGES || [];
+        window.PLUGIN_DEPENDENCIES = $PLUGIN_DEPENDENCIES || [];
+        window.PLUGIN_PACKAGES = $PLUGIN_PACKAGES || [];
 
-      window.require = {
-        waitSeconds: 0
-      };
-    </script>
-
-    <script type="application/javascript"
-            src="$APP_ROOT/lib/require.js" $CSP_NONCE></script>
-    <script type="text/javascript" $CSP_NONCE>
-
-window.__define = window.define;
-window.__require = window.require;
-window.define = undefined;
-window.require = undefined;
-window.bust = '7.20.0';
-
-requirejs.config({
-  baseUrl: '$APP_ROOT/app/cockpit',
-  urlArgs: 'bust=7.20.0'
-});
-requirejs(['$APP_ROOT/lib/deps.js'], function () {
-  requirejs(['$APP_ROOT/app/cockpit/camunda-cockpit-bootstrap.js'], function(){});
-});
+        window.require = {
+          waitSeconds: 0
+        };
     </script>
   </body>
 </html>

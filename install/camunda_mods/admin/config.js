@@ -28,18 +28,18 @@ export default {
     //   // with a file called 'customScript.js' in it
     //   // 'my-custom-script/customScript'
     // ],
-    requireJsConfig: {
-        // AngularJS module names
-        ngDeps: [],
-        // RequireJS configuration for a complete configuration documentation see:
-        // http://requirejs.org/docs/api.html#config
-        deps: ['jquery', 'cws'],
-        paths: {
-            // if you have a folder called `custom-ui` (in the `admin` folder)
-            // with a file called `scripts.js` in it and defining the `custom-ui` AMD module
-            'cws': 'cws/scripts'
-        }
-    },
+    // requireJsConfig: {
+    //   // AngularJS module names
+    //   ngDeps: ['ui.bootstrap'],
+    //   // RequireJS configuration for a complete configuration documentation see:
+    //   // http://requirejs.org/docs/api.html#config
+    //   deps: ['jquery', 'custom-ui'],
+    //   paths: {
+    //     // if you have a folder called `custom-ui` (in the `admin` folder)
+    //     // with a file called `scripts.js` in it and defining the `custom-ui` AMD module
+    //     'custom-ui': 'custom-ui/scripts'
+    //   }
+    // },
     // 'runtimeActivityInstanceMetrics': {
     //   'display': true
     // },
@@ -49,7 +49,6 @@ export default {
     //     'unit': 'day'
     //   }
     // },
-    'alwaysShowUniqueTaskWorkerMetrics': true,
     // 'locales': {
     //   'availableLocales': ['en', 'de'],
     //   'fallbackLocale': 'en'
@@ -57,4 +56,5 @@ export default {
     // csrfCookieName: 'XSRF-TOKEN',
     // disableWelcomeMessage: false,
     // userOperationLogAnnotationLength: 4000
-};
+  };
+  

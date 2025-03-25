@@ -75,7 +75,7 @@
 						<td><a href="https://github.com/NASA-AMMOS/common-workflow-service/wiki" target="_blank">CWS Wiki</a></td>
 					</tr>
 					<tr>
-						<td><a href="https://docs.camunda.org/manual/7.20/reference/bpmn20/" target="_blank">Camunda BPMN 2.0 Implementation Reference</a></td>
+						<td><a href="https://docs.camunda.org/manual/7.21/reference/bpmn20/" target="_blank">Camunda BPMN 2.0 Implementation Reference</a></td>
 					</tr>
 					<tr>
 						<td><a href="http://www.bpmnquickguide.com/quickguide/index.html" target="_blank">BP Incubator BPMN Quick Guide</a></td>
@@ -87,7 +87,7 @@
 						</td>
 					</tr>
 					<tr>
-						<td><a href="https://docs.camunda.org/rest/camunda-bpm-platform/7.20/" target="_blank">Camunda API Documentation</a></td>
+						<td><a href="https://docs.camunda.org/rest/camunda-bpm-platform/7.21/" target="_blank">Camunda API Documentation</a></td>
 					</tr>
 				</table>
 			</div>

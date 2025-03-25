@@ -1,5 +1,3 @@
-version: "3.2"
-
 services:
   db:
     restart: always
@@ -128,7 +126,7 @@ services:
     volumes:
       - ./config.properties:/home/cws_user/config.properties:ro
       - ~/.cws/creds:/root/.cws/creds:ro
-      - console-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
+      - console-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.85/logs
     networks:
       - external-network
   cws-worker:
@@ -153,7 +151,7 @@ services:
     volumes:
       - ./worker-config.properties:/home/cws_user/config.properties:ro
       - ~/.cws/creds:/root/.cws/creds:ro
-      - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
+      - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.85/logs
     networks:
       - external-network
   ldapsearch:
@@ -170,5 +168,5 @@ volumes:
 
 networks:
   external-network:
-    external:
-      name: cws-network
+    name: cws-network
+    external: true
