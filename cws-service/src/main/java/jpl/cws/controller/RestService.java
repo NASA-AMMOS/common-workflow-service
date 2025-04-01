@@ -1260,6 +1260,56 @@ public class RestService extends MvcCore {
 	}
 	
 	/**
+	 * REST method used to get Processes table JSON serverside
+	 * 
+	 */
+	@RequestMapping(value = "/processes/getInstancesCamundaServerSide", method = GET, produces="application/json")
+	public @ResponseBody String getProcessInstancesCamundaServerSide(
+			@RequestParam(value = "start", required=true) int start,
+			@RequestParam(value = "length", required=true) int length,
+			@RequestParam(value = "draw", required=true) int draw,
+			@RequestParam(value = "order[0][column]", required=true) int sortColIndex,
+			@RequestParam(value = "order[0][dir]", required=true) String order,
+			@RequestParam(value = "columns[0][data]", required=true) String col0DataAttrName,
+			@RequestParam(value = "superProcInstId",  required=false) String superProcInstId,
+			@RequestParam(value = "procInstId",  required=false) String procInstId,
+			@RequestParam(value = "procDefKey",  required=false) String procDefKey,
+			@RequestParam(value = "minDate",     required=false) String minDate,
+			@RequestParam(value = "maxDate",     required=false) String maxDate,
+			@RequestParam(value = "status",      required=false) String status,
+			@RequestParam(value = "dateOrderBy", required=false, defaultValue="DESC") String dateOrderBy
+			) {
+
+			List<CwsProcessInstance> instances = null;
+			try {
+
+				Integer pageNum = start/length + 1;
+	
+				dateOrderBy = dateOrderBy.toUpperCase();
+				if (!dateOrderBy.equals("DESC") && !dateOrderBy.equals("ASC")) {
+					log.error("Invalid dateOrderBy of " + dateOrderBy + "!  Forcing to be 'DESC'");
+					dateOrderBy = "DESC";
+				}
+				
+				log.debug("REST:  getProcessInstances (superProcInstId='" + superProcInstId +
+						"', procInstId='" + procInstId +
+						"', procDefKey='"+procDefKey+
+						"', status='"+status+"', minDate="+minDate+", maxDate="+maxDate+
+						", dateOrderBy="+dateOrderBy+")");
+	
+				instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
+						superProcInstId, procInstId, procDefKey, status, minDate, maxDate, dateOrderBy, pageNum);
+	
+			}
+			catch (Exception e) {
+				log.error("Problem getting process instance information!", e);
+				// return an empty set
+				return new GsonBuilder().setPrettyPrinting().create().toJson(new ArrayList<CwsProcessInstance>());
+			}
+			return new GsonBuilder().serializeNulls().create().toJson(instances);
+	}
+
+	/**
 	 * REST method used to get Processes table JSON
 	 * 
 	 */
