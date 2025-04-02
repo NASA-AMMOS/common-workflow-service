@@ -70,6 +70,7 @@ import jpl.cws.core.web.WebUtils.RestCallResult;
 import jpl.cws.process.initiation.CwsProcessInitiator;
 import jpl.cws.process.initiation.InitiatorsService;
 import jpl.cws.scheduler.CwsProcessInstance;
+import jpl.cws.scheduler.CwsProcessInstancesDTO;
 import jpl.cws.scheduler.LogHistory;
 import jpl.cws.scheduler.Scheduler;
 import jpl.cws.service.CwsConsoleService;
@@ -1268,6 +1269,7 @@ public class RestService extends MvcCore {
 			@RequestParam(value = "start", required=true) int start,
 			@RequestParam(value = "length", required=true) int length,
 			@RequestParam(value = "draw", required=true) int draw,
+			@RequestParam(value = "size", required=true) int size,
 			@RequestParam(value = "order[0][column]", required=true) int sortColIndex,
 			@RequestParam(value = "order[0][dir]", required=true) String order,
 			@RequestParam(value = "columns[0][data]", required=true) String col0DataAttrName,
@@ -1281,6 +1283,7 @@ public class RestService extends MvcCore {
 			) {
 
 			List<CwsProcessInstance> instances = null;
+			CwsProcessInstancesDTO instancesDTO = new CwsProcessInstancesDTO();
 			try {
 
 				Integer pageNum = start/length + 1;
@@ -1291,22 +1294,25 @@ public class RestService extends MvcCore {
 					dateOrderBy = "DESC";
 				}
 				
-				log.debug("REST:  getProcessInstances (superProcInstId='" + superProcInstId +
-						"', procInstId='" + procInstId +
-						"', procDefKey='"+procDefKey+
-						"', status='"+status+"', minDate="+minDate+", maxDate="+maxDate+
-						", dateOrderBy="+dateOrderBy+")");
 	
 				instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
 						superProcInstId, procInstId, procDefKey, status, minDate, maxDate, dateOrderBy, pageNum);
-	
+
+				instancesDTO.setData(instances);
+				log.debug("REST:  getInstancesCamundaServerSide (superProcInstId='" + superProcInstId +
+						"', procInstId='" + procInstId +
+						"', procDefKey='"+procDefKey+
+						"', status='"+status+"', minDate="+minDate+", maxDate="+maxDate+
+						", dateOrderBy="+dateOrderBy+ "size=" + size + "number of instances retrieved="+ instances.size() + ")");
 			}
 			catch (Exception e) {
 				log.error("Problem getting process instance information!", e);
-				// return an empty set
-				return new GsonBuilder().setPrettyPrinting().create().toJson(new ArrayList<CwsProcessInstance>());
+				instancesDTO.setData(new ArrayList<CwsProcessInstance>());
 			}
-			return new GsonBuilder().serializeNulls().create().toJson(instances);
+			instancesDTO.setRecordsFiltered(size);
+			instancesDTO.setRecordsTotal(size); // Needed to show Pagination in Datatable
+			instancesDTO.setDraw(draw);
+			return new GsonBuilder().serializeNulls().create().toJson(instancesDTO);
 	}
 
 	/**
