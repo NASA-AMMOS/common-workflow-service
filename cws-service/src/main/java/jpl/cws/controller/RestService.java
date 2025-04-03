@@ -1286,7 +1286,7 @@ public class RestService extends MvcCore {
 			CwsProcessInstancesDTO instancesDTO = new CwsProcessInstancesDTO();
 			try {
 
-				Integer pageNum = start/length + 1;
+				Integer pageNum = start/length;
 	
 				dateOrderBy = dateOrderBy.toUpperCase();
 				if (!dateOrderBy.equals("DESC") && !dateOrderBy.equals("ASC")) {
@@ -1303,7 +1303,8 @@ public class RestService extends MvcCore {
 						"', procInstId='" + procInstId +
 						"', procDefKey='"+procDefKey+
 						"', status='"+status+"', minDate="+minDate+", maxDate="+maxDate+
-						", dateOrderBy="+dateOrderBy+ "size=" + size + "number of instances retrieved="+ instances.size() + ")");
+						"', start='"+ start+"',lenght='"+ length + "', pageNum='" + pageNum +"'," +
+						", dateOrderBy="+dateOrderBy+ "size=" + size + " number of instances retrieved="+ instances.size() + ")");
 			}
 			catch (Exception e) {
 				log.error("Problem getting process instance information!", e);
