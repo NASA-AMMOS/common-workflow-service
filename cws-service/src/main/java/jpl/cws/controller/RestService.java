@@ -1262,7 +1262,7 @@ public class RestService extends MvcCore {
 	
 	private List<CwsProcessInstance> getCwsProcessInstances(Integer pageNum, String superProcInstId, String procInstId,
 	String status, String procDefKey, String minDate, String maxDate,String dateOrderBy) {
-		List<CwsProcessInstance> instances = null;
+	
 		dateOrderBy = dateOrderBy.toUpperCase();
 
 		if (!dateOrderBy.equals("DESC") && !dateOrderBy.equals("ASC")) {
@@ -1270,7 +1270,7 @@ public class RestService extends MvcCore {
 					dateOrderBy = "DESC";
 		}
 				
-		instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
+		List<CwsProcessInstance> instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
 						superProcInstId, procInstId, procDefKey, status, minDate, maxDate, dateOrderBy, pageNum);
 
 		return instances;
@@ -1323,7 +1323,7 @@ public class RestService extends MvcCore {
 	}
 
 	/**
-	 * REST method used to get Processes table JSON
+	 * REST method used to get Processes table JSON clientside
 	 * 
 	 */
 	@RequestMapping(value = "/processes/getInstancesCamunda", method = GET, produces="application/json")
