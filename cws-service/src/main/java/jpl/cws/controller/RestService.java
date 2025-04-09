@@ -1260,6 +1260,22 @@ public class RestService extends MvcCore {
 		}
 	}
 	
+	private List<CwsProcessInstance> getCwsProcessInstances(Integer pageNum, String superProcInstId, String procInstId,
+	String status, String procDefKey, String minDate, String maxDate,String dateOrderBy) {
+		List<CwsProcessInstance> instances = null;
+		dateOrderBy = dateOrderBy.toUpperCase();
+
+		if (!dateOrderBy.equals("DESC") && !dateOrderBy.equals("ASC")) {
+					log.error("Invalid dateOrderBy of " + dateOrderBy + "!  Forcing to be 'DESC'");
+					dateOrderBy = "DESC";
+		}
+				
+		instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
+						superProcInstId, procInstId, procDefKey, status, minDate, maxDate, dateOrderBy, pageNum);
+
+		return instances;
+	}
+
 	/**
 	 * REST method used to get Processes table JSON serverside
 	 * 
@@ -1282,22 +1298,12 @@ public class RestService extends MvcCore {
 			@RequestParam(value = "dateOrderBy", required=false, defaultValue="DESC") String dateOrderBy
 			) {
 
-			List<CwsProcessInstance> instances = null;
+			
 			CwsProcessInstancesDTO instancesDTO = new CwsProcessInstancesDTO();
 			try {
 
 				Integer pageNum = start/length;
-	
-				dateOrderBy = dateOrderBy.toUpperCase();
-				if (!dateOrderBy.equals("DESC") && !dateOrderBy.equals("ASC")) {
-					log.error("Invalid dateOrderBy of " + dateOrderBy + "!  Forcing to be 'DESC'");
-					dateOrderBy = "DESC";
-				}
-				
-	
-				instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
-						superProcInstId, procInstId, procDefKey, status, minDate, maxDate, dateOrderBy, pageNum);
-
+				List<CwsProcessInstance> instances = getCwsProcessInstances(pageNum, superProcInstId, procInstId, status, procDefKey, minDate, maxDate, dateOrderBy);
 				instancesDTO.setData(instances);
 				log.debug("REST:  getInstancesCamundaServerSide (superProcInstId='" + superProcInstId +
 						"', procInstId='" + procInstId +
@@ -1333,26 +1339,19 @@ public class RestService extends MvcCore {
 			@RequestParam(value = "maxReturn", required=false, defaultValue="5000") String maxReturn
 			) {
 		
-		List<CwsProcessInstance> instances = null;
+		List<CwsProcessInstance> instances;
 		try {
 
 			Integer pageNum = Integer.parseInt(page);
 			Integer intMaxReturn = Integer.parseInt(maxReturn);
 
-			dateOrderBy = dateOrderBy.toUpperCase();
-			if (!dateOrderBy.equals("DESC") && !dateOrderBy.equals("ASC")) {
-				log.error("Invalid dateOrderBy of " + dateOrderBy + "!  Forcing to be 'DESC'");
-				dateOrderBy = "DESC";
-			}
-			
 			log.debug("REST:  getProcessInstances (superProcInstId='" + superProcInstId +
 					"', procInstId='" + procInstId +
 					"', procDefKey='"+procDefKey+
 					"', status='"+status+"', minDate="+minDate+", maxDate="+maxDate+
 					", dateOrderBy="+dateOrderBy+")");
 
-			instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
-					superProcInstId, procInstId, procDefKey, status, minDate, maxDate, dateOrderBy, pageNum);
+			instances = getCwsProcessInstances(pageNum, superProcInstId, procInstId, status, procDefKey, minDate, maxDate, dateOrderBy);
 
 			if ((intMaxReturn != -1) && (instances.size() > intMaxReturn)) {
 				instances = instances.subList(0, intMaxReturn);
