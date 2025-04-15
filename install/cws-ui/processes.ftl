@@ -1070,65 +1070,54 @@
                     }
                 }
                 qstring = qstring.substring(0, qstring.length - 1);
-                //fetch number of processes
-                var numProcs = 0;
+                
                 //show ajax spinner
                 $(".ajax-spinner").show();
-                $.ajax({
-                    url: "/${base}/rest/processes/getInstancesSize" + qstring,
-                    type: "GET",
-                    async: false,
-                    success: function (data) {
-                        numProcs = data;
-                    },
-                    error: function (xhr, ajaxOptions, thrownError) {
-                        console.log("Error getting number of processes: " + thrownError);
-                    }
-                });
-                //fetch processes
-                var numCalls = Math.ceil(numProcs / 50);
-                var returnedData = [];
-                var doneArr = [];
-                var urlPageAddition = "";
-                if (qstring === "") {
-                    urlPageAddition = "?page=";
-                } else {
-                    urlPageAddition = "&page=";
-                }
-                for (var i = 0; i < numCalls; i++) {
-                    $.ajax({
-                        url: "/${base}/rest/processes/getInstancesCamunda" + qstring + urlPageAddition + i,
-                        type: "GET",
-                        async: true,
-                        success: function (data) {
-                            returnedData = returnedData.concat(data);
-                            doneArr.push(true);
+                
+                // Initialize DataTable with server-side processing
+                if (!$.fn.DataTable.isDataTable("#processes-table")) {
+                    $("#processes-table").DataTable({
+                        processing: true,
+                        serverSide: true,
+                        ajax: {
+                            url: "/${base}/rest/processes/getInstancesCamunda" + qstring,
+                            type: "GET",
+                            data: function(d) {
+                                // Add pagination parameters
+                                d.page = d.start / d.length;
+                                d.pageSize = d.length;
+                                
+                                // Add any additional params from URL
+                                if (params != null) {
+                                    for (p in params) {
+                                        if (params[p] && !d[p]) {
+                                            d[p] = params[p];
+                                        }
+                                    }
+                                }
+                                
+                                return d;
+                            },
+                            dataSrc: function(json) {
+                                return json.data || json;
+                            }
                         },
-                        error: function (xhr, ajaxOptions, thrownError) {
-                            console.log("Error getting processes: " + thrownError);
+                        drawCallback: function() {
+                            updateSelectDropDown();
+                            $(".ajax-spinner").hide();
+                        },
+                        initComplete: function() {
+                            // Apply searchBuilder if needed
+                            if (params != null && params["searchBuilder"] != null && params["searchBuilder"] !== undefined) {
+                                var sbState = JSON.parse(decodeURIComponent(decodeURIComponent(params["searchBuilder"])));
+                                $("#processes-table").DataTable().searchBuilder.rebuild(sbState);
+                            }
                         }
                     });
+                } else {
+                    // If table already initialized, just reload it
+                    $("#processes-table").DataTable().ajax.reload();
                 }
-                //we need to wait until all ajax calls are done before we can display the data
-                var interval = setInterval(function () {
-                    if (doneArr.length === numCalls) {
-                        clearInterval(interval);
-                        $("#processes-table").DataTable().clear();
-                        $("#processes-table").DataTable().rows.add(returnedData).draw();
-                        $("#processes-table").DataTable().responsive.recalc();
-                        updateSelectDropDown();
-                        //hide ajax spinner
-                        $(".ajax-spinner").hide();
-                    }
-                }, 250);
-
-                setTimeout(function () {
-                    //apply our local filter
-                    if (params != null && params["searchBuilder"] != null && params["searchBuilder"] !== undefined) {
-                        var sbState = JSON.parse(decodeURIComponent(decodeURIComponent(params["searchBuilder"])));
-                        $("#processes-table").DataTable().searchBuilder.rebuild(sbState);
-                    }
-                }, 250);
             }
 
             //Update the text of the select dropdown to reflect number of rows loaded/in datatable
