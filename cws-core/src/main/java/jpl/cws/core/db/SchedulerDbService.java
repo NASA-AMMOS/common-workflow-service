@@ -935,6 +935,20 @@ public class SchedulerDbService extends DbService implements InitializingBean {
             String dateOrderBy,
             int page
     ) {
+        return getFilteredProcessInstances(superProcInstId, procInstId, procDefKey, statusList, minDate, maxDate, dateOrderBy, page, PROCESSES_PAGE_SIZE);
+    }
+    
+    public List<Map<String, Object>> getFilteredProcessInstances(
+            String superProcInstId,
+            String procInstId,
+            String procDefKey,
+            String statusList,
+            String minDate,
+            String maxDate,
+            String dateOrderBy,
+            int page,
+            int pageSize
+    ) {
         List<Object> whereObjs = new ArrayList<Object>();
         if (procInstId != null) {
             whereObjs.add(procInstId);
@@ -949,8 +963,8 @@ public class SchedulerDbService extends DbService implements InitializingBean {
             whereObjs.add(maxDate);
         }
 
-        Integer offset = page * PROCESSES_PAGE_SIZE;
-        Integer size = PROCESSES_PAGE_SIZE;
+        Integer offset = page * pageSize;
+        Integer size = pageSize;
 
         whereObjs.add(offset);
         whereObjs.add(size);

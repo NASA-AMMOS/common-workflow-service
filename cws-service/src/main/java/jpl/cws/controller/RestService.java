@@ -1443,13 +1443,30 @@ public class RestService extends MvcCore {
 			@RequestParam(value = "maxDate",     required=false) String maxDate,
 			@RequestParam(value = "dateOrderBy", required=false, defaultValue="DESC") String dateOrderBy,
 			@RequestParam(value = "page", required=false, defaultValue="0") String page,
+			@RequestParam(value = "pageSize", required=false, defaultValue="50") String pageSize,
+			@RequestParam(value = "start", required=false) String start,
+			@RequestParam(value = "length", required=false) String length,
+			@RequestParam(value = "draw", required=false) String draw,
 			@RequestParam(value = "maxReturn", required=false, defaultValue="5000") String maxReturn
 			) {
 		
 		List<CwsProcessInstance> instances = null;
+		Map<String, Object> response = new HashMap<>();
+		
 		try {
-
-			Integer pageNum = Integer.parseInt(page);
+			Integer pageNum = 0;
+			Integer pageSizeNum = Integer.parseInt(pageSize);
+			
+			// Support for both paging mechanisms
+			if (start != null && length != null) {
+				// DataTables style pagination
+				pageNum = Integer.parseInt(start) / Integer.parseInt(length);
+				pageSizeNum = Integer.parseInt(length);
+			} else {
+				// Regular pagination
+				pageNum = Integer.parseInt(page);
+			}
+			
 			Integer intMaxReturn = Integer.parseInt(maxReturn);
 
 			dateOrderBy = dateOrderBy.toUpperCase();
@@ -1458,26 +1475,54 @@ public class RestService extends MvcCore {
 				dateOrderBy = "DESC";
 			}
 			
-			log.debug("REST:  getProcessInstances (superProcInstId='" + superProcInstId +
+			log.debug("REST: getProcessInstances (superProcInstId='" + superProcInstId +
 					"', procInstId='" + procInstId +
 					"', procDefKey='"+procDefKey+
 					"', status='"+status+"', minDate="+minDate+", maxDate="+maxDate+
-					", dateOrderBy="+dateOrderBy+")");
+					", dateOrderBy="+dateOrderBy+", page="+pageNum+", pageSize="+pageSizeNum+")");
 
-			instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
-					superProcInstId, procInstId, procDefKey, status, minDate, maxDate, dateOrderBy, pageNum);
-
-			if ((intMaxReturn != -1) && (instances.size() > intMaxReturn)) {
-				instances = instances.subList(0, intMaxReturn);
+			// Get total record count for pagination
+			int totalCount = dbService.getFilteredProcessInstancesSize(
+					superProcInstId, procInstId, procDefKey, status, minDate, maxDate);
+			
+			// Apply maxReturn limit if needed
+			int filteredCount = totalCount;
+			if (intMaxReturn > 0 && intMaxReturn < totalCount) {
+				filteredCount = intMaxReturn;
 			}
+			
+			// Get only the requested page of data
+			instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
+					superProcInstId, procInstId, procDefKey, status, minDate, maxDate, 
+					dateOrderBy, pageNum, pageSizeNum);
 
+			// Format response based on whether DataTables format is requested
+			if (draw != null) {
+				// DataTables expected response format
+				response.put("draw", Integer.parseInt(draw));
+				response.put("recordsTotal", totalCount);
+				response.put("recordsFiltered", filteredCount);
+				response.put("data", instances);
+				return new GsonBuilder().serializeNulls().create().toJson(response);
+			} else {
+				// Original format
+				return new GsonBuilder().serializeNulls().create().toJson(instances);
+			}
 		}
 		catch (Exception e) {
 			log.error("Problem getting process instance information!", e);
-			// return an empty set
-			return new GsonBuilder().setPrettyPrinting().create().toJson(new ArrayList<CwsProcessInstance>());
+			// Return an empty set
+			if (draw != null) {
+				// DataTables format
+				response.put("draw", draw != null ? Integer.parseInt(draw) : 1);
+				response.put("recordsTotal", 0);
+				response.put("recordsFiltered", 0);
+				response.put("data", new ArrayList<CwsProcessInstance>());
+				return new GsonBuilder().serializeNulls().create().toJson(response);
+			} else {
+				return new GsonBuilder().setPrettyPrinting().create().toJson(new ArrayList<CwsProcessInstance>());
+			}
 		}
-		return new GsonBuilder().serializeNulls().create().toJson(instances);
 	}
 	
 	
