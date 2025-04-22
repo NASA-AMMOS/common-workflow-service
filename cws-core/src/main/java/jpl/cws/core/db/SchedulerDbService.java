@@ -47,6 +47,53 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 
     public static final int DEFAULT_WORKER_PROC_DEF_MAX_INSTANCES = 1;
     public static final int PROCESSES_PAGE_SIZE = 50;
+    
+    /**
+     * Counts the total number of running instances of a process definition across all workers.
+     * Used to enforce global process instance limits.
+     */
+    public int countRunningProcInstances(String procDefKey) {
+        return jdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM cws_sched_worker_proc_inst " +
+            "WHERE proc_def_key = ? AND (status = '" + RUNNING + "' OR status = '" + CLAIMED_BY_WORKER + "')",
+            new Object[]{procDefKey}, Integer.class);
+    }
+    
+    /**
+     * Marks a process instance as completed in the database.
+     * This updates the status and ensures next process can be started.
+     */
+    public void markProcessInstanceComplete(String uuid) {
+        try {
+            // First check the current status
+            String currentStatus = getProcInstRowStatus(uuid);
+            
+            // Only update if not already complete
+            if (currentStatus != null && !COMPLETE.equals(currentStatus) && !FAIL.equals(currentStatus)) {
+                // Direct update without checking old status
+                int numUpdated = jdbcTemplate.update(
+                    "UPDATE cws_sched_worker_proc_inst " +
+                    "SET status=?, updated_time=?, " +
+                    "claim_uuid = NULL, claimed_by_worker = NULL, started_by_worker = NULL, last_rejection_worker = NULL, " +
+                    "error_message=? " +
+                    "WHERE uuid=? AND status != ? AND status != ?",
+                    new Object[]{COMPLETE, 
+                        new Timestamp(DateTime.now().getMillis()),
+                        null, uuid, COMPLETE, FAIL});
+                
+                if (numUpdated == 0) {
+                    log.debug("Process instance already completed or failed: " + uuid + ", status=" + currentStatus);
+                } else {
+                    log.debug("Successfully marked process instance as complete: " + uuid);
+                }
+            } else {
+                log.debug("Process instance already in final state: " + uuid + ", status=" + currentStatus);
+            }
+        } catch (Exception e) {
+            log.error("Failed to mark process instance as complete: " + uuid, e);
+        }
+    }
+    
 
     public static final String FIND_CLAIMABLE_ROWS_SQL =
             "SELECT uuid, priority FROM cws_sched_worker_proc_inst " +
@@ -379,14 +426,25 @@ public class SchedulerDbService extends DbService implements InitializingBean {
     }
 
 
+    /**
+     * Get the current status of a process instance from the database.
+     * Returns null if the row doesn't exist.
+     */
     public String getProcInstRowStatus(String uuid) {
-        List<Map<String, Object>> list = jdbcTemplate.queryForList(
-                "SELECT status FROM cws_sched_worker_proc_inst " +
-                        "WHERE uuid=?",
-                new Object[]{uuid});
-        if (list != null && !list.isEmpty()) {
-            return list.iterator().next().values().iterator().next().toString();
-        } else {
+        try {
+            List<Map<String, Object>> list = jdbcTemplate.queryForList(
+                    "SELECT status FROM cws_sched_worker_proc_inst " +
+                            "WHERE uuid=?",
+                    new Object[]{uuid});
+            if (list != null && !list.isEmpty()) {
+                return list.iterator().next().values().iterator().next().toString();
+            } else {
+                return null;
+            }
+        } catch (EmptyResultDataAccessException e) {
+            return null; // Row doesn't exist
+        } catch (Exception e) {
+            log.error("Error retrieving process status for uuid " + uuid, e);
             return null;
         }
     }

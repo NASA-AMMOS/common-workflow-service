@@ -190,7 +190,7 @@ public class WorkerService implements InitializingBean {
 		
 		log.debug("AFTER INIT: limits: " + workerMaxProcInstances + ",  counts: " + processCounters);
 	}
-	
+
 
 	public void updateStats() {
 		
@@ -690,8 +690,17 @@ public class WorkerService implements InitializingBean {
 					continue;
 				}
 
-				currentCounts.put(procDefKey, processCounters.get(procDefKey));
-				remainders.put(procDefKey, procMaxNumber - currentCounts.get(procDefKey));
+				// Get current count from both local counter and global database count
+				int localCount = processCounters.get(procDefKey);
+				
+				// Query database for global count of running instances across all workers
+				int globalCount = schedulerDbService.countRunningProcInstances(procDefKey);
+				
+				// Use the higher of the two counts to ensure limits are respected
+				int effectiveCount = Math.max(localCount, globalCount);
+				
+				currentCounts.put(procDefKey, effectiveCount);
+				remainders.put(procDefKey, procMaxNumber - effectiveCount);
 				queryLimitForProcSet.put(procDefKey, Math.min(EXEC_SERVICE_MAX_POOL_SIZE, remainders.get(procDefKey)));
 
 				//log.trace("getting currentCount for procDefKey " + procDefKey);
@@ -1072,5 +1081,9 @@ public class WorkerService implements InitializingBean {
 	
 	public String getWorkerId() {
 		return workerId;
+	}
+	
+	public SchedulerDbService getSchedulerDbService() {
+		return schedulerDbService;
 	}
 }
