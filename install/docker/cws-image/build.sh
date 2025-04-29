@@ -22,6 +22,8 @@ fi
 
 cp "$CWS_PACKAGE" .
 cp ../../../cws-core/cws-core-libs/joda-time-2.1.jar .
+# Copy the certs directory from the project root into the build context
+cp -R ../../../cws-certs .
 
 echo "Building CWS docker image.  Version = $ver"
 
@@ -29,6 +31,8 @@ docker build -t nasa-ammos/common-workflow-service:$ver .
 
 rm cws_server.tar.gz
 rm joda-time-2.1.jar
+# Remove the copied certs directory
+rm -rf cws-certs
 
 echo
 echo "Done building!"

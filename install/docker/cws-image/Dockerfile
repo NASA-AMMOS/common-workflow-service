@@ -16,7 +16,7 @@ ADD startup.sh .
 ADD wait_for_db_es_console.sh .
 
 # Copy certificate generation scripts
-COPY ../../../cws-certs /opt/cws-certs
+COPY cws-certs /opt/cws-certs
 
 # Ensure the specific script is executable
 RUN chmod +x /opt/cws-certs/generate-certs.sh
