@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
-ver='2.6.0'    # update this each CWS release
-
-# Rebuild cws tar-ball
+# Get version from utils.sh
 ROOT=$(pwd)
 cd ../../..
+source install/utils.sh
+ver=$CWS_VER    # use version from utils.sh
+
+# Rebuild cws tar-ball
 ./build.sh
 
 cd $ROOT
