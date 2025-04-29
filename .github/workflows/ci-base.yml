@@ -85,7 +85,7 @@ jobs:
         working-directory: install/docker/console-db-es-ls-kibana
 
       - name: Start Services with Docker Compose
-        run: docker-compose up -d
+        run: docker compose up -d
         working-directory: install/docker/console-db-es-ls-kibana
 
       - name: Verify CWS Console Startup
@@ -111,7 +111,7 @@ jobs:
               echo "Current running containers:"
               docker ps
               echo "Docker Compose logs:"
-              docker-compose logs
+              docker compose logs
               exit 1
             fi
 
@@ -124,5 +124,5 @@ jobs:
       # Optional: Add cleanup step if needed
       # - name: Stop Services
       #   if: always() # Run even if previous steps fail
-      #   run: docker-compose down
+      #   run: docker compose down
       #   working-directory: install/docker/console-db-es-ls-kibana
