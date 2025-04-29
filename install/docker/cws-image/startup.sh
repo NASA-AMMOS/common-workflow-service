@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# --- Create internal creds file ---
+CREDS_DIR="/root/.cws"
+CREDS_FILE="${CREDS_DIR}/creds"
+
+echo "Ensuring internal credentials directory and file exist..."
+mkdir -p "${CREDS_DIR}"
+touch "${CREDS_FILE}"
+chmod 700 "${CREDS_FILE}"
+echo "Internal creds file created at ${CREDS_FILE}"
+# --- End creds file creation ---
+
 # Define the expected keystore password (must match password used in generate-certs.sh)
 KEYSTORE_PASS="changeit"
 
