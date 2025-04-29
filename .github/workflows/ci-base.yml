@@ -43,10 +43,11 @@ jobs:
 
       - name: Build CWS Docker Image using script
         run: |
-          chmod +x install/docker/cws-image/build.sh
+          chmod +x build.sh
           # The script builds using the 'nasa-ammos/...' tag internally
-          ./install/docker/cws-image/build.sh
-        working-directory: ${{ github.workspace }} # Run from repo root
+          # Execute the script directly now that we are in its directory
+          ./build.sh
+        working-directory: install/docker/cws-image # Run from the script's directory
 
       - name: Re-tag image for GHCR
         run: |
