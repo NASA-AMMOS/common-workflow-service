@@ -19,4 +19,10 @@ ADD wait_for_db_es_console.sh .
 ADD getTime.java .
 ADD joda-time-2.1.jar .
 
+# Copy certificate generation scripts from the build context
+COPY cws-certs /opt/cws-certs
+
+# Ensure the specific script is executable
+RUN chmod +x /opt/cws-certs/generate-certs.sh
+
 ENTRYPOINT [ "./wait_for_db_es_console.sh" ]

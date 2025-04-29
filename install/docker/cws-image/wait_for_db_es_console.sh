@@ -57,6 +57,11 @@ else
 fi
 # --- End Certificate Generation ---
 
+mkdir ~/.cws
+echo "changeit" >> ~/.cws/creds
+chmod 700 ~/.cws/
+chmod 600 ~/.cws/creds
+
 # Start app
 >&2 echo "Executing startup.sh..."
 

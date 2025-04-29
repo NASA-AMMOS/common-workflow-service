@@ -66,13 +66,6 @@ jobs:
 
       - name: Prepare Docker Compose Environment
         run: |
-          # Create dummy creds file required by docker-compose volume mount
-          # Adjust if real creds needed via secrets in the future
-          mkdir -p ~/.cws
-          touch ~/.cws/creds
-          chmod 700 ~/.cws/creds
-          echo "Dummy creds file created at ~/.cws/creds"
-
           # Create external network required by docker-compose
           docker network create cws-network
           echo "Docker network 'cws-network' created"

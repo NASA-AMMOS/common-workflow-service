@@ -126,36 +126,36 @@ services:
       timeout: 2s
       retries: 12
     volumes:
-      - ./config.properties:/home/cws_user/config.properties:ro
-      - ~/.cws/creds:/root/.cws/creds:ro
+      - ./config.properties:/home/cws_user/config.properties:rw
+      # - ~/.cws/creds:/root/.cws/creds:rw
       - console-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
     networks:
       - external-network
-  cws-worker:
-    container_name: cws-worker1
-    labels:
-      com.example.service: "cws-worker1"
-      com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.6.0 # update this each CWS release
-    depends_on:
-      - db
-      - es
-      - cws
-      - ldapsearch
-    hostname: cws-worker1
-    environment:
-      - DB_HOST=db
-      - DB_USER=root
-      - DB_PW=test
-      - ES_PROTOCOL=http
-      - ES_HOST=es
-      - ES_PORT=9200
-    volumes:
-      - ./worker-config.properties:/home/cws_user/config.properties:ro
-      - ~/.cws/creds:/root/.cws/creds:ro
-      - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
-    networks:
-      - external-network
+  # cws-worker:
+  #   container_name: cws-worker1
+  #   labels:
+  #     com.example.service: "cws-worker1"
+  #     com.example.description: "Common Workflow Service"
+  #   image: nasa-ammos/common-workflow-service:2.6.0 # update this each CWS release
+  #   depends_on:
+  #     - db
+  #     - es
+  #     - cws
+  #     - ldapsearch
+  #   hostname: cws-worker1
+  #   environment:
+  #     - DB_HOST=db
+  #     - DB_USER=root
+  #     - DB_PW=test
+  #     - ES_PROTOCOL=http
+  #     - ES_HOST=es
+  #     - ES_PORT=9200
+  #   volumes:
+  #     - ./worker-config.properties:/home/cws_user/config.properties:rw
+  #     # - ~/.cws/creds:/root/.cws/creds:rw
+  #     - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
+  #   networks:
+  #     - external-network
   ldapsearch:
     container_name: ldapsearch_container
     image: ghcr.io/nasa-ammos/common-workflow-service/openldap:v2.6
