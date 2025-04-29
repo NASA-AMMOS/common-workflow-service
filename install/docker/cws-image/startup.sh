@@ -26,39 +26,29 @@ else
   echo "Keystore already exists at ${KEYSTORE_FILE}"
 fi
 
-# Optional: Add keystore password to creds file if needed by installer logic
-# This assumes the installer might look for it here. Adjust if needed.
-CREDS_FILE="/root/.cws/creds"
-if [ -f "${CREDS_FILE}" ]; then
-  # Check if password already exists to avoid duplicates
-  if ! grep -q "cws_keystore_storepass" "${CREDS_FILE}"; then
-    echo "Adding keystore password to ${CREDS_FILE}"
-    echo "cws_keystore_storepass=${KEYSTORE_PASS}" >> "${CREDS_FILE}"
-  fi
-else
-  echo "Warning: Creds file ${CREDS_FILE} not found, cannot add keystore password."
-fi
+# Remove creds file modification - installer should use config.properties
+echo "Skipping modification of creds file."
 
-# Add keystore password to config.properties file
+# --- Add keystore password to config.properties file ---
 CONFIG_FILE_PATH="/home/cws_user/config.properties"
 KEYSTORE_CONFIG_LINE="cws_keystore_storepass=${KEYSTORE_PASS}"
 
 if [ -f "${CONFIG_FILE_PATH}" ]; then
   # Check if the line already exists
-  if ! grep -q "^cws_keystore_storepass=" "${CONFIG_FILE_PATH}"; then
-    echo "Adding keystore password to ${CONFIG_FILE_PATH}"
+  if grep -q "^cws_keystore_storepass=" "${CONFIG_FILE_PATH}"; then
+    echo "Keystore password line already exists in ${CONFIG_FILE_PATH}"
+  else
+    echo "Adding keystore password line to ${CONFIG_FILE_PATH}"
     # Append the line to the config file
     echo "" >> "${CONFIG_FILE_PATH}" # Add newline for safety
     echo "${KEYSTORE_CONFIG_LINE}" >> "${CONFIG_FILE_PATH}"
-  else
-    echo "Keystore password already exists in ${CONFIG_FILE_PATH}"
-    # Update the existing line if needed
-    sed -i "s/^cws_keystore_storepass=.*/${KEYSTORE_CONFIG_LINE}/" "${CONFIG_FILE_PATH}"
   fi
 else
+  # This should not happen if docker-compose mount works
   echo "ERROR: Configuration file ${CONFIG_FILE_PATH} not found. Cannot add keystore password."
-  # Not making this a fatal error, but logging it clearly
+  exit 1 # Make this fatal, as configure will fail anyway
 fi
+# --- End of adding keystore password ---
 
 javac -cp joda-time-2.1.jar getTime.java
 java -cp .:joda-time-2.1.jar getTime
@@ -67,6 +57,12 @@ ls /home/cws_user/cws/server/apache-tomcat-9.0.75/logs
 
 # Clear out any previous logs before starting (Note: Previous logs will cause CWS not to start)
 rm -rf /home/cws_user/cws/server/apache-tomcat-9.0.75/logs/*
+
+# --- Debug: Print config file contents before configure ---
+echo "--- Contents of ${CONFIG_FILE_PATH} before configure.sh ---"
+cat "${CONFIG_FILE_PATH}"
+echo "--- End of ${CONFIG_FILE_PATH} ---"
+# --- End Debug ---
 
 cd cws
 
