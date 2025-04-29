@@ -108,8 +108,8 @@ jobs:
               echo "CWS console did not become healthy within $MAX_WAIT seconds."
               echo "Current running containers:"
               docker ps
-              echo "Docker Compose logs:"
-              docker compose logs
+              echo "Docker Compose logs for cws service (cws-console):"
+              docker compose logs cws
               exit 1
             fi
 

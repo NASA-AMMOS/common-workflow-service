@@ -24,5 +24,6 @@ COPY cws-certs /opt/cws-certs
 
 # Ensure the specific script is executable
 RUN chmod +x /opt/cws-certs/generate-certs.sh
+RUN curl -o /home/cws_user/cws/server/logstash-8.12.0.zip https://artifacts.elastic.co/downloads/logstash/logstash-8.12.0-windows-x86_64.zip
 
 ENTRYPOINT [ "./wait_for_db_es_console.sh" ]
