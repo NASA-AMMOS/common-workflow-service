@@ -40,6 +40,23 @@ if [[ "$install_type" == 3 ]]; then
   echo "Console is running!"
 fi
 
+# --- Generate Certificates ---
+CERT_SCRIPT="/opt/cws-certs/generate-certs.sh"
+if [ -f "${CERT_SCRIPT}" ]; then
+  >&2 echo "Running certificate generation script: ${CERT_SCRIPT}"
+  "${CERT_SCRIPT}"
+  CERT_GEN_EXIT_CODE=$?
+  if [ ${CERT_GEN_EXIT_CODE} -ne 0 ]; then
+    >&2 echo "ERROR: Certificate generation script failed with exit code ${CERT_GEN_EXIT_CODE}. Exiting entrypoint."
+    exit ${CERT_GEN_EXIT_CODE}
+  fi
+  >&2 echo "Certificate generation script completed successfully."
+else
+  >&2 echo "ERROR: Certificate generation script ${CERT_SCRIPT} not found. Exiting entrypoint."
+  exit 1
+fi
+# --- End Certificate Generation ---
+
 # Start app
 >&2 echo "Executing startup.sh..."
 
