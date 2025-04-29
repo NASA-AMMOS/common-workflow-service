@@ -30,7 +30,8 @@ jobs:
       - name: Extract CWS Version and Define Image Tag
         id: image_info
         run: |
-          CWS_VER=$(grep 'export CWS_VER=' install/utils.sh | cut -d"'" -f2)
+          # Assuming utils.sh is at the repository root
+          CWS_VER=$(grep 'export CWS_VER=' utils.sh | cut -d"'" -f2)
           # Use GitHub owner and repo name for GHCR image path (lowercase)
           OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           REPO_LOWER=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
@@ -38,7 +39,7 @@ jobs:
           echo "version=$CWS_VER" >> $GITHUB_OUTPUT
           echo "original_tag=nasa-ammos/common-workflow-service:$CWS_VER" >> $GITHUB_OUTPUT
           echo "ghcr_tag=$IMAGE_NAME:$CWS_VER" >> $GITHUB_OUTPUT
-        working-directory: ${{ github.workspace }} # Ensure correct path to utils.sh
+        working-directory: ${{ github.workspace }} # Run from repo root
 
       - name: Build CWS Docker Image using script
         run: |

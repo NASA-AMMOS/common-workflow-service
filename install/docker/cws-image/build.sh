@@ -2,12 +2,12 @@
 
 # Get version from utils.sh
 ROOT=$(pwd)
-cd ../../..
-source install/utils.sh
+cd ../../.. # Change to project root
+source utils.sh # Source utils.sh from project root
 ver=$CWS_VER    # use version from utils.sh
 
 # Rebuild cws tar-ball
-./build.sh
+./build.sh # Execute build.sh from project root
 
 cd $ROOT
 
