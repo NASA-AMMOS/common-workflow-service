@@ -1,30 +1,20 @@
 #!/bin/bash
 
-# Define Tomcat conf directory and keystore path/password
-TOMCAT_CONF_DIR="/home/cws_user/cws/server/apache-tomcat-9.0.75/conf"
-KEYSTORE_FILE="${TOMCAT_CONF_DIR}/.keystore"
-KEYSTORE_PASS="changeit" # Simple password for CI
+# Define the expected keystore password (must match password used in generate-certs.sh)
+KEYSTORE_PASS="changeit"
 
-# Ensure Tomcat conf directory exists (should be created when tarball is extracted)
-mkdir -p "${TOMCAT_CONF_DIR}"
+# --- Call the certificate generation script ---
+CERT_SCRIPT="/opt/cws-certs/generate-certs.sh"
 
-# Generate self-signed keystore if it doesn't exist
-if [ ! -f "${KEYSTORE_FILE}" ]; then
-  echo "Generating self-signed keystore for HTTPS..."
-  keytool -genkeypair -alias tomcat -keyalg RSA -keysize 2048 \
-          -keystore "${KEYSTORE_FILE}" \
-          -storepass "${KEYSTORE_PASS}" \
-          -keypass "${KEYSTORE_PASS}" \
-          -dname "CN=localhost, OU=CWS, O=NASA, L=Pasadena, ST=CA, C=US" \
-          -validity 3650
-  if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to generate keystore."
-    exit 1
-  fi
-  echo "Keystore generated at ${KEYSTORE_FILE}"
-else
-  echo "Keystore already exists at ${KEYSTORE_FILE}"
+echo "Running certificate generation script: ${CERT_SCRIPT}"
+"${CERT_SCRIPT}" # Script now uses hardcoded paths and password
+CERT_GEN_EXIT_CODE=$?
+if [ ${CERT_GEN_EXIT_CODE} -ne 0 ]; then
+  echo "ERROR: Certificate generation script failed with exit code ${CERT_GEN_EXIT_CODE}."
+  exit 1
 fi
+echo "Certificate generation script completed successfully."
+# --- End certificate generation call ---
 
 # Remove creds file modification - installer should use config.properties
 echo "Skipping modification of creds file."
