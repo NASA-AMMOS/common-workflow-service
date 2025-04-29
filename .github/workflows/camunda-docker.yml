@@ -3,6 +3,7 @@ name: Camunda Docker
 on:
   workflow_run:
     workflows: ["CI Base"] # Name of the workflow that must complete first
+    branches: [main, ci_docker]
     types:
       - completed
 
