@@ -39,6 +39,27 @@ else
   echo "Warning: Creds file ${CREDS_FILE} not found, cannot add keystore password."
 fi
 
+# Add keystore password to config.properties file
+CONFIG_FILE_PATH="/home/cws_user/config.properties"
+KEYSTORE_CONFIG_LINE="cws_keystore_storepass=${KEYSTORE_PASS}"
+
+if [ -f "${CONFIG_FILE_PATH}" ]; then
+  # Check if the line already exists
+  if ! grep -q "^cws_keystore_storepass=" "${CONFIG_FILE_PATH}"; then
+    echo "Adding keystore password to ${CONFIG_FILE_PATH}"
+    # Append the line to the config file
+    echo "" >> "${CONFIG_FILE_PATH}" # Add newline for safety
+    echo "${KEYSTORE_CONFIG_LINE}" >> "${CONFIG_FILE_PATH}"
+  else
+    echo "Keystore password already exists in ${CONFIG_FILE_PATH}"
+    # Update the existing line if needed
+    sed -i "s/^cws_keystore_storepass=.*/${KEYSTORE_CONFIG_LINE}/" "${CONFIG_FILE_PATH}"
+  fi
+else
+  echo "ERROR: Configuration file ${CONFIG_FILE_PATH} not found. Cannot add keystore password."
+  # Not making this a fatal error, but logging it clearly
+fi
+
 javac -cp joda-time-2.1.jar getTime.java
 java -cp .:joda-time-2.1.jar getTime
 
