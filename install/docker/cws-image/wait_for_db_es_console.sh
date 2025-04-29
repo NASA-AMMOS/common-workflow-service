@@ -44,10 +44,16 @@ fi
 >&2 echo "Executing startup.sh..."
 
 ./startup.sh
+STARTUP_EXIT_CODE=$? # Capture exit code
 
-# Start app
->&2 echo "CWS is up!!"
+if [ ${STARTUP_EXIT_CODE} -ne 0 ]; then
+  >&2 echo "ERROR: startup.sh failed with exit code ${STARTUP_EXIT_CODE}. Exiting entrypoint."
+  exit ${STARTUP_EXIT_CODE} # Exit entrypoint script with the same error code
+fi
 
-exec "$@"
+# Only proceed if startup.sh was successful
+>&2 echo "CWS startup script completed successfully."
 
+# The tail command will keep the container running and show logs.
+# If startup.sh succeeded, Tomcat should be running and the log file should exist.
 tail -f cws/server/apache-tomcat-*/logs/cws.log
