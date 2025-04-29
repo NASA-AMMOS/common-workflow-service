@@ -151,6 +151,7 @@ services:
       - ES_PORT=9200
     volumes:
       - ./worker-config.properties:/home/cws_user/config.properties:ro
+      - ~/.cws/creds:/root/.cws/creds:ro
       - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
     networks:
       - external-network
