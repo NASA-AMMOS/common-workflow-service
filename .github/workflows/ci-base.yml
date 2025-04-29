@@ -47,6 +47,11 @@ jobs:
           # The script builds using the 'nasa-ammos/...' tag internally
           # Execute the script directly now that we are in its directory
           ./build.sh
+          # Explicitly check the exit code of the script
+          if [ $? -ne 0 ]; then
+            echo "::error::Docker image build script failed."
+            exit 1
+          fi
         working-directory: install/docker/cws-image # Run from the script's directory
 
       - name: Re-tag image for GHCR
