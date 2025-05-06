@@ -118,9 +118,101 @@ jobs:
             echo "Still waiting for CWS console... ($ELAPSED/$MAX_WAIT seconds)"
           done
         working-directory: install/docker/console-db-es-ls-kibana # Ensure correct context for docker-compose logs
+  run-camunda-tests:
+    needs: build-push-run
+    if: ${{ success() && needs.build-push-run.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # Optional: Add cleanup step if needed
-      # - name: Stop Services
-      #   if: always() # Run even if previous steps fail
-      #   run: docker compose down
-      #   working-directory: install/docker/console-db-es-ls-kibana
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract CWS Version and Define Image Tag
+        id: image_info
+        run: |
+          # Assuming utils.sh is at the repository root
+          CWS_VER=$(grep 'export CWS_VER=' utils.sh | cut -d"'" -f2)
+          # Use GitHub owner and repo name for GHCR image path (lowercase)
+          OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          REPO_LOWER=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_NAME="ghcr.io/$OWNER_LOWER/$REPO_LOWER"
+          echo "version=$CWS_VER" >> $GITHUB_OUTPUT
+          echo "ghcr_tag=$IMAGE_NAME:$CWS_VER" >> $GITHUB_OUTPUT
+        working-directory: ${{ github.workspace }}
+
+      - name: Prepare Docker Compose Environment
+        run: |
+          # Create external network required by docker-compose
+          docker network create cws-network
+          echo "Docker network 'cws-network' created"
+        working-directory: install/docker/console-db-es-ls-kibana
+
+      - name: Update image tag in docker-compose.yml
+        run: |
+          # Escape slashes in the image tag for sed
+          ESCAPED_TAG=$(echo "${{ steps.image_info.outputs.ghcr_tag }}" | sed 's/\//\\\//g')
+          echo "Updating image tag in docker-compose.yml to $ESCAPED_TAG"
+          # Target both cws and cws-worker services
+          sed -i "s/image: nasa-ammos\/common-workflow-service:.*/image: $ESCAPED_TAG/g" docker-compose.yml
+          echo "docker-compose.yml after update:"
+          cat docker-compose.yml
+        working-directory: install/docker/console-db-es-ls-kibana
+
+      - name: Start Services with Docker Compose
+        run: docker compose up -d
+        working-directory: install/docker/console-db-es-ls-kibana
+
+      - name: Verify CWS Console Startup
+        run: |
+          echo "Waiting up to 1 minute for CWS console to become healthy..."
+          MAX_WAIT=60 # 1 minute max wait
+          INTERVAL=15  # Check every 15 seconds
+          ELAPSED=0
+          # Use the healthcheck URL from docker-compose.yml
+          HEALTHCHECK_URL="https://localhost:38443/cws-ui/login"
+
+          while true; do
+            # Use curl's exit code to check success (-k for self-signed cert, -f to fail on server errors, -s silent, -L follow redirects)
+            if curl -kfsL --output /dev/null "$HEALTHCHECK_URL"; then
+              echo "CWS console is up and responding at $HEALTHCHECK_URL!"
+              echo "Current running containers:"
+              docker ps
+              exit 0
+            fi
+
+            if [ $ELAPSED -ge $MAX_WAIT ]; then
+              echo "CWS console did not become healthy within $MAX_WAIT seconds."
+              echo "Current running containers:"
+              docker ps
+              echo "Docker Compose logs for cws service (cws-console):"
+              docker compose logs cws
+              exit 1
+            fi
+
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+            echo "Still waiting for CWS console... ($ELAPSED/$MAX_WAIT seconds)"
+          done
+        working-directory: install/docker/console-db-es-ls-kibana
+
+      - name: Run Unit Tests
+        id: unit
+        run: |
+          # Let's try to run tests directly on a specific module
+          echo "Attempting to run tests on cws-ui module..."
+          docker exec cws-console bash -c "cd /home/cws_user && setup_test_env.sh && mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source test"
+          
+          # If that fails, try to mount a local project repository into the container
+          echo "If that fails, try to use a parent POM approach..."
+          WEBAPPS_DIR="/home/cws_user/cws/server/apache-tomcat-9.0.75/webapps"
+          docker exec cws-console bash -c "find ${WEBAPPS_DIR} -name pom.xml -type f | xargs cat | grep -A 3 '<parent>'"
+        shell: bash
