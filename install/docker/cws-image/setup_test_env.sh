@@ -12,9 +12,9 @@ ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source ${ROOT}/utils.sh
 
 SERVER_DIST='cws_server.tar.gz'
-DIST=${ROOT}/dist
-CWS=${DIST}/cws
-TEST_ENV_DIR=${DIST}/test-env
+# DIST=${ROOT}/dist
+CWS=${ROOT}/cws
+TEST_ENV_DIR=${ROOT}/test-env
 
 # Parse command line arguments
 CLEAN_EXISTING=true
@@ -39,8 +39,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Check if distribution archive exists
-if [[ ! -f ${DIST}/${SERVER_DIST} ]]; then
-  print "ERROR: Server distribution archive not found at ${DIST}/${SERVER_DIST}"
+if [[ ! -f ${ROOT}/${SERVER_DIST} ]]; then
+  print "ERROR: Server distribution archive not found at ${ROOT}/${SERVER_DIST}"
   print "Please run create_server_dist.sh first to create the server distribution."
   exit 1
 fi
@@ -56,8 +56,8 @@ print "Creating test environment directory..."
 mkdir -p ${TEST_ENV_DIR}
 
 # Extract the server distribution
-print "Extracting server distribution from ${DIST}/${SERVER_DIST}..."
-tar -xzf ${DIST}/${SERVER_DIST} -C ${TEST_ENV_DIR}
+print "Extracting server distribution from ${ROOT}/${SERVER_DIST}..."
+tar -xzf ${ROOT}/${SERVER_DIST} -C ${TEST_ENV_DIR}
 
 if [[ $? -ne 0 ]]; then
   print "ERROR: Failed to extract server distribution."
