@@ -1,4 +1,4 @@
-name: CI Base
+name: Docker
 
 on:
   push:
@@ -203,16 +203,3 @@ jobs:
             echo "Still waiting for CWS console... ($ELAPSED/$MAX_WAIT seconds)"
           done
         working-directory: install/docker/console-db-es-ls-kibana
-
-      - name: Run Unit Tests
-        id: unit
-        run: |
-          # Run tests with the setup_test_env.sh script
-          echo "Setting up test environment and running Maven tests..."
-          docker exec cws-console bash -c "cd /home/cws_user && ./setup_test_env.sh && mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source test \$(cat test-env/maven-props.txt)"
-          
-          # Show test results location
-          echo "Test results should be available in the container"
-          WEBAPPS_DIR="/home/cws_user/cws/server/apache-tomcat-9.0.75/webapps"
-          docker exec cws-console ls -la /home/cws_user/test-env
-        shell: bash

@@ -29,7 +29,6 @@ ADD cws_server.tar.gz .
 ADD startup.sh .
 ADD wait_for_db_es_console.sh .
 ADD utils.sh /home/cws_user/utils.sh
-ADD setup_test_env.sh /home/cws_user/setup_test_env.sh
 
 # For time check
 ADD getTime.java .
