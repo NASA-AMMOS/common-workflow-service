@@ -24,6 +24,8 @@ cp "$CWS_PACKAGE" .
 cp ../../../cws-core/cws-core-libs/joda-time-2.1.jar .
 # Copy the certs directory from the project root into the build context
 cp -R ../../../cws-certs .
+# Copy the setup_test_env.sh script from project root
+cp ../../../setup_test_env.sh .
 
 echo "Building CWS docker image.  Version = $ver"
 
@@ -33,6 +35,8 @@ rm cws_server.tar.gz
 rm joda-time-2.1.jar
 # Remove the copied certs directory
 rm -rf cws-certs
+# Remove the copied script
+rm setup_test_env.sh
 
 echo
 echo "Done building!"
