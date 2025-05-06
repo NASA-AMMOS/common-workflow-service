@@ -207,12 +207,12 @@ jobs:
       - name: Run Unit Tests
         id: unit
         run: |
-          # Let's try to run tests directly on a specific module
-          echo "Attempting to run tests on cws-ui module..."
-          docker exec cws-console bash -c "ls /home/cws_user && cd /home/cws_user && ./setup_test_env.sh && mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source test"
+          # Run tests with the setup_test_env.sh script
+          echo "Setting up test environment and running Maven tests..."
+          docker exec cws-console bash -c "cd /home/cws_user && ./setup_test_env.sh && mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source test \$(cat test-env/maven-props.txt)"
           
-          # If that fails, try to mount a local project repository into the container
-          echo "If that fails, try to use a parent POM approach..."
+          # Show test results location
+          echo "Test results should be available in the container"
           WEBAPPS_DIR="/home/cws_user/cws/server/apache-tomcat-9.0.75/webapps"
-          docker exec cws-console bash -c "find ${WEBAPPS_DIR} -name pom.xml -type f | xargs cat | grep -A 3 '<parent>'"
+          docker exec cws-console ls -la /home/cws_user/test-env
         shell: bash
