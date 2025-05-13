@@ -1,0 +1,106 @@
+
+services:
+  cws-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "38443:38443"
+      - "38080:38080"
+      - "38009:38009"
+      - "38005:38005"
+      - "37099:37099"
+      - "31099:31099"
+    volumes:
+      - ..:/workspaces/common-workflow-service:cached
+      - cws-dev-maven-cache:/root/.m2
+    command: sleep infinity
+    environment:
+      - DB_HOST=db
+      - DB_USER=${DB_USERNAME}
+      - DB_PW=${DEFAULT_PASS}
+      - DB_TYPE=mariadb
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - ES_PROTOCOL=http
+      - ES_HOST=es
+      - ES_PORT=9200
+      - ES_USERNAME=na
+      - ES_PASSWORD=na
+      - LDAP_USERNAME=${CWS_USER}
+      - ENABLE_CLOUD_AS=0
+      - SECURITY_SCHEME=camunda
+      - MAVEN_USERNAME=${MAVEN_USERNAME}
+      - MAVEN_PASSWORD=${MAVEN_PASSWORD}
+    depends_on:
+      - db
+      - es
+      - ldapsearch
+    networks:
+      - cws-network
+
+  db:
+    restart: always
+    image: mariadb:10.11
+    container_name: cws-db
+    ports:
+      - "${DB_PORT}:3306"
+    command: mysqld --max-connections=2000 --transaction-isolation=READ-COMMITTED
+    environment:
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWOR=${DEFAULT_PASS}
+      - MYSQL_ROOT_PASSWORD=${DEFAULT_PASS}
+      - TZ=America/Los_Angeles
+    healthcheck:
+      test: '/usr/bin/mysql --user=root --password=${DEFAULT_PASS} --execute "SHOW DATABASES;"'
+      interval: 3s
+      timeout: 1s
+      retries: 5
+    volumes:
+      - cws-db-data:/var/lib/mysql
+    networks:
+      - cws-network
+
+  es:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: cws-es
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - MAX_MAP_COUNT=262144
+      - discovery.type=single-node
+      - cluster.name=docker-cluster
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - cws-es-data:/usr/share/elasticsearch/data
+    networks:
+      - cws-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl --silent --fail localhost:9200/_cluster/health || exit 1",
+        ]
+      interval: 5s
+      timeout: 2s
+      retries: 12
+
+  ldapsearch:
+    container_name: ldapsearch_container
+    image: ghcr.io/nasa-ammos/common-workflow-service/openldap:v2.6
+    ports:
+      - 389:389
+    networks:
+      - cws-network
+
+volumes:
+  cws-dev-maven-cache:
+  cws-db-data:
+  cws-es-data:
+
+networks:
+  cws-network:
+    name: cws-network

@@ -1,0 +1,31 @@
+{
+  "name": "CWS Development Environment",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "cws-dev",
+  "workspaceFolder": "/workspaces/common-workflow-service",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "redhat.java",
+        "vscjava.vscode-maven",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode-remote.remote-containers",
+        "ms-vscode.vs-keybindings"
+      ],
+      "settings": {
+        "java.home": "/usr/lib/jvm/java-17-openjdk-amd64",
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
+          }
+        }
+      }
+    }
+  },
+  "forwardPorts": [38080, 38443, 31616, 3306, 9200, 9300],
+  "remoteUser": "root",
+  "postCreateCommand": "sudo chmod +x /workspaces/common-workflow-service/build.sh && sudo chmod +x /workspaces/common-workflow-service/dev.sh"
+}
