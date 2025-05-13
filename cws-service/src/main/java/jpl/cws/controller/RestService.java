@@ -1365,8 +1365,8 @@ public class RestService extends MvcCore {
 		@ApiImplicitParam(name = "procDefKey", value = "Process definition key to get size for.", required = false, paramType = "query"),
 		@ApiImplicitParam(name = "status", value = "Status to get size for.", required = false, paramType = "query"),
 		@ApiImplicitParam(name = "minDate", value = "Minimum date to get size for.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "maxDate", value = "Maximum date to get size for.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "maxReturn", value = "Maximum number of results to return.", required = false, paramType = "query")
+		@ApiImplicitParam(name = "maxDate", value = "Maximum date to get size for.", required = false, paramType = "query")
+		// Removed maxReturn parameter - not needed with server-side pagination
 	})
 	@RequestMapping(value = "/processes/getInstancesSize", method = GET, produces="application/json")
 	public @ResponseBody int getInstancesSize(
@@ -1375,11 +1375,9 @@ public class RestService extends MvcCore {
 			@RequestParam(value = "procDefKey", required=false) String procDefKey,
 			@RequestParam(value = "status", required=false) String status,
 			@RequestParam(value = "minDate", required=false) String minDate,
-			@RequestParam(value = "maxDate", required=false) String maxDate,
-			@RequestParam(value = "maxReturn", required=false, defaultValue="5000") String maxReturn
+			@RequestParam(value = "maxDate", required=false) String maxDate
+			// Removed maxReturn parameter - not needed with server-side pagination
 			) {
-
-		Integer intMaxReturn = Integer.parseInt(maxReturn);
 
 		log.debug("REST:  getProcessInstancesSize (superProcInstId='" + superProcInstId +
 				"', procInstId='" + procInstId +
@@ -1390,9 +1388,8 @@ public class RestService extends MvcCore {
 		try {
 			size = dbService.getFilteredProcessInstancesSize(
 					superProcInstId, procInstId, procDefKey, status, minDate, maxDate);
-			if (intMaxReturn > 0 && intMaxReturn < size) {
-				size = intMaxReturn;
-			}
+			// No longer limiting size by maxReturn parameter
+			// DataTables will handle pagination on client side
 		}
 		catch (Exception e) {
 			log.error("Problem while getFilteredProcessInstancesSize", e);
@@ -1447,11 +1444,14 @@ public class RestService extends MvcCore {
 			@RequestParam(value = "start", required=false) String start,
 			@RequestParam(value = "length", required=false) String length,
 			@RequestParam(value = "draw", required=false) String draw,
-			@RequestParam(value = "maxReturn", required=false, defaultValue="5000") String maxReturn
+			@RequestParam(value = "maxReturn", required=false, defaultValue="-1") String maxReturn,
+			@RequestParam Map<String, String> allRequestParams // Handle SearchBuilder
 			) {
 		
 		List<CwsProcessInstance> instances = null;
 		Map<String, Object> response = new HashMap<>();
+		int totalCount = 0; // Initialize totalCount
+		int filteredCount = 0; // Initialize filteredCount
 		
 		try {
 			Integer pageNum = 0;
@@ -1482,11 +1482,13 @@ public class RestService extends MvcCore {
 					", dateOrderBy="+dateOrderBy+", page="+pageNum+", pageSize="+pageSizeNum+")");
 
 			// Get total record count for pagination
-			int totalCount = dbService.getFilteredProcessInstancesSize(
-					superProcInstId, procInstId, procDefKey, status, minDate, maxDate);
+			totalCount = dbService.getFilteredProcessInstancesSize(
+					superProcInstId, procInstId, procDefKey, status, minDate, maxDate, allRequestParams);
 			
+			log.debug("Had Count: " + totalCount)
+
 			// Apply maxReturn limit if needed
-			int filteredCount = totalCount;
+			filteredCount = totalCount;
 			if (intMaxReturn > 0 && intMaxReturn < totalCount) {
 				filteredCount = intMaxReturn;
 			}
@@ -1494,7 +1496,7 @@ public class RestService extends MvcCore {
 			// Get only the requested page of data
 			instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
 					superProcInstId, procInstId, procDefKey, status, minDate, maxDate, 
-					dateOrderBy, pageNum, pageSizeNum);
+					dateOrderBy, pageNum, pageSizeNum, allRequestParams);
 
 			// Format response based on whether DataTables format is requested
 			if (draw != null) {

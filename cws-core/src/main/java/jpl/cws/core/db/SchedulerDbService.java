@@ -22,6 +22,25 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+
+/** 
+ * Helper class for SeachBuilder processing
+ */
+
+class SearchBuilderSql {
+    String whereClause;
+    List<Object> params;
+
+    SearchBuilderSql(String whereClause, List<Object> params) {
+        this.whereClause = whereClause;
+        this.params = params;
+    }
+}
+
+
 /**
  * Helper / service methods related scheduler database tables.
  *
@@ -826,6 +845,19 @@ public class SchedulerDbService extends DbService implements InitializingBean {
         return sb.toString();
     }
 
+    public int getFilteredProcessInstancesSize(
+            String superProcInstId,
+            String procInstId,
+            String procDefKey,
+            String statusList,
+            String minDate,
+            String maxDate
+    ) {
+        Map<String, String> noFilters = new HashMap<>();
+        return getFilteredProcessInstancesSize(superProcInstId, procInstId, procDefKey, statusList, minDate, maxDate, noFilters);
+    }
+
+
     /**
      * Returns the total number of process instances that
      * match a set of filters.
@@ -836,67 +868,79 @@ public class SchedulerDbService extends DbService implements InitializingBean {
             String procDefKey,
             String statusList,
             String minDate,
-            String maxDate
+            String maxDate,
+            Map<String, String> allRequestParams
     ) {
-        List<Object> whereObjs = new ArrayList<Object>();
+        List<Object> cwsWhereObjs = new ArrayList<Object>();
+        List<Object> camundaWhereObjs = new ArrayList<Object>(); // Separate list for camunda query params
+
+        StringBuilder cwsBaseWhere = new StringBuilder(" WHERE proc_inst_id IS NULL "); // Base for CWS
+        StringBuilder camundaBaseWhere = new StringBuilder(" WHERE 1=1 "); // Base for Camunda
+
         if (procInstId != null) {
-            whereObjs.add(procInstId);
+            cwsBaseWhere.append("AND proc_inst_id=? ");
+            cwsWhereObjs.add(procInstId);
+            camundaBaseWhere.append("AND PI.proc_inst_id=? ");
+            camundaWhereObjs.add(procInstId);
         }
         if (procDefKey != null) {
-            whereObjs.add(procDefKey);
+            cwsBaseWhere.append("AND proc_def_key=? ");
+            cwsWhereObjs.add(procDefKey);
+            camundaBaseWhere.append("AND PI.proc_def_key=? ");
+            camundaWhereObjs.add(procDefKey);
         }
         if (minDate != null) {
-            whereObjs.add(minDate);
+            cwsBaseWhere.append("AND created_time >= ? "); // Assuming 'created_time' for cws_sched, 'start_time' for camunda
+            cwsWhereObjs.add(minDate);
+            camundaBaseWhere.append("AND PI.start_time >= ? ");
+            camundaWhereObjs.add(minDate);
         }
         if (maxDate != null) {
-            whereObjs.add(maxDate);
+            cwsBaseWhere.append("AND created_time <= ? ");
+            cwsWhereObjs.add(maxDate);
+            camundaBaseWhere.append("AND PI.start_time <= ? ");
+            camundaWhereObjs.add(maxDate);
         }
 
         String pattern = PENDING + "|" + DISABLED + "|" + FAILED_TO_START + "|" + FAILED_TO_SCHEDULE + "|"
                 + CLAIMED_BY_WORKER + "|" + RUNNING + "|" + COMPLETE + "|" + RESOLVED + "|" + FAIL + "|" + INCIDENT;
-
         String statusClause = "";
         if (statusList != null) {
             List<String> statuses = Arrays.asList(statusList.split(","));
-            statusClause = buildSanitizedSqlArray(statuses, pattern);
+            statusClause = buildSanitizedSqlArray(statuses, pattern); // Ensure this method is safe or adapt
+            if (!statuses.isEmpty()){ //Only add if there are actual statuses to filter by
+                cwsBaseWhere.append("AND status IN ").append(statusClause).append(" ");
+                camundaBaseWhere.append("AND PI.status IN ").append(statusClause).append(" ");
+            }
         }
 
-        log.trace("statusClause = " + statusClause);
+        SearchBuilderSql sbSqlCws = buildSearchBuilderWhereClause(allRequestParams, "cws_sched_worker_proc_inst"); // Alias might not be needed if columns are unique
+        SearchBuilderSql sbSqlCamunda = buildSearchBuilderWhereClause(allRequestParams, "PI"); // Alias for cws_proc_inst_status
 
-        int cwsRowsCount =
-                jdbcTemplate.queryForObject(
-                        "SELECT COUNT(*) " +
-                                "FROM cws_sched_worker_proc_inst " +
-                                "WHERE " +
-                                (procInstId != null ? "proc_inst_id=? AND " : "") +
-                                (procDefKey != null ? "proc_def_key=? AND " : "") +
-                                (minDate != null ? "created_time >= ? AND " : "") +
-                                (maxDate != null ? "created_time <= ? AND " : "") +
-                                (statusList != null ? "status IN " + statusClause + " AND " : "") +
-                                "proc_inst_id IS NULL ", // don't get any started processes
-                        whereObjs.toArray(), Integer.class);
+        cwsBaseWhere.append(sbSqlCws.whereClause);
+        cwsWhereObjs.addAll(sbSqlCws.params);
+        
+        camundaBaseWhere.append(sbSqlCamunda.whereClause);
+        camundaWhereObjs.addAll(sbSqlCamunda.params);
 
-        // Now add superProcInstId to whereObjs and put at the beginning for SQL query.  Only add if contains "real" procInstId
-        if (superProcInstId != null && !superProcInstId.equalsIgnoreCase("NULL")) {
-            whereObjs.add(0, superProcInstId);
+        String cwsCountQuery = "SELECT COUNT(*) FROM cws_sched_worker_proc_inst " + cwsBaseWhere.toString();
+        int cwsRowsCount = jdbcTemplate.queryForObject(cwsCountQuery, cwsWhereObjs.toArray(), Integer.class);
+
+        String camundaSuperProcInstIdFilter = "";
+        if (superProcInstId != null) {
+            camundaSuperProcInstIdFilter = superProcInstId.equalsIgnoreCase("NULL") ? "PI.super_proc_inst_id IS NULL AND " : "PI.super_proc_inst_id=? AND ";
         }
+        
+        String camundaCountQuery = "SELECT COUNT(*) FROM cws_proc_inst_status PI " + 
+                                (camundaBaseWhere.toString().replaceFirst(" WHERE 1=1 ", " WHERE " + camundaSuperProcInstIdFilter + " 1=1 "));
+                                // A bit complex to inject superProcInstId at the right place if it's conditional
 
-        String camundaCountQuery =
-                "SELECT COUNT(*) " +
-                        "FROM cws_proc_inst_status " +
-                        "WHERE " +
-                        (superProcInstId != null ? superProcInstId.equalsIgnoreCase("NULL") ? "super_proc_inst_id IS NULL AND " : "super_proc_inst_id=? AND " : "") +
-                        (procInstId != null ? "proc_inst_id=? AND " : "") +
-                        (procDefKey != null ? "proc_def_key=? AND " : "") +
-                        (statusList != null ? "status IN " + statusClause + " AND " : "") +
-                        (minDate != null ? "start_time >= ? AND " : "") +
-                        (maxDate != null ? "start_time <= ? AND " : "") +
-                        "  1=1 ";
+        //log.debug("SchedulerDbService.getFilteredProcessInstancesSize - CWS Count Query: " + cwsCountQuery + " with params: " + cwsWhereObjs);
+        //log.debug("SchedulerDbService.getFilteredProcessInstancesSize - Camunda Count Query: " + camundaCountQuery + " with params: " + camundaWhereObjs);
 
-        int camundaRowsCount = jdbcTemplate.queryForObject(camundaCountQuery, whereObjs.toArray(), Integer.class);
+        int camundaRowsCount = jdbcTemplate.queryForObject(camundaCountQuery, camundaWhereObjs.toArray(), Integer.class);
 
         log.trace("cwsRowsCount = " + cwsRowsCount + ", camundaRowsCount = " + camundaRowsCount);
-
         return cwsRowsCount + camundaRowsCount;
     }
 
@@ -940,7 +984,8 @@ public class SchedulerDbService extends DbService implements InitializingBean {
             String dateOrderBy,
             int page
     ) {
-        return getFilteredProcessInstances(superProcInstId, procInstId, procDefKey, statusList, minDate, maxDate, dateOrderBy, page, PROCESSES_PAGE_SIZE);
+        Map<String, String> noFilters = new HashMap<>();
+        return getFilteredProcessInstances(superProcInstId, procInstId, procDefKey, statusList, minDate, maxDate, dateOrderBy, page, PROCESSES_PAGE_SIZE, noFilters);
     }
     
     public List<Map<String, Object>> getFilteredProcessInstances(
@@ -952,88 +997,118 @@ public class SchedulerDbService extends DbService implements InitializingBean {
             String maxDate,
             String dateOrderBy,
             int page,
-            int pageSize
+            int pageSize,
+            Map<String, String> allRequestParams
     ) {
-        List<Object> whereObjs = new ArrayList<Object>();
+        
+        List<Object> cwsWhereObjs = new ArrayList<>();
+        List<Object> camundaWhereObjs = new ArrayList<>(); // Separate for Camunda specific params
+
+        // Build base WHERE clauses and add initial parameters (similar to getFilteredProcessInstancesSize)
+        StringBuilder cwsBaseWhere = new StringBuilder(" WHERE proc_inst_id IS NULL ");
+        StringBuilder camundaBaseWhere = new StringBuilder(" WHERE 1=1 "); // Start with a tautology for easy AND appending
+
         if (procInstId != null) {
-            whereObjs.add(procInstId);
+            cwsBaseWhere.append("AND proc_inst_id=? ");
+            cwsWhereObjs.add(procInstId);
+            camundaBaseWhere.append("AND PI.proc_inst_id=? ");
+            camundaWhereObjs.add(procInstId);
         }
         if (procDefKey != null) {
-            whereObjs.add(procDefKey);
+            cwsBaseWhere.append("AND proc_def_key=? ");
+            cwsWhereObjs.add(procDefKey);
+            camundaBaseWhere.append("AND PI.proc_def_key=? ");
+            camundaWhereObjs.add(procDefKey);
         }
         if (minDate != null) {
-            whereObjs.add(minDate);
+            cwsBaseWhere.append("AND created_time >= ? "); // Assuming 'created_time' for cws_sched, 'start_time' for camunda
+            cwsWhereObjs.add(minDate);
+            camundaBaseWhere.append("AND PI.start_time >= ? ");
+            camundaWhereObjs.add(minDate);
         }
         if (maxDate != null) {
-            whereObjs.add(maxDate);
+            cwsBaseWhere.append("AND created_time <= ? ");
+            cwsWhereObjs.add(maxDate);
+            camundaBaseWhere.append("AND PI.start_time <= ? ");
+            camundaWhereObjs.add(maxDate);
         }
-
-        Integer offset = page * pageSize;
-        Integer size = pageSize;
-
-        whereObjs.add(offset);
-        whereObjs.add(size);
 
         String pattern = PENDING + "|" + DISABLED + "|" + FAILED_TO_START + "|" + FAILED_TO_SCHEDULE + "|"
                 + CLAIMED_BY_WORKER + "|" + RUNNING + "|" + COMPLETE + "|" + RESOLVED + "|" + FAIL + "|" + INCIDENT;
+
 
         String statusClause = "";
         if (statusList != null) {
             List<String> statuses = Arrays.asList(statusList.split(","));
             statusClause = buildSanitizedSqlArray(statuses, pattern);
+            if (!statuses.isEmpty()){
+                    cwsBaseWhere.append("AND status IN ").append(statusClause).append(" ");
+                    camundaBaseWhere.append("AND PI.status IN ").append(statusClause).append(" ");
+            }
         }
 
-        log.debug("statusClause = " + statusClause);
+        SearchBuilderSql sbSqlCws = buildSearchBuilderWhereClause(allRequestParams, ""); // No alias or specific table alias if columns are in cws_sched_worker_proc_inst
+        SearchBuilderSql sbSqlCamunda = buildSearchBuilderWhereClause(allRequestParams, "PI");
 
-        String cwsQuery =
-                "SELECT * " +
-                        "FROM cws_sched_worker_proc_inst " +
-                        "WHERE " +
-                        (procInstId != null ? "proc_inst_id=? AND " : "") +
-                        (procDefKey != null ? "proc_def_key=? AND " : "") +
-                        (minDate != null ? "created_time >= ? AND " : "") +
-                        (maxDate != null ? "created_time <= ? AND " : "") +
-                        (statusList != null ? "status IN " + statusClause + " AND " : "") +
-                        "  proc_inst_id IS NULL " + // don't get any started processes
-                        "ORDER BY created_time " + dateOrderBy + " " +
-                        "LIMIT ?,?";
+        cwsBaseWhere.append(sbSqlCws.whereClause);
+        cwsWhereObjs.addAll(sbSqlCws.params);
+        
+        camundaBaseWhere.append(sbSqlCamunda.whereClause);
+        camundaWhereObjs.addAll(sbSqlCamunda.params);
+        
+        Integer offset = page * pageSize;
+        Integer size = pageSize;
 
-        List<Map<String, Object>> cwsRows = jdbcTemplate.queryForList(cwsQuery, whereObjs.toArray());
+        cwsWhereObjs.add(offset);
+        cwsWhereObjs.add(pageSize);
+
+        String cwsQuery = "SELECT * FROM cws_sched_worker_proc_inst " +
+                      cwsBaseWhere.toString() +
+                      "ORDER BY created_time " + dateOrderBy + " " +
+                      "LIMIT ?,?";
+
+        List<Map<String, Object>> cwsRows = jdbcTemplate.queryForList(cwsQuery, cwsWhereObjs.toArray());
 
         // Now add superProcInstId to whereObjs and put at the beginning for SQL query.  Only add if contains "real" procInstId
-        if (superProcInstId != null && !superProcInstId.equalsIgnoreCase("NULL")) {
-            whereObjs.add(0, superProcInstId);
+        List<Object> finalCamundaWhereObjs = new ArrayList<>();
+        String camundaSuperProcInstIdFilter = "";
+        if (superProcInstId != null) {
+            if (!superProcInstId.equalsIgnoreCase("NULL")) {
+                finalCamundaWhereObjs.add(superProcInstId);
+            }
+            camundaSuperProcInstIdFilter = superProcInstId.equalsIgnoreCase("NULL") ? "PI.super_proc_inst_id IS NULL AND " : "PI.super_proc_inst_id=? AND ";
         }
+        finalCamundaWhereObjs.addAll(camundaWhereObjs);
 
-        String camundaQuery =
-                "SELECT " +
-                        // If there is no corresponding row in the CWS, table, then this wasn't scheduled
-                        "  CI.initiation_key     			AS initiation_key, " +
-                        "  CI.created_time       			AS created_time, " +
-                        "  CI.updated_time       			AS updated_time, " +
-                        "  CI.claimed_by_worker  			AS claimed_by_worker, " +
-                        "  CI.started_by_worker  			AS started_by_worker, " +
-                        "  PI.proc_inst_id      			AS proc_inst_id, " +
-                        "  PI.super_proc_inst_id			AS super_proc_inst_id, " +
-                        "  PI.proc_def_key      			AS proc_def_key, " +
-                        "  PI.start_time        			AS proc_start_time, " +
-                        "  PI.end_time          			AS proc_end_time, " +
-                        "  PI.status 						AS status " +
-                        "FROM cws_proc_inst_status PI " +
-                        "LEFT JOIN cws_sched_worker_proc_inst CI " +
-                        "ON PI.proc_inst_id = CI.proc_inst_id " +
-                        "WHERE " +
-                        (superProcInstId != null ? superProcInstId.equalsIgnoreCase("NULL") ? "PI.super_proc_inst_id IS NULL AND " : "PI.super_proc_inst_id=? AND " : "") +
-                        (procInstId != null ? "PI.proc_inst_id=? AND " : "") +
-                        (procDefKey != null ? "PI.proc_def_key=? AND " : "") +
-                        (statusList != null ? "PI.status IN " + statusClause + " AND " : "") +
-                        (minDate != null ? "PI.start_time >= ? AND " : "") +
-                        (maxDate != null ? "PI.start_time <= ? AND " : "") +
-                        " 1=1 " +
-                        "ORDER BY PI.start_time " + dateOrderBy + " " +
-                        "LIMIT ?,?";
+        // Add pagination params AFTER SearchBuilder and other filter params for Camunda query
+        finalCamundaWhereObjs.add(offset);
+        finalCamundaWhereObjs.add(pageSize);
 
-        List<Map<String, Object>> camundaRows = jdbcTemplate.queryForList(camundaQuery, whereObjs.toArray());
+        String camundaQuery = "SELECT " +
+                "  CI.uuid                        AS uuid, " + // Get UUID from CI if available
+                "  CI.initiation_key              AS initiation_key, " +
+                "  COALESCE(CI.created_time, PI.start_time) AS created_time, " + // Prefer CI.created_time
+                "  CI.updated_time                AS updated_time, " +
+                "  CI.claimed_by_worker           AS claimed_by_worker, " +
+                "  CI.started_by_worker           AS started_by_worker, " +
+                "  PI.proc_inst_id                AS proc_inst_id, " +
+                "  PI.super_proc_inst_id          AS super_proc_inst_id, " +
+                "  PI.proc_def_key                AS proc_def_key, " +
+                "  PI.start_time                  AS proc_start_time, " +
+                "  PI.end_time                    AS proc_end_time, " +
+                "  PI.status                      AS status " +
+                "FROM cws_proc_inst_status PI " +
+                "LEFT JOIN cws_sched_worker_proc_inst CI " +
+                "ON PI.proc_inst_id = CI.proc_inst_id " +
+                (camundaBaseWhere.toString().replaceFirst(" WHERE 1=1 ", " WHERE " + camundaSuperProcInstIdFilter + " 1=1 ")) + // Inject superProcInstId filter carefully
+                "ORDER BY PI.start_time " + dateOrderBy + " " +
+                "LIMIT ?,?";
+
+        //log.debug("SchedulerDbService.getFilteredProcessInstances - CWS Data Query: " + cwsQuery + " with params: " + cwsWhereObjs);
+        //log.debug("SchedulerDbService.getFilteredProcessInstances - Camunda Data Query: " + camundaQuery + " with params: " + finalCamundaWhereObjs);
+        
+        List<Map<String, Object>> camundaRows = jdbcTemplate.queryForList(camundaQuery, finalCamundaWhereObjs.toArray());
+
 
         // JOIN THE SETS...
         //
@@ -1646,4 +1721,255 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 
         return jdbcTemplate.update(query);
     }
+
+    /** 
+     * Process the SearchBuilder params
+     */
+
+    private SearchBuilderSql buildSearchBuilderWhereClause(Map<String, String> allRequestParams, String tableAlias) {
+        StringBuilder sbWhere = new StringBuilder();
+        List<Object> queryParams = new ArrayList<>();
+        String logic = allRequestParams.getOrDefault("searchBuilder[logic]", "AND").toUpperCase(); // Default to AND
+
+        DateTimeFormatter timeformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        int criteriaIndex = 0;
+        while (true) {
+            String dataKey = "searchBuilder[criteria][" + criteriaIndex + "][data]";
+            String origDataKey = "searchBuilder[criteria][" + criteriaIndex + "][origData]";
+            String conditionKey = "searchBuilder[criteria][" + criteriaIndex + "][condition]";
+            String typeKey = "searchBuilder[criteria][" + criteriaIndex + "][type]";
+            String valueKeyBase = "searchBuilder[criteria][" + criteriaIndex + "][value"; // For conditions like =, <, >
+
+            if (!allRequestParams.containsKey(conditionKey)) { // No more criteria
+                break;
+            }
+    
+            String data = allRequestParams.get(dataKey); // Display name
+
+            // Grab all the Values
+            int valueNum = 1;
+            java.util.ArrayList<String> values = new java.util.ArrayList<>();
+            String valueKey = valueKeyBase + valueNum + "]";
+            while (allRequestParams.containsKey(valueKey)){
+                //Populate the arrays
+                values.add( allRequestParams.get(valueKey) );
+                values.add( allRequestParams.get(valueKey) );
+
+                // Update the key
+                valueNum++;
+                valueKey = valueKeyBase + valueNum + "]";
+            }
+            String value1 = values.get(0);
+
+
+            //Handle origData and multiple values
+            String origData = data;
+            if (allRequestParams.containsKey(origDataKey)){
+                origData = allRequestParams.get(origDataKey);
+            }else{
+                // Grab the first one
+                for (String key : allRequestParams.keySet()) {
+                    if (key != null && key.startsWith(origDataKey)) {
+                        origData = allRequestParams.get(key);
+                    }
+                }
+            }
+
+            String condition = allRequestParams.get(conditionKey);
+            String type = allRequestParams.getOrDefault(typeKey, "string").toLowerCase(); 
+    
+            // Map the column names: origData
+            boolean skip = false;
+            switch (origData) {
+                case "procInstId":
+                    origData = "proc_inst_id";
+                    break;
+                case "procDefKey":
+                    origData = "proc_def_key";
+                    break;
+                case "createdTimestamp":
+                    origData = "created_time";
+                    break;
+                case "startedByWorker":
+                    origData = "started_by_worker";
+                    break;
+                case "initiationKey":
+                    origData = "initiation_key";
+                    break;
+                case "inputVariables":
+                    // Might need to handle this special
+                    origData = "proc_variables";
+                    break;
+                case "procStartTime":
+                    if (tableAlias == "PI") {
+                        origData = "start_time";
+                    }else{
+                        skip = true;
+                    }
+                    break;
+                case "procEndTime":
+                    if (tableAlias == "PI") {
+                        origData = "end_time";
+                    }else{
+                        skip = true;
+                    }
+                    break;
+            }
+            if (skip){
+                // Move to next one
+                criteriaIndex++;
+                continue;
+            }
+
+            // Insert logic only if we pass the column mapping
+            if (sbWhere.length() > 0) {
+                sbWhere.append(" ").append(logic).append(" ");
+            }
+    
+
+            String dbColumn = (tableAlias != null && !tableAlias.isEmpty() ? tableAlias + "." : "") + origData;
+        
+            // Handle different conditions and types
+            switch (condition) {
+                case "=":
+                    sbWhere.append(dbColumn).append(" = ?");
+                    if (type.equals("moment-MMM D, YYYY, h:mm:ss A")){
+                        LocalDateTime localDateTime = LocalDateTime.parse(value1, timeformatter);
+                        queryParams.add(Timestamp.valueOf(localDateTime));
+                    }else{
+                        queryParams.add(value1);
+                    }
+                    break;
+                case "!=":
+                    sbWhere.append(dbColumn).append(" != ?");
+                    if (type.equals("moment-MMM D, YYYY, h:mm:ss A")){
+                        LocalDateTime localDateTime = LocalDateTime.parse(value1, timeformatter);
+                        queryParams.add(Timestamp.valueOf(localDateTime));
+                    }else{
+                        queryParams.add(value1);
+                    }
+                    break;
+                case "contains":
+                    sbWhere.append(dbColumn).append(" LIKE ?");
+                    queryParams.add("%" + value1 + "%");
+                    break;
+                case "!contains":
+                     sbWhere.append(dbColumn).append(" NOT LIKE ?");
+                     queryParams.add("%" + value1 + "%");
+                     break;
+                case "starts":
+                    sbWhere.append(dbColumn).append(" LIKE ?");
+                    queryParams.add(value1 + "%");
+                    break;
+                case "!starts":
+                    sbWhere.append(dbColumn).append(" NOT LIKE ?");
+                    queryParams.add(value1 + "%");
+                    break;
+                case "ends":
+                    sbWhere.append(dbColumn).append(" LIKE ?");
+                    queryParams.add("%" + value1);
+                    break;
+                case "!ends":
+                    sbWhere.append(dbColumn).append(" NOT LIKE ?");
+                    queryParams.add("%" + value1);
+                    break;
+                case "<":
+                    sbWhere.append(dbColumn).append(" < ?");
+                    if (type.equals("moment-MMM D, YYYY, h:mm:ss A")){
+                        LocalDateTime localDateTime = LocalDateTime.parse(value1, timeformatter);
+                        queryParams.add(Timestamp.valueOf(localDateTime));
+                        log.debug("TimeStamp: " + Timestamp.valueOf(localDateTime).toString());
+                    }else{
+                        queryParams.add(type.equals("num") ? Double.parseDouble(value1) : value1);
+                    }
+                    break;
+                case "<=":
+                    sbWhere.append(dbColumn).append(" <= ?");
+                    if (type.equals("moment-MMM D, YYYY, h:mm:ss A")){
+                        LocalDateTime localDateTime = LocalDateTime.parse(value1, timeformatter);
+                        queryParams.add(Timestamp.valueOf(localDateTime));
+                    }else{
+                        queryParams.add(type.equals("num") ? Double.parseDouble(value1) : value1);
+                    }
+                    break;
+                case ">":
+                    sbWhere.append(dbColumn).append(" > ?");
+                    if (type.equals("moment-MMM D, YYYY, h:mm:ss A")){
+                        LocalDateTime localDateTime = LocalDateTime.parse(value1, timeformatter);
+                        queryParams.add(Timestamp.valueOf(localDateTime));
+                    }else{
+                        queryParams.add(type.equals("num") ? Double.parseDouble(value1) : value1);
+                    }
+                    break;
+                case ">=":
+                    sbWhere.append(dbColumn).append(" >= ?");
+                    if (type.equals("moment-MMM D, YYYY, h:mm:ss A")){
+                        LocalDateTime localDateTime = LocalDateTime.parse(value1, timeformatter);
+                        queryParams.add(Timestamp.valueOf(localDateTime));
+                    }else{
+                        queryParams.add(type.equals("num") ? Double.parseDouble(value1) : value1);
+                    }
+                    break;
+                case "null": // 'is empty'
+                    sbWhere.append(dbColumn).append(" IS NULL");
+                    break;
+                case "!null": // 'is not empty'
+                    sbWhere.append(dbColumn).append(" IS NOT NULL");
+                    break;
+                case "between":
+                    // Process both fields
+                    sbWhere.append("(");
+                    sbWhere.append(dbColumn).append(" <= ?");
+                    if (type.equals("moment-MMM D, YYYY, h:mm:ss A")){
+                        LocalDateTime localDateTime = LocalDateTime.parse(value1, timeformatter);
+                        queryParams.add(Timestamp.valueOf(localDateTime));
+                    }else{
+                        queryParams.add(type.equals("num") ? Double.parseDouble(value1) : value1);
+                    }
+                    sbWhere.append(" AND "); //Alway and for these two
+                    sbWhere.append(dbColumn).append(" < ?");
+                    if (type.equals("moment-MMM D, YYYY, h:mm:ss A")){
+                        LocalDateTime localDateTime = LocalDateTime.parse(value1, timeformatter);
+                        queryParams.add(Timestamp.valueOf(localDateTime));
+                    }else{
+                        queryParams.add(type.equals("num") ? Double.parseDouble(value1) : value1);
+                    }
+                    sbWhere.append(")");
+                    break;
+                case "!between":
+                    // Process both fields
+                    sbWhere.append("(");
+                    sbWhere.append(dbColumn).append(" > ?");
+                    if (type.equals("moment-MMM D, YYYY, h:mm:ss A")){
+                        LocalDateTime localDateTime = LocalDateTime.parse(value1, timeformatter);
+                        queryParams.add(Timestamp.valueOf(localDateTime));
+                    }else{
+                        queryParams.add(type.equals("num") ? Double.parseDouble(value1) : value1);
+                    }
+                    sbWhere.append(" OR "); //Alway OR for these two
+                    sbWhere.append(dbColumn).append(" >= ?");
+                    if (type.equals("moment-MMM D, YYYY, h:mm:ss A")){
+                        LocalDateTime localDateTime = LocalDateTime.parse(value1, timeformatter);
+                        queryParams.add(Timestamp.valueOf(localDateTime));
+                    }else{
+                        queryParams.add(type.equals("num") ? Double.parseDouble(value1) : value1);
+                    }
+                    sbWhere.append(")");
+                    break;
+                default:
+                    log.warn("Unsupported SearchBuilder condition: " + condition + " for column " + origData);
+                    // Potentially skip this criterion or throw an error
+                    criteriaIndex++;
+                    continue; // Skip appending this condition
+            }
+            criteriaIndex++;
+        }
+    
+        if (sbWhere.length() > 0) {
+            return new SearchBuilderSql(" AND (" + sbWhere.toString() + ")", queryParams);
+        }
+        return new SearchBuilderSql("", queryParams); // Empty WHERE clause and no params
+    }
+
 }
