@@ -1484,8 +1484,6 @@ public class RestService extends MvcCore {
 			// Get total record count for pagination
 			totalCount = dbService.getFilteredProcessInstancesSize(
 					superProcInstId, procInstId, procDefKey, status, minDate, maxDate, allRequestParams);
-			
-			log.debug("Had Count: " + totalCount)
 
 			// Apply maxReturn limit if needed
 			filteredCount = totalCount;
