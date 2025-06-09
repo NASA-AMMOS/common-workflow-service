@@ -79,7 +79,7 @@ jobs:
           # Target both cws and cws-worker services
           sed -i "s/image: nasa-ammos\/common-workflow-service:.*/image: $ESCAPED_TAG/g" docker-compose-testing.yml
           echo "docker-compose-testing.yml after update:"
-          cat docker-compose.yml
+          cat docker-compose-testing.yml
         working-directory: install/docker/console-db-es-ls-kibana
 
       - name: Start Services with Docker Compose
