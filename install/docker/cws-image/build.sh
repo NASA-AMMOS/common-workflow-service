@@ -19,6 +19,7 @@ fi
 
 cp "$CWS_PACKAGE" .
 cp ../../../cws-core/cws-core-libs/joda-time-2.1.jar .
+cp -r ../../../cws-certs .
 
 echo "Building CWS docker image.  Version = $ver"
 
@@ -26,6 +27,7 @@ docker build -t nasa-ammos/common-workflow-service:$ver .
 
 rm cws_server.tar.gz
 rm joda-time-2.1.jar
+rm -rf cws-certs
 
 echo
 echo "Done building!"
