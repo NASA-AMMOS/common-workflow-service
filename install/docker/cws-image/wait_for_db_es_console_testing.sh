@@ -40,27 +40,21 @@ if [[ "$install_type" == 3 ]]; then
   echo "Console is running!"
 fi
 
-# --- Generate Certificates ---
-CERT_SCRIPT="/opt/cws-certs/generate-certs-testing.sh"
-if [ -f "${CERT_SCRIPT}" ]; then
-  >&2 echo "Running certificate generation script: ${CERT_SCRIPT}"
-  "${CERT_SCRIPT}"
-  CERT_GEN_EXIT_CODE=$?
-  if [ ${CERT_GEN_EXIT_CODE} -ne 0 ]; then
-    >&2 echo "ERROR: Certificate generation script failed with exit code ${CERT_GEN_EXIT_CODE}. Exiting entrypoint."
-    exit ${CERT_GEN_EXIT_CODE}
+# --- Setup Testing Environment ---
+SETUP_SCRIPT="./setup_testing_environment.sh"
+if [ -f "${SETUP_SCRIPT}" ]; then
+  >&2 echo "Running testing environment setup script: ${SETUP_SCRIPT}"
+  "${SETUP_SCRIPT}"
+  SETUP_EXIT_CODE=$?
+  if [ ${SETUP_EXIT_CODE} -ne 0 ]; then
+    >&2 echo "ERROR: Testing environment setup script failed with exit code ${SETUP_EXIT_CODE}. Exiting entrypoint."
+    exit ${SETUP_EXIT_CODE}
   fi
-  >&2 echo "Certificate generation script completed successfully."
 else
-  >&2 echo "ERROR: Certificate generation script ${CERT_SCRIPT} not found. Exiting entrypoint."
+  >&2 echo "ERROR: Testing environment setup script ${SETUP_SCRIPT} not found. Exiting entrypoint."
   exit 1
 fi
-# --- End Certificate Generation ---
-
-mkdir ~/.cws
-echo "changeit" >> ~/.cws/creds
-chmod 700 ~/.cws/
-chmod 600 ~/.cws/creds
+# --- End Testing Environment Setup ---
 
 # Start app
 >&2 echo "Executing startup.sh..."

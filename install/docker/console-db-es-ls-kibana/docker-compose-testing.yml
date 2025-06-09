@@ -98,6 +98,7 @@ services:
       com.example.service: "cws-server"
       com.example.description: "Common Workflow Service"
     image: nasa-ammos/common-workflow-service:2.6.0 # update this each CWS release
+    entrypoint: ["./testing_entrypoint.sh"]
     depends_on:
       - db
       - es
@@ -137,6 +138,7 @@ services:
       com.example.service: "cws-worker1"
       com.example.description: "Common Workflow Service"
     image: nasa-ammos/common-workflow-service:2.6.0 # update this each CWS release
+    entrypoint: ["./testing_entrypoint.sh"]
     depends_on:
       - db
       - es
