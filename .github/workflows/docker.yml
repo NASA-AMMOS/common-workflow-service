@@ -46,7 +46,7 @@ jobs:
           chmod +x build.sh
           # The script builds using the 'nasa-ammos/...' tag internally
           # Execute the script directly now that we are in its directory
-          ./build-testing.sh
+          ./build.sh
           # Explicitly check the exit code of the script
           if [ $? -ne 0 ]; then
             echo "::error::Docker image build script failed."
