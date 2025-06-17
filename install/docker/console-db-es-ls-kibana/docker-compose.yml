@@ -1,5 +1,3 @@
-version: "3.2"
-
 services:
   db:
     restart: always
@@ -18,7 +16,7 @@ services:
       timeout: 1s
       retries: 5
     networks:
-      - external-network
+      - cws-network
   es:
     labels:
       com.example.service: "es"
@@ -35,7 +33,7 @@ services:
       - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     networks:
-      - external-network
+      - cws-network
     healthcheck:
       test:
         [
@@ -97,7 +95,7 @@ services:
     labels:
       com.example.service: "cws-server"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.6.0 # update this each CWS release
+    image: nasa-ammos/common-workflow-service:2.7.0 # update this each CWS release
     depends_on:
       - db
       - es
@@ -130,13 +128,13 @@ services:
       - ~/.cws/creds:/root/.cws/creds:ro
       - console-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
     networks:
-      - external-network
+      - cws-network
   cws-worker:
     container_name: cws-worker1
     labels:
       com.example.service: "cws-worker1"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.6.0 # update this each CWS release
+    image: nasa-ammos/common-workflow-service:2.7.0 # update this each CWS release
     depends_on:
       - db
       - es
@@ -155,20 +153,19 @@ services:
       - ~/.cws/creds:/root/.cws/creds:ro
       - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
     networks:
-      - external-network
+      - cws-network
   ldapsearch:
     container_name: ldapsearch_container
     image: ghcr.io/nasa-ammos/common-workflow-service/openldap:v2.6
     ports:
       - 389:389
     networks:
-      - external-network
+      - cws-network
 
 volumes:
   console-logs-volume:
   worker1-logs-volume:
 
 networks:
-  external-network:
-    external:
-      name: cws-network
+  cws-network:
+    name: cws-network
