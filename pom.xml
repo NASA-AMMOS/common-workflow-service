@@ -79,7 +79,7 @@
 		<skip.integration.tests>false</skip.integration.tests>
 		<spring.framework.version>5.3.31</spring.framework.version>
 		<surefire.version>2.22.2</surefire.version>
-		<tomcat-catalina.version>9.0.75</tomcat-catalina.version>
+		<tomcat-catalina.version>9.0.106</tomcat-catalina.version>
 		<urlrewritefilter.version>4.0.3</urlrewritefilter.version>
 		<xbean-spring.version>4.24</xbean-spring.version>
 		<xmlunit.version>2.6.2</xmlunit.version>
