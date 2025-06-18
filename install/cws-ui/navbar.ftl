@@ -1,26 +1,20 @@
-<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark fixed-top justify-content-between" role="navigation">
 	<div class="container-fluid">
-		<div class="navbar-header">
-			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-				<span class="sr-only">Toggle navigation</span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-			</button>
+		<div class="d-flex align-items-center">
+<!---			<button class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar" style="margin-bottom: 3px;"><img height="16" width="16" src="/${base}/images/hamburger.svg"/></button> --->
 			<a class="navbar-brand" href="/${base}/home">
 				<span>__CWS_BRAND_HEADER__</span>
 			</a>
 		</div>
-		<div class="navbar-collapse collapse">
-			<ul class="nav navbar-nav navbar-right">
-				<li><a href="/${base}/modeler" target="_blank"><span class="glyphicon glyphicon-edit"></span> &nbsp;Modeler</a></li>
-				<li><a href="/camunda/app/tasklist"><span class="glyphicon glyphicon-list"></span> &nbsp;Tasklist</a></li>
-				<li><a href="/camunda/app/cockpit"><span class="glyphicon glyphicon-plane"></span> &nbsp;Cockpit</a></li>
-				<li><a href="/camunda/app/admin/default/#/authorization?resource=0"><span class="glyphicon glyphicon-user">
-				</span> &nbsp;Admin</a></li>
+		<div class="collapse navbar-collapse" id="navbarText" style="justify-content: flex-end;">
+			<ul class="navbar-nav ml-auto" style="gap: 20px;">
+				<li class="nav-item"><a class="nav-link" href="/${base}/modeler" target="_blank"><img height="16" width="16" src="/${base}/images/edit.svg" />Modeler</a></li>
+				<li class="nav-item"><a class="nav-link" href="/camunda/app/tasklist"><img height="16" width="16" src="/${base}/images/checklist_light.svg" />Tasklist</a></li>
+				<li class="nav-item"><a class="nav-link" href="/camunda/app/cockpit"><img height="16" width="16" src="/${base}/images/helicopter.svg" />Cockpit</a></li>
+				<li class="nav-item"><a class="nav-link" href="/camunda/app/admin/default/#/authorization?resource=0"><img height="16" width="16" src="/${base}/images/person.svg"/>Admin</a></li>
 				__CWS_PROJECT_LINK__
-				<li><a id="logoutLink" href="/${base}/logout"><span class="glyphicon glyphicon-log-out"></span> &nbsp;Logout</a></li>
+				<li class="nav-item"><a class="nav-link" id="logoutLink" href="/${base}/logout"><img height="16" width="16" src="/${base}/images/upload.svg" style="transform: rotate(90deg);" />Logout</a></li>
 			</ul>
 		</div>
 	</div>
-</div>
+</nav>

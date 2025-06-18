@@ -22,8 +22,12 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.JavascriptExecutor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  *
@@ -284,22 +288,39 @@ public class WebTestUtil {
 
 	public void enableWorkers(String procDef) {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-
-		wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
+		sleep(5000);
+				
+		// Get fresh reference and scroll into view
+		wait.until(ExpectedConditions.presenceOfElementLocated(By.id("pv-"+procDef)));
 		WebElement enable = findElById("pv-"+procDef);
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", enable);
+		sleep(5000);
+
+		// Get fresh reference before checking clickable
+		enable = findElById("pv-"+procDef);
+		wait.until(ExpectedConditions.elementToBeClickable(enable));
+		
+		// Get fresh reference before clicking
+		enable = findElById("pv-"+procDef); 
 		enable.click();
 		sleep(1000);
 
+		wait.until(ExpectedConditions.presenceOfElementLocated(By.id("all-workers")));
 		WebElement allWorkers = findElById("all-workers");
+		wait.until(ExpectedConditions.presenceOfElementLocated(By.id("done-workers-btn")));
 		WebElement allWorkersDone = findElById("done-workers-btn");
 		log.info("Enabling workers.");
 
+		wait.until(ExpectedConditions.elementToBeClickable(allWorkers));
 		if(allWorkers.isSelected()) {
+			wait.until(ExpectedConditions.elementToBeClickable(allWorkersDone));
 			allWorkersDone.click();
 			sleep(1000);
 		} else {
 			allWorkers.click();
 			sleep(1000);
+			wait.until(ExpectedConditions.elementToBeClickable(allWorkersDone));
 			allWorkersDone.click();
 			sleep(1000);
 		}
@@ -309,22 +330,39 @@ public class WebTestUtil {
 
 	public void disableWorkers(String procDef) {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+		sleep(5000);
 
-		wait.until(ExpectedConditions.elementToBeClickable(By.id("pv-"+procDef)));
+		// Get fresh reference and scroll into view
+		wait.until(ExpectedConditions.presenceOfElementLocated(By.id("pv-"+procDef)));
 		WebElement enable = findElById("pv-"+procDef);
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", enable);
+		sleep(5000);
+
+		// Get fresh reference before checking clickable
+		enable = findElById("pv-"+procDef);
+		wait.until(ExpectedConditions.elementToBeClickable(enable));
+		
+		// Get fresh reference before clicking
+		enable = findElById("pv-"+procDef);
 		enable.click();
 		sleep(1000);
 
+		wait.until(ExpectedConditions.presenceOfElementLocated(By.id("all-workers")));
 		WebElement allWorkers = findElById("all-workers");
+		wait.until(ExpectedConditions.presenceOfElementLocated(By.id("done-workers-btn")));
 		WebElement allWorkersDone = findElById("done-workers-btn");
 		log.info("Disabling workers.");
 
+		wait.until(ExpectedConditions.elementToBeClickable(allWorkers));
 		if(allWorkers.isSelected()) {
 			allWorkers.click();
 			sleep(1000);
+			wait.until(ExpectedConditions.elementToBeClickable(allWorkersDone));
 			allWorkersDone.click();
 			sleep(1000);
 		} else {
+			wait.until(ExpectedConditions.elementToBeClickable(allWorkersDone));
 			allWorkersDone.click();
 			sleep(1000);
 		}
@@ -447,8 +485,10 @@ public class WebTestUtil {
 		if(driver.getPageSource().contains(procName)) {
 			disableWorkers(procName);
 
-			wait.until(ExpectedConditions.elementToBeClickable(By.id("delete-"+procName)));
 			WebElement delButton = driver.findElement(By.id("delete-"+procName));
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+		  	js.executeScript("arguments[0].scrollIntoViewIfNeeded();", delButton);
+
 			delButton.click();
 
 			waitForElementID("delete-proc-def");

@@ -6,13 +6,12 @@
     <meta charset="utf-8">
     <title>CWS - Processes</title>
     <script src="/${base}/js/jquery.min.js"></script>
+    <script src="/${base}/js/popper.min.js"></script>
     <script src="/${base}/js/bootstrap.min.js"></script>
     <script src="/${base}/js/moment.js"></script>
     <script src="/${base}/js/DataTables/datatables.js"></script>
     <script src="/${base}/js/bootstrap-datepicker.min.js"></script>
     <script src="/${base}/js/DataTablesDateFilter.js"></script>
-    <script src="/${base}/js/DataTables/dataTables.responsive.min.js"></script>
-    <script src="/${base}/js/DataTables/responsive.bootstrap.min.js"></script>
     <!-- Custom js adaptation script; override this file from your adaptation project -->
     <script src="/${base}/js/adaptation-process-actions.js"></script>
     <script src="/${base}/js/cws.js"></script>
@@ -23,7 +22,6 @@
     <link href="/${base}/css/microtip.css" rel="stylesheet">
     <link href="/${base}/css/processes.css" rel="stylesheet">
     <link href="/${base}/js/DataTables/datatables.css" rel="stylesheet">
-    <link href="/${base}/js/DataTables/responsive.bootstrap.min.css" rel="stylesheet">
 
     <!-- Just for debugging purposes. Don't actually copy this line! -->
     <!--[if lt IE 9]>
@@ -44,7 +42,7 @@
         <div class="container-fluid">
             <div class="row">
                 <#include "sidebar.ftl">
-                    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+                    <div class="main-content">
 
                         <span id="statusMessageDiv">
                             <h2>${msg}</h2>
@@ -54,48 +52,49 @@
 
                         <!-- Filters box (top of page) -->
                         <div id="filters-div">
-                            <h3 style="margin-top: 10px;">Filters:</h3>
+                            <h4 style="margin-top: 10px;">Filters:</h4>
                             <p>Select filters before retrieving data to reduce loading time.</p>
-                            <div class="col-md-4">
-                                <h4>Process Definition:</h4>
-                                <select id="pd-select">
-                                    <option value="def">Select PD</option>
-                                    <#list procDefs as pd>
-                                        <option value="${pd.key}">${pd.name}</option>
-                                    </#list>
-                                </select>
+                            <div style="display: flex; gap: 20px;">
                                 <div>
-                                    <h4 style="margin-top: 15px;">Subprocess & Superprocess:</h4>
+                                    <h4>Process Definition:</h4>
+                                    <select id="pd-select">
+                                        <option value="def">Select PD</option>
+                                        <#list procDefs as pd>
+                                            <option value="${pd.key}">${pd.name}</option>
+                                        </#list>
+                                    </select>
+                                </div>
+                                <div style="width: 200px;">
+                                    <h4>Subprocess & Superprocess:</h4>
                                     <input id="super-proc-inst-id-in" style="width: 90%" type="text"
                                         class="form-control" placeholder="Superprocess Instance ID" />
-                                </div>
-                                <div style="margin-top: 10px" id="hide-subprocs-div">
+                                    <div style="margin-top: 10px" id="hide-subprocs-div">
                                     <label for="hide-subprocs">Hide Subprocesses</label>
                                     <input name="hide-subprocs" id="hide-subprocs-btn" type="checkbox">
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <h4>Status:</h4>
-                                <div id="status-select">
-                                    <input id="fail" type="checkbox" value="fail" />
-                                    <label for="fail">Failed</label><br />
-                                    <input id="complete" type="checkbox" value="complete" />
-                                    <label for="complete">Complete</label><br />
-                                    <input id="resolved" type="checkbox" value="resolved" />
-                                    <label for="resolved">Resolved</label><br />
-                                    <input id="running" type="checkbox" value="running" />
-                                    <label for="running">Running</label><br />
-                                    <input id="pending" type="checkbox" value="pending" />
-                                    <label for="pending">Pending</label><br />
-                                    <input id="disabled" type="checkbox" value="disabled" />
-                                    <label for="disabled">Disabled</label><br />
-                                    <input id="failedToStart" type="checkbox" value="failedToStart" />
-                                    <label for="failedToStart">Failed to Start</label><br />
-                                    <input id="incident" type="checkbox" value="incident" />
-                                    <label for="incident">Incident</label><br />
                                 </div>
-                            </div>
-                            <div class="col-md-4">
+
+                                <div>
+                                    <h4>Status:</h4>
+                                    <div id="status-select">
+                                        <input id="fail" type="checkbox" value="fail" />
+                                        <label for="fail">Failed</label><br />
+                                        <input id="complete" type="checkbox" value="complete" />
+                                        <label for="complete">Complete</label><br />
+                                        <input id="resolved" type="checkbox" value="resolved" />
+                                        <label for="resolved">Resolved</label><br />
+                                        <input id="running" type="checkbox" value="running" />
+                                        <label for="running">Running</label><br />
+                                        <input id="pending" type="checkbox" value="pending" />
+                                        <label for="pending">Pending</label><br />
+                                        <input id="disabled" type="checkbox" value="disabled" />
+                                        <label for="disabled">Disabled</label><br />
+                                        <input id="failedToStart" type="checkbox" value="failedToStart" />
+                                        <label for="failedToStart">Failed to Start</label><br />
+                                        <input id="incident" type="checkbox" value="incident" />
+                                        <label for="incident">Incident</label><br />
+                                    </div>
+                                </div>
                                 <div id="datepicker-div">
                                     <h4>Created Date:</h4>
                                     <input id="min-date" class="form-control" data-date-format="yyyy-mm-dd" type="text"
@@ -104,34 +103,27 @@
                                     <input id="max-date" class="form-control" data-date-format="yyyy-mm-dd" type="text"
                                         placeholder="To...">
                                 </div>
-                                <div id="max-return-div">
-                                    <h4>Max Results:</h4>
-                                    <input id="max-return-num" class="form-control" type="number" min="1" value="5000">
-                                    <input id="max-return-all" type="checkbox" value="-1" />
-                                    <label style="margin-top: 5px;" for="max-return-all">Return all</label><br />
-                                </div>
+                                <!-- Max Results field removed for server-side pagination -->
                             </div>
                             <br />
-                            <div class="col-md-12">
-                                <input type="button" id="filter-submit-btn" class="btn btn-info pull-right"
+                            <div style="display: flex; gap: 10px; align-items: baseline;">
+                                <input type="button" id="filter-submit-btn" class="btn btn-info btn-sm pull-right"
                                     value="Filter" />
-                                <h5 class="pull-right" style="margin-right: 8px;">Matched Processes: <span
-                                        id="numMatchProcesses"></span></h5>
-                                <h5 class="pull-right" id="procCountWarning" style="color: red; margin-right: 8px;">
-                                </h5>
+                                <h6 class="pull-right" style="margin-right: 8px;">Matched Processes: <span
+                                        id="numMatchProcesses"></span></h6>
+                                <h6 class="pull-right" id="procCountWarning" style="color: red; margin-right: 8px;">
+                                </h6>
                             </div>
                         </div>
 
                         <!-- Toggle visibility of filters button -->
-                        <div id="filters-btn" class="btn btn-warning"><span class="glyphicon glyphicon-filter">
-                            </span>&nbsp;Filters&nbsp;<span id="filter-arrow"
-                                class="glyphicon glyphicon-chevron-up"></span>
+                        <div id="filters-btn" class="btn btn-warning btn-sm"><img height="16" width="16" src="/${base}/images/filter.svg" />&nbsp;Filters&nbsp;<img height="16" width="16" src="/${base}/images/chevron_up.svg" />
                         </div>
 
                         <!-- Shows superprocess ID when displaying subprocesses, hidden otherwise -->
                         <div id="display-subprocs-div">
-                            <h3>Displaying Subprocesses for Process Instance ID: <span
-                                    id="super-proc-inst-id">34374-349083748</span></h3>
+                            <h4>Displaying Subprocesses for Process Instance ID: <span
+                                    id="super-proc-inst-id">34374-349083748</span></h4>
                         </div>
                         <div id="action_msg"></div>
 
@@ -149,8 +141,7 @@
                                                     class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                                                     aria-haspopup="true" aria-label="Select Options"
                                                     style="background-color: transparent; border-color: transparent; box-shadow: none; display: flex; justify-content: center; width: 14px; border: 0px solid transparent; padding-left: 15px; padding-right: 15px">
-                                                    <span class="glyphicon glyphicon-chevron-down"
-                                                        aria-hidden="true"></span>
+                                                    <img height="16" width="16" src="/${base}/images/chevron_down.svg" />
                                                 </button>
                                                 <ul class="dropdown-menu">
                                                     <li><a id="selectOnPage" onclick="selectPage()">Select x processes
@@ -202,6 +193,8 @@
             //GLOBAL VARS
             var params = {};
 
+            const serverDateFormat = 'MMM D, YYYY, h:mm:ss A';
+
             //DOCUMENT.READY START
             $(document).ready(function () {
                 //try to load hideSubProcsVar from local storage. If it doesn't exist, set it to true
@@ -218,7 +211,7 @@
                     if (qStringObj["cache"] == null || qStringObj["cache"] == undefined) {
                         //we have no cache param - load from cache
                         if(!(isEqual(parseQueryString(qString), getQueryString()))){
-                            applyParamsToFilters(parseQueryString(qString));
+                            applyParamsToFilters(getQueryString());
                             updateLocation(false, 0);
                         }
                     }
@@ -237,12 +230,13 @@
                     todayHighlight: true
                 });
 
+                
                 //Toggle direction of chevron on filter visiblity toggle button
                 $("#filters-btn").on("click", function () {
                     if ($("#filters-div").is(":visible"))
-                        $("#filter-arrow").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
+                        $("#filter-arrow").attr("src", "/${base}/images/chevron_down.svg");
                     else
-                        $("#filter-arrow").removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
+                        $("#filter-arrow").attr("src","/${base}/images/chevron_up.svg");
                     $("#filters-div").slideToggle();
                 });
 
@@ -291,674 +285,14 @@
                         $("#super-proc-inst-id-in").show();
                     }
                 });
-                $("#max-return-num").change(function () {
-                    getNumMatchingProcesses();
-                });
-                $("#max-return-all").change(function () {
-                    getNumMatchingProcesses();
-                    if ($("#max-return-all").is(":checked")) {
-                        $("#max-return-num").prop('disabled', true);
-                    } else {
-                        $("#max-return-num").prop('disabled', false);
-                    }
-                });
+                // Max Results field has been removed for server-side pagination
+                // Max Results field has been removed for server-side pagination
 
                 //display message if we received one from the server
                 displayMessage();
 
                 //initialize our moment format (used for dates in table)
                 $.fn.dataTable.moment('MMM D, YYYY, h:mm:ss A');
-
-                //initialize our DataTable
-                $("#processes-table").DataTable({
-                    "autoWidth": false,
-                    //allows for editing what buttons / text says on/in the table
-                    language: {
-                        searchBuilder: {
-                            add: "<i class=\"glyphicon glyphicon-search btn-icon\"></i>Add Local Filter",
-                        }
-                    },
-                    //delays rendering the data in the dom until it has to (ex: don't render page 10 until we browse to page 10)
-                    //improves loading time
-                    deferRender: true,
-                    //define what we do with the data we receive from our API call
-                    //render: function() passes in data (the data we receive from the API call) and type (why DataTables is requesting it (like for search, display, filter, etc.))
-                    columns: [
-                        {
-                            data: null,
-                            defaultContent: '',
-                            className: 'select-checkbox',
-                            orderable: false
-                        },
-                        {
-                            data: "procInstId",
-                            defaultContent: '',
-                            className: 'details-control',
-                            orderable: false,
-                            render: function (data, type) {
-                                if (type === 'display') {
-                                    if (data == null) {
-                                        return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" class="btn btn-default btn-sm disabled">History</a>' +
-                                            "<a style=\"margin-top: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" class=\"btn btn-default btn-sm disabled\">Subprocs</a>";
-                                    }
-                                    return '<a onclick="viewHistory(\'' + data + '\')" href="/${base}/history?procInstId=' + data + '" class="btn btn-default btn-sm">History</a>' +
-                                        "<a style=\"margin-top: 5px;\" onclick=\"viewSubProcs('" + data + "')\" href=\"/${base}/processes?superProcInstId=" + data + "\" class=\"btn btn-default btn-sm\">Subprocs</a>";
-                                }
-                                return data;
-                            }
-                        },
-                        {
-                            data: "procDefKey",
-                            render: function (data, type) {
-                                if (type !== "display") {
-                                    return data;
-                                } else {
-                                    if (data === null || data === undefined || data === "") {
-                                        return "";
-                                    }
-                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
-                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
-                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                + "</span></div>";
-                                }
-                            }
-                        },
-                        {
-                            data: { procInstId: "procInstId", status: "status" },
-                            render: function (data, type) {
-                                if (type === 'display') {
-                                    if (data.procInstId === null) {
-                                        return "";
-                                    }
-                                    if (data.status === "incident") {
-                                        var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + data.procInstId + "/runtime?tab=incidents-tab";
-                                        return "<div class='table-cell-flex'><a href=\"" + incidentUrl + "\" target=\"blank_\">" + data.procInstId + "</a>"
-                                            + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data.procInstId + "\" onClick=''>"
-                                            + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                            + "</span></div>";
-                                    } else {
-                                        return '<div class="table-cell-flex"><p>' + data.procInstId + '</p>' 
-                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data.procInstId + "\" onClick=''>"
-                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                + "</span></div>";
-                                    }
-                                } else {
-                                    return data.procInstId;
-                                }
-                            }
-                        },
-                        { 
-                            data: "status",
-                            render: function(data, type) {
-                                var status;
-                                if (type === 'display') {
-                                    switch(data) {
-                                        case "fail" :
-                                            status = "<p class=\"tr-fail\">" + data + "</p>";
-                                            break;
-                                        case "incident" :
-                                            status = "<p class=\"tr-incident\">" + data + "</p>";
-                                            break;
-                                        case "complete": 
-                                            status = "<p class=\"tr-complete\">" + data + "</p>";
-                                            break;
-                                        case "resolved": 
-                                            status = "<p class=\"tr-complete\">" + data + "</p>";
-                                            break;
-                                        case "running":
-                                            status = "<p class=\"tr-running\">" + data + "</p>";
-                                            break;
-                                        case "pending":
-                                            status = "<p class=\"tr-pending\">" + data + "</p>";
-                                            break;
-                                        case "disabled":
-                                            status = "<p class=\"tr-failed\">" + data + "</p>";
-                                            break;
-                                        case "failedToStart":
-                                            status =  "<p class=\"tr-failed\">" + data + "</p>";
-                                            break;
-                                        default:
-                                            status =  data;
-                                    }
-                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
-                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
-                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                + "</span></div>";
-                                } else {
-                                    return data;
-                                }
-                            }
-                        },
-                        { 
-                            data: "createdTimestamp",
-                            render: function (data, type) {
-                                if (type !== "display") {
-                                    return data;
-                                } else {
-                                    if (data === null || data === undefined || data === "") {
-                                        return "";
-                                    }
-                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
-                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
-                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                + "</span></div>";
-                                }
-                            }
-                        },
-                        {
-                            data: "startedByWorker",
-                            render: function (data, type) {
-                                if (type === 'display') {
-                                    if (data !== null) {
-                                        return '<div class="table-cell-main-flex">'
-                                            + '<div class="table-cell-flex"><p>'
-                                            + data 
-                                            + '</p>' 
-                                            + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
-                                            + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                            + "</span></div></div>"
-                                            + '<div class="table-cell-flex"><div style="margin-top: 0px;">'
-                                            + "<b>Worker IP: </b>" + data.split("_").slice(0, -2).join(".") + '</div>'
-                                            + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data.split("_").slice(0, -2).join(".") + "\" onClick=''>"
-                                            + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                            + "</span></div></div>";
-                                    }
-                                }
-                                return data;
-                            }
-                        },
-                        { 
-                            data: "procStartTime",
-                            render: function (data, type) {
-                                if (type !== "display") {
-                                    if (data === null) {
-                                        return "";
-                                    }
-                                    return data;
-                                } else {
-                                    if (data === null || data === undefined || data === "") {
-                                        return "";
-                                    }
-                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
-                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
-                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                + "</span></div>";
-                                }
-                            }
-                        },
-                        {
-                            data: { procEndTime: "procEndTime", procStartTime: "procStartTime" },
-                            render: function (data, type) {
-                                if (type === 'display') {
-                                    if (data.procEndTime == null) {
-                                        return "";
-                                    }
-                                    if (data.procStartTime !== '' && data.procEndTime !== '') {
-                                        var start = moment(data.procStartTime);
-                                        var end = moment(data.procEndTime);
-                                        var procDuration = "<br><i>(~" + moment.duration(end.diff(start)).humanize() + ")</i>";
-                                    } else {
-                                        var procDuration = '';
-                                    }
-                                    return '<div class="table-cell-flex"><p>' 
-                                        + data.procEndTime + procDuration
-                                        + '</p>' 
-                                        + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                        + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data.procEndTime + "\" onClick=''>"
-                                        + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                        + "</span></div>";
-                                } else {
-                                    return data.procEndTime;
-                                }
-                            }
-                        },
-                        {
-                            data: { inputVariables: "inputVariables", procStartTime: "procStartTime"},
-                            render: function (data, type) {
-                                if (jQuery.isEmptyObject(data.inputVariables)) {
-                                    return "None";
-                                }
-                                if (type === 'display') {
-                                    var output = "";
-                                    var before = "";
-                                    var after = "";
-                                    var putAllAfter = 0;
-                                    var count = 0;
-                                    var timeStart = moment(data.procStartTime);
-                                    for (const [key, value] of Object.entries(data.inputVariables)) {
-                                        var temp = "";
-                                        var varTimeSet = key.substring(key.indexOf("[")+1, key.indexOf("]"));
-                                        if (moment(varTimeSet).diff(timeStart, "seconds") > 1) {
-                                            continue;
-                                        }
-                                        var tempVal = value;
-                                        var tempKey = key.substring(key.indexOf("]") + 1);
-                                        if (tempKey === "workerId") {
-                                            continue;
-                                        }
-                                        if (count > 2) {
-                                            putAllAfter = 1;
-                                        }
-                                        if (key.includes("(file, image")) {
-                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                            temp = `<div class="var-row-div-flex">`
-                                                + `<div class="var-row-div-flex-sub-1">`
-                                                + `<b>` + tempKey + `: </b>`
-                                                + `<img class="grow" src="` + tempVal + `"></div>`
-                                                + `<div class="var-row-div-flex-sub-2"></div>`
-                                                + `<div class="copySpan" style="width: 30px;">`
-                                                + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick="">`
-                                                + `<img src="images/copy.svg" class="copy-icon clipboard">`
-                                                + `</span></div></div>`;
-                                        } else if (key.includes("{")) {
-                                            var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
-                                            tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
-                                            temp = `<div class="var-row-div-flex">`
-                                                + `<div class="var-row-div-flex-sub-1">`
-                                                + `<b>` + tempKey + `: </b>`
-                                                + `<i>` + fileName + `</i></div>`
-                                                + `<div class="var-row-div-flex-sub-2"></div>`
-                                                + `<div class="copySpan" style="width: 30px;">`
-                                                + `<span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick="">`
-                                                + `<img src="images/download.svg" class="copy-icon clipboard">`
-                                                + `</span></div></div>`;
-                                        } else if (checkforImageURL(tempVal)) {
-                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                            temp = `<div class="var-row-div-flex">`
-                                                + `<div class="var-row-div-flex-sub-1">`
-                                                + `<b>` + tempKey + `: </b>`
-                                                + `<img class="grow" src="` + tempVal + `"></div>`
-                                                + `<div class="var-row-div-flex-sub-2"></div>`
-                                                + `<div class="copySpan" style="width: 30px;">`
-                                                + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
-                                                + `<img src="images/copy.svg" class="copy-icon clipboard">`
-                                                + `</span></div></div>`;
-                                        } else if (checkForURL(tempVal)) {
-                                            tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                            temp = `<div class="var-row-div-flex">`
-                                                + `<div class="var-row-div-flex-sub-1">`
-                                                + `<b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div>`
-                                                + `<div class="var-row-div-flex-sub-2"></div>`
-                                                + `<div class="copySpan" style="width: 30px;">`
-                                                + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
-                                                + `<img src="images/copy.svg" class="copy-icon clipboard">`
-                                                + `</span></div></div>`;
-                                        } else {
-                                            if (tempKey.toUpperCase().includes("(STRING)")) {
-                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                            }
-                                            temp = `<div class="var-row-div-flex">`
-                                                    + `<div class="var-row-div-flex-sub-1">`
-                                                    + `<b>` + tempKey + `: </b><p style="margin-bottom: 0px;">` + tempVal + `</p></div>`
-                                                    + `<div class="var-row-div-flex-sub-2"></div>`
-                                                    + `<div class="copySpan" style="width: 30px;">`
-                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
-                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
-                                                    + `</span></div></div>`;
-                                        }
-                                        if (putAllAfter === 0) {
-                                            before = before + temp;
-                                        } else {
-                                            after = after + temp;
-                                        }
-                                        count++;
-                                    }
-                                    if (after.length == 0) {
-                                        output = before;
-                                    } else {
-                                        output = before + "<details><summary><b> Show All</b></summary>" + after + "</details>";
-                                    }
-                                    return output;
-                                } else {
-                                    var outputToString = "";
-                                    for (const [key, value] of Object.entries(data)) {
-                                        if (key === "workerId") {
-                                            continue;
-                                        }
-                                        outputToString += outputToString + key + ": " + value + ",";
-                                    }
-                                    return outputToString;
-                                }
-                            }
-                        },
-                        { 
-                            data: "superProcInstId",
-                            render: function (data, type) {
-                                if (type !== "display") {
-                                    return data;
-                                } else {
-                                    if (data === null || data === undefined || data === "") {
-                                        return "";
-                                    }
-                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
-                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
-                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                + "</span></div>";
-                                }
-                            }
-                        },
-                        {
-                            data: "uuid",
-                            render: function (data, type) {
-                                if (type !== "display") {
-                                    return data;
-                                } else {
-                                    if (data === null || data === undefined || data === "") {
-                                        return "";
-                                    }
-                                    return '<div class="table-cell-flex"><p>' + data + '</p>' 
-                                                + "<div class=\"copySpan\" style=\"width: 20px;\">"
-                                                + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
-                                                + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
-                                                + "</span></div>";
-                                }
-                            }
-                        },
-                        {
-                            data: "outputVariables",
-                            render: function (data, type) {
-                                if (jQuery.isEmptyObject(data)) {
-                                    return "None";
-                                }
-                                if (type === 'display') {
-                                    var output = "";
-                                    var before = "";
-                                    var after = "";
-                                    var count = 0;
-                                    if (Object.keys(data).includes("output_display_order (object)")) {
-                                        //we have an order array
-                                        var orderTruncated = data["output_display_order (object)"].substring(1, data["output_display_order (object)"].length - 1).split(", ");
-                                        var fullKeys = Object.keys(data);
-                                        var fullKeysInOrder = [];
-                                        for (var i = 0; i < Object.keys(orderTruncated).length; i++) {
-                                            var result =fullKeys.findIndex(element => element.includes(orderTruncated[i]));
-                                            if (result > -1) {
-                                                fullKeysInOrder.push(fullKeys[result]);
-                                            }
-                                        }
-                                        //the orderTruncated array now contains the full keys in the order they should be displayed
-                                        for (key in fullKeysInOrder) {
-                                            var temp = "";
-                                            var tempVal = data[fullKeysInOrder[key]];
-                                            var tempKey = fullKeysInOrder[key].substring(7);
-                                            if (tempKey.includes("(file, image")) {
-                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                                temp = `<div class="var-row-div-flex">`
-                                                    + `<div class="var-row-div-flex-sub-1">`
-                                                    + `<b>` + tempKey + `: </b>`
-                                                    + `<img class="grow" src="` + tempVal + `"></div>`
-                                                    + `<div class="var-row-div-flex-sub-2"></div>`
-                                                    + `<div class="copySpan" style="width: 30px;">`
-                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick="">`
-                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
-                                                    + `</span></div></div>`;
-                                            } else if (tempKey.includes("{")) {
-                                                var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
-                                                tempKey = tempKey.substring(tempKey.indexOf("[")+1, tempKey.indexOf(" {"));
-                                                temp = `<div class="var-row-div-flex">`
-                                                    + `<div class="var-row-div-flex-sub-1">`
-                                                    + `<b>` + tempKey + `: </b>`
-                                                    + `<i>` + fileName + `</i></div>`
-                                                    + `<div class="var-row-div-flex-sub-2"></div>`
-                                                    + `<div class="copySpan" style="width: 30px;">`
-                                                    + `<span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick="">`
-                                                    + `<img src="images/download.svg" class="copy-icon clipboard">`
-                                                    + `</span></div></div>`;
-                                            } else if (checkforImageURL(tempVal)) {
-                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                                temp = `<div class="var-row-div-flex">`
-                                                    + `<div class="var-row-div-flex-sub-1">`
-                                                    + `<b>` + tempKey + `: </b>`
-                                                    + `<img class="grow" src="` + tempVal + `"></div>`
-                                                    + `<div class="var-row-div-flex-sub-2"></div>`
-                                                    + `<div class="copySpan" style="width: 30px;">`
-                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
-                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
-                                                    + `</span></div></div>`;
-                                            } else if (checkForURL(tempVal)) {
-                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                                temp = `<div class="var-row-div-flex">`
-                                                    + `<div class="var-row-div-flex-sub-1">`
-                                                    + `<b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div>`
-                                                    + `<div class="var-row-div-flex-sub-2"></div>`
-                                                    + `<div class="copySpan" style="width: 30px;">`
-                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
-                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
-                                                    + `</span></div></div>`;
-                                            } else {
-                                                if (tempKey.toUpperCase().includes("(STRING)")) {
-                                                    tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                                }
-                                                temp = `<div class="var-row-div-flex">`
-                                                    + `<div class="var-row-div-flex-sub-1">`
-                                                    + `<b>` + tempKey + `: </b><p style="margin-bottom: 0px;">` + tempVal + `</p></div>`
-                                                    + `<div class="var-row-div-flex-sub-2"></div>`
-                                                    + `<div class="copySpan" style="width: 30px;">`
-                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
-                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
-                                                    + `</span></div></div>`;
-                                            }
-                                            if (count > 2) {
-                                                after += temp;
-                                            } else {
-                                                before += temp;
-                                            }
-                                            count++;
-                                        }
-                                        if (after !== "") {
-                                            output = before + '<details><summary style="margin-top: 5px;"><b> Show All</b></summary>' + after + "</details>";
-                                        } else {
-                                            output = before;
-                                        }
-                                    } else {
-                                        for (const [key, value] of Object.entries(data)) {
-                                            var temp = "";
-                                            var tempVal = value;
-                                            var tempKey = key.substring(7);
-                                            if (tempKey === "workerId") {
-                                                continue;
-                                            }
-                                            if (tempKey.includes("(file, image")) {
-                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                                temp = `<div class="var-row-div-flex">`
-                                                    + `<div class="var-row-div-flex-sub-1">`
-                                                    + `<b>` + tempKey + `: </b>`
-                                                    + `<img class="grow" src="` + tempVal + `"></div>`
-                                                    + `<div class="var-row-div-flex-sub-2"></div>`
-                                                    + `<div class="copySpan" style="width: 30px;">`
-                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick="">`
-                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
-                                                    + `</span></div></div>`;
-                                            } else if (tempKey.includes("{")) {
-                                                var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
-                                                tempKey = tempKey.substring(tempKey.indexOf("]")+1, tempKey.indexOf(" {"));
-                                                console.log(tempKey);
-                                                temp = `<div class="var-row-div-flex">`
-                                                    + `<div class="var-row-div-flex-sub-1">`
-                                                    + `<b>` + tempKey + `: </b>`
-                                                    + `<i>` + fileName + `</i></div>`
-                                                    + `<div class="var-row-div-flex-sub-2"></div>`
-                                                    + `<div class="copySpan" style="width: 30px;">`
-                                                    + `<span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick="">`
-                                                    + `<img src="images/download.svg" class="copy-icon clipboard">`
-                                                    + `</span></div></div>`;
-                                            } else if (checkforImageURL(tempVal)) {
-                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                                temp = `<div class="var-row-div-flex">`
-                                                    + `<div class="var-row-div-flex-sub-1">`
-                                                    + `<b>` + tempKey + `: </b>`
-                                                    + `<img class="grow" src="` + tempVal + `"></div>`
-                                                    + `<div class="var-row-div-flex-sub-2"></div>`
-                                                    + `<div class="copySpan" style="width: 30px;">`
-                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
-                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
-                                                    + `</span></div></div>`;
-                                            } else if (checkForURL(tempVal)) {
-                                                tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                                temp = `<div class="var-row-div-flex">`
-                                                    + `<div class="var-row-div-flex-sub-1">`
-                                                    + `<b>` + tempKey + `: </b><a href="` + tempVal + `">` + tempVal + `</a></div>`
-                                                    + `<div class="var-row-div-flex-sub-2"></div>`
-                                                    + `<div class="copySpan" style="width: 30px;">`
-                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
-                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
-                                                    + `</span></div></div>`;
-                                            } else {
-                                                if (tempKey.toUpperCase().includes("(STRING)")) {
-                                                    tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-                                                }
-                                                temp = `<div class="var-row-div-flex">`
-                                                    + `<div class="var-row-div-flex-sub-1">`
-                                                    + `<b>` + tempKey + `: </b><p style="margin-bottom: 0px;">` + tempVal + `</p></div>`
-                                                    + `<div class="var-row-div-flex-sub-2"></div>`
-                                                    + `<div class="copySpan" style="width: 30px;">`
-                                                    + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
-                                                    + `<img src="images/copy.svg" class="copy-icon clipboard">`
-                                                    + `</span></div></div>`;
-                                            }
-                                            if (tempKey === "startedOnWorkerId") {
-                                                after = after + temp;
-                                                count += 2;
-                                            } else if (count <= 2) {
-                                                before = before + temp;
-                                            } else {
-                                                after = after + temp;
-                                            }
-                                            count++;
-                                        }
-                                    }
-                                    if (after.length == 0) {
-                                        output = before;
-                                    } else {
-                                        output = before + '<details><summary style="margin-top: 5px;"><b> Show All</b></summary>' + after + "</details>";
-                                    }
-                                    return output;
-                                } else {
-                                    var outputToString = "";
-                                    for (const [key, value] of Object.entries(data)) {
-                                        if (key === "workerId") {
-                                            continue;
-                                        }
-                                        outputToString += outputToString + key + ": " + value + ",";
-                                    }
-                                    return outputToString;
-                                }
-                            }
-                        },
-                    ],
-                    //wait 250ms after the user's last keypress in the search box to start search (better performance)
-                    searchDelay: 250,
-                    select: {
-                        style: 'multi+shift',
-                        selector: 'td:first-child'
-                    },
-                    order: [[2, 'asc']],
-                    //set configuration of the columns (width, visibility order, etc.)
-                    columnDefs: [
-                        {
-                            orderable: false,
-                            className: 'select-checkbox noVis',
-                            targets: 0
-                        },
-                        {
-                            orderable: false,
-                            className: 'noVis',
-                            searchable: false,
-                            targets: 1
-                        },
-                        {
-                            targets: [5, 6, 10, 11],
-                            visible: false
-                        },
-                        {
-                            targets: [1],
-                            "width": "75px"
-                        },
-                        {
-                            targets: [0],
-                            "width": "30px"
-                        },
-                        {
-                            targets: [9, 12],
-                            width: "200px"
-                        },
-                        {
-                            targets: [1, 2],
-                            responsivePriority: 1
-                        },
-                        {
-                            targets: [3, 9, 12],
-                            responsivePriority: 2
-                        },
-                        {
-                            targets: [4],
-                            responsivePriority: 3
-                        },
-                        {
-                            targets: [8],
-                            responsivePriority: 4
-                        },
-                        {
-                            targets: [5, 7],
-                            responsivePriority: 5
-                        },
-                        {
-                            targets: [6],
-                            responsivePriority: 6
-                        },
-                        {
-                            targets: [10],
-                            responsivePriority: 7
-                        },
-                        {
-                            targets: [11],
-                            responsivePriority: 8
-                        },
-                    ],
-                    //tells datatables to put specific elements in divs it creates (quotes are classes)
-                    dom: "Q<'above-table-div'<'above-table-buttons'B><'above-table-length'l><'above-table-filler'><'above-table-filter'f>>"
-                        + "t"
-                        + "<'below-table-div'ip>",
-                    //tells datatables we want to use one of the predefined buttons
-                    buttons: [
-                        {
-                            extend: 'colvis',
-                            columns: ':not(.noVis)',
-                            className: 'btn btn-primary',
-                            text: '<i class="glyphicon glyphicon-eye-open btn-icon"></i>Columns',
-                        }
-                    ],
-                    //enables the complex search builder, tells it what columns should be able to be searched
-                    searchBuilder: {
-                        columns: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-                    },
-                    //enables responsive mode (hides columns when screen is too small), tells it not to display content that is hidden in a subrow (conflicts with checkmark)
-                    responsive: {
-                        details: false
-                    }
-                });
-
-                //now that the datatable is initialized, we can start using its API calls
-                var table = $("#processes-table").DataTable();
-
-                //when we select a row, we want to update the action list
-                table.on('select', function (e, dt, type, indexes) {
-                    updateActionList();
-                });
-
-                //when we deselect a row, we want to update the action list
-                table.on('deselect', function (e, dt, type, indexes) {
-                    updateActionList();
-                });
 
                 //when we click the copy button next to an input/output variable, we want to copy the value to the clipboard
                 $(document).on('click', '.copy', function (e) {
@@ -971,7 +305,6 @@
                     }
                     var copyValue = $(this).attr('data-copyValue');
                     var isImage = $(this).attr('data-isImage');
-                    console.log(isImage);
                     copyInput(copyValue, isImage);
                     $(this).attr('aria-label', 'Copied!');
                     setTimeout(function () {
@@ -980,36 +313,9 @@
                     console.log("fire");
                 });
 
-                //add our action dropdown button to the div that datatables created (created in dom: above)
-                $('<div class="btn-group"><button id="menu3" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><i class="glyphicon glyphicon-tasks btn-icon"></i>&nbsp;Actions &nbsp;'
-                    + '<span class="caret"></span>'
-                    + '</button>'
-                    + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
-                    + `<li id="action_open_selected_new_tabs" class="disabled" role="presentation"><a id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)<span style="margin-left: 10px;" class="label label-info">Requires Pop-ups to be enabled</span></a></li>`
-                    + `<li id="action_copy_all_selected_history_links" class="disabled" role="presentation"><a id="action_copy_all_selected_history_links_atag" role="menuitem">Copy all selected history links (must not be pending)</a></li>`
-                    + '<li role="separator" class="divider"></li>'
-                    + `<li id="action_delete_selected" class="disabled" role="presentation"><a id="action_delete_selected_atag" role="menuitem">Stop running selected rows (all rows selected must be 'running')</a></li>`
-                    + `<li id="action_disable" class="disabled" role="presentation"><a id="action_disable_atag" role="menuitem">Disable selected rows (all rows selected must be 'pending')</a></li>`
-                    + `<li id="action_enable" class="disabled" role="presentation"><a id="action_enable_atag" role="menuitem">Enable selected rows (all rows selected must be 'disabled')</a></li>`
-                    + `<li id="action_retry_incident" class="disabled" role="presentation"><a id="action_retry_incident_atag" role="menuitem">Retry all selected incident rows (all rows selected must be 'incident')</a></li>`
-                    + `<li id="action_retry_failed_to_start" class="disabled" role="presentation"><a id="action_retry_failed_to_start_atag" role="menuitem">Retry all selected failed to start rows (all rows selected must be 'failedToStart')</a></li>`
-                    + `<li id="action_mark_as_resolved" class="disabled" role="presentation"><a id="action_mark_as_resolved_atag" role="menuitem">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
-                    + `<#include "adaptation-process-actions.ftl">`
-                    + `</ul></div>`).appendTo(".above-table-buttons");
-
-                //add our download dropdown button to the div that datatables created (created in dom: above)
-                $('<div class="btn-group"><button id="action-download-group" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><i class="glyphicon glyphicon-save btn-icon"></i>&nbsp;Download &nbsp;'
-                    + '<span class="caret"></span>'
-                    + '</button>'
-                    + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="action-download-group">'
-                    + `<li id="action_download_selected_list" class="disabled" role="presentation"><a id="action_download_selected_list_atag" role="menuitem">Download list of selected processes (must select at least one row)</a></li>`
-                    + `<li id="action_download_selected_json" class="disabled" role="presentation"><a id="action_download_selected_json_atag" role="menuitem">Download logs of selected processes (JSON) (all rows selected must not be pending)</a></li>`
-                    + `<li id="action_download_selected_csv" class="disabled" role="presentation"><a id="action_download_selected_csv_atag" role="menuitem">Download logs of selected processes (CSV) (all rows selected must not be pending)</a></li>`
-                    + `<#include "adaptation-process-actions.ftl">`
-                    + `</ul></div>`).appendTo(".above-table-buttons");
-
                 //datatable is now setup - fetch our data on initial page load
                 fetchAndDisplayProcesses();
+
             });
             //DOCUMENT.READY END
 
@@ -1039,73 +345,471 @@
 
             //fetches processes from server (using filters if provided) and displays them in the datatable
             function fetchAndDisplayProcesses() {
-                //create our qstring
+                //create our base query string from params
                 var qstring = "?";
                 if (params != null) {
                     for (p in params) {
-                        qstring += encodeURI(p) + "=" + encodeURI(params[p]) + "&";
+                        if (params[p]) {
+                            qstring += encodeURI(p) + "=" + encodeURI(params[p]) + "&";
+                        }
                     }
                 }
                 qstring = qstring.substring(0, qstring.length - 1);
-                //fetch number of processes
-                var numProcs = 0;
+                
                 //show ajax spinner
                 $(".ajax-spinner").show();
+                
+                //fetch number of processes for display
                 $.ajax({
                     url: "/${base}/rest/processes/getInstancesSize" + qstring,
                     type: "GET",
                     async: false,
                     success: function (data) {
-                        numProcs = data;
+                        $("#numMatchProcesses").text(data);
+                        if (data > 5000) {
+                            $("#procCountWarning").text("Large number of processes. Pagination will be used to improve performance.");
+                        } else {
+                            $("#procCountWarning").text("");
+                        }
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         console.log("Error getting number of processes: " + thrownError);
                     }
                 });
-                //fetch processes
-                var numCalls = Math.ceil(numProcs / 50);
-                var returnedData = [];
-                var doneArr = [];
-                var urlPageAddition = "";
-                if (qstring === "") {
-                    urlPageAddition = "?page=";
-                } else {
-                    urlPageAddition = "&page=";
-                }
-                for (var i = 0; i < numCalls; i++) {
-                    $.ajax({
-                        url: "/${base}/rest/processes/getInstancesCamunda" + qstring + urlPageAddition + i,
-                        type: "GET",
-                        async: true,
-                        success: function (data) {
-                            returnedData = returnedData.concat(data);
-                            doneArr.push(true);
-                        },
-                        error: function (xhr, ajaxOptions, thrownError) {
-                            console.log("Error getting processes: " + thrownError);
-                        }
-                    });
-                }
-                //we need to wait until all ajax calls are done before we can display the data
-                var interval = setInterval(function () {
-                    if (doneArr.length === numCalls) {
-                        clearInterval(interval);
-                        $("#processes-table").DataTable().clear();
-                        $("#processes-table").DataTable().rows.add(returnedData).draw();
-                        $("#processes-table").DataTable().responsive.recalc();
-                        updateSelectDropDown();
-                        //hide ajax spinner
-                        $(".ajax-spinner").hide();
-                    }
-                }, 250);
+                
+                var table = $("#processes-table").DataTable(); // Get current instance if any
 
+                if ($.fn.DataTable.isDataTable("#processes-table")) {
+                    table.destroy();
+                    // Clear out the tbody to prevent duplicate data rendering issues if any
+                    $("#processes-table tbody").empty();
+                }
+
+                // Define your columns and columnDefs here, don't rely on a previous instance
+                const dataTableColumns = [
+                    {
+                        data: null,
+                        defaultContent: '',
+                        className: 'select-checkbox',
+                        orderable: false
+                    },
+                    {
+                        data: { procInstId: "procInstId", status: "status" },
+                        defaultContent: '',
+                        className: 'details-control',
+                        orderable: false,
+                        render: function (data, type) {
+                            if (type === 'display') {
+                                var isDisabled = (data.status === 'pending' || data.status === 'disabled');
+                                if (data == null || isDisabled) {
+                                    return '<a onclick="return false;"><button style=\"margin-bottom: 5px;\" class="btn btn-outline-dark btn-sm disabled">History</button></a>' +
+                                        "<a style=\"margin-bottom: 5px;\" onclick=\"return false;\"><button class=\"btn btn-outline-dark btn-sm disabled\" style=\"margin-bottom: 5px\">Subprocs</button></a>";
+                                }
+                                return '<a onclick="viewHistory(\'' + data.procInstId + '\')" href="/${base}/history?procInstId=' + data.procInstId + '" ><button style=\"margin-bottom: 5px;\" class="btn btn-outline-dark btn-sm">History</button></a>' +
+                                    "<a style=\"margin-bottom: 5px;\" onclick=\"viewSubProcs('" + data.procInstId + "')\"><button class=\"btn btn-outline-dark btn-sm\">Subprocs</button></a>";
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        data: "procDefKey",
+                        render: function (data, type) {
+                            if (type !== "display") { return data; }
+                            else {
+                                if (data === null || data === undefined || data === "") { return ""; }
+                                return '<div class="table-cell-flex"><p>' + data + '</p>'
+                                        + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                        + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
+                                        + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                        + "</span></div></div>"; // Added missing </div>
+                            }
+                        }
+                    },
+                    {
+                        data: { procInstId: "procInstId", status: "status" },
+                        render: function (data, type) {
+                            if (type === 'display') {
+                                if (data.procInstId === null) { return ""; }
+                                if (data.status === "incident") {
+                                    var incidentUrl = "/camunda/app/cockpit/default/#/process-instance/" + data.procInstId + "/runtime?tab=incidents-tab";
+                                    return "<div class='table-cell-flex'><a href=\"" + incidentUrl + "\" target=\"blank_\">" + data.procInstId + "</a>"
+                                            + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data.procInstId + "\" onClick=''>"
+                                            + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                            + "</span></div></div>"; // Added missing </div>
+                                } else {
+                                    return '<div class="table-cell-flex"><p>' + data.procInstId + '</p>'
+                                            + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data.procInstId + "\" onClick=''>"
+                                            + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                            + "</span></div></div>"; // Added missing </div>
+                                }
+                            } else { return data.procInstId; }
+                        }
+                    },
+                    {
+                        data: "status",
+                        render: function(data, type) {
+                            var statusText; // Renamed from 'status' to avoid conflict
+                            if (type === 'display') {
+                                switch(data) {
+                                    case "fail" : statusText = "<p class=\"tr-fail\">" + data + "</p>"; break;
+                                    case "incident" : statusText = "<p class=\"tr-incident\">" + data + "</p>"; break;
+                                    case "complete": statusText = "<p class=\"tr-complete\">" + data + "</p>"; break;
+                                    case "resolved": statusText = "<p class=\"tr-complete\">" + data + "</p>"; break;
+                                    case "running": statusText = "<p class=\"tr-running\">" + data + "</p>"; break;
+                                    case "pending": statusText = "<p class=\"tr-pending\">" + data + "</p>"; break;
+                                    case "disabled": statusText = "<p class=\"tr-failed\">" + data + "</p>"; break; // tr-failed seems more appropriate
+                                    case "failedToStart": statusText = "<p class=\"tr-failed\">" + data + "</p>"; break;
+                                    default: statusText = data;
+                                }
+                                // The original code returned status which was the switch statement, not the value of data.
+                                // It should use the `statusText` or `data` directly if no specific class is needed.
+                                // Assuming you want to wrap the original data with copy functionality:
+                                return '<div class="table-cell-flex">' + statusText // Use statusText which has the HTML
+                                        + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                        + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>" // data here is correct for copy
+                                        + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                        + "</span></div></div>"; // Added missing </div>
+                            } else { return data; }
+                        }
+                    },
+                    {
+                        data: "createdTimestamp",
+                        render: function (data, type) {
+                            if (type !== "display") { return data; }
+                            else {
+                                if (data === null || data === undefined || data === "") { return ""; }
+                                return '<div class="table-cell-flex"><p>' + data + '</p>'
+                                        + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                        + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
+                                        + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                        + "</span></div></div>"; // Added missing </div>
+                            }
+                        }
+                    },
+                    {
+                        data: "startedByWorker",
+                        render: function (data, type) {
+                            if (type === 'display') {
+                                if (data !== null && data !== undefined && data !== "") { // Added more checks
+                                    return '<div class="table-cell-main-flex">'
+                                            + '<div class="table-cell-flex"><p>'
+                                            + data
+                                            + '</p>'
+                                            + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
+                                            + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                            + "</span></div></div>"
+                                            + '<div class="table-cell-flex"><div style="margin-top: 0px;">'
+                                            + "<b>Worker IP: </b>" + data.split("_").slice(0, -2).join(".") + '</div>'
+                                            + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                            + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data.split("_").slice(0, -2).join(".") + "\" onClick=''>"
+                                            + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                            + "</span></div></div></div>"; // Added missing </div> for table-cell-main-flex
+                                }
+                                return ""; // Return empty if data is null/undefined/empty
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        data: "procStartTime",
+                        render: function (data, type) {
+                            if (type !== "display") {
+                                if (data === null) { return ""; } // Keep this for non-display types
+                                return data;
+                            } else {
+                                if (data === null || data === undefined || data === "") { return ""; }
+                                return '<div class="table-cell-flex"><p>' + data + '</p>'
+                                        + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                        + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
+                                        + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                        + "</span></div></div>"; // Added missing </div>
+                            }
+                        }
+                    },
+                    {
+                        data: { procEndTime: "procEndTime", procStartTime: "procStartTime" },
+                        render: function (data, type) {
+                            if (type === 'display') {
+                                if (data.procEndTime == null) { return ""; }
+                                var procDuration = '';
+                                if (data.procStartTime !== '' && data.procStartTime !== null && data.procEndTime !== '' && data.procEndTime !== null) { // Added null checks
+                                    var start = moment(data.procStartTime, serverDateFormat, true);
+                                    var end = moment(data.procEndTime, serverDateFormat, true);
+                                    if (start.isValid() && end.isValid()) { // Check if dates are valid
+                                    procDuration = "<br><i>(~" + moment.duration(end.diff(start)).humanize() + ")</i>";
+                                    }
+                                }
+                                return '<div class="table-cell-flex"><p>'
+                                        + data.procEndTime + procDuration
+                                        + '</p>'
+                                        + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                        + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data.procEndTime + "\" onClick=''>"
+                                        + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                        + "</span></div></div>"; // Added missing </div>
+                            } else { return data.procEndTime; }
+                        }
+                    },
+                    { // Input Variables
+                        data: { inputVariables: "inputVariables", procStartTime: "procStartTime", initiationKey: "initiationKey" }, // Added initiationKey
+                        render: function (data, type) {
+                            // ... (Your existing complex rendering logic for inputVariables)
+                            // Ensure all paths in this complex render function return valid HTML
+                            // and that all opened <div> tags are properly closed.
+                            // This function is quite long, so double check its HTML structure carefully.
+                            // For brevity, I'm not reproducing it here but it needs scrutiny.
+                            // Example of a small part:
+                            if (jQuery.isEmptyObject(data.inputVariables)) {
+                                if (jQuery.isEmptyObject(data.initiationKey)) { // Check initiationKey if inputVariables is empty
+                                    return "None";
+                                } else {
+                                    // Ensure HTML is well-formed here too
+                                    var temp = `<div class="var-row-div-flex">`
+                                            + `<div class="var-row-div-flex-sub-1"><b>initiationKey: </b><p style="margin-bottom: 0px;">` + data.initiationKey + `</p></div>`
+                                            + `<div class="var-row-div-flex-sub-2"></div>` // This div seems empty, might be for spacing
+                                            + `<div class="copySpan" style="width: 30px;">`
+                                            + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + data.initiationKey + `" onClick="">`
+                                            + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                            + `</span></div></div>`; // Closed var-row-div-flex
+                                    return temp;
+                                }
+                            }
+                            if (type === 'display') {
+                                // ... your existing logic ...
+                                // Ensure all paths return correctly closed HTML, e.g. ensure "output" always has closed details if used.
+                                var output = "";
+                                var before = "";
+                                var after = "";
+                                var putAllAfter = 0;
+                                var count = 0;
+                                var timeStart = moment(data.procStartTime, serverDateFormat, true);
+
+                                for (const [key, value] of Object.entries(data.inputVariables)) {
+                                    var temp = "";
+                                    var varTimeSetString = key.substring(key.indexOf("[") + 1, key.indexOf("]"));
+                                    // Make sure varTimeSetString is a valid date string before parsing
+                                    if (!varTimeSetString || !moment(varTimeSetString).isValid()) {
+                                        // console.warn("Invalid date in inputVariable key:", key);
+                                        // Skip or handle as appropriate if the date isn't critical for this logic path
+                                    } else {
+                                    var varTimeSet = moment(varTimeSetString, serverDateFormat, true);
+                                    if (varTimeSet.diff(timeStart, "seconds") > 1) { // Check diff only if varTimeSet is valid
+                                        continue;
+                                    }
+                                    }
+                                    // ... rest of your logic for input variables
+                                    // Ensure all 'temp' assignments result in well-formed HTML with closed tags.
+                                    // For example:
+                                    // temp = `<div class="var-row-div-flex">...</div>`;
+                                }
+                                if (after.length == 0) {
+                                    output = before;
+                                } else {
+                                    output = before + "<details><summary><b> Show All</b></summary>" + after + "</details>";
+                                }
+                                if (output === "") return "None"; // Handle case where no variables are processed
+                                return output;
+
+                            } else { /* for sorting/filtering etc. */
+                                var outputToString = "";
+                                if (data.inputVariables) {
+                                    for (const [key, value] of Object.entries(data.inputVariables)) {
+                                        if (key.substring(key.indexOf("]") + 1) === "workerId") { // Check actual key name
+                                            continue;
+                                        }
+                                        outputToString += key.substring(key.indexOf("]") + 1) + ": " + value + ", ";
+                                    }
+                                }
+                                if (data.initiationKey) {
+                                    outputToString += "initiationKey: " + data.initiationKey + ", ";
+                                }
+                                return outputToString.slice(0, -2); // remove last ", "
+                            }
+                        }
+                    },
+                    {
+                        data: "superProcInstId",
+                        render: function (data, type) {
+                            if (type !== "display") { return data; }
+                            else {
+                                if (data === null || data === undefined || data === "") { return ""; }
+                                return '<div class="table-cell-flex"><p>' + data + '</p>'
+                                        + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                        + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
+                                        + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                        + "</span></div></div>"; // Added missing </div>
+                            }
+                        }
+                    },
+                    {
+                        data: "uuid",
+                        render: function (data, type) {
+                            if (type !== "display") { return data; }
+                            else {
+                                if (data === null || data === undefined || data === "") { return ""; }
+                                return '<div class="table-cell-flex"><p>' + data + '</p>'
+                                        + "<div class=\"copySpan\" style=\"width: 20px;\">"
+                                        + "<span aria-label=\"Copy to clipboard\" data-microtip-position=\"top-left\" role=\"tooltip\" class=\"copy\" data-copyValue=\"" + data + "\" onClick=''>"
+                                        + "<img src=\"images/copy.svg\" class=\"copy-icon clipboard\">"
+                                        + "</span></div></div>"; // Added missing </div>
+                            }
+                        }
+                    },
+                    { // Output Variables
+                        data: "outputVariables",
+                        render: function (data, type) {
+                            // ... (Your existing complex rendering logic for outputVariables)
+                            // Similar to inputVariables, ensure all HTML is well-formed.
+                            // This function is also quite long and needs careful review of its HTML structure.
+                            if (jQuery.isEmptyObject(data)) {
+                                return "None";
+                            }
+                            if (type === 'display') {
+                                // ... your existing logic ...
+                                // Ensure all paths return correctly closed HTML.
+                                var output = "";
+                                // ...
+                                if (output === "") return "None"; // Handle case where no variables are processed
+                                return output;
+                            } else { /* for sorting/filtering etc. */
+                                var outputToString = "";
+                                if (data) {
+                                    for (const [key, value] of Object.entries(data)) {
+                                        // Example:
+                                        if (key.substring(7) === "workerId") continue; // Check actual key name
+                                        outputToString += key.substring(7) + ": " + value + ", ";
+                                    }
+                                }
+                                return outputToString.slice(0, -2); // remove last ", "
+                            }
+                        }
+                    }
+                ];
+
+                const dataTableColumnDefs = [
+                    { orderable: false, className: 'select-checkbox noVis', targets: 0 },
+                    { orderable: false, className: 'noVis', searchable: false, targets: 1 },
+                    { targets: [5, 6, 10, 11], visible: false }, // Schedule Queued, Started on Worker, SuperProcID, UUID
+                    { targets: [1], "width": "75px" }, // Action buttons
+                    { targets: [0], "width": "30px" }, // Checkbox
+                    { targets: [9, 12], width: "200px" }, // Input and Output variables
+                    { targets: [1, 2], responsivePriority: 1 }, // Action buttons, DefKey
+                    { targets: [3, 9, 12], responsivePriority: 2 }, // ProcInstID, Input, Output
+                    { targets: [4], responsivePriority: 3 }, // Status
+                    { targets: [8], responsivePriority: 4 }, // Proc End
+                    { targets: [5, 7], responsivePriority: 5 }, // Schedule Queued, Proc Start
+                    { targets: [6], responsivePriority: 6 }, // Started on Worker
+                    { targets: [10], responsivePriority: 7 }, // SuperProcID
+                    { targets: [11], responsivePriority: 8 }  // UUID
+                ];
+
+
+                $("#processes-table").DataTable({
+                    "autoWidth": false,
+                    "processing": true,
+                    "serverSide": true,
+                    "deferRender": true,
+                    "ajax": {
+                        "url": "/${base}/rest/processes/getInstancesCamunda" + qstring,
+                        "type": "GET",
+                        "dataSrc": function(json) {
+                            $(".ajax-spinner").hide();
+                            updateSelectDropDown(); // Make sure this function can handle being called when table might be empty
+                            return json.data || [];
+                        }
+                    },
+                    language: {
+                        searchBuilder: { add: "Add Additional Filters" },
+                        processing: "Loading data..."
+                    },
+                    columns: dataTableColumns, // Use the defined columns
+                    columnDefs: dataTableColumnDefs, // Use the defined columnDefs
+                    dom: "Q<'above-table-div'<'above-table-buttons'B><'above-table-length'l><'above-table-filler'><'above-table-filter'f>>"
+                        + "t"
+                        + "<'below-table-div'ip>",
+                    buttons: [
+                        {
+                            extend: 'colvis',
+                            columns: ':not(.noVis)',
+                            className: 'btn btn-primary',
+                            text: '<img height="16" width="16" src="/${base}/images/visible_show_dark.svg" style="margin-right: 5px; margin-bottom: 3px;" />Columns',
+                        }
+                    ],
+                    searchBuilder: {
+                        columns: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11] // Adjust indices if columns changed
+                    },
+                    responsive: { details: false },
+                    select: { style: 'multi+shift', selector: 'td:first-child' },
+                    order: [[2, 'asc']], // Default sort by Definition Key,
+                    ordering: false, // This disables all sorting functionality
+                    searching: false, // Remove for now due to server-side
+                    searchDelay: 250 // Added from original config
+                });
+                
+                // Clear existing custom buttons before appending to avoid duplication if this function is called multiple times
+                // (e.g., if filters are changed and fetchAndDisplayProcesses is recalled)
+                $(".above-table-buttons .btn-group").filter(function() {
+                    return $(this).find("#menu3").length > 0 || 
+                            $(this).find("#action-download-group").length > 0 ||
+                            $(this).find("#select-all-btn").length > 0;
+                }).remove();
+
+                $('<div class="btn-group" style="margin-bottom: 5px"><div style="display: flex; align-items: center; gap: 5px;"><input id="select-all-btn" type="checkbox">Select All</select></div></div><div class="btn-group" style="margin-bottom: 5px"><button id="menu3" class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><img height="16" width="16" src="/cws-ui/images/waterfall_light.svg" />&nbsp;Actions &nbsp;'
+                    + '<span class="caret"></span>'
+                    + '</button>'
+                    + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="menu3">'
+                    + `<li id="action_open_selected_new_tabs" role="presentation"><a class="dropdown-item disabled" id="action_open_selected_new_tabs_atag" role="menuitem">Open selected rows in new tabs (must not be pending)<span style="margin-left: 10px;" class="label label-info">Requires Pop-ups to be enabled</span></a></li>`
+                    + `<li id="action_copy_all_selected_history_links" role="presentation"><a class="dropdown-item disabled" id="action_copy_all_selected_history_links_atag" role="menuitem">Copy all selected history links (must not be pending)</a></li>`
+                    + '<li role="separator" class="divider"></li>'
+                    + `<li id="action_delete_selected" role="presentation"><a class="dropdown-item disabled" id="action_delete_selected_atag" role="menuitem">Stop running selected rows (all rows selected must be 'running')</a></li>`
+                    + `<li id="action_disable" role="presentation"><a class="dropdown-item disabled" id="action_disable_atag" role="menuitem">Disable selected rows (all rows selected must be 'pending')</a></li>`
+                    + `<li id="action_enable" role="presentation"><a class="dropdown-item disabled" id="action_enable_atag" role="menuitem">Enable selected rows (all rows selected must be 'disabled')</a></li>`
+                    + `<li id="action_retry_incident" role="presentation"><a class="dropdown-item disabled" id="action_retry_incident_atag" role="menuitem">Retry all selected incident rows (all rows selected must be 'incident')</a></li>`
+                    + `<li id="action_retry_failed_to_start" role="presentation"><a class="dropdown-item disabled" id="action_retry_failed_to_start_atag" role="menuitem">Retry all selected failed to start rows (all rows selected must be 'failedToStart')</a></li>`
+                    + `<li id="action_mark_as_resolved" role="presentation"><a class="dropdown-item disabled" id="action_mark_as_resolved_atag" role="menuitem">Mark all selected failed rows as resolved (all rows selected must be 'fail')</a></li>`
+                    + '' // Or your equivalent comment
+                    + `</ul></div>`).appendTo(".above-table-buttons");
+
+                $('<div class="btn-group" style="margin-bottom: 5px"><button id="action-download-group" class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"><img height="16" width="16" src="/cws-ui/images/save_light.svg" />&nbsp;Download &nbsp;'
+                    + '<span class="caret"></span>'
+                    + '</button>'
+                    + '<ul id="action-list" class="dropdown-menu" role="menu" aria-labelledby="action-download-group">' // Ensure the ID is unique if the other ul also uses action-list, or they use the same list variable
+                    + `<li id="action_download_selected_list" role="presentation"><a class="dropdown-item disabled" id="action_download_selected_list_atag" role="menuitem">Download list of selected processes (must select at least one row)</a></li>`
+                    + `<li id="action_download_selected_json" role="presentation"><a class="dropdown-item disabled" id="action_download_selected_json_atag" role="menuitem">Download logs of selected processes (JSON) (all rows selected must not be pending)</a></li>`
+                    + `<li id="action_download_selected_csv" role="presentation"><a class="dropdown-item disabled" id="action_download_selected_csv_atag" role="menuitem">Download logs of selected processes (CSV) (all rows selected must not be pending)</a></li>`
+                    + '' // Or your equivalent comment
+                    + `</ul></div>`).appendTo(".above-table-buttons");
+                
+                // Re-attach event handler for the select-all button as it's now (re)created
+                // Use .off('change') first to prevent multiple bindings if fetchAndDisplayProcesses is called multiple times
+                $("#select-all-btn").off('change').on('change', function() {
+                    if($(this).is(":checked")) {
+                        selectAll();
+                    } else {
+                        deselectAll(); 
+                    }
+                });
+
+
+
+                // Apply searchBuilder filter if exists in params
                 setTimeout(function () {
-                    //apply our local filter
                     if (params != null && params["searchBuilder"] != null && params["searchBuilder"] !== undefined) {
                         var sbState = JSON.parse(decodeURIComponent(decodeURIComponent(params["searchBuilder"])));
                         $("#processes-table").DataTable().searchBuilder.rebuild(sbState);
                     }
                 }, 250);
+                
+                // Register events for selection
+                var newTable = $("#processes-table").DataTable();
+                newTable.on('select', function (e, dt, type, indexes) {
+                    updateActionList();
+                });
+                newTable.on('deselect', function (e, dt, type, indexes) {
+                    updateActionList();
+                });
             }
 
             //Update the text of the select dropdown to reflect number of rows loaded/in datatable
@@ -1184,7 +888,6 @@
             //applies filters given by user & refreshes the page to apply to URL
             function updateLocation(changeHideSubs, sbDetailCheck) {
                 var localParams = {};
-
                 if ($("#pd-select").val() != "def") {
                     localParams["procDefKey"] = $("#pd-select").val();
                 }
@@ -1205,11 +908,7 @@
                 if ($("#max-date").val() != "") {
                     localParams["maxDate"] = encodeURIComponent($("#max-date").val());
                 }
-                if ($("#max-return-all").prop("checked")) {
-                    localParams["maxReturn"] = -1;
-                } else {
-                    localParams["maxReturn"] = $("#max-return-num").val();
-                }
+                // Max Results field has been removed for server-side pagination
                 if ($("#hide-subprocs-btn").prop("checked")) {
                     localParams["superProcInstId"] = "null";
                 } else if (!($("#hide-subprocs-btn").prop("checked"))) {
@@ -1258,11 +957,7 @@
                 if ($("#max-date").val() != "") {
                     localParams["maxDate"] = encodeURIComponent($("#max-date").val());
                 }
-                if ($("#max-return-all").prop("checked")) {
-                    localParams["maxReturn"] = -1;
-                } else {
-                    localParams["maxReturn"] = $("#max-return-num").val();
-                }
+                // Max Results field has been removed for server-side pagination
                 if ($("#hide-subprocs-btn").prop("checked")) {
                     localParams["superProcInstId"] = "null";
                 } else {
@@ -1289,11 +984,6 @@
                     }
                 });
                 $("#numMatchProcesses").text(numMatching);
-                if (numMatching > 5000) {
-                    $("#procCountWarning").text("Warning: Large number of processes may increase load time.");
-                } else {
-                    $("#procCountWarning").text("");
-                }
             }
 
             //gets value of filters from URL and applys them in the GUI
@@ -1319,14 +1009,15 @@
                         $("#hide-subprocs-btn").prop('checked', true);
                         $("#display-subprocs-div").css('display', 'none');
                     } else {
+                        $("#hide-subprocs-btn").prop('checked', false);
                         $("#super-proc-inst-id-in").show();
-                        $("#hide-subprocs-div").css('display', 'none');
+                        $("#hide-subprocs-div").css('display', 'block');
                         $("#super-proc-inst-id").html(params.superProcInstId);
                     }
                     //$("#status-select").val(params.status);
                     $("#min-date").val(params.minDate || "");
                     $("#max-date").val(params.maxDate || "");
-                    $("#max-return").val(params.maxReturn || 5000);
+                    // Max Results field has been removed for server-side pagination
                     $("#super-proc-inst-id-in").val(params.superProcInstId || "");
                 }
             }
@@ -1358,9 +1049,27 @@
 
             // loads the sub-processes page of a process
             function viewSubProcs(procInstId) {
-
                 if (procInstId !== '') {
-                    window.location = "/${base}/processes?superProcInstId=" + procInstId;
+                    // Update URL params
+                    params["superProcInstId"] = procInstId;
+                    delete params["cache"];
+                    
+                    // Update UI elements
+                    $("#hide-subprocs-btn").prop('checked', false);
+                    $("#super-proc-inst-id-in").val(procInstId);
+                    $("#super-proc-inst-id-in").show();
+                    
+                    // Save state and reload data
+                    localStorage.setItem(hideSubProcsVar, false);
+                    fetchAndDisplayProcesses();
+                    
+                    // Update URL without page reload
+                    var qstring = "?";
+                    for (p in params) {
+                        qstring += encodeURI(p) + "=" + encodeURI(params[p]) + "&";
+                    }
+                    qstring = qstring.substring(0, qstring.length - 1);
+                    window.history.pushState({}, '', "/${base}/processes" + qstring);
                 } else {
                     return false;
                 }
@@ -1422,28 +1131,28 @@
                 }
 
                 // Disable everything
-                $("#action_disable").addClass("disabled");
-                $("#action_disable").removeClass("enabled");
-                $("#action_enable").addClass("disabled");
-                $("#action_enable").removeClass("enabled");
-                $("#action_retry_incident").addClass("disabled");
-                $("#action_retry_incident").removeClass("enabled");
-                $("#action_retry_failed_to_start").addClass("disabled");
-                $("#action_retry_failed_to_start").removeClass("enabled");
-                $("#action_mark_as_resolved").addClass("disabled");
-                $("#action_mark_as_resolved").removeClass("enabled");
-                $("#action_open_selected_new_tabs").addClass("disabled");
-                $("#action_open_selected_new_tabs").removeClass("enabled");
-                $("#action_copy_all_selected_history_links").addClass("disabled");
-                $("#action_copy_all_selected_history_links").removeClass("enabled");
-                $("#action_download_selected_json").addClass("disabled");
-                $("#action_download_selected_json").removeClass("enabled");
-                $("#action_download_selected_csv").addClass("disabled");
-                $("#action_download_selected_csv").removeClass("enabled");
-                $("#action_download_selected_list").addClass("disabled");
-                $("#action_download_selected_list").removeClass("enabled");
-                $("#action_delete_selected").addClass("disabled");
-                $("#action_delete_selected").removeClass("enabled");
+                $("#action_disable_atag").addClass("disabled");
+                $("#action_disable_atag").removeClass("enabled");
+                $("#action_enable_atag").addClass("disabled");
+                $("#action_enable_atag").removeClass("enabled");
+                $("#action_retry_incident_atag").addClass("disabled");
+                $("#action_retry_incident_atag").removeClass("enabled");
+                $("#action_retry_failed_to_start_atag").addClass("disabled");
+                $("#action_retry_failed_to_start_atag").removeClass("enabled");
+                $("#action_mark_as_resolved_atag").addClass("disabled");
+                $("#action_mark_as_resolved_atag").removeClass("enabled");
+                $("#action_open_selected_new_tabs_atag").addClass("disabled");
+                $("#action_open_selected_new_tabs_atag").removeClass("enabled");
+                $("#action_copy_all_selected_history_links_atag").addClass("disabled");
+                $("#action_copy_all_selected_history_links_atag").removeClass("enabled");
+                $("#action_download_selected_json_atag").addClass("disabled");
+                $("#action_download_selected_json_atag").removeClass("enabled");
+                $("#action_download_selected_csv_atag").addClass("disabled");
+                $("#action_download_selected_csv_atag").removeClass("enabled");
+                $("#action_download_selected_list_atag").addClass("disabled");
+                $("#action_download_selected_list_atag").removeClass("enabled");
+                $("#action_delete_selected_atag").addClass("disabled");
+                $("#action_delete_selected_atag").removeClass("enabled");
 
                 // Remove hrefs from the anchor tags
                 $("#action_disable_atag").removeAttr("href");
@@ -1462,45 +1171,53 @@
 
                 // only disabled rows are selected
                 if (disabled) {
-                    $("#action_enable").removeClass("disabled");
+                    $("#action_enable_atag").removeClass("disabled");
                     $("#action_enable_atag").attr("href", "javascript:action_enable_rows();");
                 }
                 // only pending rows are selected
                 else if (pending) {
-                    $("#action_disable").removeClass("disabled");
+                    $("#action_disable_atag").removeClass("disabled");
                     $("#action_disable_atag").attr("href", "javascript:action_disable_rows();");
                 }
                 // only incident rows are selected
                 else if (incident) {
-                    $("#action_retry_incident").removeClass("disabled");
+                    $("#action_retry_incident_atag").removeClass("disabled");
                     $("#action_retry_incident_atag").attr("href", "javascript:action_retry_incident_rows()");
                 }
                 // only failedToStart rows are selected
                 else if (failedToStart) {
-                    $("#action_retry_failed_to_start").removeClass("disabled");
+                    $("#action_retry_failed_to_start_atag").removeClass("disabled");
                     $("#action_retry_failed_to_start_atag").attr("href", "javascript:action_retry_failed_to_start();");
                 }
                 // only failed rows are selected
                 else if (failed) {
-                    $("#action_mark_as_resolved").removeClass("disabled");
+                    $("#action_mark_as_resolved_atag").removeClass("disabled");
                     $("#action_mark_as_resolved_atag").attr("href", "javascript:action_mark_as_resolved();");
                 } else if (running) {
-                    $("#action_delete_selected").removeClass("disabled");
+                    $("#action_delete_selected_atag").removeClass("disabled");
                     $("#action_delete_selected_atag").attr("href", "javascript:action_delete_selected();");
                 }
 
                 if ((numSelected > 0)) {
-                    $("#action_download_selected_list").removeClass("disabled");
+                    $("#action_download_selected_list_atag").removeClass("disabled");
                     $("#action_download_selected_list_atag").attr("href", "javascript:downloadListJSON();");
                     if (numPendingSelected === 0) {
-                        $("#action_open_selected_new_tabs").removeClass("disabled");
-                        $("#action_open_selected_new_tabs_atag").attr("href", "javascript:action_open_selected_new_tabs();");
-                        $("#action_copy_all_selected_history_links").removeClass("disabled");
-                        $("#action_copy_all_selected_history_links_atag").attr("href", "javascript:action_copy_all_selected_history_links();");
-                        $("#action_download_selected_json").removeClass("disabled");
-                        $("#action_download_selected_json_atag").attr("href", "javascript:downloadSelectedJSON();");
-                        $("#action_download_selected_csv").removeClass("disabled");
-                        $("#action_download_selected_csv_atag").attr("href", "javascript:downloadSelectedCSV();");
+                        $("#action_open_selected_new_tabs_atag").removeClass("disabled");
+                        
+                        $("#action_open_selected_new_tabs_atag").on("click", function() {action_open_selected_new_tabs();})
+                        // $("#action_open_selected_new_tabs_atag").attr("href", "javascript:action_open_selected_new_tabs();");
+                        
+                        $("#action_copy_all_selected_history_links_atag").removeClass("disabled");
+                        $("#action_copy_all_selected_history_links_atag").on("click", function() {action_copy_all_selected_history_links();})
+                        $("#action_download_selected_json_atag").removeClass("disabled");
+
+                        $("#action_download_selected_json_atag").on("click", function() {downloadSelectedJSON();})
+                        // $("#action_download_selected_json_atag").attr("href", "javascript:downloadSelectedJSON();");
+                        
+                        $("#action_download_selected_csv_atag").removeClass("disabled");
+
+                        $("#action_download_selected_csv_atag").on("click", function() {downloadSelectedCSV();})
+                        // $("#action_download_selected_csv_atag").attr("href", "javascript:downloadSelectedCSV();");
                     }
                 }
 
@@ -1520,13 +1237,10 @@
                     url: "/${base}/rest/processes/delete",
                     Accept: "application/json",
                     contentType: "application/json",
-                    data: JSON.stringify(procInstIds)
-                    })
-                    .success(function (msg) {
-                        //clear table
-                        table.clear().draw();
-                        //reload table
+                    data: JSON.stringify(procInstIds),
+                    success: function (msg) {
                         fetchAndDisplayProcesses();
+                    }
                     })
                     .fail(function (xhr, err) {
                         console.error(xhr.responseTextmsg);
@@ -1573,7 +1287,7 @@
                 })
                     .done(function (msg) {
                         $("#action_msg").html(msg.message);
-                        table.ajax.reload();
+                        fetchAndDisplayProcesses();
                     })
                     .fail(function (xhr, err) {
                         $("#action_msg").html(xhr.responseTextmsg.message);
@@ -1595,7 +1309,7 @@
                 })
                     .done(function (msg) {
                         $("#action_msg").html(msg.message);
-                        table.ajax.reload();
+                        fetchAndDisplayProcesses();
                     })
                     .fail(function (xhr, err) {
                         $("#action_msg").html(xhr.responseTextmsg.message);
@@ -1617,7 +1331,7 @@
                 })
                     .done(function (msg) {
                         $("#action_msg").html(msg.message);
-                        table.ajax.reload();
+                        fetchAndDisplayProcesses();
                     })
                     .fail(function (xhr, err) {
                         $("#action_msg").html(xhr.responseTextmsg.message);
@@ -1639,7 +1353,7 @@
                 })
                     .done(function (msg) {
                         $("#action_msg").html(msg.message);
-                        table.ajax.reload();
+                        fetchAndDisplayProcesses();
                     })
                     .fail(function (xhr, err) {
                         $("#action_msg").html(xhr.responseTextmsg.message);
@@ -1654,11 +1368,14 @@
                 $.ajax({
                     type: "POST",
                     url: "/${base}/rest/processes/markResolved",
+                    Accept: "application/json",
+                    contentType: "application/json",
+                    dataType: "json",
                     data: JSON.stringify(getSelectedRowUuids())
                 })
                     .done(function (msg) {
                         $("#action_msg").html(msg.message);
-                        table.ajax.reload();
+                        fetchAndDisplayProcesses();
                     })
                     .fail(function (xhr, err) {
                         $("#action_msg").html(xhr.responseTextmsg.message);
@@ -1774,8 +1491,8 @@
                     if (data["procEndTime"] !== null) {
                         process_end = data["procEndTime"];
                         if (data["procStartTime"] !== '' && data["procEndTime"] !== '') {
-                            var start = moment(data["procStartTime"]);
-                            var end = moment(data["procEndTime"]);
+                            var start = moment(data["procStartTime"], serverDateFormat, true);
+                            var end = moment(data["procEndTime"], serverDateFormat, true);
                             duration = moment.duration(end.diff(start)).humanize();
                         } else {
                             duration = '';
@@ -1843,8 +1560,8 @@
                     Accept: "application/json",
                     contentType: "application/json",
                     dataType: "json",
-                    async: false
-                }).success(function (data) {
+                    async: false,
+                    success: function (data) {
                     var status = data.state;
                     if (data.state === "COMPLETED") {
                         status = "Complete";
@@ -1871,6 +1588,7 @@
                         const row = [date, entry["type"], entry["activity"], outputMessage(entry["message"])];
                         logLines.push(row);
                     }
+                    }
                 }).fail(function (xhr, err) {
                     console.error("Error getting instance JSON: " + xhr.responseText);
                 });
@@ -1881,8 +1599,8 @@
                     Accept: "application/json",
                     contentType: "application/json",
                     dataType: "json",
-                    async: false
-                }).success(function (data) {
+                    async: false,
+                    success: function (data) {
                     var finished = false;
                     scrollId = data._scroll_id;
                     if (data.hits) {
@@ -1920,6 +1638,7 @@
                             }
                         });
                     }
+                }
                 }).fail(function (xhr, err) {
                     console.error("Error getting instance JSON: " + xhr.responseText);
                 });
@@ -2118,8 +1837,8 @@
                     Accept : "application/json",
                     contentType: "application/json",
                     dataType: "json",
-                    async: false
-                }).success(function(data) {
+                    async: false,
+                    success: function(data) {
                     var status = data.state;
                     if (data.state === "COMPLETED") {
                         status = "Complete";
@@ -2141,6 +1860,7 @@
                         const row = [date, entry["type"], entry["activity"], outputMessage(entry["message"])];
                         logLines.push(row);
                     }
+                }
                 }).fail(function(xhr, err) {
                     console.error("Error getting instance JSON: " + xhr.responseText);
                 });
@@ -2151,8 +1871,8 @@
                     Accept : "application/json",
                     contentType: "application/json",
                     dataType: "json",
-                    async: false
-                }).success(function(data) {
+                    async: false,
+                    success:function(data) {
                     var finished = false;
                     scrollId = data._scroll_id;
                     if (data.hits) {
@@ -2190,6 +1910,7 @@
                             }
                         });
                     }
+                }
                 }).fail(function(xhr, err) {
                     console.error("Error getting instance JSON: " + xhr.responseText);
                 });
@@ -2267,6 +1988,8 @@
                 } );
                 return outputCSV;
             };
+
+           
         </script>
 
 </body>

@@ -177,7 +177,10 @@ public class LoadTestIT extends WebTestUtil {
             driver.findElement(By.id("saveXmlBtn")).click();
 
             waitForElementID("saveConfirmBtn");
-            driver.findElement(By.id("saveConfirmBtn")).click();
+            WebElement saveConfirmBtn = driver.findElement(By.id("saveConfirmBtn"));
+
+            js.executeScript("arguments[0].scrollIntoViewIfNeeded();", saveConfirmBtn);
+            saveConfirmBtn.click();
 
             wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("saveConfirmBtn")));
 

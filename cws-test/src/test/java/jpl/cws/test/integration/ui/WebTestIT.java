@@ -11,6 +11,8 @@ import org.openqa.selenium.support.ui.Select;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.openqa.selenium.JavascriptExecutor;
+
 /**
  *
  * @author ghollins
@@ -207,16 +209,23 @@ public class WebTestIT extends WebTestUtil {
 			sleep(1000);
 			log.info("Found a completed task.");
 
-			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
+			waitForElementXPath("//input[@id=\'dt-search-0\']");
 
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_hello_world");
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
+			WebElement filter = driver.findElement(By.xpath("//input[@id=\'dt-search-0\']"));
+
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+	  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", filter);
+	  		// filter.click();
+
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys("test_hello_world");
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 
-			waitForElementXPath("//a[contains(text(),'History')]");
-			WebElement historyButton = driver.findElement(By.xpath("//a[contains(text(),'History')]"));
+			waitForElementXPath("//button[contains(text(),'History')]");
+			WebElement historyButton = driver.findElement(By.xpath("//button[contains(text(),'History')]"));
+			js.executeScript("arguments[0].scrollIntoViewIfNeeded();", historyButton);
+			
 			historyButton.click();
 			sleep(1000);
 
@@ -250,17 +259,25 @@ public class WebTestIT extends WebTestUtil {
 			sleep(1000);
 			log.info("Found a completed task.");
 
-			waitForElementXPath("//div[@id=\'processes-table_filter\']/label/input");
+			waitForElementXPath("//input[@id=\'dt-search-0\']");
 
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).click();
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys("test_groovy_script");
-			driver.findElement(By.xpath("//div[@id=\'processes-table_filter\']/label/input")).sendKeys(Keys.ENTER);
+			WebElement filter = driver.findElement(By.xpath("//input[@id=\'dt-search-0\']"));
+
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+	  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", filter);
+
+			// filter.click();
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys("test_groovy_script");
+			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 
-			waitForElementXPath("//a[contains(text(),'History')]");
-			WebElement historyButton = driver.findElement(By.xpath("//a[contains(text(),'History')]"));
+			waitForElementXPath("//button[contains(text(),'History')]");
+			WebElement historyButton = driver.findElement(By.xpath("//button[contains(text(),'History')]"));
+			js.executeScript("arguments[0].scrollIntoViewIfNeeded();", historyButton);
+
 			historyButton.click();
+
 			sleep(1000);
 
 			findOnPage("Groovy.");
