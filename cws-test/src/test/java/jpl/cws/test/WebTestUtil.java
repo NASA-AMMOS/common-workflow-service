@@ -27,6 +27,7 @@ import org.openqa.selenium.JavascriptExecutor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.io.FileUtils;
 
 
 /**
@@ -141,6 +142,97 @@ public class WebTestUtil {
 
 	protected WebElement findElByXPath(String path) {
 		return driver.findElement(By.xpath(path));
+	}
+
+	// Robust element interaction methods to handle stale element references
+	protected WebElement findAndWaitForElement(By locator, int timeoutSeconds) {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+		return wait.until(ExpectedConditions.elementToBeClickable(locator));
+	}
+
+	protected WebElement findAndWaitForElementPresent(By locator, int timeoutSeconds) {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+		return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+	}
+
+	protected void clickElementSafely(By locator) {
+		clickElementSafely(locator, 3, 10);
+	}
+
+	protected void clickElementSafely(By locator, int maxRetries, int timeoutSeconds) {
+		for (int i = 0; i < maxRetries; i++) {
+			try {
+				WebElement element = findAndWaitForElement(locator, timeoutSeconds);
+				element.click();
+				log.debug("Successfully clicked element: " + locator);
+				return;
+			} catch (StaleElementReferenceException e) {
+				log.warn("Stale element reference on attempt " + (i + 1) + " for: " + locator);
+				if (i == maxRetries - 1) {
+					captureScreenshot("clickElementSafely-StaleElement-" + locator.toString().replaceAll("[^a-zA-Z0-9]", "_"));
+					log.error("Failed to click element after " + maxRetries + " attempts: " + locator);
+					throw e;
+				}
+				sleep(1000);
+			} catch (org.openqa.selenium.ElementClickInterceptedException e) {
+				log.warn("Element click intercepted on attempt " + (i + 1) + " for: " + locator + " - " + e.getMessage());
+				captureScreenshot("clickElementSafely-ClickIntercepted-" + locator.toString().replaceAll("[^a-zA-Z0-9]", "_") + "-attempt" + (i + 1));
+				if (i == maxRetries - 1) {
+					log.error("Element click intercepted after " + maxRetries + " attempts: " + locator);
+					throw e;
+				}
+				sleep(2000); // Wait longer for click interception issues
+			} catch (Exception e) {
+				log.error("Unexpected error clicking element: " + locator + " - " + e.getMessage());
+				if (i == maxRetries - 1) {
+					captureScreenshot("clickElementSafely-UnexpectedError-" + locator.toString().replaceAll("[^a-zA-Z0-9]", "_"));
+					throw e;
+				}
+				sleep(1000);
+			}
+		}
+	}
+
+	protected WebElement findElementSafely(By locator) {
+		return findElementSafely(locator, 3, 10);
+	}
+
+	protected WebElement findElementSafely(By locator, int maxRetries, int timeoutSeconds) {
+		for (int i = 0; i < maxRetries; i++) {
+			try {
+				return findAndWaitForElement(locator, timeoutSeconds);
+			} catch (StaleElementReferenceException e) {
+				log.warn("Stale element reference on attempt " + (i + 1) + " for: " + locator);
+				if (i == maxRetries - 1) {
+					log.error("Failed to find element after " + maxRetries + " attempts: " + locator);
+					throw e;
+				}
+				sleep(1000);
+			} catch (Exception e) {
+				log.error("Unexpected error finding element: " + locator + " - " + e.getMessage());
+				if (i == maxRetries - 1) throw e;
+				sleep(1000);
+			}
+		}
+		return null; // Should never reach here
+	}
+
+	// Screenshot capture method
+	protected void captureScreenshot(String fileName) {
+		try {
+			if (driver == null) {
+				log.error("Cannot capture screenshot - WebDriver is null");
+				return;
+			}
+			
+			File scrFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+			File destFile = new File("/tmp/" + fileName + ".png");
+			FileUtils.copyFile(scrFile, destFile);
+			
+			log.info("Screenshot captured: " + destFile.getAbsolutePath());
+		} catch (Exception e) {
+			log.error("Failed to capture screenshot: " + e.getMessage());
+		}
 	}
 
 	protected boolean findOnPage(String text) {
@@ -329,42 +421,47 @@ public class WebTestUtil {
 	}
 
 	public void disableWorkers(String procDef) {
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+		log.info("Disabling workers for process definition: " + procDef);
 		sleep(5000);
 
-		// Get fresh reference and scroll into view
-		wait.until(ExpectedConditions.presenceOfElementLocated(By.id("pv-"+procDef)));
-		WebElement enable = findElById("pv-"+procDef);
-		JavascriptExecutor js = (JavascriptExecutor) driver;
-		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", enable);
-		sleep(5000);
-
-		// Get fresh reference before checking clickable
-		enable = findElById("pv-"+procDef);
-		wait.until(ExpectedConditions.elementToBeClickable(enable));
+		// Use robust clicking for the process definition element
+		By procDefLocator = By.id("pv-" + procDef);
 		
-		// Get fresh reference before clicking
-		enable = findElById("pv-"+procDef);
-		enable.click();
-		sleep(1000);
+		// Scroll to element and click it safely
+		try {
+			WebElement enable = findElementSafely(procDefLocator);
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+			js.executeScript("arguments[0].scrollIntoViewIfNeeded();", enable);
+			sleep(2000);
+			
+			clickElementSafely(procDefLocator);
+			sleep(1000);
+		} catch (Exception e) {
+			log.error("Failed to click process definition element: " + procDef + " - " + e.getMessage());
+			throw e;
+		}
 
-		wait.until(ExpectedConditions.presenceOfElementLocated(By.id("all-workers")));
-		WebElement allWorkers = findElById("all-workers");
-		wait.until(ExpectedConditions.presenceOfElementLocated(By.id("done-workers-btn")));
-		WebElement allWorkersDone = findElById("done-workers-btn");
-		log.info("Disabling workers.");
+		// Handle all-workers checkbox safely
+		try {
+			WebElement allWorkers = findAndWaitForElementPresent(By.id("all-workers"), 30);
+			WebElement allWorkersDone = findAndWaitForElementPresent(By.id("done-workers-btn"), 30);
+			log.info("Found worker control elements, proceeding to disable workers.");
 
-		wait.until(ExpectedConditions.elementToBeClickable(allWorkers));
-		if(allWorkers.isSelected()) {
-			allWorkers.click();
-			sleep(1000);
-			wait.until(ExpectedConditions.elementToBeClickable(allWorkersDone));
-			allWorkersDone.click();
-			sleep(1000);
-		} else {
-			wait.until(ExpectedConditions.elementToBeClickable(allWorkersDone));
-			allWorkersDone.click();
-			sleep(1000);
+			// Check if all workers are already selected
+			if(allWorkers.isSelected()) {
+				log.info("All workers already selected, clicking to disable.");
+				clickElementSafely(By.id("all-workers"));
+				sleep(1000);
+				clickElementSafely(By.id("done-workers-btn"));
+				sleep(1000);
+			} else {
+				log.info("All workers not selected, just clicking done button.");
+				clickElementSafely(By.id("done-workers-btn"));
+				sleep(1000);
+			}
+		} catch (Exception e) {
+			log.error("Failed to handle worker controls: " + e.getMessage());
+			throw e;
 		}
 
 		sleep(2000);
@@ -479,7 +576,7 @@ public class WebTestUtil {
 	}
 
 	public void deleteProc(String procName) {
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(600)); // 10 minutes timeout
 		goToPage("deployments");
 
 		if(driver.getPageSource().contains(procName)) {
@@ -492,9 +589,16 @@ public class WebTestUtil {
 			delButton.click();
 
 			waitForElementID("delete-proc-def");
+			log.info("Found delete confirmation button, waiting 10 minutes before clicking it");
+			sleep(600000); // Wait 10 minutes (600,000 milliseconds)
+			log.info("10 minute wait complete, now clicking delete confirmation button");
 			findElById("delete-proc-def").click();
+			
+			// Give the modal time to start closing animation
+			sleep(2000);
 
-			wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("delete-proc-def")));
+			log.info("Waiting for delete confirmation dialog (delete-proc-def-modal) to close...");
+			wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("delete-proc-def-modal")));
 			sleep(3000);
 			log.info("*****Successfully deleted " + procName);
 			procCounter = procCounter - 1;

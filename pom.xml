@@ -672,9 +672,9 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<groupId>@project.groupId@</groupId>
+					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>@project.version@</version>
+					<version>${jacoco.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
