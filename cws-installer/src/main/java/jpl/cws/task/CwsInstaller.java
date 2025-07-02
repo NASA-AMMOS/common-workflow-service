@@ -280,7 +280,7 @@ public class CwsInstaller {
 			getKeystorePassword();
 			setupTaskAssigmentEmails();
 			setupSMTP();
-			setupElasticsearch();
+			//setupElasticsearch();
 			setupLogstash();
 			setupHistoryLevel();
 			setupAws();
