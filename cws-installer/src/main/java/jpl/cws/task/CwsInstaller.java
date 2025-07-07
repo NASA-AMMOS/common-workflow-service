@@ -1784,7 +1784,7 @@ public class CwsInstaller {
 		print("Elasticsearch Protocol        = " + elasticsearch_protocol);
 		print("Elasticsearch Host            = " + elasticsearch_host);
 		print("Elasticsearch Port            = " + elasticsearch_port);
-		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
+		if (elasticsearch_use_auth != null && elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 			print("Elasticsearch User            = " + elasticsearch_username);
 			print("Elasticsearch Password        = ****** (hidden) ");
 		}
