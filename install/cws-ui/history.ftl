@@ -336,14 +336,20 @@
 	}
 	
 	function processData(historyData, logData) {
-	
 		const historyRows = buildHistoryRows(historyData[0]);
+	    if (historyRows.length < 1) {
+			const historyRows = buildHistoryRows(historyData);
+		}
 		const logRows = buildLogRows(logData[0]);
 		
 		renderSet(historyRows.concat(logRows));
-		
+
+		$(".ajax-spinner").hide();
+		var table = $("#logData").DataTable();
+		table.draw();
+
 		// Get rest of log data (if exists)
-		getMoreLogData(logData[0]._scroll_id);
+		//getMoreLogData(logData[0]._scroll_id);
 	}
 	
 	function processFailed(historyError, logError) {
@@ -525,7 +531,8 @@
 			
 			// Get history and log data (first scroll) in parallel
 			$.when( $.getJSON("/${base}/rest/history/" + params.procInstId), 
-					$.getJSON("/${base}/rest/logs/get?source=" + encodeURIComponent(JSON.stringify(esReq))) ).then(processData, processFailed);
+					//$.getJSON("/${base}/rest/logs/get?source=" + encodeURIComponent(JSON.stringify(esReq)))
+			).then(processData, processFailed);
 			
 			// In case of unknown problems, just hide spinner
 			setTimeout(function() {
