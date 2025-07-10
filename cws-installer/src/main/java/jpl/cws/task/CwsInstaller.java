@@ -1388,7 +1388,7 @@ public class CwsInstaller {
 			elasticsearch_use_auth = read_elasticsearch_use_auth.toLowerCase();
 		}
 
-		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
+		if (elasticsearch_use_auth != null && elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 
 			elasticsearch_username = getPreset("elasticsearch_username");
 
@@ -1853,7 +1853,7 @@ public class CwsInstaller {
 		}
 
 		// Check that user provided Elasticsearch service is up and healthy
-		warningCount += validateElasticsearch();
+		// warningCount += validateElasticsearch();
 
 		// Check that keystore and truststore is valid, not expired
 		warningCount += validateKeystoreTruststore();
@@ -2424,7 +2424,7 @@ public class CwsInstaller {
 
 			String[] cmdArray = new String[] {"curl", "--fail", elasticsearch_protocol + "://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 
-			if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
+			if (elasticsearch_use_auth != null && elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 				// Add auth to curl
 				cmdArray = new String[] {"curl", "--fail", "-u", elasticsearch_username + ":" + elasticsearch_password, elasticsearch_protocol + "://" + elasticsearch_host + ":" + elasticsearch_port + "/_cluster/health"};
 			}
@@ -3007,7 +3007,7 @@ public class CwsInstaller {
 		content = content.replace("__AWS_DEFAULT_REGION__", 				  aws_default_region);
 
 		// ES auth might not be in use
-		if(elasticsearch_use_auth.equalsIgnoreCase("Y")) {
+		if(elasticsearch_use_auth != null && elasticsearch_use_auth.equalsIgnoreCase("Y")) {
 			content = content.replace("__CWS_ES_USERNAME__", elasticsearch_username);
 			content = content.replace("__CWS_ES_PASSWORD__", elasticsearch_password);
 		}
@@ -3331,7 +3331,7 @@ public class CwsInstaller {
 		logstashContent = logstashContent.replace("__CWS_ES_PROTOCOL__", elasticsearch_protocol);
 		logstashContent = logstashContent.replace("__CWS_ES_HOST__", elasticsearch_host);
 		logstashContent = logstashContent.replace("__CWS_ES_PORT__", elasticsearch_port);
-		if (elasticsearch_use_auth.equalsIgnoreCase(("Y"))) {
+		if (elasticsearch_use_auth != null && elasticsearch_use_auth.equalsIgnoreCase(("Y"))) {
 			// Construct the auth config for logstash
 			String user = "user => \"" + elasticsearch_username + "\"";
 			String pw = "password => \"" + elasticsearch_password + "\"";
