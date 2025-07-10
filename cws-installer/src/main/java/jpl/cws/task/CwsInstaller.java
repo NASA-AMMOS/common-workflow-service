@@ -3084,17 +3084,17 @@ public class CwsInstaller {
 		// Update clean_es_history.sh file
 		path = Paths.get(config_work_dir + SEP + "clean_es_history.sh");
 		content = getFileContents(path);
-		content = content.replace("__ES_PROTOCOL__",      			elasticsearch_protocol);
-		content = content.replace("__ES_HOST__",      				elasticsearch_host);
-		content = content.replace("__ES_PORT__",  					elasticsearch_port);
-		content = content.replace("__ES_USE_AUTH__",                 elasticsearch_use_auth);
-		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
-			content = content.replace("__ES_USERNAME__",             elasticsearch_username);
-			content = content.replace("__ES_PASSWORD__",             elasticsearch_password);
-		} else {
-			content = content.replace("__ES_USERNAME__",             "na");
-			content = content.replace("__ES_PASSWORD__",             "na");
-		}
+		//content = content.replace("__ES_PROTOCOL__",      			elasticsearch_protocol);
+		//content = content.replace("__ES_HOST__",      				elasticsearch_host);
+		//content = content.replace("__ES_PORT__",  					elasticsearch_port);
+		//content = content.replace("__ES_USE_AUTH__",                 elasticsearch_use_auth);
+		//if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
+		//	content = content.replace("__ES_USERNAME__",             elasticsearch_username);
+		//	content = content.replace("__ES_PASSWORD__",             elasticsearch_password);
+		//} else {
+		//	content = content.replace("__ES_USERNAME__",             "na");
+		//	content = content.replace("__ES_PASSWORD__",             "na");
+		//}
 		content = content.replace("__CWS_HISTORY_DAYS_TO_LIVE__", 	history_days_to_live);
 		writeToFile(path, content);
 		copy(
