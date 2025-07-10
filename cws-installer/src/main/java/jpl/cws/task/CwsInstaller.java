@@ -2962,10 +2962,10 @@ public class CwsInstaller {
 		content = content.replace("__CWS_DB_USERNAME__",                 cws_db_username);
 		content = content.replace("__CWS_DB_PASSWORD__",                 cws_db_password);
 		content = content.replace("__CWS_CONSOLE_SSL_PORT__",            cws_console_ssl_port);
-		content = content.replace("__CWS_ES_PROTOCOL__",                 elasticsearch_protocol);
-		content = content.replace("__CWS_ES_HOST__",                     elasticsearch_host);
-		content = content.replace("__CWS_ES_PORT__",                     elasticsearch_port);
-		content = content.replace("__CWS_ES_USE_AUTH__",                 elasticsearch_use_auth);
+		//content = content.replace("__CWS_ES_PROTOCOL__",                 elasticsearch_protocol);
+		//content = content.replace("__CWS_ES_HOST__",                     elasticsearch_host);
+		//content = content.replace("__CWS_ES_PORT__",                     elasticsearch_port);
+		//content = content.replace("__CWS_ES_USE_AUTH__",                 elasticsearch_use_auth);
 		content = content.replace("__CWS_ENABLE_CLOUD_AUTOSCALING__",    cws_enable_cloud_autoscaling);
 		content = content.replace("__CWS_CLOUDWATCH_ENDPOINT__",         aws_cloudwatch_endpoint);
 		content = content.replace("__CWS_METRICS_PUBLISHING_INTERVAL__", metrics_publishing_interval);
@@ -3328,9 +3328,9 @@ public class CwsInstaller {
 		catalinaLogPath = catalinaLogPath.replace("\\", "/");
 		logstashContent = logstashContent.replace("__CWS_CATALINA_OUT_PATH__", catalinaLogPath);
 
-		logstashContent = logstashContent.replace("__CWS_ES_PROTOCOL__", elasticsearch_protocol);
-		logstashContent = logstashContent.replace("__CWS_ES_HOST__", elasticsearch_host);
-		logstashContent = logstashContent.replace("__CWS_ES_PORT__", elasticsearch_port);
+		//logstashContent = logstashContent.replace("__CWS_ES_PROTOCOL__", elasticsearch_protocol);
+		//logstashContent = logstashContent.replace("__CWS_ES_HOST__", elasticsearch_host);
+		//logstashContent = logstashContent.replace("__CWS_ES_PORT__", elasticsearch_port);
 		if (elasticsearch_use_auth != null && elasticsearch_use_auth.equalsIgnoreCase(("Y"))) {
 			// Construct the auth config for logstash
 			String user = "user => \"" + elasticsearch_username + "\"";
