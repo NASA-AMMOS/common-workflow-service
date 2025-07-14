@@ -138,6 +138,9 @@ public class WorkerMonitorBackgroundThread extends Thread {
 					externalWorkersThatWentDown = schedulerDbService.detectDeadExternalWorkers(THRESHOLD_MILLIS_FOR_DEAD_WORKER);
 				}
 
+				// Remove processes that are still running over time limit
+				schedulerDbService.updateRunningProcessesOverLimit();
+
 				// Successful thread iteration, so reset failure variables back to nominal
 				failures = 0;
 				failWait = 100;

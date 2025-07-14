@@ -34,6 +34,9 @@ public class SchedulerDbService extends DbService implements InitializingBean {
     @Autowired
     private CwsEmailerService cwsEmailerService;
 
+    @Value("${cws.running.process.timeout:14400}")
+    private static int runningProcessTimeLimit;
+
     public static final String PENDING = "pending";
     public static final String DISABLED = "disabled";
     public static final String FAILED_TO_SCHEDULE = "failedToSchedule";
@@ -67,6 +70,9 @@ public class SchedulerDbService extends DbService implements InitializingBean {
                     "WHERE " +
                     "  uuid=? AND claim_uuid IS NULL " +
                     "  AND EXISTS (SELECT * FROM cws_worker WHERE id=? AND status='up')";
+
+    public static final String UPDATE_ORPHANED_JOB_ROWS_SQL =
+            "UPDATE cws_proc_inst_status SET status='" + FAIL + "' WHERE status='" + RUNNING + "' AND TIME_TO_SEC(TIMEDIFF(NOW(), start_time)) > " + runningProcessTimeLimit;
 
     public static final String INSERT_SCHED_WORKER_PROC_INST_ROW_SQL =
             "INSERT INTO cws_sched_worker_proc_inst " +
@@ -1244,6 +1250,12 @@ public class SchedulerDbService extends DbService implements InitializingBean {
                         "WHERE status='running'");
     }
 
+    /**
+     *
+     */
+    public int updateRunningProcessesOverLimit() {
+        return jdbcTemplate.update(UPDATE_ORPHANED_JOB_ROWS_SQL);
+    }
 
     /**
      *
