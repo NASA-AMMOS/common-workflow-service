@@ -84,7 +84,8 @@ jobs:
 
       - name: Start Services with Docker Compose
         run: |
-          echo "changeme" > ~/.cws/creds
+          mkdir -p /home/runner/.cws/
+          echo "changeme" > /home/runner/.cws/creds
           docker compose up -d
         working-directory: install/docker/console-db-es-ls-kibana
 
