@@ -67,10 +67,22 @@ public class ProcessEventListener implements MessageListener, InitializingBean {
 						}
 						
 						if (eventType.equals("processEndEventDetected")) {
+							// First make sure the database status is updated to COMPLETE
+							workerService.getSchedulerDbService().markProcessInstanceComplete(uuid);
+							
+							// Then update local worker state if this worker started it
 							boolean endedOnThisWorker = 
 								workerService.processEndedActions(procDefKey, uuid);
+								
+							// Always trigger new process start attempts regardless of which worker handled it
+							// This ensures a fresh claim attempt happens when any process completes
+							workerService.procStartReqAction(null, "processEndEventDetected message received");
+							
+							// Log if this was our process or handled by another worker
 							if (endedOnThisWorker) {
-								workerService.procStartReqAction(null, "processEndEventDetected message received");
+								log.debug("Process " + uuid + " ended on this worker, local counters updated");
+							} else {
+								log.debug("Process " + uuid + " ended on another worker, attempting to start pending processes");
 							}
 						}
 						else if (eventType.equals("sync")) {

@@ -1159,15 +1159,27 @@ public class CwsConsoleService {
     }
 
     /**
-     *
+     * Get filtered process instances with pagination support
      */
     public List<CwsProcessInstance> getFilteredProcessInstancesCamunda(String superProcInstId, String procInstId, String procDefKey,
-                                                                       String status, String minDate, String maxDate, String dateOrderBy, int page) {
+                                                                       String status, String minDate, String maxDate, String dateOrderBy, 
+                                                                       int page) {
+        Map<String, String> noFilters = new HashMap<>();
+        return getFilteredProcessInstancesCamunda(superProcInstId, procInstId, procDefKey, status, minDate, maxDate, 
+                                                dateOrderBy, page, 50, noFilters);
+    }
+    
+    /**
+     * Get filtered process instances with pagination support and custom page size
+     */
+    public List<CwsProcessInstance> getFilteredProcessInstancesCamunda(String superProcInstId, String procInstId, String procDefKey,
+                                                                       String status, String minDate, String maxDate, String dateOrderBy, 
+                                                                       int page, int pageSize, Map<String, String> allRequestParams) {
 
         List<CwsProcessInstance> instances = new ArrayList<CwsProcessInstance>();
 
         List<Map<String, Object>> rows = schedulerDbService.getFilteredProcessInstances(superProcInstId, procInstId, procDefKey, status,
-                minDate, maxDate, dateOrderBy, page);
+                minDate, maxDate, dateOrderBy, page, pageSize, allRequestParams);
 
         for (Map<String, Object> row : rows) {
             String uuidObj = (String) row.get("uuid");
