@@ -2,7 +2,7 @@ name: Docker Build
 
 on:
   push:
-    branches: [main, develop] # Adjust branches as needed
+    branches: [main, develop, docker_build] # Adjust branches as needed
   pull_request:
     branches: [main] # Adjust branches as needed
 
