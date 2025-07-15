@@ -55,7 +55,7 @@ jobs:
             echo "::error::Docker image build script failed."
             exit 1
           fi
-        working-directory: install/docker/cws-image # Run from the script's directory
+        # working-directory: install/docker/cws-image # Run from the script's directory
 
       - name: Re-tag image for GHCR
         run: |
