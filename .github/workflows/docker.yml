@@ -46,7 +46,7 @@ jobs:
           curl -o install/logging/logstash-8.12.0.zip https://artifacts.elastic.co/downloads/logstash/logstash-8.12.0-windows-x86_64.zip
           cd cws-certs
           ./generate-certs.sh
-          cd ../
+          cd ../install/docker/cws-image
           chmod +x build.sh
           # The script builds using the 'nasa-ammos/...' tag internally
           # Execute the script directly now that we are in its directory
