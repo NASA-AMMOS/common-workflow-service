@@ -81,8 +81,6 @@ jobs:
 
       - name: Start Services with Docker Compose
         run: |
-          docker network create cws-network
-          echo "Docker network 'cws-network' created"
           mkdir -p /home/runner/.cws/
           echo "changeit" > /home/runner/.cws/creds
           docker compose up -d
