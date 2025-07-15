@@ -68,14 +68,7 @@ jobs:
           echo "Pushing ${{ steps.image_info.outputs.ghcr_tag }}"
           docker push "${{ steps.image_info.outputs.ghcr_tag }}"
 
-      - name: Prepare Docker Compose Environment
-        run: |
-          # Create external network required by docker-compose
-          docker network create cws-network
-          echo "Docker network 'cws-network' created"
-        working-directory: install/docker/console-db-es-ls-kibana
-
-      - name: Update image tag in docker-compose-testing.yml
+      - name: Update image tag in docker-compose.yml
         run: |
           # Escape slashes in the image tag for sed
           ESCAPED_TAG=$(echo "${{ steps.image_info.outputs.ghcr_tag }}" | sed 's/\//\\\//g')
@@ -88,6 +81,8 @@ jobs:
 
       - name: Start Services with Docker Compose
         run: |
+          docker network create cws-network
+          echo "Docker network 'cws-network' created"
           mkdir -p /home/runner/.cws/
           echo "changeit" > /home/runner/.cws/creds
           docker compose up -d
