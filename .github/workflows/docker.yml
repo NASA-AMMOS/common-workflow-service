@@ -43,6 +43,9 @@ jobs:
 
       - name: Build CWS Docker Image using script
         run: |
+          cd cws-certs
+          ./generate-certs
+          cd ../
           chmod +x build.sh
           # The script builds using the 'nasa-ammos/...' tag internally
           # Execute the script directly now that we are in its directory
