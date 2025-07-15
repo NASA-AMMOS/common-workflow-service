@@ -77,13 +77,15 @@ jobs:
           ESCAPED_TAG=$(echo "${{ steps.image_info.outputs.ghcr_tag }}" | sed 's/\//\\\//g')
           echo "Updating image tag in docker-compose.yml to $ESCAPED_TAG"
           # Target both cws and cws-worker services
-          sed -i "s/image: nasa-ammos\/common-workflow-service:.*/image: $ESCAPED_TAG/g" docker-compose-testing.yml
-          echo "docker-compose-testing.yml after update:"
-          cat docker-compose-testing.yml
+          sed -i "s/image: nasa-ammos\/common-workflow-service:.*/image: $ESCAPED_TAG/g" docker-compose.yml
+          echo "docker-compose.yml after update:"
+          cat docker-compose.yml
         working-directory: install/docker/console-db-es-ls-kibana
 
       - name: Start Services with Docker Compose
-        run: docker compose -f docker-compose-testing.yml up -d
+        run: |
+          echo "changeme" > ~/.cws/creds
+          docker compose up -d
         working-directory: install/docker/console-db-es-ls-kibana
 
       - name: Verify CWS Console Startup
