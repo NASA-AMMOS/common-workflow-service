@@ -36,16 +36,24 @@ jobs:
           OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           REPO_LOWER=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
           IMAGE_NAME="ghcr.io/$OWNER_LOWER/$REPO_LOWER"
+
+          # Create timestamp for temporal tag
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+
+          # Define tags
           echo "version=$CWS_VER" >> $GITHUB_OUTPUT
+          echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
           echo "original_tag=nasa-ammos/common-workflow-service:$CWS_VER" >> $GITHUB_OUTPUT
           echo "ghcr_tag=$IMAGE_NAME:$CWS_VER" >> $GITHUB_OUTPUT
+          echo "ghcr_tag_temporal=$IMAGE_NAME:$CWS_VER-$TIMESTAMP" >> $GITHUB_OUTPUT
         working-directory: ${{ github.workspace }} # Run from repo root
+
+      - name: Download Logstash
+        run: |
+          curl -o install/logging/logstash-8.12.0.zip https://artifacts.elastic.co/downloads/logstash/logstash-8.12.0-windows-x86_64.zip
 
       - name: Build CWS Docker Image using script
         run: |
-          curl -o install/logging/logstash-8.12.0.zip https://artifacts.elastic.co/downloads/logstash/logstash-8.12.0-windows-x86_64.zip
-          cd cws-certs
-          ./generate-certs.sh
           cd ../install/docker/cws-image
           chmod +x build.sh
           # The script builds using the 'nasa-ammos/...' tag internally
@@ -58,15 +66,27 @@ jobs:
           fi
         # working-directory: install/docker/cws-image # Run from the script's directory
 
-      - name: Re-tag image for GHCR
+      - name: Re-tag image for GHCR (with timestamp)
         run: |
-          echo "Tagging ${{ steps.image_info.outputs.original_tag }} as ${{ steps.image_info.outputs.ghcr_tag }}"
-          docker tag "${{ steps.image_info.outputs.original_tag }}" "${{ steps.image_info.outputs.ghcr_tag }}"
+          echo "Tagging ${{ steps.image_info.outputs.original_tag }} with GHCR tags..."
 
-      - name: Push Docker image to GHCR
+          # Original version tag
+          docker tag "${{ steps.image_info.outputs.original_tag }}" "${{ steps.image_info.outputs.ghcr_tag }}"
+          echo "✓ Tagged: ${{ steps.image_info.outputs.ghcr_tag }}"
+
+          # Temporal tag with timestamp (unique, never overwrites)
+          docker tag "${{ steps.image_info.outputs.original_tag }}" "${{ steps.image_info.outputs.ghcr_tag_temporal }}"
+          echo "✓ Tagged: ${{ steps.image_info.outputs.ghcr_tag_temporal }}"
+
+      - name: Push Docker images to GHCR
         run: |
-          echo "Pushing ${{ steps.image_info.outputs.ghcr_tag }}"
+          echo "Pushing tagged images to GHCR..."
+
           docker push "${{ steps.image_info.outputs.ghcr_tag }}"
+          echo "✓ Pushed: ${{ steps.image_info.outputs.ghcr_tag }}"
+
+          docker push "${{ steps.image_info.outputs.ghcr_tag_temporal }}"
+          echo "✓ Pushed: ${{ steps.image_info.outputs.ghcr_tag_temporal }}"
 
       - name: Update image tag in docker-compose.yml
         run: |
@@ -79,10 +99,16 @@ jobs:
           cat docker-compose.yml
         working-directory: install/docker/console-db-es-ls-kibana
 
-      - name: Start Services with Docker Compose
+      - name: Set up Creds
         run: |
+          cd cws-certs
+          ./generate-certs.sh
           mkdir -p /home/runner/.cws/
           echo "changeit" > /home/runner/.cws/creds
+        working-directory: install/docker/console-db-es-ls-kibana
+
+      - name: Start Services with Docker Compose
+        run: |
           docker compose up -d
         working-directory: install/docker/console-db-es-ls-kibana
 
