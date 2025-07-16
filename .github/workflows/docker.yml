@@ -100,11 +100,10 @@ jobs:
 
       - name: Set up Creds
         run: |
-          cd cws-certs
           ./generate-certs.sh
           mkdir -p /home/runner/.cws/
           echo "changeit" > /home/runner/.cws/creds
-        working-directory: install/docker/console-db-es-ls-kibana
+        working-directory: cws-certs
 
       - name: Start Services with Docker Compose
         run: |
