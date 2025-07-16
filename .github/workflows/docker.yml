@@ -107,7 +107,7 @@ jobs:
 
       - name: Start Services with Docker Compose
         run: |
-          ls ../../
+          ls -a ../../
           docker compose up -d
         working-directory: install/docker/console-db-es-ls-kibana
 
