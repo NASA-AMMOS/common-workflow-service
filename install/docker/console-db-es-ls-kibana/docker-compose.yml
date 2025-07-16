@@ -124,6 +124,7 @@ services:
       timeout: 2s
       retries: 12
     volumes:
+      - ../../:/home/cws_user/cws/server/apache-tomcat-9.0.75/conf/
       - ./config.properties:/home/cws_user/config.properties:rw
       - ~/.cws/creds:/root/.cws/creds:rw
       - console-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
