@@ -219,7 +219,7 @@
 		let tableRows = [];
 		let inputVarRows = [];
 		
-		if (data.details) {
+		if (typeof data != "undefined" && data.details) {
 					
 			for (const entry of data.details) {
 				
