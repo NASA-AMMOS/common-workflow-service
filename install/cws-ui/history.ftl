@@ -219,7 +219,7 @@
 		let tableRows = [];
 		let inputVarRows = [];
 		
-		if (typeof data != "undefined" && data.details) {
+		if (data.details) {
 					
 			for (const entry of data.details) {
 				
@@ -336,13 +336,11 @@
 	}
 	
 	function processData(historyData, logData) {
-		const historyRows = buildHistoryRows(historyData[0]);
-	    if (historyRows.length < 1) {
-			const historyRows = buildHistoryRows(historyData);
-		}
-		const logRows = buildLogRows(logData[0]);
+		const historyRows = buildHistoryRows(historyData);
+		//const logRows = buildLogRows(logData[0]);
 		
-		renderSet(historyRows.concat(logRows));
+		//renderSet(historyRows.concat(logRows));
+		renderSet(historyRows);
 
 		$(".ajax-spinner").hide();
 		var table = $("#logData").DataTable();
