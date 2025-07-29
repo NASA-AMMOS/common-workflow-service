@@ -52,7 +52,7 @@ jobs:
         run: |
           curl -o install/logging/logstash-8.12.0.zip https://artifacts.elastic.co/downloads/logstash/logstash-8.12.0-windows-x86_64.zip
 
-      - name: Create default certs for build
+      - name: Create default certs for build (certs are bundled into the docker image by build.sh)
         run: |
           cd cws-certs
           ./generate-certs.sh
