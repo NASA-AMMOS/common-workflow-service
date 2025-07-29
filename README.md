@@ -170,6 +170,18 @@ To build and run CWS, use your <personal-dev.sh> i.e.:`jsmith.sh` script - its u
 
 The above script will build CWS, verify your configuration, then will start the CWS console and workers. The script will provide a link to access the console dashboard once everything has started up!
 
+### Credentials in Docker
+
+The CWS image available on Github is loaded with self-signed SSL certs that require a password for the CWS server to use on startup. The default password is `keystore-changeit`. The image should load and run without specifying any additional certs.
+
+If you'd like to provide your own SSL certs, you can use the `generate_certs.sh` script in `cws_certs/` to do so. You'll then need to copy those files into the image before startup or (more easily) use volume mounts to make them available to CWS. Take a look at the `docker-compose.yml` file in `install/docker/` -- there are commented-out volume store lines that you can use.
+
+The keystore files CWS looks for are at these paths inside the image:
+`/home/cws_user/cws/server/apache-tomcat-9.0.75/conf/.keystore`
+`/home/cws_user/cws/server/apache-tomcat-9.0.75/lib/cws_truststore.jks`
+
+You'll also want to provide CWS with the password you used to create the certs so the software can use them. This is a plaintext file with the password in it. CWS looks for this file at the path: `/root/.cws/creds:ro`. Note that this password is not related to what you'd use to log into the CWS interface -- it's only the password for the certs themselves.
+
 ## Stopping CWS
 
 You can stop CWS by running `./stop_dev.sh`. The script will bring down the console and all local workers.

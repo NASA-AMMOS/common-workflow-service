@@ -126,8 +126,8 @@ services:
     volumes:
       # - ../../.keystore:/home/cws_user/cws/server/apache-tomcat-9.0.75/conf/.keystore:ro
       # - ../../tomcat_lib/cws_truststore.jks:/home/cws_user/cws/server/apache-tomcat-9.0.75/lib/cws_truststore.jks:ro
-      - ./config.properties:/home/cws_user/config.properties:ro
       # - ~/.cws/creds:/root/.cws/creds:ro
+      - ./config.properties:/home/cws_user/config.properties:ro
       - console-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
     networks:
       - cws-network
@@ -153,8 +153,8 @@ services:
     volumes:
       # - ../../.keystore:/home/cws_user/cws/server/apache-tomcat-9.0.75/conf/.keystore:ro
       # - ../../tomcat_lib/cws_truststore.jks:/home/cws_user/cws/server/apache-tomcat-9.0.75/lib/cws_truststore.jks:ro
-      - ./worker-config.properties:/home/cws_user/config.properties:ro
       # - ~/.cws/creds:/root/.cws/creds:ro
+      - ./worker-config.properties:/home/cws_user/config.properties:ro
       - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
     networks:
       - cws-network
