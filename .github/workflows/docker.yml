@@ -65,8 +65,11 @@ jobs:
           fi
         working-directory: install/docker/cws-image # Run from the script's directory
 
-      - name: Re-tag image for GHCR (with timestamp)
+      - name: Verify and re-tag image for GHCR (with timestamp)
         run: |
+          echo "Verifying Docker image exists..."
+          docker images | grep "nasa-ammos/common-workflow-service" || echo "WARNING: Image not found!"
+          
           echo "Tagging ${{ steps.image_info.outputs.original_tag }} with GHCR tags..."
 
           # Temporal tag with timestamp (unique, never overwrites)
