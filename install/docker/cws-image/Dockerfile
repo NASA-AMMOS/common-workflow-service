@@ -14,6 +14,7 @@ WORKDIR /home/cws_user
 ADD cws_server.tar.gz .
 ADD startup.sh .
 ADD wait_for_db_es_console.sh .
+ADD cws-certs .
 
 # For time check
 ADD getTime.java .
