@@ -91,7 +91,7 @@ jobs:
       - name: Update image tag in docker-compose.yml
         run: |
           # Escape slashes in the image tag for sed
-          ESCAPED_TAG=$(echo "${{ steps.image_info.outputs.ghcr_tag }}" | sed 's/\//\\\//g')
+          ESCAPED_TAG=$(echo "${{ steps.image_info.outputs.ghcr_tag_temporal }}" | sed 's/\//\\\//g')
           echo "Updating image tag in docker-compose.yml to $ESCAPED_TAG"
           # Target both cws and cws-worker services
           sed -i "s/image: nasa-ammos\/common-workflow-service:.*/image: $ESCAPED_TAG/g" docker-compose.yml
