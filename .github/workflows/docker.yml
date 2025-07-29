@@ -69,10 +69,6 @@ jobs:
         run: |
           echo "Tagging ${{ steps.image_info.outputs.original_tag }} with GHCR tags..."
 
-          # Original version tag
-          docker tag "${{ steps.image_info.outputs.original_tag }}" "${{ steps.image_info.outputs.ghcr_tag }}"
-          echo "✓ Tagged: ${{ steps.image_info.outputs.ghcr_tag }}"
-
           # Temporal tag with timestamp (unique, never overwrites)
           docker tag "${{ steps.image_info.outputs.original_tag }}" "${{ steps.image_info.outputs.ghcr_tag_temporal }}"
           echo "✓ Tagged: ${{ steps.image_info.outputs.ghcr_tag_temporal }}"
@@ -80,10 +76,7 @@ jobs:
       - name: Push Docker images to GHCR
         run: |
           echo "Pushing tagged images to GHCR..."
-
-          docker push "${{ steps.image_info.outputs.ghcr_tag }}"
-          echo "✓ Pushed: ${{ steps.image_info.outputs.ghcr_tag }}"
-
+          
           docker push "${{ steps.image_info.outputs.ghcr_tag_temporal }}"
           echo "✓ Pushed: ${{ steps.image_info.outputs.ghcr_tag_temporal }}"
 
@@ -107,7 +100,6 @@ jobs:
 
       - name: Start Services with Docker Compose
         run: |
-          ls -a ../../
           docker compose up -d
         working-directory: install/docker/console-db-es-ls-kibana
 
