@@ -15,6 +15,8 @@ ADD cws_server.tar.gz .
 ADD startup.sh .
 ADD wait_for_db_es_console.sh .
 
+RUN mkdir -p ~/.cws && echo "changeit" > ~/.cws/creds
+
 # For time check
 ADD getTime.java .
 ADD joda-time-2.1.jar .
