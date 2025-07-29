@@ -5,6 +5,7 @@ RUN yum update -y && \
     yum clean all
 
 ENV JAVA_HOME /usr/lib/jvm/java-openjdk
+ENV HOME /root
 
 ENV TZ=America/Los_Angeles
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
