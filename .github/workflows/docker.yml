@@ -52,9 +52,10 @@ jobs:
         run: |
           curl -o install/logging/logstash-8.12.0.zip https://artifacts.elastic.co/downloads/logstash/logstash-8.12.0-windows-x86_64.zip
 
-      - name: Copy cws-certs to build directory
+      - name: Create default certs for build
         run: |
-          cp -r cws-certs install/docker/cws-image/
+          cd cws-certs
+          ./generate-certs.sh
           
       - name: Build CWS Docker Image using script
         run: |
