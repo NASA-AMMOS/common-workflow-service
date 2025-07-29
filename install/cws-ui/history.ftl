@@ -335,26 +335,26 @@
 		return tableRows;
 	}
 	
-	function processData(historyData, logData) {
+	function processData(historyData) {
+	
 		const historyRows = buildHistoryRows(historyData);
 		//const logRows = buildLogRows(logData[0]);
-		
-		//renderSet(historyRows.concat(logRows));
+		console.log(historyData);
 		renderSet(historyRows);
-
+		
+		// Get rest of log data (if exists)
+		// Done with all rendering row sets
 		$(".ajax-spinner").hide();
 		var table = $("#logData").DataTable();
 		table.draw();
-
-		// Get rest of log data (if exists)
 		//getMoreLogData(logData[0]._scroll_id);
 	}
 	
-	function processFailed(historyError, logError) {
+	function processFailed(historyError) {
 	
 		$(".ajax-spinner").hide();
 		
-		console.log("Errors", historyError, logError);
+		console.log("Errors", historyError);
 		
 		alert("Error retrieving history data.");
 	}
@@ -528,9 +528,7 @@
 			esReq.query.bool.must.push({"query_string":{"fields":["procInstId"],"query" : "\"" + decodeURIComponent(params.procInstId) + "\""}});
 			
 			// Get history and log data (first scroll) in parallel
-			$.when( $.getJSON("/${base}/rest/history/" + params.procInstId), 
-					//$.getJSON("/${base}/rest/logs/get?source=" + encodeURIComponent(JSON.stringify(esReq)))
-			).then(processData, processFailed);
+			$.when( $.getJSON("/${base}/rest/history/" + params.procInstId) ).then(processData, processFailed);
 			
 			// In case of unknown problems, just hide spinner
 			setTimeout(function() {
