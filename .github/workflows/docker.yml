@@ -94,12 +94,12 @@ jobs:
           cat docker-compose.yml
         working-directory: install/docker/console-db-es-ls-kibana
 
-      - name: Set up Creds
-        run: |
-          ./generate-certs.sh
-          mkdir -p /home/runner/.cws/
-          echo "changeit" > /home/runner/.cws/creds
-        working-directory: cws-certs
+      # - name: Set up Creds
+      #   run: |
+      #     ./generate-certs.sh
+      #     mkdir -p /home/runner/.cws/
+      #     echo "changeit" > /home/runner/.cws/creds
+      #   working-directory: cws-certs
 
       - name: Start Services with Docker Compose
         run: |
