@@ -73,7 +73,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
                     "  AND EXISTS (SELECT * FROM cws_worker WHERE id=? AND status='up')";
 
     public static final String UPDATE_ORPHANED_JOB_ROWS_SQL =
-            "UPDATE cws_proc_inst_status SET status='" + FAIL + "' WHERE status='" + RUNNING + "' AND TIME_TO_SEC(TIMEDIFF(NOW(), start_time)) > " + runningProcessTimeLimit;
+            "UPDATE cws_proc_inst_status SET status='" + FAIL + "' WHERE status='" + RUNNING + "' AND TIME_TO_SEC(TIMEDIFF(NOW(), start_time)) > 14400";
 
     public static final String INSERT_SCHED_WORKER_PROC_INST_ROW_SQL =
             "INSERT INTO cws_sched_worker_proc_inst " +
