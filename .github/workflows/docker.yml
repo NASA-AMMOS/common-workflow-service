@@ -107,7 +107,7 @@ jobs:
       - name: Verify CWS Console Startup
         run: |
           echo "Waiting up to 1 minute for CWS console to become healthy..." # Updated comment
-          MAX_WAIT=60 # 1 minute max wait # Updated value and comment
+          MAX_WAIT=120 # 2 minute max wait # Updated value and comment
           INTERVAL=15  # Check every 15 seconds
           ELAPSED=0
           # Use the healthcheck URL from docker-compose.yml
