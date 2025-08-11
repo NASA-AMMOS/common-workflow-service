@@ -16,7 +16,7 @@ ADD cws_server.tar.gz .
 ADD startup.sh .
 ADD wait_for_db_es_console.sh .
 
-RUN mkdir -p /root/.cws && echo "keystore-changeit" > /root/.cws/creds
+RUN mkdir -p /root/.cws && echo "kschangeit" > /root/.cws/creds
 
 # For time check
 ADD getTime.java .
