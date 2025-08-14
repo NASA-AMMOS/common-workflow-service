@@ -126,6 +126,7 @@ services:
     volumes:
       - ./config.properties:/home/cws_user/config.properties:ro
       - ~/.cws/creds:/root/.cws/creds:ro
+      - ~/.camunda/license.txt:/root/.camunda/license.txt:ro
       - console-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.100/logs
     networks:
       - cws-network
@@ -151,6 +152,7 @@ services:
     volumes:
       - ./worker-config.properties:/home/cws_user/config.properties:ro
       - ~/.cws/creds:/root/.cws/creds:ro
+      - ~/.camunda/license.txt:/root/.camunda/license.txt:ro
       - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.100/logs
     networks:
       - cws-network
