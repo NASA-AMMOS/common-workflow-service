@@ -117,9 +117,12 @@ jobs:
           ./run_ci.sh $SECURITY $WORKERS
         shell: bash
 
+      - name: Get Tomcat Version
+        run: echo "TOMCAT_VERSION=$(xmllint --xpath "//*[local-name()='tomcat-catalina.version']/text()" pom.xml)" >> $GITHUB_ENV
+
       - name: Show CWS Log
         run: |
-          cd dist/console-only/cws/server/apache-tomcat-9.0.75/logs
+          cd "dist/console-only/cws/server/apache-tomcat-${TOMCAT_VERSION}/logs"
           ls -al
 
       - name: Set up Google Chrome
@@ -286,9 +289,12 @@ jobs:
           ./run_ci.sh $SECURITY $WORKERS
         shell: bash
 
+      - name: Get Tomcat Version
+        run: echo "TOMCAT_VERSION=$(xmllint --xpath "//*[local-name()='tomcat-catalina.version']/text()" pom.xml)" >> $GITHUB_ENV
+
       - name: Show CWS Log
         run: |
-          cd dist/console-only/cws/server/apache-tomcat-9.0.75/logs
+          cd dist/console-only/cws/server/apache-tomcat-${TOMCAT_VERSION}/logs
           ls -al
 
       - name: Set up Google Chrome

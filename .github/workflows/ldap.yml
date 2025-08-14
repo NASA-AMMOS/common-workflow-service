@@ -39,6 +39,27 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      # Configure Maven security (master password)
+      - name: Configure Maven security
+        run: |
+          mkdir -p ~/.m2
+          echo "<settingsSecurity>
+                  <master>${{ secrets.MAVEN_MASTER_PASSWORD }}</master>
+                </settingsSecurity>" > ~/.m2/settings-security.xml
+
+      # Configure Maven settings (encrypted repo password)
+      - name: Configure Maven settings
+        run: |
+          echo "<settings>
+               <servers>
+                 <server>
+                   <id>${{ secrets.MAVEN_REPO_ID }}</id>
+                   <username>${{ secrets.MAVEN_USERNAME }}</username>
+                   <password>${{ secrets.MAVEN_ENCRYPTED_PASSWORD }}</password>
+                 </server>
+               </servers>
+             </settings>" > ~/.m2/settings.xml
+
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
@@ -92,9 +113,12 @@ jobs:
           ./run_ci.sh $SECURITY $WORKERS
         shell: bash
 
+      - name: Get Tomcat Version
+        run: echo "TOMCAT_VERSION=$(xmllint --xpath "//*[local-name()='tomcat-catalina.version']/text()" pom.xml)" >> $GITHUB_ENV
+
       - name: Show CWS Log
         run: |
-          cd dist/console-only/cws/server/apache-tomcat-9.0.75/logs
+          cd dist/console-only/cws/server/apache-tomcat-${TOMCAT_VERSION}/logs
           ls -al
 
       - name: Set up Google Chrome

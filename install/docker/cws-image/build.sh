@@ -4,6 +4,9 @@ ver='2.7.0'    # update this each CWS release
 
 # Rebuild cws tar-ball
 ROOT=$(pwd)
+
+echo "TOMCAT_VERSION=$(xmllint --xpath "//*[local-name()='tomcat-catalina.version']/text()" ../../../pom.xml)" > .env
+
 cd ../../..
 ./build.sh
 
