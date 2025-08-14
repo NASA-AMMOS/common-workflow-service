@@ -2,7 +2,8 @@ FROM oraclelinux:8
 
 RUN yum update -y && \
     yum install -y mysql java-17-openjdk java-17-openjdk-devel rsync which && \
-    yum clean all
+    yum clean all && \
+    rm -rf /var/cache/yum
 
 ENV JAVA_HOME /usr/lib/jvm/java-openjdk
 

@@ -24,7 +24,7 @@
 		<activeio-core.version>3.1.4</activeio-core.version>
 		<software.amazon.awssdk.version>2.16.93</software.amazon.awssdk.version>
 		<!-- <boon.version>0.12</boon.version> -->
-		<camunda.version>7.20.0</camunda.version>
+		<camunda.version>7.20.10-ee</camunda.version>
 		<camunda-spin.version>1.9.0</camunda-spin.version>
 		<commons-compress.version>1.21</commons-compress.version>
 		<commons-configuration.version>1.10</commons-configuration.version>
@@ -121,6 +121,11 @@
 			<name>Redhat Maven Repository Public</name>
 			<url>https://maven.repository.redhat.com/ga/</url>
 		</repository>
+		<repository>
+			<id>camunda-bpm-nexus-ee</id>
+			<name>camunda-bpm-nexus</name>
+			<url>https://camunda.jfrog.io/artifactory/private</url>
+	</repository>
 	</repositories>
 	<dependencyManagement>
 		<dependencies>
@@ -512,12 +517,6 @@
 				<groupId>org.glassfish.jersey.core</groupId>
 				<artifactId>jersey-client</artifactId>
 				<version>${jersey-client.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>de.ruedigermoeller</groupId>
-				<artifactId>fst</artifactId>
-				<version>${fst.version}</version>
 			</dependency>
 
 			<!-- TESTING DEPENDENCIES -->

@@ -1,6 +1,5 @@
 package jpl.cws.core.db;
 
-import de.ruedigermoeller.serialization.FSTObjectOutput;
 import jpl.cws.core.log.CwsEmailerService;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
@@ -16,7 +15,7 @@ import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobCreator;
 
 import java.io.ByteArrayOutputStream;
-import java.sql.Array;
+import java.io.ObjectOutputStream;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -172,10 +171,10 @@ public class SchedulerDbService extends DbService implements InitializingBean {
     public void insertSchedEngineProcInstRow(final SchedulerJob schedulerJob) throws Exception {
         long t0 = System.currentTimeMillis();
 
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            FSTObjectOutput out = new FSTObjectOutput(os);
-            out.writeObject(schedulerJob.getProcVariables());
-            out.close();
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream(); ObjectOutputStream oos = new ObjectOutputStream(os)) {
+            oos.writeObject(schedulerJob.getProcVariables());
+            oos.flush();
+            byte[] procVariablesBytes = os.toByteArray();
 
             DefaultLobHandler lobHandler = new DefaultLobHandler();
             Object o = jdbcTemplate.execute(
@@ -189,7 +188,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
                             ps.setString(5, schedulerJob.getProcDefKey());
                             ps.setString(6, schedulerJob.getProcBusinessKey());
                             ps.setInt(7, schedulerJob.getProcPriority());
-                            lobCreator.setBlobAsBytes(ps, 8, os.toByteArray());
+                            lobCreator.setBlobAsBytes(ps, 8, procVariablesBytes);
                             ps.setString(9, schedulerJob.getStatus());
                             ps.setString(10, null); // no error message yet
                             ps.setString(11, schedulerJob.getInitiationKey());

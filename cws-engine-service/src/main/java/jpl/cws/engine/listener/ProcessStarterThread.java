@@ -6,6 +6,7 @@ import static jpl.cws.core.db.SchedulerDbService.FAILED_TO_START;
 import static jpl.cws.core.db.SchedulerDbService.PENDING;
 
 import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +15,6 @@ import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
 
-import de.ruedigermoeller.serialization.FSTObjectInput;
 import jpl.cws.core.db.SchedulerDbService;
 import jpl.cws.engine.WorkerService;
 
@@ -100,13 +100,15 @@ public class ProcessStarterThread implements Runnable {
 					"Process definition with proc def key of: '" + procDefKey + 
 					"' is suspended, so not starting!");
 			}
-			
-			// Get process variables as a map
-			//
-			byte[] procVarsAsBytes = (byte[])procReq.get("proc_variables");
-			FSTObjectInput in = new FSTObjectInput(new ByteArrayInputStream(procVarsAsBytes));
-			Map<String,Object> procVars = (Map<String,Object>)in.readObject();
-			in.close();
+
+            // Get process variables as a map
+            //
+            byte[] procVarsAsBytes = (byte[])procReq.get("proc_variables");
+            Map<String, Object> procVars;
+            try (ByteArrayInputStream bis = new ByteArrayInputStream(procVarsAsBytes);
+                 ObjectInputStream ois = new ObjectInputStream(bis)) {
+                procVars = (Map<String, Object>)ois.readObject();
+            }
 			if (procVars == null) {
 				procVars = new HashMap<String,Object>();
 			}
