@@ -39,10 +39,9 @@ services:
       - ES_PROTOCOL=http
       - ES_HOST=es
       - ES_PORT=9200
-      - TOMCAT_VERSION=${TOMCAT_VERSION}
     volumes:
       - ./config.properties:/home/cws_user/config.properties:ro
-      - worker2-logs-volume:/home/cws_user/cws/server/apache-tomcat-${TOMCAT_VERSION}/logs
+      - worker2-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.100/logs
 
 volumes:
   worker2-logs-volume:

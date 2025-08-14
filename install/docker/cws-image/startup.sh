@@ -3,12 +3,10 @@
 javac -cp joda-time-2.1.jar getTime.java
 java -cp .:joda-time-2.1.jar getTime
 
-echo "TOMCAT Version: ${TOMCAT_VERSION}"
-
-ls /home/cws_user/cws/server/apache-tomcat-${TOMCAT_VERSION}/logs
+ls /home/cws_user/cws/server/apache-tomcat-9.0.100/logs
 
 # Clear out any previous logs before starting (Note: Previous logs will cause CWS not to start)
-rm -rf /home/cws_user/cws/server/apache-tomcat-${TOMCAT_VERSION}/logs/*
+rm -rf /home/cws_user/cws/server/apache-tomcat-9.0.100/logs/*
 
 cd cws
 ./configure.sh ../config.properties Y

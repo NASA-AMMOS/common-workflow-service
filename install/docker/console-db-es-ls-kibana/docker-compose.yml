@@ -114,7 +114,6 @@ services:
       - ES_PROTOCOL=http
       - ES_HOST=es
       - ES_PORT=9200
-      - TOMCAT_VERSION=${TOMCAT_VERSION}
     healthcheck:
       test:
         [
@@ -127,7 +126,7 @@ services:
     volumes:
       - ./config.properties:/home/cws_user/config.properties:ro
       - ~/.cws/creds:/root/.cws/creds:ro
-      - console-logs-volume:/home/cws_user/cws/server/apache-tomcat-${TOMCAT_VERSION}/logs
+      - console-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.100/logs
     networks:
       - cws-network
   cws-worker:
@@ -149,11 +148,10 @@ services:
       - ES_PROTOCOL=http
       - ES_HOST=es
       - ES_PORT=9200
-      - TOMCAT_VERSION=${TOMCAT_VERSION}
     volumes:
       - ./worker-config.properties:/home/cws_user/config.properties:ro
       - ~/.cws/creds:/root/.cws/creds:ro
-      - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-${TOMCAT_VERSION}/logs
+      - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.100/logs
     networks:
       - cws-network
   ldapsearch:
