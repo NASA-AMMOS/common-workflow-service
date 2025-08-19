@@ -5,6 +5,7 @@ RUN yum update -y && \
     yum clean all
 
 ENV JAVA_HOME /usr/lib/jvm/java-openjdk
+ENV HOME /root
 
 ENV TZ=America/Los_Angeles
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -14,6 +15,8 @@ WORKDIR /home/cws_user
 ADD cws_server.tar.gz .
 ADD startup.sh .
 ADD wait_for_db_es_console.sh .
+
+RUN mkdir -p /root/.cws && echo "changeit" > /root/.cws/creds
 
 # For time check
 ADD getTime.java .
