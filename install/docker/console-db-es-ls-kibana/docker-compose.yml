@@ -124,8 +124,10 @@ services:
       timeout: 2s
       retries: 12
     volumes:
+      # - ../../.keystore:/home/cws_user/cws/server/apache-tomcat-9.0.100/conf/.keystore:ro
+      # - ../../tomcat_lib/cws_truststore.jks:/home/cws_user/cws/server/apache-tomcat-9.0.100/lib/cws_truststore.jks:ro
+      # - ~/.cws/creds:/root/.cws/creds:ro
       - ./config.properties:/home/cws_user/config.properties:ro
-      - ~/.cws/creds:/root/.cws/creds:ro
       - ~/.camunda/license.txt:/root/.camunda/license.txt:ro
       - console-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.107/logs
     networks:
@@ -150,8 +152,10 @@ services:
       - ES_HOST=es
       - ES_PORT=9200
     volumes:
+      # - ../../.keystore:/home/cws_user/cws/server/apache-tomcat-9.0.100/conf/.keystore:ro
+      # - ../../tomcat_lib/cws_truststore.jks:/home/cws_user/cws/server/apache-tomcat-9.0.100/lib/cws_truststore.jks:ro
+      # - ~/.cws/creds:/root/.cws/creds:ro
       - ./worker-config.properties:/home/cws_user/config.properties:ro
-      - ~/.cws/creds:/root/.cws/creds:ro
       - ~/.camunda/license.txt:/root/.camunda/license.txt:ro
       - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.107/logs
     networks:
