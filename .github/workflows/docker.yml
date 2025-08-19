@@ -1,0 +1,138 @@
+name: Docker Build
+
+on:
+  push:
+    branches: [main, develop, docker_build] # Adjust branches as needed
+  pull_request:
+    branches: [main] # Adjust branches as needed
+
+permissions:
+  contents: read
+  packages: write # Needed to push images to GHCR
+
+jobs:
+  build-push-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract CWS Version and Define Image Tag
+        id: image_info
+        run: |
+          # Assuming utils.sh is at the repository root
+          CWS_VER=$(grep 'export CWS_VER=' utils.sh | cut -d"'" -f2)
+          # Use GitHub owner and repo name for GHCR image path (lowercase)
+          OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          REPO_LOWER=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_NAME="ghcr.io/$OWNER_LOWER/$REPO_LOWER"
+
+          # Create timestamp for temporal tag
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+
+          # Define tags
+          echo "version=$CWS_VER" >> $GITHUB_OUTPUT
+          echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
+          echo "original_tag=nasa-ammos/common-workflow-service:$CWS_VER" >> $GITHUB_OUTPUT
+          echo "ghcr_tag=$IMAGE_NAME:$CWS_VER" >> $GITHUB_OUTPUT
+          echo "ghcr_tag_temporal=$IMAGE_NAME:$CWS_VER-$TIMESTAMP" >> $GITHUB_OUTPUT
+        working-directory: ${{ github.workspace }} # Run from repo root
+
+      - name: Download Logstash
+        run: |
+          curl -o install/logging/logstash-8.12.0.zip https://artifacts.elastic.co/downloads/logstash/logstash-8.12.0-windows-x86_64.zip
+
+      - name: Create default certs for build (certs are bundled into the docker image by build.sh)
+        run: |
+          cd cws-certs
+          ./generate-certs.sh
+          
+      - name: Build CWS Docker Image using script
+        run: |
+          chmod +x build.sh
+          # The script builds using the 'nasa-ammos/...' tag internally
+          # Execute the script directly now that we are in its directory
+          ./build.sh
+          # Explicitly check the exit code of the script
+          if [ $? -ne 0 ]; then
+            echo "::error::Docker image build script failed."
+            exit 1
+          fi
+        working-directory: install/docker/cws-image # Run from the script's directory
+
+      - name: Verify and re-tag image for GHCR (with timestamp)
+        run: |
+          echo "Verifying Docker image exists..."
+          docker images | grep "nasa-ammos/common-workflow-service" || echo "WARNING: Image not found!"
+          
+          echo "Tagging ${{ steps.image_info.outputs.original_tag }} with GHCR tags..."
+
+          # Temporal tag with timestamp (unique, never overwrites)
+          docker tag "${{ steps.image_info.outputs.original_tag }}" "${{ steps.image_info.outputs.ghcr_tag_temporal }}"
+          echo "✓ Tagged: ${{ steps.image_info.outputs.ghcr_tag_temporal }}"
+
+      - name: Push Docker images to GHCR
+        run: |
+          echo "Pushing tagged images to GHCR..."
+          
+          docker push "${{ steps.image_info.outputs.ghcr_tag_temporal }}"
+          echo "✓ Pushed: ${{ steps.image_info.outputs.ghcr_tag_temporal }}"
+
+      - name: Update image tag in docker-compose.yml
+        run: |
+          # Escape slashes in the image tag for sed
+          ESCAPED_TAG=$(echo "${{ steps.image_info.outputs.ghcr_tag_temporal }}" | sed 's/\//\\\//g')
+          echo "Updating image tag in docker-compose.yml to $ESCAPED_TAG"
+          # Target both cws and cws-worker services
+          sed -i "s/image: nasa-ammos\/common-workflow-service:.*/image: $ESCAPED_TAG/g" docker-compose.yml
+          echo "docker-compose.yml after update:"
+          cat docker-compose.yml
+        working-directory: install/docker/console-db-es-ls-kibana
+
+      - name: Start Services with Docker Compose
+        run: |
+          docker compose up -d
+        working-directory: install/docker/console-db-es-ls-kibana
+
+      - name: Verify CWS Console Startup
+        run: |
+          echo "Waiting up to 1 minute for CWS console to become healthy..." # Updated comment
+          MAX_WAIT=60 # 1 minute max wait # Updated value and comment
+          INTERVAL=15  # Check every 15 seconds
+          ELAPSED=0
+          # Use the healthcheck URL from docker-compose.yml
+          HEALTHCHECK_URL="https://localhost:38443/cws-ui/login"
+
+          while true; do
+            # Use curl's exit code to check success (-k for self-signed cert, -f to fail on server errors, -s silent, -L follow redirects)
+            if curl -kfsL --output /dev/null "$HEALTHCHECK_URL"; then
+              echo "CWS console is up and responding at $HEALTHCHECK_URL!"
+              echo "Current running containers:"
+              docker ps
+              exit 0
+            fi
+
+            if [ $ELAPSED -ge $MAX_WAIT ]; then
+              echo "CWS console did not become healthy within $MAX_WAIT seconds."
+              echo "Current running containers:"
+              docker ps
+              echo "Docker Compose logs for cws service (cws-console):"
+              docker compose logs cws
+              exit 1
+            fi
+
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+            echo "Still waiting for CWS console... ($ELAPSED/$MAX_WAIT seconds)"
+          done
+        working-directory: install/docker/console-db-es-ls-kibana # Ensure correct context for docker-compose logs
