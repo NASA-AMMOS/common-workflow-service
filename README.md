@@ -172,7 +172,7 @@ The above script will build CWS, verify your configuration, then will start the 
 
 ### Credentials in Docker
 
-The CWS image available on Github is loaded with self-signed SSL certs that require a password for the CWS server to use on startup. The default password is `keystore-changeit`. The image should load and run without specifying any additional certs.
+The CWS image available on Github is loaded with self-signed SSL certs that require a password for the CWS server to use on startup. The default password is `changeit`. The image should load and run without specifying any additional certs.
 
 If you'd like to provide your own SSL certs, you can use the `generate_certs.sh` script in `cws_certs/` to do so. You'll then need to copy those files into the image before startup or (more easily) use volume mounts to make them available to CWS. Take a look at the `docker-compose.yml` file in `install/docker/` -- there are commented-out volume store lines that you can use.
 
