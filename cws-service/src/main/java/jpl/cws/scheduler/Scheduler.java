@@ -30,7 +30,6 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.util.MultiValueMap;
 
-import de.ruedigermoeller.serialization.FSTObjectOutput;
 import jpl.cws.core.db.SchedulerDbService;
 import jpl.cws.core.db.SchedulerJob;
 
@@ -223,16 +222,12 @@ public class Scheduler implements InitializingBean {
 	 * Constructs a byte array representing the request process data payload
 	 * 
 	 */
-	private byte[] createProcReqData(Map<String,String> msgPayload)
-			throws IOException {
-		try (
-				ByteArrayOutputStream os = new ByteArrayOutputStream();
-				FSTObjectOutput out = new FSTObjectOutput(os);
-			)
-		{
-			out.writeObject(msgPayload);
-			return os.toByteArray();
-		}
+	private byte[] createProcReqData(Map<String,String> msgPayload) throws IOException {
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream();
+             ObjectOutputStream out = new ObjectOutputStream(os)) {
+            out.writeObject(msgPayload);
+            out.flush();
+            return os.toByteArray();
+        }
 	}
-
 }

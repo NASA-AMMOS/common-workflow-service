@@ -1816,7 +1816,7 @@ public class CwsInstaller {
 		print("CWS Notification Emails       = " + cws_notification_emails);
 		print("CWS Token Expiration In Hours = " + cws_token_expiration_hours);
 		print("History Level                 = " + history_level);
-		print("Processes per Worker          = " + worker_max_num_running_procs);
+		print("Max Num Processes per Worker  = " + worker_max_num_running_procs);
 		print("Days Remove Abandoned Workers = " + worker_abandoned_days);
 		if (installConsole) {
 			print("History Days to Live          = " + history_days_to_live);

@@ -4,7 +4,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import de.ruedigermoeller.serialization.FSTObjectInput;
 import jpl.cws.core.code.CodeService;
 import jpl.cws.core.db.SchedulerDbService;
 import jpl.cws.core.log.CwsEmailerService;
@@ -1109,10 +1108,12 @@ public class CwsConsoleService {
             try {
                 // Get process variables as a map
                 //
-                byte[] procVarsAsBytes = (byte[]) row.get("proc_variables");
-                FSTObjectInput in = new FSTObjectInput(new ByteArrayInputStream(procVarsAsBytes));
-                Map<String, Object> procVars = (Map<String, Object>) in.readObject();
-                in.close();
+                byte[] procVarsAsBytes = (byte[])row.get("proc_variables");
+                Map<String, Object> procVars;
+                try (ByteArrayInputStream bis = new ByteArrayInputStream(procVarsAsBytes);
+                     ObjectInputStream ois = new ObjectInputStream(bis)) {
+                    procVars = (Map<String, Object>)ois.readObject();
+                }
 
                 if (procVars == null) {
                     procVars = new HashMap<String, Object>();

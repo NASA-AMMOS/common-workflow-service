@@ -142,7 +142,6 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 		//
 		workerDaemon.setProcessApplication(getReference());
 		workerDaemon.start();
-		workerHeartbeatDaemon.start();
 		workerExternalTaskLockDaemon.start();
 		
 		// Update database with initial heart beat, so others will know we are alive.
@@ -551,10 +550,19 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 		System.out.println("**************************************************");
 		System.out.println("******  CWS ENGINE PROCESS APP STOPPING...  ******");
 		System.out.println("**************************************************");
-		
-		log.warn("  Interrupting workerDaemon bean...");
+
+        log.warn("Stopping daemons and bringing app down...");
+
+        // Stop Spring-managed WorkerHeartbeatDaemon safely
+        workerHeartbeatDaemon.stopDaemon();
+        try {
+            workerHeartbeatDaemon.join(5000); // wait up to 5s to terminate
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("Interrupted while waiting for WorkerHeartbeatDaemon to stop.");
+        }
+
 		workerDaemon.interrupt();
-		workerHeartbeatDaemon.interrupt();
 		workerExternalTaskLockDaemon.interrupt();
 		workerService.bringWorkerDown();
 		

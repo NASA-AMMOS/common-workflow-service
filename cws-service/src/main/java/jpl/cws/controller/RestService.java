@@ -136,7 +136,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Refreshes initiators from a new XML file.", tags = {"Initiators"}, consumes = "application/xml", produces = "text/plain")
 	@ApiImplicitParams(
-			@ApiImplicitParam(name = "newXmlContext", value = "New XML context to update initiators with.", required = true, paramType = "query")
+			@ApiImplicitParam(name = "newXmlContext", value = "New XML context to update initiators with.", required = true, paramType = "query", dataTypeClass = String.class)
 	)
 	@RequestMapping(value="/initiators/updateInitiatorsContextXml", method=POST)
 	public @ResponseBody String refreshInitiatorsFromXml(HttpServletResponse response,
@@ -179,8 +179,8 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Updates a single initiator.", tags = {"Initiators"}, consumes = "application/xml", produces = "text/plain")
 	@ApiImplicitParams({
-			@ApiImplicitParam(name = "newXmlContext", value = "New XML context to update initiators with.", required = true, paramType = "query"),
-			@ApiImplicitParam(name = "beanName", value = "Bean name of the initiator to update.", required = true, paramType = "query")
+			@ApiImplicitParam(name = "newXmlContext", value = "New XML context to update initiators with.", required = true, paramType = "query", dataTypeClass = String.class),
+			@ApiImplicitParam(name = "beanName", value = "Bean name of the initiator to update.", required = true, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value="/initiators/updateSingleInitiator", method=POST)
 	public @ResponseBody String updateSingleInitiatorFromXml(
@@ -204,7 +204,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Updates only changed or new initiators.", tags = {"Initiators"}, consumes = "application/xml", produces = "text/plain")
 	@ApiImplicitParams({
-			@ApiImplicitParam(name = "newXmlContext", value = "New XML context to update initiators with.", required = true, paramType = "query")
+			@ApiImplicitParam(name = "newXmlContext", value = "New XML context to update initiators with.", required = true, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value="/initiators/updateChangedInitiators", method=POST)
 	public @ResponseBody String updateChangedInitiatorsFromXml(
@@ -226,8 +226,8 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Updates a process initiator's enabled flag.", tags = {"Initiators"}, produces = "text/plain")
 	@ApiImplicitParams({
-			@ApiImplicitParam(name = "initiatorId", value = "ID of the initiator to update.", required = true, paramType = "path"),
-			@ApiImplicitParam(name = "enabled", value = "New enabled status of the initiator.", required = true, paramType = "query")
+			@ApiImplicitParam(name = "initiatorId", value = "ID of the initiator to update.", required = true, paramType = "path", dataTypeClass = String.class),
+			@ApiImplicitParam(name = "enabled", value = "New enabled status of the initiator.", required = true, paramType = "query", dataTypeClass = Boolean.class)
 	})
 	@RequestMapping(value="/initiators/{initiatorId}/enabled", method=POST)
 	public @ResponseBody ModelAndView setInitiatorEnabled(
@@ -253,7 +253,7 @@ public class RestService extends MvcCore {
 
 	@ApiOperation(value = "Enables / disables all process initiators.", tags = {"Initiators"}, produces = "text/plain")
 	@ApiImplicitParams({
-			@ApiImplicitParam(name = "enabled", value = "New enabled status of the initiators.", required = true, paramType = "query")
+			@ApiImplicitParam(name = "enabled", value = "New enabled status of the initiators.", required = true, paramType = "query", dataTypeClass = Boolean.class)
 	})
 	@RequestMapping(value = "/initiators/all/enabled", method = POST)
 	public @ResponseBody ModelAndView setAllInitiatorsEnabled(
@@ -279,7 +279,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Gets a process initiator's enabled flag.", tags = {"Initiators"}, produces = "text/plain")
 	@ApiImplicitParams({
-			@ApiImplicitParam(name = "initiatorId", value = "ID of the initiator to get.", required = true, paramType = "path")
+			@ApiImplicitParam(name = "initiatorId", value = "ID of the initiator to get.", required = true, paramType = "path", dataTypeClass = String.class)
 	})
 	@RequestMapping(value="/initiators/{initiatorId}/enabled", method=GET)
 	public @ResponseBody String isInitiatorEnabled(
@@ -369,8 +369,8 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Deploys a new process definition from a filename (for deployment from the modeler).", tags = {"Deployments"}, produces = "text/plain")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "filename", value = "Name of the file to deploy.", required = true, paramType = "query"),
-		@ApiImplicitParam(name = "xmlData", value = "XML data to deploy.", required = true, paramType = "query")
+		@ApiImplicitParam(name = "filename", value = "Name of the file to deploy.", required = true, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "xmlData", value = "XML data to deploy.", required = true, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value="/deployments/deployModelerFile", method = POST)
 	public @ResponseBody String deployModelerFile(
@@ -425,7 +425,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Deploys a new process definition via a UI-uploaded file.", tags = {"Deployments"}, produces = "text/plain")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "file", value = "File to deploy.", required = true, paramType = "query")
+		@ApiImplicitParam(name = "file", value = "File to deploy.", required = true, paramType = "query", dataTypeClass = MultipartFile.class)
 	})
 	@RequestMapping(value="/deployments/deployProcessDefinition", method = POST)
 	public @ResponseBody ModelAndView deployProcessDefinition(
@@ -501,7 +501,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Undeploys a process definition.", tags = {"Deployments"}, produces = "text/plain")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "deploymentId", value = "ID of the deployment to undeploy.", required = true, paramType = "path")
+		@ApiImplicitParam(name = "deploymentId", value = "ID of the deployment to undeploy.", required = true, paramType = "path", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/processes/processDefinition/{processDefKey}/undeploy", method = GET, produces="application/json")
 	public @ResponseBody String unDeployProcessDefinition(
@@ -556,11 +556,11 @@ public class RestService extends MvcCore {
 
 	@ApiOperation(value = "Schedules a process definition", tags = {"Deployments"}, produces = "text/plain")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "processDefKey", value = "Key of the process definition to schedule.", required = true, paramType = "path"),
-		@ApiImplicitParam(name = "processBusinessKey", value = "Business key of the process to schedule.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "initiationKey", value = "Initiation key of the process to schedule.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "processPriority", value = "Priority of the process to schedule.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "processVariables", value = "Variables of the process to schedule.", required = false, paramType = "query")
+		@ApiImplicitParam(name = "processDefKey", value = "Key of the process definition to schedule.", required = true, paramType = "path", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "processBusinessKey", value = "Business key of the process to schedule.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "initiationKey", value = "Initiation key of the process to schedule.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "processPriority", value = "Priority of the process to schedule.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "processVariables", value = "Variables of the process to schedule.", required = false, paramType = "query", dataTypeClass = MultiValueMap.class)
 	
 	})
 	@RequestMapping(value = "/process/{processDefKey}/schedule", method = POST)
@@ -626,7 +626,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Gets status information about a process instance.", tags = {"Processes"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "uuid", value = "UUID of the process instance to get status for.", required = true, paramType = "path")
+		@ApiImplicitParam(name = "uuid", value = "UUID of the process instance to get status for.", required = true, paramType = "path", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/process-instance/{uuid}/status", method = GET, produces="application/json")
 	public @ResponseBody String getProcessInstanceStatus(
@@ -648,8 +648,8 @@ public class RestService extends MvcCore {
      */
 	@ApiOperation(value = "Gets status counts for (proc_def_key, business_key) pair.", tags = {"Processes"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "businessKey", value = "Business key of the process instance to get status for.", required = true, paramType = "query"),
-		@ApiImplicitParam(name = "procDefKey", value = "Process definition key of the process instance to get status for.", required = true, paramType = "query")
+		@ApiImplicitParam(name = "businessKey", value = "Business key of the process instance to get status for.", required = true, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "procDefKey", value = "Process definition key of the process instance to get status for.", required = true, paramType = "query", dataTypeClass = String.class)
 	})
     @RequestMapping(value="/stats/statsByBusinessKey", method = GET)
     public @ResponseBody Map<String,Integer> statsByBusinessKey(
@@ -693,7 +693,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Saves UI-edited code snippet to the database.", tags = {"Snippets"}, produces = "text/plain")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "code", value = "Code to save.", required = true, paramType = "query")
+		@ApiImplicitParam(name = "code", value = "Code to save.", required = true, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/snippets/validateAndSaveSnippets", method = POST)
 	public ModelAndView validateAndSaveSnippets(
@@ -732,7 +732,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Gets logs using a scroll ID to keep track of already fetched data. Used on logs page.", tags = {"Logs"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "scrollId", value = "Scroll ID to keep track of already fetched data.", required = true, paramType = "query")
+		@ApiImplicitParam(name = "scrollId", value = "Scroll ID to keep track of already fetched data.", required = true, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/logs/get/scroll", method = POST, produces="application/json")
 	public @ResponseBody String getLogsScroll(
@@ -799,7 +799,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Gets logs on the logs page (shorter scroll timer).", tags = {"Logs"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "source", value = "Source of the logs to get.", required = true, paramType = "query")
+		@ApiImplicitParam(name = "source", value = "Source of the logs to get.", required = true, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/logs/get/noScroll", method = GET, produces="application/json")
 	public @ResponseBody String getLogsNoScroll(
@@ -837,7 +837,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Gets logs.", tags = {"Logs"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "source", value = "Source of the logs to get.", required = true, paramType = "query")
+		@ApiImplicitParam(name = "source", value = "Source of the logs to get.", required = true, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/logs/get", method = GET, produces="application/json")
 	public @ResponseBody String getLogs(
@@ -872,7 +872,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Deletes logs by procDefKey.", tags = {"Logs"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "procDefKey", value = "Process definition key to delete logs for.", required = true, paramType = "path")
+		@ApiImplicitParam(name = "procDefKey", value = "Process definition key to delete logs for.", required = true, paramType = "path", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/logs/delete/{procDefKey}", method = DELETE, produces="application/json")
 	public @ResponseBody String deleteLogsByProcDefKey(
@@ -946,7 +946,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Gets history (logs + historical data).", tags = {"History"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "procInstId", value = "Process instance ID to get history for.", required = true, paramType = "path")
+		@ApiImplicitParam(name = "procInstId", value = "Process instance ID to get history for.", required = true, paramType = "path", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/history/{procInstId}", method = GET, produces="application/json")
 	public @ResponseBody String getHistory(@PathVariable String procInstId) {
@@ -1082,12 +1082,13 @@ public class RestService extends MvcCore {
 	}
 
 
-	/**
-	 * Returns latest code snippet from DB
-	 */
-	@ApiOperation(value = "Gets latest code snippet from DB.", tags = {"Snippets"}, produces = "text/plain")
+	/*
+	* Return JSON key values of process status
+	* e.g. {PD1: {errors:4, pending:3,... },...}
+	*/
+	@ApiOperation(value = "Gets process instance stats.", tags = {"Processes"}, produces = "text/plain")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "snippetId", value = "ID of the snippet to get.", required = false, paramType = "query")
+		@ApiImplicitParam(name = "lastNumHours", value = "Number of hours to get stats for.", required = false, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value="/stats/processInstanceStats", method = GET)
 	public @ResponseBody Map<String,String> getProcessInstanceStats(
@@ -1104,7 +1105,7 @@ public class RestService extends MvcCore {
 	*/
 	@ApiOperation(value = "Gets process instance stats (JSON).", tags = {"Processes"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "lastNumHours", value = "Number of hours to get stats for.", required = false, paramType = "query")
+		@ApiImplicitParam(name = "lastNumHours", value = "Number of hours to get stats for.", required = false, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value="/stats/processInstanceStatsJSON", method = GET)
 	public @ResponseBody Map<String,Map<String,String>> getProcessInstanceStatsJSON(
@@ -1180,10 +1181,10 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Update the number of process definitions a worker can be working on at any given time.", tags = {"Workers"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path"),
-		@ApiImplicitParam(name = "procDefKey", value = "Key of the process definition to update.", required = true, paramType = "path"),
-		@ApiImplicitParam(name = "newLimit", value = "New limit for the worker.", required = true, paramType = "path"),
-		@ApiImplicitParam(name = "processVariables", value = "Process variables to update.", required = false, paramType = "query")
+		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "procDefKey", value = "Key of the process definition to update.", required = true, paramType = "path", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "newLimit", value = "New limit for the worker.", required = true, paramType = "path", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "processVariables", value = "Process variables to update.", required = false, paramType = "query", dataTypeClass = MultiValueMap.class)
 	})
 	@RequestMapping(value = "/worker/{workerId}/{procDefKey}/updateWorkerProcDefLimit/{newLimit}", method = POST)
 	public @ResponseBody String updateWorkerProcDefLimit(
@@ -1217,9 +1218,9 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Inserts or updates worker tag with name and value.", tags = {"Workers"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path"),
-		@ApiImplicitParam(name = "name", value = "Name of the tag to update.", required = true, paramType = "path"),
-		@ApiImplicitParam(name = "value", value = "Value of the tag to update.", required = true, paramType = "query")
+		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "name", value = "Name of the tag to update.", required = true, paramType = "path", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "value", value = "Value of the tag to update.", required = true, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/worker/{workerId}/updateTag/{name}", method = POST, produces="application/json")
 	public @ResponseBody String updateWorkerTag(
@@ -1250,7 +1251,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Checks if process definition key is deployed.", tags = {"Processes"}, produces = "text/plain")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "procDefKey", value = "Key of the process definition to check.", required = true, paramType = "query")
+		@ApiImplicitParam(name = "procDefKey", value = "Key of the process definition to check.", required = true, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/isProcDefKeyDeployed", method = POST)
 	public @ResponseBody String isProcDefKeyDeployed(
@@ -1284,7 +1285,7 @@ public class RestService extends MvcCore {
 	*/
 	@ApiOperation(value = "Adds new external worker.", tags = {"Workers"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "hostname", value = "Hostname of the worker to add.", required = true, paramType = "query")
+		@ApiImplicitParam(name = "hostname", value = "Hostname of the worker to add.", required = true, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value="/externalWorker/add", method = GET)
 	public @ResponseBody String addExternalWorker(
@@ -1306,7 +1307,7 @@ public class RestService extends MvcCore {
 	*/
 	@ApiOperation(value = "Updates external worker heartbeat.", tags = {"Workers"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path")
+		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path", dataTypeClass = String.class)
 	})
 	@RequestMapping(value="/externalWorker/{workerId}/heartbeat", method = GET)
 	public @ResponseBody void externalWorkerHeartbeat(@PathVariable String workerId) {
@@ -1316,11 +1317,11 @@ public class RestService extends MvcCore {
 	
 	@ApiOperation(value = "Updates external worker.", tags = {"Workers"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path"),
-		@ApiImplicitParam(name = "activeTopics", value = "Active topics of the worker to update.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "currentTopic", value = "Current topic of the worker to update.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "currentCommand", value = "Current command of the worker to update.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "currentWorkingDir", value = "Current working directory of the worker to update.", required = false, paramType = "query")
+		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "activeTopics", value = "Active topics of the worker to update.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "currentTopic", value = "Current topic of the worker to update.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "currentCommand", value = "Current command of the worker to update.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "currentWorkingDir", value = "Current working directory of the worker to update.", required = false, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/externalWorker/{workerId}/update", method = POST)
 	public @ResponseBody String updateExternalWorker(
@@ -1360,12 +1361,12 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Gets the size of an instance", tags = {"Processes"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "superProcInstId", value = "Super process instance ID to get size for.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "procInstId", value = "Process instance ID to get size for.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "procDefKey", value = "Process definition key to get size for.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "status", value = "Status to get size for.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "minDate", value = "Minimum date to get size for.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "maxDate", value = "Maximum date to get size for.", required = false, paramType = "query")
+		@ApiImplicitParam(name = "superProcInstId", value = "Super process instance ID to get size for.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "procInstId", value = "Process instance ID to get size for.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "procDefKey", value = "Process definition key to get size for.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "status", value = "Status to get size for.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "minDate", value = "Minimum date to get size for.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "maxDate", value = "Maximum date to get size for.", required = false, paramType = "query", dataTypeClass = String.class)
 		// Removed maxReturn parameter - not needed with server-side pagination
 	})
 	@RequestMapping(value = "/processes/getInstancesSize", method = GET, produces="application/json")
@@ -1399,7 +1400,7 @@ public class RestService extends MvcCore {
 
 	@ApiOperation(value = "Gets the status of a process isntance ID", tags = {"Processes", "History"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "procInstId", value = "Process instance ID to get status for.", required = true, paramType = "path")
+		@ApiImplicitParam(name = "procInstId", value = "Process instance ID to get status for.", required = true, paramType = "path", dataTypeClass = String.class)
 	})
 	@RequestMapping(value="/history/getStatus/{procInstId}", method = GET)
 	public @ResponseBody String getStatusByProcInstId(
@@ -1420,15 +1421,15 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Gets camunda instances.", tags = {"Processes"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "superProcInstId", value = "Super process instance ID to get instances for.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "procInstId", value = "Process instance ID to get instances for.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "procDefKey", value = "Process definition key to get instances for.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "status", value = "Status to get instances for.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "minDate", value = "Minimum date to get instances for.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "maxDate", value = "Maximum date to get instances for.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "dateOrderBy", value = "Date order by to get instances for.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "page", value = "Page to get instances for.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "maxReturn", value = "Maximum number of results to return.", required = false, paramType = "query")
+		@ApiImplicitParam(name = "superProcInstId", value = "Super process instance ID to get instances for.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "procInstId", value = "Process instance ID to get instances for.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "procDefKey", value = "Process definition key to get instances for.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "status", value = "Status to get instances for.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "minDate", value = "Minimum date to get instances for.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "maxDate", value = "Maximum date to get instances for.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "dateOrderBy", value = "Date order by to get instances for.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "page", value = "Page to get instances for.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "maxReturn", value = "Maximum number of results to return.", required = false, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/processes/getInstancesCamunda", method = GET, produces="application/json")
 	public @ResponseBody String getProcessInstancesCamunda(
@@ -1545,7 +1546,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Makes disabled processes pending", tags = {"Processes"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "uuids", value = "UUIDs of the processes to make pending.", required = true, paramType = "body")
+		@ApiImplicitParam(name = "uuids", value = "UUIDs of the processes to make pending.", required = true, paramType = "body", dataTypeClass = List.class)
 	})
 	@RequestMapping(value = "/processes/makeDisabledRowsPending", method = POST)
 	public @ResponseBody String makeDisabledRowsPending(
@@ -1573,7 +1574,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Makes pending processes disabled", tags = {"Processes"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "uuids", value = "UUIDs of the processes to make disabled.", required = true, paramType = "body")
+		@ApiImplicitParam(name = "uuids", value = "UUIDs of the processes to make disabled.", required = true, paramType = "body", dataTypeClass = List.class)
 	})
 	@RequestMapping(value = "/processes/makePendingRowsDisabled", method = POST)
 	public @ResponseBody String makePendingRowsDisabled(
@@ -1600,8 +1601,8 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Retries processes that have the status 'Incident'.", tags = {"Processes"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "retries", value = "Number of retries to set for the incidents.", required = true, paramType = "query"),
-		@ApiImplicitParam(name = "uuids", value = "UUIDs of the processes to retry.", required = true, paramType = "body")
+		@ApiImplicitParam(name = "retries", value = "Number of retries to set for the incidents.", required = true, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "uuids", value = "UUIDs of the processes to retry.", required = true, paramType = "body", dataTypeClass = List.class)
 	})
 	@RequestMapping(value = "/processes/retryIncidentRows", method = POST)
 	public @ResponseBody ResponseEntity<String> retryIncidentRows(
@@ -1638,7 +1639,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Retries processes that have the status 'Failed to Start'.", tags = {"Processes"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "uuids", value = "UUIDs of the processes to retry.", required = true, paramType = "body")
+		@ApiImplicitParam(name = "uuids", value = "UUIDs of the processes to retry.", required = true, paramType = "body", dataTypeClass = List.class)
 	})
 	@RequestMapping(value = "/processes/retryFailedToStart", method = POST)
 	public @ResponseBody ResponseEntity<String> retryFailedToStart(
@@ -1663,7 +1664,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Marks processes that have the status 'Fail' as resolved.", tags = {"Processes"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "uuids", value = "UUIDs of the processes to mark as resolved.", required = true, paramType = "body")
+		@ApiImplicitParam(name = "uuids", value = "UUIDs of the processes to mark as resolved.", required = true, paramType = "body", dataTypeClass = List.class)
 	})
 	@RequestMapping(value = "/processes/markResolved", method = POST)
 	public @ResponseBody ResponseEntity<String> markResolved(
@@ -1688,10 +1689,10 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Updates the enabled/disabled status of a process definition on a worker", tags = {"Processes", "Workers"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path"),
-		@ApiImplicitParam(name = "procDefKey", value = "Key of the process definition to update.", required = true, paramType = "path"),
-		@ApiImplicitParam(name = "enabledFlag", value = "Flag to set the process definition to.", required = true, paramType = "path"),
-		@ApiImplicitParam(name = "processVariables", value = "Process variables to update.", required = false, paramType = "query")
+		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "procDefKey", value = "Key of the process definition to update.", required = true, paramType = "path", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "enabledFlag", value = "Flag to set the process definition to.", required = true, paramType = "path", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "processVariables", value = "Process variables to update.", required = false, paramType = "query", dataTypeClass = MultiValueMap.class)
 	})
 	@RequestMapping(value = "/worker/{workerId}/{procDefKey}/updateWorkerProcDefEnabled/{enabledFlag}", method = POST)
 	public @ResponseBody String updateWorkerProcDefEnabled(
@@ -1723,7 +1724,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Suspends a process definition given its procDefId.", tags = {"Processes"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "procDefId", value = "ID of the process definition to suspend.", required = true, paramType = "path")
+		@ApiImplicitParam(name = "procDefId", value = "ID of the process definition to suspend.", required = true, paramType = "path", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/deployments/suspend/{procDefId}", method = POST)
 	public @ResponseBody String suspendProcDefId(
@@ -1739,7 +1740,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Activates a suspended process definition given its procDefId.", tags = {"Processes"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "procDefId", value = "ID of the process definition to activate.", required = true, paramType = "path")
+		@ApiImplicitParam(name = "procDefId", value = "ID of the process definition to activate.", required = true, paramType = "path", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/deployments/activate/{procDefId}", method = POST)
 	public @ResponseBody String activateProcDefId(
@@ -1756,7 +1757,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Deletes running process instances (Only pass running instances into this endpoint)", tags = {"Processes"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "procInstIds", value = "IDs of the process instances to delete. Expects all of the process instances in the list to be running.", required = true, paramType = "body")
+		@ApiImplicitParam(name = "procInstIds", value = "IDs of the process instances to delete. Expects all of the process instances in the list to be running.", required = true, paramType = "body", dataTypeClass = List.class)
 	})
 	@RequestMapping(value = "/processes/delete", method = POST)
 	public @ResponseBody String deleteRunningProcInsts(
@@ -1773,8 +1774,8 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Updates the number of job executor threads for a worker", tags = {"Workers"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path"),
-		@ApiImplicitParam(name = "numThreads", value = "Number of threads to set for the worker.", required = true, paramType = "path")
+		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "numThreads", value = "Number of threads to set for the worker.", required = true, paramType = "path", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/worker/{workerId}/updateNumJobExecThreads/{numThreads}", method = POST)
 	public @ResponseBody String updateWorkerNumJobExecThreads(
@@ -1856,7 +1857,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Validates CWS token.", tags = {"Security"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "cwsToken", value = "CWS token to validate.", required = true, paramType = "query")
+		@ApiImplicitParam(name = "cwsToken", value = "CWS token to validate.", required = true, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/validateCwsToken", method = POST)
 	public @ResponseBody String validateCwsToken(
@@ -1879,7 +1880,7 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Posts a message to an AMQ queue.", tags = {"Messaging"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "payload", value = "Payload to post to the queue.", required = true, paramType = "query")
+		@ApiImplicitParam(name = "payload", value = "Payload to post to the queue.", required = true, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/postAmqTopic", method = GET)
 	public @ResponseBody String postAmqTopic(@RequestParam(value = "payload", required=true) final String payload) {
@@ -1902,8 +1903,8 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Makes an external HTTP GET request.", tags = {"External"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "url", value = "URL to make the GET request to.", required = true, paramType = "query"),
-		@ApiImplicitParam(name = "acceptType", value = "Accept type for the request.", required = false, paramType = "query")
+		@ApiImplicitParam(name = "url", value = "URL to make the GET request to.", required = true, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "acceptType", value = "Accept type for the request.", required = false, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/externalGetReq", method = GET)
 	public @ResponseBody String externalGetReq(
@@ -1934,8 +1935,8 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Makes an external HTTP POST request.", tags = {"External"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "url", value = "URL to make the POST request to.", required = true, paramType = "query"),
-		@ApiImplicitParam(name = "contentType", value = "Content type for the request.", required = false, paramType = "query")
+		@ApiImplicitParam(name = "url", value = "URL to make the POST request to.", required = true, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "contentType", value = "Content type for the request.", required = false, paramType = "query", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/externalPostReq", method = POST)
 	public @ResponseBody String externalPostReq(
@@ -1970,9 +1971,9 @@ public class RestService extends MvcCore {
 	 */
 	@ApiOperation(value = "Makes an external HTTP PUT request.", tags = {"External"}, produces = "application/json")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "url", value = "URL to make the PUT request to.", required = true, paramType = "query"),
-		@ApiImplicitParam(name = "contentType", value = "Content type for the request.", required = false, paramType = "query"),
-		@ApiImplicitParam(name = "payload", value = "Payload to post to the queue.", required = true, paramType = "body")
+		@ApiImplicitParam(name = "url", value = "URL to make the PUT request to.", required = true, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "contentType", value = "Content type for the request.", required = false, paramType = "query", dataTypeClass = String.class),
+		@ApiImplicitParam(name = "payload", value = "Payload to post to the queue.", required = true, paramType = "body", dataTypeClass = String.class)
 	})
 	@RequestMapping(value = "/externalPutReq", method = PUT)
 	public @ResponseBody String externalPutReq(
