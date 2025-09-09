@@ -41,22 +41,17 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
 		</dependency>
-		
+
 		<dependency>
-			<groupId>javax.jms</groupId>
-			<artifactId>jms</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.jms</groupId>
-			<artifactId>javax.jms-api</artifactId>
+			<groupId>jakarta.jms</groupId>
+			<artifactId>jakarta.jms-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.activation</groupId>
-			<artifactId>activation</artifactId>
-			<version>1.1.1</version>
+			<groupId>jakarta.activation</groupId>
+			<artifactId>jakarta.activation-api</artifactId>
 		</dependency>
 		<!-- Testing libraries -->
 		<dependency>
@@ -70,6 +65,12 @@
 		<dependency>
 			<groupId>dumbster</groupId>
 			<artifactId>dumbster</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.mail</groupId>
+					<artifactId>mail</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.grizzly</groupId>
@@ -103,17 +104,9 @@
 			<artifactId>spring-context</artifactId>
 		</dependency>
 	
-		<!--  ACTIVEMQ DEPENDENCIES: http://activemq.apache.org/initial-configuration.html#InitialConfiguration-RequiredJARs -->
-		<!-- 
 		<dependency>
 			<groupId>org.apache.activemq</groupId>
-			<artifactId>activemq-broker</artifactId>
-			<version>${activemq.version}</version>
-		</dependency>
-		-->
-		<dependency>
-			<groupId>org.apache.activemq</groupId>
-			<artifactId>activemq-client</artifactId>
+			<artifactId>artemis-jakarta-client</artifactId>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -124,12 +117,12 @@
 
 		<dependency>
 			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-email</artifactId>
+			<artifactId>commons-email2-jakarta</artifactId>
 		</dependency>
 		
 		<dependency> <!--  needed by commons-email -->
-			<groupId>javax.mail</groupId>
-			<artifactId>mail</artifactId>
+			<groupId>jakarta.mail</groupId>
+			<artifactId>jakarta.mail-api</artifactId>
 		</dependency>
 		
 	</dependencies>
@@ -151,6 +144,7 @@
 				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
 					<release>${java.version}</release>
+					<parameters>true</parameters>
 				</configuration>
 			</plugin>
 		</plugins>

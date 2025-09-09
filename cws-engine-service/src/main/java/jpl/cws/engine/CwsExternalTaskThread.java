@@ -38,8 +38,8 @@ import org.camunda.bpm.engine.externaltask.LockedExternalTask;
 import com.google.gson.Gson;
 
 import edu.rice.cs.util.ArgumentTokenizer;
-import jersey.repackaged.com.google.common.base.Function;
-import jersey.repackaged.com.google.common.collect.Collections2;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import jpl.cws.task.CwsTaskLogger;
 import org.camunda.spin.json.SpinJsonNode;
 import org.camunda.spin.plugin.variable.SpinValues;
@@ -385,8 +385,8 @@ public class CwsExternalTaskThread extends Thread  {
 	private class StripOrderId<F, T> implements Function<F, T> {
 		@SuppressWarnings("unchecked")
 		@Override
-		public Object apply(Object f) {
-			return f.toString().replaceFirst("\\d+__", "");
+		public T apply(F f) {
+			return (T) f.toString().replaceFirst("\\d+__", "");
 		}
 	}
 	
@@ -567,12 +567,12 @@ public class CwsExternalTaskThread extends Thread  {
 
 			// Set stdout output into variable
 			//
-			String stdoutStr = StringUtils.join(Collections2.transform(stdOutLines, new StripOrderId<String, String>()), '\n');
+			String stdoutStr = StringUtils.join(stdOutLines.stream().map(new StripOrderId<String, String>()).collect(Collectors.toList()), '\n');
 			cmdOutputFields.stdout = stdoutStr;
 
 			// Set stderr output into variable
 			//
-			String stderrStr = StringUtils.join(Collections2.transform(stdErrLines, new StripOrderId<String, String>()), '\n');
+			String stderrStr = StringUtils.join(stdErrLines.stream().map(new StripOrderId<String, String>()).collect(Collectors.toList()), '\n');
 			cmdOutputFields.stderr = stderrStr;
 
 			setStdOutVariables(stdOutLines);

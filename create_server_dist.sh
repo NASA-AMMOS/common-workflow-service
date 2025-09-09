@@ -21,9 +21,11 @@ rm -rf ${DIST}
 print 'Creating new CWS distribution directory...'
 mkdir -p ${CWS}/{bpmn,config/templates,installer,logs,upgrade,sql/cws}
 
+${ROOT}/install/create_camunda_zips.sh
+
 print 'Unzipping Camunda into distribution...'
-unzip ${INSTALL_DIR}/cws_camunda-bpm-tomcat-${CAMUNDA_VER}.zip -x start-camunda.bat start-camunda.sh -d ${CWS} > ${CWS}/logs/camunda_extract_main.log 2>&1
-unzip ${INSTALL_DIR}/cws_camunda-bpm-tomcat-${CAMUNDA_VER}-lib.zip -d ${CWS}/lib > ${CWS}/logs/camunda_extract_lib.log 2>&1
+unzip ${INSTALL_DIR}/camunda-distro-zips/cws_camunda-bpm-ee-tomcat-${CAMUNDA_VER}.zip -x start-camunda.bat start-camunda.sh -d ${CWS} > ${CWS}/logs/camunda_extract_main.log 2>&1
+unzip ${INSTALL_DIR}/camunda-distro-zips/cws_camunda-bpm-ee-tomcat-${CAMUNDA_VER}-lib.zip -d ${CWS}/lib > ${CWS}/logs/camunda_extract_lib.log 2>&1
 
 if [[ $? -gt 0 ]]; then
     print "ERROR: failed to unzip Camunda distribution, check ${CWS}/logs/camunda_extract.log for details."
@@ -78,6 +80,7 @@ cp ${INSTALL_DIR}/cws-engine/process_start_req_listener.xml   ${CONFIG_TEMPLATES
 cp ${INSTALL_DIR}/cws-engine/cws-engine.properties            ${CONFIG_TEMPLATES_DIR}/cws-engine
 cp ${INSTALL_DIR}/cws-ui/cws-ui.properties                    ${CONFIG_TEMPLATES_DIR}/cws-ui
 cp ${INSTALL_DIR}/cws-ui/applicationContext.xml               ${CONFIG_TEMPLATES_DIR}/cws-ui
+cp ${INSTALL_DIR}/cws-ui/broker.xml                           ${CONFIG_TEMPLATES_DIR}/cws-ui
 cp ${INSTALL_DIR}/cws-ui/*.ftl                                ${CONFIG_TEMPLATES_DIR}/cws-ui
 cp ${INSTALL_DIR}/cws-ui/sqs_dispatcher_thread_bean.xml       ${CONFIG_TEMPLATES_DIR}/cws-ui
 cp ${INSTALL_DIR}/camunda_mods/web.xml                        ${CONFIG_TEMPLATES_DIR}/camunda_mods
@@ -119,11 +122,19 @@ print 'Installing core libraries to Tomcat...'
 cp ${ROOT}/cws-core/target/cws-core.jar                     ${TOMCAT_LIB_DIR}
 
 rm -f ${TOMCAT_LIB_DIR}/slf4j*.jar
+rm -f ${TOMCAT_LIB_DIR}/commons-logging*.jar
 cp ${ROOT}/cws-core/cws-core-libs/slf4j-api-*.jar           ${TOMCAT_LIB_DIR}
 cp ${ROOT}/cws-core/cws-core-libs/log4j-slf4j-impl*.jar     ${TOMCAT_LIB_DIR}
 
 cp ${ROOT}/cws-core/cws-core-libs/log4j-*.jar               ${TOMCAT_LIB_DIR}
 cp ${ROOT}/cws-core/cws-core-libs/jython*.jar               ${TOMCAT_LIB_DIR}
+
+print 'Installing Jakarta Mail libraries to Tomcat...'
+cp ${ROOT}/cws-core/cws-core-libs/jakarta.mail-api-*.jar    ${TOMCAT_LIB_DIR}
+cp ${ROOT}/cws-core/cws-core-libs/jakarta.mail-*.jar        ${TOMCAT_LIB_DIR}
+cp ${ROOT}/cws-core/cws-core-libs/angus-activation-*.jar    ${TOMCAT_LIB_DIR}
+cp ${ROOT}/cws-core/cws-core-libs/jakarta.activation-api-*.jar ${TOMCAT_LIB_DIR}
+cp ${ROOT}/cws-core/cws-core-libs/commons-email2-jakarta-*.jar ${TOMCAT_LIB_DIR}
 
 print 'Installing cws-tasks libraries to Tomcat...'
 cp ${ROOT}/cws-tasks/cws-tasks-libs/commons-configuration-*.jar ${TOMCAT_LIB_DIR}
@@ -132,14 +143,14 @@ print 'Installing cws-ui libraries to Tomcat...'
 CWS_CONSOLE_WEBAPP=${CWS_TOMCAT_ROOT}/webapps/cws-ui
 cp ${CWS_CONSOLE_WEBAPP}/WEB-INF/lib/commons-io-*.jar      ${TOMCAT_LIB_DIR}
 cp ${CWS_CONSOLE_WEBAPP}/WEB-INF/lib/commons-lang-*.jar    ${TOMCAT_LIB_DIR}
-cp ${CWS_CONSOLE_WEBAPP}/WEB-INF/lib/commons-logging-*.jar ${TOMCAT_LIB_DIR}
+# Note: commons-logging is not copied as CWS uses Log4j2 with SLF4J bindings
+# cp ${CWS_CONSOLE_WEBAPP}/WEB-INF/lib/commons-logging-*.jar ${TOMCAT_LIB_DIR}
 
 print 'Removing slf4j lib from cws-ui...'
 rm ${CWS_CONSOLE_WEBAPP}/WEB-INF/lib/slf4j*.jar
 
 print 'Installing cws-engine libraries to Tomcat...'
 CWS_ENGINE_WEBAPP=${CWS_TOMCAT_ROOT}/webapps/cws-engine
-cp ${CWS_ENGINE_WEBAPP}/WEB-INF/lib/jersey-guava-*.jar ${TOMCAT_LIB_DIR}
 cp ${CWS_ENGINE_WEBAPP}/WEB-INF/lib/gson-*.jar         ${TOMCAT_LIB_DIR}
 
 print "Modifying Camunda webapp..."

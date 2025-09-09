@@ -13,6 +13,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 
 /**
  * Useful helper class from:
@@ -26,6 +27,7 @@ import org.springframework.context.ApplicationContextAware;
  * we do not need a reference to the Servlet context for this. All we need is
  * for this bean to be initialized during application startup.
  */
+@Component
 public class SpringApplicationContext implements ApplicationContextAware, BeanFactoryPostProcessor {
 	private static final Logger log = LoggerFactory.getLogger(SpringApplicationContext.class);
 	private static ApplicationContext CONTEXT;

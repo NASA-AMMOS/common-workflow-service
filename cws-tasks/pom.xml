@@ -68,7 +68,7 @@
 
 				<dependency>
 					<groupId>org.apache.commons</groupId>
-					<artifactId>commons-email</artifactId>
+					<artifactId>commons-email2-jakarta</artifactId>
 				</dependency>
 
 				<dependency>
@@ -77,13 +77,8 @@
 				</dependency>
 
 				<dependency> <!-- needed by commons-email -->
-					<groupId>javax.mail</groupId>
-					<artifactId>mail</artifactId>
-				</dependency>
-
-				<dependency>
-					<groupId>org.glassfish.jersey.core</groupId>
-					<artifactId>jersey-client</artifactId>
+					<groupId>jakarta.mail</groupId>
+					<artifactId>jakarta.mail-api</artifactId>
 				</dependency>
 
 				<dependency>
@@ -108,6 +103,7 @@
 				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
 					<release>${java.version}</release>
+					<parameters>true</parameters>
 				</configuration>
 			</plugin>
 

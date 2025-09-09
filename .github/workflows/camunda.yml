@@ -119,7 +119,7 @@ jobs:
 
       - name: Show CWS Log
         run: |
-          cd "dist/console-only/cws/server/apache-tomcat-9.0.107/logs"
+          cd "dist/console-only/cws/server/apache-tomcat-10.1.36/logs"
           ls -al
 
       - name: Set up Google Chrome
@@ -288,7 +288,7 @@ jobs:
 
       - name: Show CWS Log
         run: |
-          cd dist/console-only/cws/server/apache-tomcat-9.0.107/logs
+          cd dist/console-only/cws/server/apache-tomcat-10.1.36/logs
           ls -al
 
       - name: Set up Google Chrome

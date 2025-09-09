@@ -49,6 +49,7 @@
 				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
 					<release>${java.version}</release>
+					<parameters>true</parameters>
 				</configuration>
 			</plugin>
 		</plugins>

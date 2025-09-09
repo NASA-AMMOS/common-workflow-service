@@ -26,20 +26,22 @@ import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import javax.jms.BytesMessage;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.jms.BytesMessage;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.Session;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import com.google.gson.*;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.apache.commons.io.IOUtils;
 import org.camunda.bpm.engine.ExternalTaskService;
@@ -77,7 +79,7 @@ import jpl.cws.scheduler.CwsProcessInstance;
 import jpl.cws.scheduler.LogHistory;
 import jpl.cws.scheduler.Scheduler;
 import jpl.cws.service.CwsConsoleService;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.Hidden;
 
 @Controller
 @RequestMapping("/api")
@@ -110,14 +112,16 @@ public class RestService extends MvcCore {
 	@Value("${cws.elasticsearch.username}") private String elasticsearchUsername;
 	@Value("${cws.elasticsearch.password}") private String elasticsearchPassword;
 
-	public RestService() {}
+	public RestService() {
+		log.info("RestService controller initialized with @RequestMapping('/api')");
+	}
 	
 	
 	/**
 	 * Gets the contents of the initiators XML context file
 	 * 
 	 */
-	@ApiOperation(value="Gets the contents of the initiators XML context file.", tags = {"Initiators"}, produces = "application/xml")
+	@Operation(summary="Gets the contents of the initiators XML context file.", tags = {"Initiators"})
 	@RequestMapping(value="/initiators/getXmlContextFile", method=GET)
 	public @ResponseBody String getXmlContextFile() {
 		try {
@@ -134,13 +138,10 @@ public class RestService extends MvcCore {
 	 * Refreshes initiators from XML file
 	 * 
 	 */
-	@ApiOperation(value = "Refreshes initiators from a new XML file.", tags = {"Initiators"}, consumes = "application/xml", produces = "text/plain")
-	@ApiImplicitParams(
-			@ApiImplicitParam(name = "newXmlContext", value = "New XML context to update initiators with.", required = true, paramType = "query", dataTypeClass = String.class)
-	)
+	@Operation(summary = "Refreshes initiators from a new XML file.", tags = {"Initiators"})
 	@RequestMapping(value="/initiators/updateInitiatorsContextXml", method=POST)
 	public @ResponseBody String refreshInitiatorsFromXml(HttpServletResponse response,
-			@RequestParam("newXmlContext") String newXmlContext) {
+			@Parameter(description = "New XML context to update initiators with.", required = true, schema = @Schema(type = "string")) @RequestParam("newXmlContext") String newXmlContext) {
 		
 		try {
 			cwsInitiatorsService.updateAndRefreshInitiators(newXmlContext);
@@ -157,7 +158,7 @@ public class RestService extends MvcCore {
 	 * Refreshes initiators from current working initiators XML file
 	 * 
 	 */
-	@ApiOperation(value = "Refreshes initiators from current working initiators XML file.", tags = {"Initiators"}, produces = "text/plain")
+	@Operation(summary = "Refreshes initiators from current working initiators XML file.", tags = {"Initiators"})
 	@RequestMapping(value="/initiators/loadInitiatorsContextXml", method=POST)
 	public @ResponseBody String refreshInitiatorsFromXml(HttpServletResponse response) {
 		
@@ -177,15 +178,11 @@ public class RestService extends MvcCore {
 	 *
 	 * Adds or updates single initiator
 	 */
-	@ApiOperation(value = "Updates a single initiator.", tags = {"Initiators"}, consumes = "application/xml", produces = "text/plain")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "newXmlContext", value = "New XML context to update initiators with.", required = true, paramType = "query", dataTypeClass = String.class),
-			@ApiImplicitParam(name = "beanName", value = "Bean name of the initiator to update.", required = true, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Updates a single initiator.", tags = {"Initiators"})
 	@RequestMapping(value="/initiators/updateSingleInitiator", method=POST)
 	public @ResponseBody String updateSingleInitiatorFromXml(
-			@RequestParam("newXmlContext") String newXmlContext,
-			@RequestParam("beanName") String beanName) {
+			@Parameter(description = "New XML context to update initiators with.", required = true, schema = @Schema(type = "string")) @RequestParam("newXmlContext") String newXmlContext,
+			@Parameter(description = "Bean name of the initiator to update.", required = true, schema = @Schema(type = "string")) @RequestParam("beanName") String beanName) {
 
 		try {
 			cwsInitiatorsService.updateSingleInitiator(newXmlContext, beanName);
@@ -202,13 +199,10 @@ public class RestService extends MvcCore {
 	 *
 	 * Updates only changed or new initiators
 	 */
-	@ApiOperation(value = "Updates only changed or new initiators.", tags = {"Initiators"}, consumes = "application/xml", produces = "text/plain")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "newXmlContext", value = "New XML context to update initiators with.", required = true, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Updates only changed or new initiators.", tags = {"Initiators"})
 	@RequestMapping(value="/initiators/updateChangedInitiators", method=POST)
 	public @ResponseBody String updateChangedInitiatorsFromXml(
-			@RequestParam("newXmlContext") String newXmlContext) {
+			@Parameter(description = "New XML context to update initiators with.", required = true, schema = @Schema(type = "string")) @RequestParam("newXmlContext") String newXmlContext) {
 
 		try {
 			cwsInitiatorsService.updateChangedInitiators(newXmlContext);
@@ -224,15 +218,11 @@ public class RestService extends MvcCore {
 	 * Updates a process initiator's enabled flag.
 	 * 
 	 */
-	@ApiOperation(value = "Updates a process initiator's enabled flag.", tags = {"Initiators"}, produces = "text/plain")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "initiatorId", value = "ID of the initiator to update.", required = true, paramType = "path", dataTypeClass = String.class),
-			@ApiImplicitParam(name = "enabled", value = "New enabled status of the initiator.", required = true, paramType = "query", dataTypeClass = Boolean.class)
-	})
+	@Operation(summary = "Updates a process initiator's enabled flag.", tags = {"Initiators"})
 	@RequestMapping(value="/initiators/{initiatorId}/enabled", method=POST)
 	public @ResponseBody ModelAndView setInitiatorEnabled(
-		@PathVariable String initiatorId,
-		@RequestParam("enabled") boolean enabled) {
+		@Parameter(description = "ID of the initiator to update.", required = true, schema = @Schema(type = "string")) @PathVariable String initiatorId,
+		@Parameter(description = "New enabled status of the initiator.", required = true, schema = @Schema(type = "boolean")) @RequestParam("enabled") boolean enabled) {
 		
 		try {
 			if (enabled) {
@@ -251,13 +241,10 @@ public class RestService extends MvcCore {
 		return buildModel("login", "updated initiator enabled to " + enabled);
 	}
 
-	@ApiOperation(value = "Enables / disables all process initiators.", tags = {"Initiators"}, produces = "text/plain")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "enabled", value = "New enabled status of the initiators.", required = true, paramType = "query", dataTypeClass = Boolean.class)
-	})
+	@Operation(summary = "Enables / disables all process initiators.", tags = {"Initiators"})
 	@RequestMapping(value = "/initiators/all/enabled", method = POST)
 	public @ResponseBody ModelAndView setAllInitiatorsEnabled(
-			@RequestParam("enabled") boolean enabled) {
+			@Parameter(description = "New enabled status of the initiators.", required = true, schema = @Schema(type = "boolean")) @RequestParam("enabled") boolean enabled) {
 
 		try {
 			if (enabled) {
@@ -277,13 +264,10 @@ public class RestService extends MvcCore {
 	 * Gets a process initiator's enabled flag.
 	 * 
 	 */
-	@ApiOperation(value = "Gets a process initiator's enabled flag.", tags = {"Initiators"}, produces = "text/plain")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "initiatorId", value = "ID of the initiator to get.", required = true, paramType = "path", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Gets a process initiator's enabled flag.", tags = {"Initiators"})
 	@RequestMapping(value="/initiators/{initiatorId}/enabled", method=GET)
 	public @ResponseBody String isInitiatorEnabled(
-			@PathVariable String initiatorId) {
+			@Parameter(description = "ID of the initiator to get.", required = true, schema = @Schema(type = "string")) @PathVariable String initiatorId) {
 		try {
 			log.trace("REST::isInitiatorEnabled isInitiatorEnabled + " + initiatorId);
 			CwsProcessInitiator initiator = 
@@ -304,8 +288,8 @@ public class RestService extends MvcCore {
 	 * Gets all process initiators enabled flag.
 	 *
 	 */
-	@ApiOperation(value = "Gets all process initiators enabled flag.", tags = {"Initiators"}, produces = "application/json")
-	@RequestMapping(value = "initiators/all/enabled", method = GET)
+	@Operation(summary = "Gets all process initiators enabled flag.", tags = {"Initiators"})
+	@RequestMapping(value = "/initiators/all/enabled", method = GET)
 	public @ResponseBody Map<String, String> areAllInitiatorsEnabled () {
 		try {
 			log.trace("REST::areAllInitiatorsEnabled");
@@ -332,7 +316,7 @@ public class RestService extends MvcCore {
 	 * Returns ModelAndView table body representing the current set of Initiators.
 	 * 
 	 */
-	@ApiOperation(value = "Returns ModelAndView table body representing the current set of Initiators.", tags = {"Initiators"}, produces = "text/html")
+	@Operation(summary = "Returns ModelAndView table body representing the current set of Initiators.", tags = {"Initiators"})
 	@RequestMapping(value = "/initiators/getInitiatorsHtmlTable", method = GET)
 	public ModelAndView getInitiatorsHtmlTable() {
 		ModelAndView mav = new ModelAndView("initiators-table");
@@ -356,7 +340,7 @@ public class RestService extends MvcCore {
 	 * Notify confused User to use POST instead of GET
 	 * 
 	 */
-	@ApiOperation(hidden = true, value = "Notify confused User to use POST instead of GET", tags = {"Initiators"}, produces = "text/plain")
+	@Operation(summary = "Notify confused User to use POST instead of GET", tags = {"Initiators"}, hidden = true)
 	@RequestMapping(value="/deployments/deployProcessDefinition", method = GET)
 	public @ResponseBody String provideDeployProcessDefinitionInfo() {
 		return "You can upload a file by POSTing to this same URL.";
@@ -367,15 +351,11 @@ public class RestService extends MvcCore {
 	 * Deploys a new process definition from a filename (for deployment from the modeler)
 	 * 
 	 */
-	@ApiOperation(value = "Deploys a new process definition from a filename (for deployment from the modeler).", tags = {"Deployments"}, produces = "text/plain")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "filename", value = "Name of the file to deploy.", required = true, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "xmlData", value = "XML data to deploy.", required = true, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Deploys a new process definition from a filename (for deployment from the modeler).", tags = {"Deployments"})
 	@RequestMapping(value="/deployments/deployModelerFile", method = POST)
 	public @ResponseBody String deployModelerFile(
-			@RequestParam("filename") String filename,
-			@RequestParam("xmlData") String xmlData) {
+			@Parameter(description = "Name of the file to deploy.", required = true, schema = @Schema(type = "string")) @RequestParam("filename") String filename,
+			@Parameter(description = "XML data to deploy.", required = true, schema = @Schema(type = "string")) @RequestParam("xmlData") String xmlData) {
 
 		// Don't allow filename to contain path modifiers
 		if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
@@ -423,13 +403,10 @@ public class RestService extends MvcCore {
 	 * @throws IOException 
 	 * 
 	 */
-	@ApiOperation(value = "Deploys a new process definition via a UI-uploaded file.", tags = {"Deployments"}, produces = "text/plain")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "file", value = "File to deploy.", required = true, paramType = "query", dataTypeClass = MultipartFile.class)
-	})
+	@Operation(summary = "Deploys a new process definition via a UI-uploaded file.", tags = {"Deployments"})
 	@RequestMapping(value="/deployments/deployProcessDefinition", method = POST)
 	public @ResponseBody ModelAndView deployProcessDefinition(
-			@RequestParam("file") MultipartFile file) {
+			@Parameter(description = "File to deploy.", required = true, schema = @Schema(type = "string", format = "binary")) @RequestParam("file") MultipartFile file) {
 		return buildDeploymentsModel(doDeployProcessDefinition(file));
 	}
 	
@@ -499,13 +476,10 @@ public class RestService extends MvcCore {
 	 * Undeploys a process definition.
 	 *
 	 */
-	@ApiOperation(value = "Undeploys a process definition.", tags = {"Deployments"}, produces = "text/plain")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "deploymentId", value = "ID of the deployment to undeploy.", required = true, paramType = "path", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Undeploys a process definition.", tags = {"Deployments"})
 	@RequestMapping(value = "/processes/processDefinition/{processDefKey}/undeploy", method = GET, produces="application/json")
 	public @ResponseBody String unDeployProcessDefinition(
-			@PathVariable String processDefKey) {
+			@Parameter(description = "Key of the process definition to undeploy.", required = true, schema = @Schema(type = "string")) @PathVariable String processDefKey) {
 		try {
 			
 			if (!processService.isProcDefKeyDeployed(processDefKey)) {
@@ -554,23 +528,15 @@ public class RestService extends MvcCore {
 		return new JsonResponse(JsonResponse.Status.SUCCESS, "Undeployed procDefKey '" + processDefKey + "'").toString();
 	}
 
-	@ApiOperation(value = "Schedules a process definition", tags = {"Deployments"}, produces = "text/plain")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "processDefKey", value = "Key of the process definition to schedule.", required = true, paramType = "path", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "processBusinessKey", value = "Business key of the process to schedule.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "initiationKey", value = "Initiation key of the process to schedule.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "processPriority", value = "Priority of the process to schedule.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "processVariables", value = "Variables of the process to schedule.", required = false, paramType = "query", dataTypeClass = MultiValueMap.class)
-	
-	})
+	@Operation(summary = "Schedules a process definition", tags = {"Deployments"})
 	@RequestMapping(value = "/process/{processDefKey}/schedule", method = POST)
 	public @ResponseBody String scheduleProcess(
-			@ApiIgnore final HttpSession session,
-			@PathVariable String processDefKey,
-			@RequestParam (value = "processBusinessKey", required=false) String processBusinessKey,
-			@RequestParam (value = "initiationKey", required=false) String initiationKey,
-			@RequestParam (value = "processPriority", required=false, defaultValue="default") String processPriority,
-			@RequestParam MultiValueMap<String,String> processVariables
+			@Parameter(hidden = true) final HttpSession session,
+			@Parameter(description = "Key of the process definition to schedule.", required = true, schema = @Schema(type = "string")) @PathVariable String processDefKey,
+			@Parameter(description = "Business key of the process to schedule.", required = false, schema = @Schema(type = "string")) @RequestParam (value = "processBusinessKey", required=false) String processBusinessKey,
+			@Parameter(description = "Initiation key of the process to schedule.", required = false, schema = @Schema(type = "string")) @RequestParam (value = "initiationKey", required=false) String initiationKey,
+			@Parameter(description = "Priority of the process to schedule.", required = false, schema = @Schema(type = "string")) @RequestParam (value = "processPriority", required=false, defaultValue="default") String processPriority,
+			@Parameter(description = "Variables of the process to schedule.", required = false, schema = @Schema(implementation = MultiValueMap.class)) @RequestParam MultiValueMap<String,String> processVariables
 			) {
 		
 		log.info("******* REST (POST) SCHEDULING Process '" + processDefKey + "' " +
@@ -624,14 +590,11 @@ public class RestService extends MvcCore {
 	 * REST method used to get status information about a process instance
 	 * 
 	 */
-	@ApiOperation(value = "Gets status information about a process instance.", tags = {"Processes"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "uuid", value = "UUID of the process instance to get status for.", required = true, paramType = "path", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Gets status information about a process instance.", tags = {"Processes"})
 	@RequestMapping(value = "/process-instance/{uuid}/status", method = GET, produces="application/json")
 	public @ResponseBody String getProcessInstanceStatus(
-			@PathVariable String uuid,
-			@ApiIgnore final HttpSession session) {
+			@Parameter(description = "UUID of the process instance to get status for.", required = true, schema = @Schema(type = "string")) @PathVariable String uuid,
+			@Parameter(hidden = true) final HttpSession session) {
 		
 		log.debug("REST: getProcessInstanceStatus(" + uuid + ")");
 		
@@ -646,16 +609,12 @@ public class RestService extends MvcCore {
     /**
      * Returns status counts for (proc_def_key, business_key) pair
      */
-	@ApiOperation(value = "Gets status counts for (proc_def_key, business_key) pair.", tags = {"Processes"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "businessKey", value = "Business key of the process instance to get status for.", required = true, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "procDefKey", value = "Process definition key of the process instance to get status for.", required = true, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Gets status counts for (proc_def_key, business_key) pair.", tags = {"Processes"})
     @RequestMapping(value="/stats/statsByBusinessKey", method = GET)
-    public @ResponseBody Map<String,Integer> statsByBusinessKey(
-            @RequestParam(value = "businessKey", required=true) String businessKey,
-            @RequestParam(value = "procDefKey", required=true) String procDefKey
-    ) {
+         public @ResponseBody Map<String,Integer> statsByBusinessKey(
+             @Parameter(description = "Business key of the process instance to get status for.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "businessKey", required=true) String businessKey,
+             @Parameter(description = "Process definition key of the process instance to get status for.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "procDefKey", required=true) String procDefKey
+     ) {
         Map<String, Integer> ret = new HashMap<>();
         try {
 
@@ -671,7 +630,7 @@ public class RestService extends MvcCore {
 	/**
 	 * Returns latest successfully compiled code snippet from DB
 	 */
-	@ApiOperation(value = "Gets latest successfully compiled code snippet from DB.", tags = {"Snippets"}, produces = "text/plain")
+	@Operation(summary = "Gets latest successfully compiled code snippet from DB.", tags = {"Snippets"})
 	@RequestMapping(value="/snippets/getLatestCodeSnippet", method = GET)
 	public @ResponseBody String getLatestCodeSnippet() {
 		return cwsConsoleService.getLatestCode();
@@ -681,7 +640,7 @@ public class RestService extends MvcCore {
 	/**
 	 * Returns latest code snippet from DB
 	 */
-	@ApiOperation(value = "Gets latest code snippet from DB.", tags = {"Snippets"}, produces = "text/plain")
+	@Operation(summary = "Gets latest code snippet from DB.", tags = {"Snippets"})
 	@RequestMapping(value="/snippets/getLatestInProgressCodeSnippet", method = GET)
 	public @ResponseBody String getLatestInProgressCodeSnippet() {
 		return cwsConsoleService.getLatestInProgressCode();
@@ -691,14 +650,11 @@ public class RestService extends MvcCore {
 	/**
 	 * Saves UI-edited code to the database.
 	 */
-	@ApiOperation(value = "Saves UI-edited code snippet to the database.", tags = {"Snippets"}, produces = "text/plain")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "code", value = "Code to save.", required = true, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Saves UI-edited code snippet to the database.", tags = {"Snippets"})
 	@RequestMapping(value = "/snippets/validateAndSaveSnippets", method = POST)
 	public ModelAndView validateAndSaveSnippets(
-			@RequestParam String code,
-			@ApiIgnore final HttpSession session) {
+			@Parameter(description = "Code to save.", required = true, schema = @Schema(type = "string")) @RequestParam String code,
+			@Parameter(hidden = true) final HttpSession session) {
 		log.debug("REST: validateAndSaveSnippets");
 		log.trace("REST: validateAndSaveSnippets, code=" + code);
 		
@@ -719,7 +675,7 @@ public class RestService extends MvcCore {
 	/**
 	 * Sends a message to shutdown the entire system, including all remote workers
 	 */
-	@ApiOperation(value = "Sends a message to shutdown the entire system, including all remote workers.", tags = {"System"}, produces = "text/plain")
+	@Operation(summary = "Sends a message to shutdown the entire system, including all remote workers.", tags = {"System"})
 	@RequestMapping(value="/system/shutdown", method = GET)
 	public @ResponseBody String doSystemShutdown() {
 		return cwsConsoleService.doSystemShutdown();
@@ -730,13 +686,10 @@ public class RestService extends MvcCore {
 	 * REST method used to get logs
 	 *
 	 */
-	@ApiOperation(value = "Gets logs using a scroll ID to keep track of already fetched data. Used on logs page.", tags = {"Logs"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "scrollId", value = "Scroll ID to keep track of already fetched data.", required = true, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Gets logs using a scroll ID to keep track of already fetched data. Used on logs page.", tags = {"Logs"})
 	@RequestMapping(value = "/logs/get/scroll", method = POST, produces="application/json")
 	public @ResponseBody String getLogsScroll(
-			@RequestParam(value = "scrollId") String scrollId) {
+			@Parameter(description = "Scroll ID to keep track of already fetched data.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "scrollId") String scrollId) {
 		String urlString = constructElasticsearchUrl("/_search/scroll");
 		String jsonData = "{ \"scroll\" : \"1m\", \"scroll_id\" : \"" + scrollId + "\" }";
 
@@ -767,7 +720,7 @@ public class RestService extends MvcCore {
 	 * REST method used to get the total number of log rows
 	 *
 	 */
-	@ApiOperation(value = "Gets the total number of log rows.", tags = {"Logs"}, produces = "application/json")
+	@Operation(summary = "Gets the total number of log rows.", tags = {"Logs"})
 	@RequestMapping(value="/logs/get/count", method = GET, produces="application/json")
 	public @ResponseBody String getNumLogs() {
 		String urlString = constructElasticsearchUrl("/" + elasticsearchIndexPrefix + "-logstash-*/_count");
@@ -797,13 +750,10 @@ public class RestService extends MvcCore {
 	 * REST method used to get logs on the logs page (shorter scroll timer)
 	 *
 	 */
-	@ApiOperation(value = "Gets logs on the logs page (shorter scroll timer).", tags = {"Logs"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "source", value = "Source of the logs to get.", required = true, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Gets logs on the logs page (shorter scroll timer).", tags = {"Logs"})
 	@RequestMapping(value = "/logs/get/noScroll", method = GET, produces="application/json")
 	public @ResponseBody String getLogsNoScroll(
-			@RequestParam(value = "source") String source) {
+			@Parameter(description = "Source of the logs to get.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "source") String source) {
 		String urlString = constructElasticsearchUrl("/" + elasticsearchIndexPrefix + "-logstash-*/_search");
 		log.debug("REST logs/get/noScroll query = " + urlString);
 
@@ -835,13 +785,10 @@ public class RestService extends MvcCore {
 	 * REST method used to get logs
 	 * 
 	 */
-	@ApiOperation(value = "Gets logs.", tags = {"Logs"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "source", value = "Source of the logs to get.", required = true, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Gets logs.", tags = {"Logs"})
 	@RequestMapping(value = "/logs/get", method = GET, produces="application/json")
 	public @ResponseBody String getLogs(
-			@RequestParam(value = "source") String source) {
+			@Parameter(description = "Source of the logs to get.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "source") String source) {
 		String urlString = constructElasticsearchUrl("/" + elasticsearchIndexPrefix + "-logstash-*/_search?scroll=5m&source=" + source + "&source_content_type=application/json");
 		log.trace("REST getLogs query = " + urlString);
 		
@@ -870,14 +817,11 @@ public class RestService extends MvcCore {
 	 * REST method used to delete logs by procDefKey
 	 * 
 	 */
-	@ApiOperation(value = "Deletes logs by procDefKey.", tags = {"Logs"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "procDefKey", value = "Process definition key to delete logs for.", required = true, paramType = "path", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Deletes logs by procDefKey.", tags = {"Logs"})
 	@RequestMapping(value = "/logs/delete/{procDefKey}", method = DELETE, produces="application/json")
 	public @ResponseBody String deleteLogsByProcDefKey(
 			HttpServletResponse response,
-			@PathVariable String procDefKey
+			@Parameter(description = "Process definition key to delete logs for.", required = true, schema = @Schema(type = "string")) @PathVariable String procDefKey
 			) {
 		String urlString = constructElasticsearchUrl("/" + elasticsearchIndexPrefix + "-logstash*/_delete_by_query");
 		log.debug("REST deleteLogsByProcDefKey url = " + urlString);
@@ -944,12 +888,9 @@ public class RestService extends MvcCore {
 	 * REST method used to get history (logs + historical data)
 	 * 
 	 */
-	@ApiOperation(value = "Gets history (logs + historical data).", tags = {"History"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "procInstId", value = "Process instance ID to get history for.", required = true, paramType = "path", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Gets history (logs + historical data).", tags = {"History"})
 	@RequestMapping(value = "/history/{procInstId}", method = GET, produces="application/json")
-	public @ResponseBody String getHistory(@PathVariable String procInstId) {
+	public @ResponseBody String getHistory(@Parameter(description = "Process instance ID to get history for.", required = true, schema = @Schema(type = "string")) @PathVariable String procInstId) {
 
 		LogHistory history = cwsConsoleService.getHistoryForProcess(procInstId);
 
@@ -963,7 +904,7 @@ public class RestService extends MvcCore {
 	 * REST method used to get Elasticsearch stats
 	 * 
 	 */
-	@ApiOperation(value = "Gets Elasticsearch stats.", tags = {"Elasticsearch"}, produces = "application/json")
+	@Operation(summary = "Gets Elasticsearch stats.", tags = {"Elasticsearch"})
 	@RequestMapping(value = "/stats/es/indices", method = GET, produces="application/json")
 	public @ResponseBody String getElasticsearchIndices() {
 		String urlString = constructElasticsearchUrl("/_cat/indices?v&bytes=b&s=index&format=json");
@@ -995,7 +936,7 @@ public class RestService extends MvcCore {
 	 * REST method used to get Elasticsearch stats
 	 * 
 	 */
-	@ApiOperation(value = "Gets Elasticsearch cluster health.", tags = {"Elasticsearch"}, produces = "application/json")
+	@Operation(summary = "Gets Elasticsearch cluster health.", tags = {"Elasticsearch"})
 	@RequestMapping(value = "/stats/es/cluster/health", method = GET, produces="application/json")
 	public @ResponseBody String getElasticsearchClusterHealth() {
 		String urlString = constructElasticsearchUrl("/_cluster/health");
@@ -1027,7 +968,7 @@ public class RestService extends MvcCore {
 	 * REST method used to get Elasticsearch stats
 	 * 
 	 */
-	@ApiOperation(value = "Gets Elasticsearch stats.", tags = {"Elasticsearch"}, produces = "application/json")
+	@Operation(summary = "Gets Elasticsearch stats.", tags = {"Elasticsearch"})
 	@RequestMapping(value = "/stats/es", method = GET, produces="application/json")
 	public @ResponseBody String getElasticsearchStats() {
 		String urlString = constructElasticsearchUrl("/_nodes/stats/_all");
@@ -1058,7 +999,7 @@ public class RestService extends MvcCore {
 	/**
 	 * Returns latest system stats (Db size, ES size, Disk space, Log sizes, etc...
 	 */
-	@ApiOperation(value = "Gets system stats.", tags = {"System"}, produces = "application/json")
+	@Operation(summary = "Gets system stats.", tags = {"System"})
 	@RequestMapping(value="/stats/diskUsage", method = GET, produces = "application/json")
 	public @ResponseBody String getDiskStats(HttpServletResponse response) {
 
@@ -1086,13 +1027,10 @@ public class RestService extends MvcCore {
 	* Return JSON key values of process status
 	* e.g. {PD1: {errors:4, pending:3,... },...}
 	*/
-	@ApiOperation(value = "Gets process instance stats.", tags = {"Processes"}, produces = "text/plain")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "lastNumHours", value = "Number of hours to get stats for.", required = false, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Gets process instance stats.", tags = {"Processes"})
 	@RequestMapping(value="/stats/processInstanceStats", method = GET)
 	public @ResponseBody Map<String,String> getProcessInstanceStats(
-			@RequestParam(value = "lastNumHours", required=false) String lastNumHours
+			@Parameter(description = "Number of hours to get stats for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "lastNumHours", required=false) String lastNumHours
 			) {
 		
 		return cwsConsoleService.getProcessInstanceStats(lastNumHours);
@@ -1103,13 +1041,10 @@ public class RestService extends MvcCore {
 	* Return JSON key values of process status
 	* e.g. {PD1: {errors:4, pending:3,... },...}
 	*/
-	@ApiOperation(value = "Gets process instance stats (JSON).", tags = {"Processes"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "lastNumHours", value = "Number of hours to get stats for.", required = false, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Gets process instance stats (JSON).", tags = {"Processes"})
 	@RequestMapping(value="/stats/processInstanceStatsJSON", method = GET)
 	public @ResponseBody Map<String,Map<String,String>> getProcessInstanceStatsJSON(
-			@RequestParam(value = "lastNumHours", required=false) String lastNumHours
+			@Parameter(description = "Number of hours to get stats for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "lastNumHours", required=false) String lastNumHours
 			) {
 		Map<String,Map<String,String>> ret = new HashMap<String,Map<String,String>>();
 		try {	
@@ -1127,7 +1062,7 @@ public class RestService extends MvcCore {
 	*
 	*
 	*/
-	@ApiOperation(value = "Gets pending process instances (JSON).", tags = {"Processes"}, produces = "application/json")
+	@Operation(summary = "Gets pending process instances (JSON).", tags = {"Processes"})
 	@RequestMapping(value="/stats/pendingProcessesJSON", method = GET, produces="application/json")
 	public @ResponseBody String getPendingProcessesJSON(HttpServletResponse response) {
 		JsonArray json = new JsonArray();
@@ -1153,7 +1088,7 @@ public class RestService extends MvcCore {
 	 * 
 	 * FIXME: This can result in double-counting (e.g. a running task has an external task as well)
 	 */
-	@ApiOperation(value = "Gets number of running processes for each worker.", tags = {"Workers"}, produces = "application/json")
+	@Operation(summary = "Gets number of running processes for each worker.", tags = {"Workers"})
 	@RequestMapping(value="/stats/workerNumRunningProcs", method = GET)
 	public @ResponseBody Map<String,String> getWorkerNumRunningProcs() {
 		
@@ -1179,20 +1114,14 @@ public class RestService extends MvcCore {
 	 * 
 	 * FIXME:  remove processVariables parameter below -- I don't think it's used
 	 */
-	@ApiOperation(value = "Update the number of process definitions a worker can be working on at any given time.", tags = {"Workers"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "procDefKey", value = "Key of the process definition to update.", required = true, paramType = "path", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "newLimit", value = "New limit for the worker.", required = true, paramType = "path", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "processVariables", value = "Process variables to update.", required = false, paramType = "query", dataTypeClass = MultiValueMap.class)
-	})
+	@Operation(summary = "Update the number of process definitions a worker can be working on at any given time.", tags = {"Workers"})
 	@RequestMapping(value = "/worker/{workerId}/{procDefKey}/updateWorkerProcDefLimit/{newLimit}", method = POST)
 	public @ResponseBody String updateWorkerProcDefLimit(
-			@ApiIgnore final HttpSession session,
-			@PathVariable String workerId,
-			@PathVariable String procDefKey,
-			@PathVariable String newLimit,
-			@RequestParam MultiValueMap<String,String> processVariables) {
+			@Parameter(hidden = true) final HttpSession session,
+			@Parameter(description = "ID of the worker to update.", required = true, schema = @Schema(type = "string")) @PathVariable String workerId,
+			@Parameter(description = "Key of the process definition to update.", required = true, schema = @Schema(type = "string")) @PathVariable String procDefKey,
+			@Parameter(description = "New limit for the worker.", required = true, schema = @Schema(type = "string")) @PathVariable String newLimit,
+			@Parameter(description = "Process variables to update.", required = false, schema = @Schema(implementation = MultiValueMap.class)) @RequestParam MultiValueMap<String,String> processVariables) {
 		
 		log.info("*** REST CALL ***  updateWorkerProcDefLimit (workerId='"+workerId+"', procDefKey='"+procDefKey+"', newLimit='"+newLimit+"')...");
 		
@@ -1216,18 +1145,13 @@ public class RestService extends MvcCore {
 	 * Inserts or updates worker tag with name and value
 	 *
 	 */
-	@ApiOperation(value = "Inserts or updates worker tag with name and value.", tags = {"Workers"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "name", value = "Name of the tag to update.", required = true, paramType = "path", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "value", value = "Value of the tag to update.", required = true, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Inserts or updates worker tag with name and value.", tags = {"Workers"})
 	@RequestMapping(value = "/worker/{workerId}/updateTag/{name}", method = POST, produces="application/json")
 	public @ResponseBody String updateWorkerTag(
 			HttpServletResponse response,
-			@PathVariable String workerId,
-			@PathVariable String name,
-			@RequestParam(value = "value") String value) {
+			@Parameter(description = "ID of the worker to update.", required = true, schema = @Schema(type = "string")) @PathVariable String workerId,
+			@Parameter(description = "Name of the tag to update.", required = true, schema = @Schema(type = "string")) @PathVariable String name,
+			@Parameter(description = "Value of the tag to update.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "value") String value) {
 
 		try {
 			dbService.updateWorkerTag(workerId, name, value);
@@ -1249,13 +1173,10 @@ public class RestService extends MvcCore {
 	 * Checks if procDefKey is deployed (exists)
 	 * 
 	 */
-	@ApiOperation(value = "Checks if process definition key is deployed.", tags = {"Processes"}, produces = "text/plain")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "procDefKey", value = "Key of the process definition to check.", required = true, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Checks if process definition key is deployed.", tags = {"Processes"})
 	@RequestMapping(value = "/isProcDefKeyDeployed", method = POST)
 	public @ResponseBody String isProcDefKeyDeployed(
-			@RequestParam(value = "procDefKey", required=true) String procDefKey) {
+			@Parameter(description = "Key of the process definition to check.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "procDefKey", required=true) String procDefKey) {
 		
 		log.trace("isProcDefKeyDeployed... (procDefKey="+procDefKey+")");
 
@@ -1270,9 +1191,9 @@ public class RestService extends MvcCore {
 	/**
 	* Get list of all workers with active status for the process
 	*/
-	@ApiOperation(value = "Gets list of all workers with active status for the process.", tags = {"Workers", "Processes"}, produces = "application/json")
+	@Operation(summary = "Gets list of all workers with active status for the process.", tags = {"Workers", "Processes"})
 	@RequestMapping(value="/worker/{procDefKey}/getWorkersForProc", method = GET)
-	public @ResponseBody String getWorkersForProc(@PathVariable String procDefKey) {
+	public @ResponseBody String getWorkersForProc(@Parameter(description = "Process definition key to get workers for.", required = true, schema = @Schema(type = "string")) @PathVariable String procDefKey) {
 
 		List<Map<String,Object>> procWorkers = dbService.getWorkersForProcDefKey(procDefKey);
 		
@@ -1283,13 +1204,10 @@ public class RestService extends MvcCore {
 	/**
 	* Add new external worker
 	*/
-	@ApiOperation(value = "Adds new external worker.", tags = {"Workers"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "hostname", value = "Hostname of the worker to add.", required = true, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Adds new external worker.", tags = {"Workers"})
 	@RequestMapping(value="/externalWorker/add", method = GET)
 	public @ResponseBody String addExternalWorker(
-			@RequestParam(value = "hostname") String hostname) {
+			@Parameter(description = "Hostname of the worker to add.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "hostname") String hostname) {
 
 		String workerId = UUID.randomUUID().toString();
 		String workerName = dbService.createExternalWorkerRow(workerId, hostname);
@@ -1305,31 +1223,21 @@ public class RestService extends MvcCore {
 	/**
 	* Update external worker heartbeat
 	*/
-	@ApiOperation(value = "Updates external worker heartbeat.", tags = {"Workers"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Updates external worker heartbeat.", tags = {"Workers"})
 	@RequestMapping(value="/externalWorker/{workerId}/heartbeat", method = GET)
-	public @ResponseBody void externalWorkerHeartbeat(@PathVariable String workerId) {
+	public @ResponseBody void externalWorkerHeartbeat(@Parameter(description = "ID of the worker to update.", required = true, schema = @Schema(type = "string")) @PathVariable String workerId) {
 
 		dbService.updateExternalWorkerHeartbeat(workerId);
 	}
 	
-	@ApiOperation(value = "Updates external worker.", tags = {"Workers"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "activeTopics", value = "Active topics of the worker to update.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "currentTopic", value = "Current topic of the worker to update.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "currentCommand", value = "Current command of the worker to update.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "currentWorkingDir", value = "Current working directory of the worker to update.", required = false, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Updates external worker.", tags = {"Workers"})
 	@RequestMapping(value = "/externalWorker/{workerId}/update", method = POST)
 	public @ResponseBody String updateExternalWorker(
-			@PathVariable String workerId,
-			@RequestParam(value = "activeTopics", required=false) String activeTopics,
-			@RequestParam(value = "currentTopic", required=false) String currentTopic,
-			@RequestParam(value = "currentCommand", required=false) String currentCommand,
-			@RequestParam(value = "currentWorkingDir", required=false) String currentWorkingDir) {
+			@Parameter(description = "ID of the worker to update.", required = true, schema = @Schema(type = "string")) @PathVariable String workerId,
+			@Parameter(description = "Active topics of the worker to update.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "activeTopics", required=false) String activeTopics,
+			@Parameter(description = "Current topic of the worker to update.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "currentTopic", required=false) String currentTopic,
+			@Parameter(description = "Current command of the worker to update.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "currentCommand", required=false) String currentCommand,
+			@Parameter(description = "Current working directory of the worker to update.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "currentWorkingDir", required=false) String currentWorkingDir) {
 		
 		try {
 			if (activeTopics != null) {
@@ -1359,24 +1267,15 @@ public class RestService extends MvcCore {
 	 * 
 	 * 
 	 */
-	@ApiOperation(value = "Gets the size of an instance", tags = {"Processes"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "superProcInstId", value = "Super process instance ID to get size for.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "procInstId", value = "Process instance ID to get size for.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "procDefKey", value = "Process definition key to get size for.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "status", value = "Status to get size for.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "minDate", value = "Minimum date to get size for.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "maxDate", value = "Maximum date to get size for.", required = false, paramType = "query", dataTypeClass = String.class)
-		// Removed maxReturn parameter - not needed with server-side pagination
-	})
+	@Operation(summary = "Gets the size of an instance", tags = {"Processes"})
 	@RequestMapping(value = "/processes/getInstancesSize", method = GET, produces="application/json")
 	public @ResponseBody int getInstancesSize(
-			@RequestParam(value = "superProcInstId", required=false) String superProcInstId,
-			@RequestParam(value = "procInstId", required=false) String procInstId,
-			@RequestParam(value = "procDefKey", required=false) String procDefKey,
-			@RequestParam(value = "status", required=false) String status,
-			@RequestParam(value = "minDate", required=false) String minDate,
-			@RequestParam(value = "maxDate", required=false) String maxDate
+			@Parameter(description = "Super process instance ID to get size for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "superProcInstId", required=false) String superProcInstId,
+			@Parameter(description = "Process instance ID to get size for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "procInstId", required=false) String procInstId,
+			@Parameter(description = "Process definition key to get size for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "procDefKey", required=false) String procDefKey,
+			@Parameter(description = "Status to get size for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "status", required=false) String status,
+			@Parameter(description = "Minimum date to get size for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "minDate", required=false) String minDate,
+			@Parameter(description = "Maximum date to get size for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "maxDate", required=false) String maxDate
 			// Removed maxReturn parameter - not needed with server-side pagination
 			) {
 
@@ -1398,13 +1297,10 @@ public class RestService extends MvcCore {
 		return size;
 	}
 
-	@ApiOperation(value = "Gets the status of a process isntance ID", tags = {"Processes", "History"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "procInstId", value = "Process instance ID to get status for.", required = true, paramType = "path", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Gets the status of a process instance ID", tags = {"Processes", "History"})
 	@RequestMapping(value="/history/getStatus/{procInstId}", method = GET)
 	public @ResponseBody String getStatusByProcInstId(
-			@PathVariable String procInstId) {
+			@Parameter(description = "Process instance ID to get status for.", required = true, schema = @Schema(type = "string")) @PathVariable String procInstId) {
 		List<CwsProcessInstance> instances = null;
 		instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
 				null, procInstId, null, null, null, null, "DESC", 0);
@@ -1419,34 +1315,23 @@ public class RestService extends MvcCore {
 	 * REST method used to get Processes table JSON
 	 * 
 	 */
-	@ApiOperation(value = "Gets camunda instances.", tags = {"Processes"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "superProcInstId", value = "Super process instance ID to get instances for.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "procInstId", value = "Process instance ID to get instances for.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "procDefKey", value = "Process definition key to get instances for.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "status", value = "Status to get instances for.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "minDate", value = "Minimum date to get instances for.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "maxDate", value = "Maximum date to get instances for.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "dateOrderBy", value = "Date order by to get instances for.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "page", value = "Page to get instances for.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "maxReturn", value = "Maximum number of results to return.", required = false, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Gets camunda instances.", tags = {"Processes"})
 	@RequestMapping(value = "/processes/getInstancesCamunda", method = GET, produces="application/json")
 	public @ResponseBody String getProcessInstancesCamunda(
-			@RequestParam(value = "superProcInstId",  required=false) String superProcInstId,
-			@RequestParam(value = "procInstId",  required=false) String procInstId,
-			@RequestParam(value = "procDefKey",  required=false) String procDefKey,
-			@RequestParam(value = "status",      required=false) String status,
-			@RequestParam(value = "minDate",     required=false) String minDate,
-			@RequestParam(value = "maxDate",     required=false) String maxDate,
-			@RequestParam(value = "dateOrderBy", required=false, defaultValue="DESC") String dateOrderBy,
-			@RequestParam(value = "page", required=false, defaultValue="0") String page,
-			@RequestParam(value = "pageSize", required=false, defaultValue="50") String pageSize,
-			@RequestParam(value = "start", required=false) String start,
-			@RequestParam(value = "length", required=false) String length,
-			@RequestParam(value = "draw", required=false) String draw,
-			@RequestParam(value = "maxReturn", required=false, defaultValue="-1") String maxReturn,
-			@RequestParam Map<String, String> allRequestParams // Handle SearchBuilder
+			@Parameter(description = "Super process instance ID to get instances for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "superProcInstId",  required=false) String superProcInstId,
+			@Parameter(description = "Process instance ID to get instances for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "procInstId",  required=false) String procInstId,
+			@Parameter(description = "Process definition key to get instances for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "procDefKey",  required=false) String procDefKey,
+			@Parameter(description = "Status to get instances for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "status",      required=false) String status,
+			@Parameter(description = "Minimum date to get instances for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "minDate",     required=false) String minDate,
+			@Parameter(description = "Maximum date to get instances for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "maxDate",     required=false) String maxDate,
+			@Parameter(description = "Date order by to get instances for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "dateOrderBy", required=false, defaultValue="DESC") String dateOrderBy,
+			@Parameter(description = "Page to get instances for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "page", required=false, defaultValue="0") String page,
+			@Parameter(description = "Page size to get instances for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "pageSize", required=false, defaultValue="50") String pageSize,
+			@Parameter(description = "Start index for DataTables pagination.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "start", required=false) String start,
+			@Parameter(description = "Length for DataTables pagination.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "length", required=false) String length,
+			@Parameter(description = "Draw counter for DataTables.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "draw", required=false) String draw,
+			@Parameter(description = "Maximum number of results to return.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "maxReturn", required=false, defaultValue="-1") String maxReturn,
+			@Parameter(description = "Additional request parameters for SearchBuilder.", required = false, schema = @Schema(implementation = Map.class)) @RequestParam Map<String, String> allRequestParams // Handle SearchBuilder
 			) {
 		
 		List<CwsProcessInstance> instances = null;
@@ -1530,7 +1415,7 @@ public class RestService extends MvcCore {
 	/**
 	* List of all process definitions and number of workers selected for each
 	*/
-	@ApiOperation(value = "Gets process definitions and number of workers selected for each.", tags = {"Processes"}, produces = "application/json")
+	@Operation(summary = "Gets process definitions and number of workers selected for each.", tags = {"Processes"})
 	@RequestMapping(value="/processes/getProcDefWorkerCount", method = GET)
 	public @ResponseBody String getProcDefWorkerCount() {
 		
@@ -1544,14 +1429,11 @@ public class RestService extends MvcCore {
 	 * 
 	 * 
 	 */
-	@ApiOperation(value = "Makes disabled processes pending", tags = {"Processes"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "uuids", value = "UUIDs of the processes to make pending.", required = true, paramType = "body", dataTypeClass = List.class)
-	})
+	@Operation(summary = "Makes disabled processes pending", tags = {"Processes"})
 	@RequestMapping(value = "/processes/makeDisabledRowsPending", method = POST)
 	public @ResponseBody String makeDisabledRowsPending(
-			@ApiIgnore final HttpSession session,
-			@RequestBody List<String> uuids) {
+			@Parameter(hidden = true) final HttpSession session,
+			@Parameter(description = "UUIDs of the processes to make pending.", required = true, schema = @Schema(implementation = List.class)) @RequestBody List<String> uuids) {
 		
 		log.info("*** REST CALL ***  /processes/makeDisabledRowsPending ... " + uuids.size());
 		
@@ -1572,14 +1454,11 @@ public class RestService extends MvcCore {
 	 * 
 	 * 
 	 */
-	@ApiOperation(value = "Makes pending processes disabled", tags = {"Processes"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "uuids", value = "UUIDs of the processes to make disabled.", required = true, paramType = "body", dataTypeClass = List.class)
-	})
+	@Operation(summary = "Makes pending processes disabled", tags = {"Processes"})
 	@RequestMapping(value = "/processes/makePendingRowsDisabled", method = POST)
 	public @ResponseBody String makePendingRowsDisabled(
-			@ApiIgnore final HttpSession session,
-			@RequestBody List<String> uuids) {
+			@Parameter(hidden = true) final HttpSession session,
+			@Parameter(description = "UUIDs of the processes to make disabled.", required = true, schema = @Schema(implementation = List.class)) @RequestBody List<String> uuids) {
 		
 		log.info("*** REST CALL ***  /processes/makePendingRowsDisabled ... " + uuids.size());
 		
@@ -1599,16 +1478,12 @@ public class RestService extends MvcCore {
 	 * Retry incidents
 	 *
 	 */
-	@ApiOperation(value = "Retries processes that have the status 'Incident'.", tags = {"Processes"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "retries", value = "Number of retries to set for the incidents.", required = true, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "uuids", value = "UUIDs of the processes to retry.", required = true, paramType = "body", dataTypeClass = List.class)
-	})
+	@Operation(summary = "Retries processes that have the status 'Incident'.", tags = {"Processes"})
 	@RequestMapping(value = "/processes/retryIncidentRows", method = POST)
 	public @ResponseBody ResponseEntity<String> retryIncidentRows(
-			@ApiIgnore final HttpSession session,
-			@RequestParam(defaultValue = "1") String retries,
-			@RequestBody List<String> uuids) {
+			@Parameter(hidden = true) final HttpSession session,
+			@Parameter(description = "Number of retries to set for the incidents.", required = false, schema = @Schema(type = "string")) @RequestParam(defaultValue = "1") String retries,
+			@Parameter(description = "UUIDs of the processes to retry.", required = true, schema = @Schema(implementation = List.class)) @RequestBody List<String> uuids) {
 
 		log.info("*** REST CALL ***  /processes/retryIncidentRows ... " + uuids.size());
 
@@ -1637,14 +1512,11 @@ public class RestService extends MvcCore {
 	 * Retry failedToStart
 	 *
 	 */
-	@ApiOperation(value = "Retries processes that have the status 'Failed to Start'.", tags = {"Processes"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "uuids", value = "UUIDs of the processes to retry.", required = true, paramType = "body", dataTypeClass = List.class)
-	})
+	@Operation(summary = "Retries processes that have the status 'Failed to Start'.", tags = {"Processes"})
 	@RequestMapping(value = "/processes/retryFailedToStart", method = POST)
 	public @ResponseBody ResponseEntity<String> retryFailedToStart(
-			@ApiIgnore final HttpSession session,
-			@RequestBody List<String> uuids) {
+			@Parameter(hidden = true) final HttpSession session,
+			@Parameter(description = "UUIDs of the processes to retry.", required = true, schema = @Schema(implementation = List.class)) @RequestBody List<String> uuids) {
 
 		log.info("*** REST CALL ***  /processes/retryFailedToStart ... " + uuids.size());
 
@@ -1662,14 +1534,11 @@ public class RestService extends MvcCore {
 	 * Mark 'fail' as resolved
 	 *
 	 */
-	@ApiOperation(value = "Marks processes that have the status 'Fail' as resolved.", tags = {"Processes"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "uuids", value = "UUIDs of the processes to mark as resolved.", required = true, paramType = "body", dataTypeClass = List.class)
-	})
+	@Operation(summary = "Marks processes that have the status 'Fail' as resolved.", tags = {"Processes"})
 	@RequestMapping(value = "/processes/markResolved", method = POST)
 	public @ResponseBody ResponseEntity<String> markResolved(
-			@ApiIgnore final HttpSession session,
-			@RequestBody List<String> procInstIds) {
+			@Parameter(hidden = true) final HttpSession session,
+			@Parameter(description = "UUIDs of the processes to mark as resolved.", required = true, schema = @Schema(implementation = List.class)) @RequestBody List<String> procInstIds) {
 
 		log.info("*** REST CALL ***  /processes/markResolved ... " + procInstIds.size());
 
@@ -1687,20 +1556,14 @@ public class RestService extends MvcCore {
 	 * 
 	 * 
 	 */
-	@ApiOperation(value = "Updates the enabled/disabled status of a process definition on a worker", tags = {"Processes", "Workers"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "procDefKey", value = "Key of the process definition to update.", required = true, paramType = "path", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "enabledFlag", value = "Flag to set the process definition to.", required = true, paramType = "path", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "processVariables", value = "Process variables to update.", required = false, paramType = "query", dataTypeClass = MultiValueMap.class)
-	})
+	@Operation(summary = "Updates the enabled/disabled status of a process definition on a worker", tags = {"Processes", "Workers"})
 	@RequestMapping(value = "/worker/{workerId}/{procDefKey}/updateWorkerProcDefEnabled/{enabledFlag}", method = POST)
 	public @ResponseBody String updateWorkerProcDefEnabled(
-			@ApiIgnore final HttpSession session,
-			@PathVariable String workerId,
-			@PathVariable String procDefKey,
-			@PathVariable String enabledFlag,
-			@RequestParam MultiValueMap<String,String> processVariables) {
+			@Parameter(hidden = true) final HttpSession session,
+			@Parameter(description = "ID of the worker to update.", required = true, schema = @Schema(type = "string")) @PathVariable String workerId,
+			@Parameter(description = "Key of the process definition to update.", required = true, schema = @Schema(type = "string")) @PathVariable String procDefKey,
+			@Parameter(description = "Flag to set the process definition to.", required = true, schema = @Schema(type = "string")) @PathVariable String enabledFlag,
+			@Parameter(description = "Process variables to update.", required = false, schema = @Schema(implementation = MultiValueMap.class)) @RequestParam MultiValueMap<String,String> processVariables) {
 		
 		log.info("*** REST CALL ***  updateWorkerProcDefEnabled (workerId='"+workerId+"', procDefKey='"+procDefKey+"', enabledFlag='"+enabledFlag+"')...");
 		
@@ -1722,13 +1585,10 @@ public class RestService extends MvcCore {
 	 * Suspends a process definition given its procDefId
 	 *
 	 */
-	@ApiOperation(value = "Suspends a process definition given its procDefId.", tags = {"Processes"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "procDefId", value = "ID of the process definition to suspend.", required = true, paramType = "path", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Suspends a process definition given its procDefId.", tags = {"Processes"})
 	@RequestMapping(value = "/deployments/suspend/{procDefId}", method = POST)
 	public @ResponseBody String suspendProcDefId(
-			@PathVariable String procDefId) {
+			@Parameter(description = "ID of the process definition to suspend.", required = true, schema = @Schema(type = "string")) @PathVariable String procDefId) {
 		log.info("*** REST CALL *** suspendProcDefId (procDefId=" + procDefId + ")");
 		String result = cwsConsoleService.suspendProcDefId(procDefId);
 		return result;
@@ -1738,13 +1598,10 @@ public class RestService extends MvcCore {
 	 * Activates a suspended process definition given its procDefId
 	 *
 	 */
-	@ApiOperation(value = "Activates a suspended process definition given its procDefId.", tags = {"Processes"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "procDefId", value = "ID of the process definition to activate.", required = true, paramType = "path", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Activates a suspended process definition given its procDefId.", tags = {"Processes"})
 	@RequestMapping(value = "/deployments/activate/{procDefId}", method = POST)
 	public @ResponseBody String activateProcDefId(
-			@PathVariable String procDefId ) {
+			@Parameter(description = "ID of the process definition to activate.", required = true, schema = @Schema(type = "string")) @PathVariable String procDefId ) {
 		log.info ("*** REST CALL *** activateProcDefId (procDefId" + procDefId + ")");
 		String result = cwsConsoleService.activateProcDefId(procDefId);
 		return result;
@@ -1755,14 +1612,11 @@ public class RestService extends MvcCore {
 	 *
 	 * Accepts an array of procInstIds and expects all of them to be running.
 	 */
-	@ApiOperation(value = "Deletes running process instances (Only pass running instances into this endpoint)", tags = {"Processes"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "procInstIds", value = "IDs of the process instances to delete. Expects all of the process instances in the list to be running.", required = true, paramType = "body", dataTypeClass = List.class)
-	})
+	@Operation(summary = "Deletes running process instances (Only pass running instances into this endpoint)", tags = {"Processes"})
 	@RequestMapping(value = "/processes/delete", method = POST)
 	public @ResponseBody String deleteRunningProcInsts(
-			@ApiIgnore final HttpSession session,
-			@RequestBody List<String> procInstIds) {
+			@Parameter(hidden = true) final HttpSession session,
+			@Parameter(description = "IDs of the process instances to delete. Expects all of the process instances in the list to be running.", required = true, schema = @Schema(implementation = List.class)) @RequestBody List<String> procInstIds) {
 		log.debug("*** REST CALL *** deleteRunningProcInsts");
 		String result = cwsConsoleService.deleteRunningProcInst(procInstIds);
 		return result;
@@ -1772,16 +1626,12 @@ public class RestService extends MvcCore {
 	 * 
 	 * 
 	 */
-	@ApiOperation(value = "Updates the number of job executor threads for a worker", tags = {"Workers"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "workerId", value = "ID of the worker to update.", required = true, paramType = "path", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "numThreads", value = "Number of threads to set for the worker.", required = true, paramType = "path", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Updates the number of job executor threads for a worker", tags = {"Workers"})
 	@RequestMapping(value = "/worker/{workerId}/updateNumJobExecThreads/{numThreads}", method = POST)
 	public @ResponseBody String updateWorkerNumJobExecThreads(
-			@ApiIgnore final HttpSession session,
-			@PathVariable String workerId,
-			@PathVariable String numThreads) {
+			@Parameter(hidden = true) final HttpSession session,
+			@Parameter(description = "ID of the worker to update.", required = true, schema = @Schema(type = "string")) @PathVariable String workerId,
+			@Parameter(description = "Number of threads to set for the worker.", required = true, schema = @Schema(type = "string")) @PathVariable String numThreads) {
 		
 		log.info("*** REST CALL ***  updateWorkerNumJobExecThreads (workerId='"+workerId+"', numThreads='"+numThreads+"')...");
 		
@@ -1824,10 +1674,10 @@ public class RestService extends MvcCore {
 	 * This cookie, can then be used to make future requests.
 	 * 
 	 */
-	@ApiOperation(value = "Authenticates the user via GET.", tags = {"Security"}, produces = "application/json")
+	@Operation(summary = "Authenticates the user via GET.", tags = {"Security"})
 	@RequestMapping(value="/authenticate", method = GET)
 	public @ResponseBody String authenticateViaGet(
-			@ApiIgnore final HttpSession session) {
+			@Parameter(hidden = true) final HttpSession session) {
 		log.debug("/authenticate call got through CWS security!");
 		return "{\"status\" : \"SUCCESS\", \"session\" : \"" + session.getId() + "\"}";
 	}
@@ -1841,10 +1691,10 @@ public class RestService extends MvcCore {
 	 * This cookie, can then be used to make future requests.
 	 * 
 	 */
-	@ApiOperation(value = "Authenticates the user via POST.", tags = {"Security"}, produces = "application/json")
+	@Operation(summary = "Authenticates the user via POST.", tags = {"Security"})
 	@RequestMapping(value = "/authenticate", method = POST)
 	public @ResponseBody String authenticateViaPost(
-			@ApiIgnore final HttpSession session,
+			@Parameter(hidden = true) final HttpSession session,
 			HttpServletResponse response) {
 		log.debug("/authenticate call got through CWS security!");
 		return "{\"status\" : \"SUCCESS\", \"session\" : \"" + session.getId() + "\"}";
@@ -1855,15 +1705,12 @@ public class RestService extends MvcCore {
 	 * Validates CWS token (checks for expiration)
 	 * 
 	 */
-	@ApiOperation(value = "Validates CWS token.", tags = {"Security"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "cwsToken", value = "CWS token to validate.", required = true, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Validates CWS token.", tags = {"Security"})
 	@RequestMapping(value = "/validateCwsToken", method = POST)
 	public @ResponseBody String validateCwsToken(
-			@ApiIgnore final HttpSession session,
+			@Parameter(hidden = true) final HttpSession session,
 			HttpServletResponse response,
-			@RequestParam String cwsToken) {
+			@Parameter(description = "CWS token to validate.", required = true, schema = @Schema(type = "string")) @RequestParam String cwsToken) {
 		log.trace("validateCwsToken... (cwsToken="+cwsToken+", session.id="+session.getId()+")");
 		boolean isValid = session.getId().equals(cwsToken);
 		log.trace("/validateCwsToken returning " + isValid);
@@ -1878,12 +1725,9 @@ public class RestService extends MvcCore {
 	 * For testing purposes - if you want to send messages to the built-in ActiveMQ broker
 	 * 
 	 */
-	@ApiOperation(value = "Posts a message to an AMQ queue.", tags = {"Messaging"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "payload", value = "Payload to post to the queue.", required = true, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Posts a message to an AMQ queue.", tags = {"Messaging"})
 	@RequestMapping(value = "/postAmqTopic", method = GET)
-	public @ResponseBody String postAmqTopic(@RequestParam(value = "payload", required=true) final String payload) {
+	public @ResponseBody String postAmqTopic(@Parameter(description = "Payload to post to the queue.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "payload", required=true) final String payload) {
 		log.debug("posting AMQ topic... payload: " + payload);
 		jmsProcessInitiatorTemplate.send(new MessageCreator() {
 			public Message createMessage(Session session) throws JMSException {
@@ -1901,15 +1745,11 @@ public class RestService extends MvcCore {
 	 * can make a call to get data from an external resource.
 	 * 
 	 */
-	@ApiOperation(value = "Makes an external HTTP GET request.", tags = {"External"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "url", value = "URL to make the GET request to.", required = true, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "acceptType", value = "Accept type for the request.", required = false, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Makes an external HTTP GET request.", tags = {"External"})
 	@RequestMapping(value = "/externalGetReq", method = GET)
 	public @ResponseBody String externalGetReq(
-			@RequestParam(value = "url", required=true) final String url,
-			@RequestParam(value = "acceptType", required=false) final String acceptType) {
+			@Parameter(description = "URL to make the GET request to.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "url", required=true) final String url,
+			@Parameter(description = "Accept type for the request.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "acceptType", required=false) final String acceptType) {
 		log.debug("making external HTTP GET (acceptType=" + acceptType + ") request with URL: " + url);
 		
 		RestCallResult restCallResult = null;
@@ -1933,16 +1773,12 @@ public class RestService extends MvcCore {
 	 * This call expects a parameter with a key of 'data' that holds the POST data body.
 	 * 
 	 */
-	@ApiOperation(value = "Makes an external HTTP POST request.", tags = {"External"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "url", value = "URL to make the POST request to.", required = true, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "contentType", value = "Content type for the request.", required = false, paramType = "query", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Makes an external HTTP POST request.", tags = {"External"})
 	@RequestMapping(value = "/externalPostReq", method = POST)
 	public @ResponseBody String externalPostReq(
 			HttpServletRequest request,
-			@RequestParam(value = "url", required=true) final String url,
-			@RequestParam(value = "contentType", required=false) final String contentType) {
+			@Parameter(description = "URL to make the POST request to.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "url", required=true) final String url,
+			@Parameter(description = "Content type for the request.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "contentType", required=false) final String contentType) {
 		
 		String postPayload = request.getParameter("data");
 		log.debug("making external HTTP POST request with URL=" + url + ", contentType="+contentType+", and postPayload=" + postPayload);
@@ -1969,18 +1805,13 @@ public class RestService extends MvcCore {
 	 * This call expects a parameter with a key of 'data' that holds the PUT data body.
 	 * 
 	 */
-	@ApiOperation(value = "Makes an external HTTP PUT request.", tags = {"External"}, produces = "application/json")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "url", value = "URL to make the PUT request to.", required = true, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "contentType", value = "Content type for the request.", required = false, paramType = "query", dataTypeClass = String.class),
-		@ApiImplicitParam(name = "payload", value = "Payload to post to the queue.", required = true, paramType = "body", dataTypeClass = String.class)
-	})
+	@Operation(summary = "Makes an external HTTP PUT request.", tags = {"External"})
 	@RequestMapping(value = "/externalPutReq", method = PUT)
 	public @ResponseBody String externalPutReq(
 			HttpServletRequest request,
-			@RequestParam(value = "url", required=true) final String url,
-			@RequestParam(value = "contentType", required=false) final String contentType,
-			@RequestBody String payload) {
+			@Parameter(description = "URL to make the PUT request to.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "url", required=true) final String url,
+			@Parameter(description = "Content type for the request.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "contentType", required=false) final String contentType,
+			@Parameter(description = "Payload to post to the queue.", required = true, schema = @Schema(type = "string")) @RequestBody String payload) {
 		
 		log.debug("making external HTTP PUT request with URL=" + url + ", contentType="+contentType+", and payload=" + payload);
 		

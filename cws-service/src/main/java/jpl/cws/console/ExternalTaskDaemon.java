@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 
-import javax.jms.Session;
+import jakarta.jms.Session;
 
 public class ExternalTaskDaemon extends Thread {
     private static final Logger log = LoggerFactory.getLogger(ElasticAndWorkerCleanupDaemon.class);

@@ -6,7 +6,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Map;
 
-import javax.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.ClientBuilder;
 
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;

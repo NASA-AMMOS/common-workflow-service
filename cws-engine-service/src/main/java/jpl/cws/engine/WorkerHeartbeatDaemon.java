@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 import jpl.cws.core.log.CwsWorkerLoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.util.Set;
 import java.util.stream.Collectors;
 

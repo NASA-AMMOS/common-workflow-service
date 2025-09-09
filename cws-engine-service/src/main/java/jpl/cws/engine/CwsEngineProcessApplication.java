@@ -4,15 +4,21 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.jms.Session;
+import jakarta.jms.Session;
 
 import com.google.gson.Gson;
 import jpl.cws.core.CmdLineInputFields;
-import org.apache.commons.mail.Email;
-import org.apache.commons.mail.HtmlEmail;
+import org.apache.commons.mail2.jakarta.Email;
+import org.apache.commons.mail2.jakarta.HtmlEmail;
 import org.camunda.bpm.application.PostDeploy;
 import org.camunda.bpm.application.PreUndeploy;
 import org.camunda.bpm.application.ProcessApplication;
+import org.camunda.bpm.application.AbstractProcessApplication;
+import org.camunda.bpm.application.ProcessApplicationReference;
+import org.camunda.bpm.application.ProcessApplicationUnavailableException;
+import org.camunda.bpm.application.impl.ProcessApplicationReferenceImpl;
+import org.camunda.bpm.engine.repository.DeploymentBuilder;
+
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.RepositoryService;
@@ -27,7 +33,6 @@ import org.camunda.bpm.engine.impl.context.Context;
 import org.camunda.bpm.engine.impl.context.CoreExecutionContext;
 import org.camunda.bpm.engine.impl.core.instance.CoreExecution;
 import org.camunda.bpm.engine.impl.el.ExpressionManager;
-import org.camunda.bpm.engine.spring.application.SpringServletProcessApplication;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
 import org.camunda.spin.plugin.variable.SpinValues;
@@ -48,7 +53,7 @@ import jpl.cws.core.service.ProcessService;
  * Process Application exposing this application's resources the process engine. 
  */
 @ProcessApplication
-public class CwsEngineProcessApplication extends SpringServletProcessApplication implements InitializingBean {
+public class CwsEngineProcessApplication extends AbstractProcessApplication implements InitializingBean {
 	
 	@Autowired private CwsWorkerLoggerFactory cwsWorkerLoggerFactory;
 	@Autowired private CodeService cwsCodeService;
@@ -79,6 +84,16 @@ public class CwsEngineProcessApplication extends SpringServletProcessApplication
 	@Value("${startup.autoregister.proces.defs}") private boolean startupAutoregisterProcessDefs;
 	
 	private Logger log;
+	
+	@Override
+	protected String autodetectProcessApplicationName() {
+		return "cws-engine-process-application";
+	}
+	
+	@Override
+	public ProcessApplicationReference getReference() {
+		return new ProcessApplicationReferenceImpl(this);
+	}
 	
 	/**
 	 * In a @PostDeploy Hook you can interact with the process engine and access 

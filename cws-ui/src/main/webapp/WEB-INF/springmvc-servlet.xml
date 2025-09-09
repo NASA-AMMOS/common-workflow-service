@@ -37,6 +37,7 @@
         <property name="freemarkerSettings">
             <props>
                 <prop key="default_encoding">UTF-8</prop>
+                <prop key="classic_compatible">true</prop>
             </props>
         </property>
     </bean>
@@ -50,6 +51,10 @@
       <property name="prefix" value=""/>
       <property name="suffix" value=".ftl"/>
       <property name="contentType" value="text/html;charset=UTF-8" />
+      <property name="exposeRequestAttributes" value="true"/>
+      <property name="exposeSessionAttributes" value="true"/>
+      <property name="exposeSpringMacroHelpers" value="true"/>
+      <property name="requestContextAttribute" value="rc"/>
     </bean>
     
 <!--      <bean id="viewResolver"

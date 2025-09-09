@@ -34,7 +34,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-email</artifactId>
+			<artifactId>commons-email2-jakarta</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-configuration</groupId>
@@ -83,6 +83,7 @@
 				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
 					<release>${java.version}</release>
+					<parameters>true</parameters>
 				</configuration>
 			</plugin>
 			<plugin>

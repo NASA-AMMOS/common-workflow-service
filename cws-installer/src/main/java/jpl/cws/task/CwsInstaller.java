@@ -2625,6 +2625,8 @@ public class CwsInstaller {
 				Paths.get(config_work_dir + SEP + "cws-ui" + SEP + "cws-ui.properties"));
 		copy(Paths.get( config_templates_dir + SEP + "cws-ui" + SEP + "applicationContext.xml"),
 				Paths.get(config_work_dir + SEP + "cws-ui" + SEP +  "applicationContext.xml"));
+		copy(Paths.get( config_templates_dir + SEP + "cws-ui" + SEP + "broker.xml"),
+				Paths.get(config_work_dir + SEP + "cws-ui" + SEP +  "broker.xml"));
 		copyAllType(
 				config_templates_dir + SEP + "cws-ui",
 				config_work_dir + SEP + "cws-ui", "ftl");
@@ -2813,6 +2815,25 @@ public class CwsInstaller {
 		copy(
 			Paths.get(config_work_dir + SEP + "engine-rest_mods" + SEP + "web.xml"),
 			Paths.get(cws_tomcat_webapps + SEP + "engine-rest" + SEP + "WEB-INF" + SEP + "web.xml"));
+
+		// CREATE ARTEMIS DIRECTORY STRUCTURE AND COPY BROKER.XML
+		print(" Creating Artemis directory structure and copying broker.xml...");
+		mkDir(cws_root + SEP + "server" + SEP + "artemis");
+		mkDir(cws_root + SEP + "server" + SEP + "artemis" + SEP + "etc");
+		mkDir(cws_root + SEP + "server" + SEP + "artemis" + SEP + "data");
+		mkDir(cws_root + SEP + "server" + SEP + "artemis" + SEP + "log");
+		mkDir(cws_root + SEP + "server" + SEP + "artemis" + SEP + "tmp");
+		
+		// Process broker.xml and replace placeholders
+		print(" Processing broker.xml and replacing placeholders...");
+		Path brokerXmlPath = Paths.get(config_work_dir + SEP + "cws-ui" + SEP + "broker.xml");
+		String brokerContent = getFileContents(brokerXmlPath);
+		brokerContent = brokerContent.replace("__CWS_AMQ_HOST__", cws_amq_host);
+		brokerContent = brokerContent.replace("__CWS_AMQ_PORT__", cws_amq_port);
+		brokerContent = brokerContent.replace("__CWS_ROOT_DIR__", cws_root);
+		
+		Path targetBrokerPath = Paths.get(cws_root + SEP + "server" + SEP + "artemis" + SEP + "etc" + SEP + "broker.xml");
+		writeToFile(targetBrokerPath, brokerContent);
 
 		deleteDirectory(new File(cws_tomcat_webapps + SEP + "h2"));
 		deleteDirectory(new File(cws_tomcat_webapps + SEP + "manager"));

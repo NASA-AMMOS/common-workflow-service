@@ -3,14 +3,14 @@ package jpl.cws.controller.custom;
 
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.Hidden;
 
 @Controller
 @RequestMapping("/api")
@@ -28,7 +28,7 @@ public class MyRestService {
 	 * Example POST service
 	 * 
 	 */
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/example", method = POST)
 	public @ResponseBody String example(
 			final HttpSession session) {

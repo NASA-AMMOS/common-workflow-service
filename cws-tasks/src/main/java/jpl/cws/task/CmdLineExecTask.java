@@ -30,8 +30,8 @@ import org.camunda.bpm.engine.delegate.Expression;
 import com.google.gson.Gson;
 
 import edu.rice.cs.util.ArgumentTokenizer;
-import jersey.repackaged.com.google.common.base.Function;
-import jersey.repackaged.com.google.common.collect.Collections2;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.camunda.spin.plugin.variable.SpinValues;
 import org.camunda.spin.plugin.variable.value.JsonValue;
 
@@ -220,16 +220,16 @@ public class CmdLineExecTask extends CwsTask {
 
 			// Get trimmed output variable
 			String outputStr = StringUtils.join(
-					Collections2.transform(sortedLines.values(), new StripOrderId<String, String>()), '\n');
+					sortedLines.values().stream().map(new StripOrderId<String, String>()).collect(Collectors.toList()), '\n');
 
 			// Set stdout output into variable
 			//
-			String stdoutStr = StringUtils.join(Collections2.transform(stdOutLines, new StripOrderId<String, String>()), '\n');
+			String stdoutStr = StringUtils.join(stdOutLines.stream().map(new StripOrderId<String, String>()).collect(Collectors.toList()), '\n');
 			cmdOutputFields.stdout = stdoutStr;
 
 			// Set stderr output into variable
 			//
-			String stderrStr = StringUtils.join(Collections2.transform(stdErrLines, new StripOrderId<String, String>()), '\n');
+			String stderrStr = StringUtils.join(stdErrLines.stream().map(new StripOrderId<String, String>()).collect(Collectors.toList()), '\n');
 			cmdOutputFields.stderr = stderrStr;
 
 			setStdOutVariables(stdOutLines);
@@ -327,8 +327,8 @@ public class CmdLineExecTask extends CwsTask {
 	private class StripOrderId<F, T> implements Function<F, T> {
 		@SuppressWarnings("unchecked")
 		@Override
-		public Object apply(Object f) {
-			return f.toString().replaceFirst("\\d+__", "");
+		public T apply(F f) {
+			return (T) f.toString().replaceFirst("\\d+__", "");
 		}
 	}
 

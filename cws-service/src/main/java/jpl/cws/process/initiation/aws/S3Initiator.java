@@ -3,7 +3,7 @@ package jpl.cws.process.initiation.aws;
 import jpl.cws.core.code.CodeService;
 import jpl.cws.partner.finding.custom.S3PartnerFinder;
 import jpl.cws.process.initiation.CwsProcessInitiator;
-import org.python.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -52,10 +52,15 @@ public class S3Initiator extends CwsProcessInitiator implements InitializingBean
 	@Autowired private ApplicationContext springContext;
 	@Autowired public CodeService cwsCodeService;
 
-	final ThreadFactory schedThreadFactory = new ThreadFactoryBuilder()
-			.setNameFormat("sched-%d")
-			.setDaemon(true)
-			.build();
+	final ThreadFactory schedThreadFactory = new ThreadFactory() {
+		private final AtomicInteger threadNumber = new AtomicInteger(1);
+		@Override
+		public Thread newThread(Runnable r) {
+			Thread t = new Thread(r, "sched-" + threadNumber.getAndIncrement());
+			t.setDaemon(true);
+			return t;
+		}
+	};
 	private ExecutorService schedPool;
 
 	//

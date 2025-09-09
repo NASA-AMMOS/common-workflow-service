@@ -44,7 +44,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
-import jersey.repackaged.com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.concurrent.atomic.AtomicInteger;
 import jpl.cws.core.db.SchedulerDbService;
 import jpl.cws.core.log.CwsWorkerLoggerFactory;
 import jpl.cws.core.service.SpringApplicationContext;
@@ -101,16 +101,26 @@ public class WorkerService implements InitializingBean {
 	
 	public static String lastProcCounterStatusMsg;
 	
-	final ThreadFactory processorThreadFactory = new ThreadFactoryBuilder()
-		.setNameFormat("procReq-Processor-%d")
-		.setDaemon(true)
-		.build();
+	final ThreadFactory processorThreadFactory = new ThreadFactory() {
+		private final AtomicInteger threadNumber = new AtomicInteger(1);
+		@Override
+		public Thread newThread(Runnable r) {
+			Thread t = new Thread(r, "procReq-Processor-" + threadNumber.getAndIncrement());
+			t.setDaemon(true);
+			return t;
+		}
+	};
 	private ExecutorService processorPool;
 	
-	final ThreadFactory starterThreadFactory = new ThreadFactoryBuilder()
-		.setNameFormat("procReq-Starter-%d")
-		.setDaemon(true)
-		.build();
+	final ThreadFactory starterThreadFactory = new ThreadFactory() {
+		private final AtomicInteger threadNumber = new AtomicInteger(1);
+		@Override
+		public Thread newThread(Runnable r) {
+			Thread t = new Thread(r, "procReq-Starter-" + threadNumber.getAndIncrement());
+			t.setDaemon(true);
+			return t;
+		}
+	};
 	private ExecutorService starterPool;
 	
 	private static long skippedMessages = 0;
