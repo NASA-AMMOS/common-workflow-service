@@ -60,6 +60,13 @@ jobs:
                </servers>
              </settings>" > ~/.m2/settings.xml
 
+      - name: Configure Camunda Download Credentials
+        run: |
+          echo "machine downloads.camunda.cloud
+              login ${{ secrets.CAMUNDA_DOWNLOAD_LOGIN }}
+              password ${{ secrets.CAMUNDA_DOWNLOAD_PASSWORD }}" > ~/.netrc
+          chmod 400 ~/.netrc
+           
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
@@ -79,7 +86,7 @@ jobs:
           mkdir ~/.cws/
           chmod 700 ~/.cws/
           echo ${{ secrets.KEYSTORE_PASSWORD }} > ~/.cws/creds
-          chmod 600 ~/.cws/creds
+          chmod 400 ~/.cws/creds
 
       - name: Download Logstash
         run: |

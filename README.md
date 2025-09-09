@@ -47,7 +47,7 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
 - **Store Your Keystore Password**: You will need to add your own creds file, which carries the keystore password, to this path: `~/.cws/creds`
   - Set the permissions for the **~/.cws/** directory and **creds** file as Owner-Only.
     - **~/.cws/** directory: `chmod 700 ~/.cws/`
-    - **~/.cws/creds** file: `chmod 600 ~/.cws/creds`
+    - **~/.cws/creds** file: `chmod 400 ~/.cws/creds`
 
 
 ### **Development Environment Configuration**
