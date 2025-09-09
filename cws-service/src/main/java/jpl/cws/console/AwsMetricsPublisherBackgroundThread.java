@@ -74,7 +74,7 @@ public class AwsMetricsPublisherBackgroundThread extends Thread {
 				
 				// Publish the number of workers metric to AWS
 				int numWorkers = getNumActiveWorkers();
-				publishMetric(NUM_ACTIVE_WORKERS_METRIC_NAME, new Double(numWorkers));
+				publishMetric(NUM_ACTIVE_WORKERS_METRIC_NAME, (double)numWorkers);
 				
 			} catch (InterruptedException e) {
 				log.warn("AwsMetricsPublisherBackgroundThread interrupted. Must be shutting down..");
@@ -195,7 +195,7 @@ public class AwsMetricsPublisherBackgroundThread extends Thread {
 	 */
 	private void publishMetric(String metricName, Double metricValue) {
 		if (metricValue == null) {
-			metricValue = new Double(0); // still publish a data point..
+			metricValue = 0.0; // still publish a data point..
 		}
 		
 		try {

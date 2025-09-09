@@ -533,7 +533,7 @@ public class CwsExternalTaskThread extends Thread  {
 			//
 			success = false; // false until proven success
 			for (String successCode : cmdInputFields.successfulValues.split(",")) {
-				success = new Boolean(Integer.parseInt(successCode) == exitValue);
+				success = Integer.parseInt(successCode) == exitValue;
 				if (success) {
 					break; // found a match, so must be success
 				}
@@ -547,7 +547,7 @@ public class CwsExternalTaskThread extends Thread  {
 			// Detect whether a certain event case applies (based on exit code)
 			//
 			for (String eventCode : exitCodeEventsMap.keySet()) {
-				if (new Boolean(Integer.parseInt(eventCode) == exitValue)) {
+				if (Integer.parseInt(eventCode) == exitValue) {
 					cmdOutputFields.event = exitCodeEventsMap.get(eventCode);
 					break; // can only be one event
 				}

@@ -186,7 +186,7 @@ public class CmdLineExecTask extends CwsTask {
 			//
 			success = false; // false until proven success
 			for (String successCode : successExitValuesSplit) {
-				success = new Boolean(Integer.parseInt(successCode.trim()) == exitValue);
+				success = Integer.parseInt(successCode.trim()) == exitValue;
 				if (success) {
 					break; // found a match, so must be success
 				}
@@ -200,7 +200,7 @@ public class CmdLineExecTask extends CwsTask {
 			// Detect whether a certain event case applies (based on exit code)
 			//
 			for (String eventCode : exitCodeEventsMap.keySet()) {
-				if (new Boolean(Integer.parseInt(eventCode) == exitValue)) {
+				if (Integer.parseInt(eventCode) == exitValue) {
 					cmdOutputFields.event = exitCodeEventsMap.get(eventCode);
 					break; // can only be one event
 				}
