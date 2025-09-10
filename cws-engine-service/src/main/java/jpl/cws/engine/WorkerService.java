@@ -514,6 +514,11 @@ public class WorkerService implements InitializingBean {
 			}
 			activeCount = null;
 		}
+		catch (javax.management.InstanceNotFoundException e) {
+			// This is expected during shutdown when Camunda MBeans are being cleaned up
+			log.debug("JMX MBean not found during heartbeat (likely during shutdown): " + e.getMessage());
+			// Don't log as error during shutdown to avoid noise
+		}
 		catch (Exception e) {
 			log.error("problem encountered during heartbeat()", e);
 		}

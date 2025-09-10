@@ -74,7 +74,7 @@ jobs:
               login ${{ secrets.CAMUNDA_DOWNLOAD_LOGIN }}
               password ${{ secrets.CAMUNDA_DOWNLOAD_PASSWORD }}" > ~/.netrc
           chmod 400 ~/.netrc
-      
+
       - name: Create open-source certs
         run: |
           cd cws-certs
@@ -160,7 +160,7 @@ jobs:
           name: test-screenshots
           path: test-screenshots/
 
-      - name: Cleanup private files
+      - name: Cleanup Private files
         if: always()
         run: |
           rm -rf ~/.camunda
@@ -251,7 +251,7 @@ jobs:
               login ${{ secrets.CAMUNDA_DOWNLOAD_LOGIN }}
               password ${{ secrets.CAMUNDA_DOWNLOAD_PASSWORD }}" > ~/.netrc
           chmod 400 ~/.netrc
-      
+
       - name: Create open-source certs
         run: |
           cd cws-certs
@@ -326,7 +326,7 @@ jobs:
           name: test-screenshots-advanced
           path: test-screenshots/
 
-      - name: Cleanup private files
+      - name: Cleanup Private files
         if: always()
         run: |
           rm -rf ~/.camunda
