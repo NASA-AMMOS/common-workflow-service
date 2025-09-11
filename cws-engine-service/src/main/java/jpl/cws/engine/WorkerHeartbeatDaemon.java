@@ -11,6 +11,7 @@ import jpl.cws.core.log.CwsWorkerLoggerFactory;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -30,7 +31,7 @@ public class WorkerHeartbeatDaemon extends Thread {
     private static final String LOCK_DAEMON = WorkerExternalTaskLockDaemon.class.getSimpleName();
     private static final String WORKER_DAEMON = WorkerDaemon.class.getSimpleName();
 
-    private volatile boolean running = true;
+    private final AtomicBoolean running = new AtomicBoolean(false);
 
     public WorkerHeartbeatDaemon() {
         setName("WorkerHeartbeatDaemon");
@@ -41,6 +42,7 @@ public class WorkerHeartbeatDaemon extends Thread {
     public void startDaemon() {
         log = cwsWorkerLoggerFactory.getLogger(this.getClass());
         log.info("Starting WorkerHeartbeatDaemon...");
+        running.set(true);
         this.start();
     }
 
@@ -49,19 +51,19 @@ public class WorkerHeartbeatDaemon extends Thread {
         int failures = 0;
 
         try {
-            while (running) {
+            while (running.get()) {
 
                 // Sleep in small chunks to respond faster to interrupts
                 try {
                     Thread.sleep(SLEEP_MS);
                 } catch (InterruptedException e) {
-                    if (!running) break;  // shutdown requested
+                    if (!running.get()) break;  // shutdown requested
                     log.warn("WorkerHeartbeatDaemon interrupted during sleep.");
                     Thread.currentThread().interrupt();
                     break;
                 }
 
-                if (!running) break;
+                if (!running.get()) break;
 
                 try {
                     Set<String> threadClasses = Thread.getAllStackTraces()
@@ -109,7 +111,7 @@ public class WorkerHeartbeatDaemon extends Thread {
     @PreDestroy
     public void stopDaemon() {
         log.info("Shutting down WorkerHeartbeatDaemon...");
-        running = false;
+        running.set(false);
         this.interrupt();
     }
 
