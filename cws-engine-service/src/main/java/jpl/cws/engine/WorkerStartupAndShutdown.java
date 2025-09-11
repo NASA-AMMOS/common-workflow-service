@@ -66,57 +66,8 @@ public class WorkerStartupAndShutdown implements ServletContextListener {
 			System.out.println("  Error destroying connection factory: " + e.getMessage());
 			e.printStackTrace();
 		}
-		
-		// Step 3: Stop worker daemons manually
-		try {
-			System.out.println("  Stopping worker daemons...");
-			WorkerHeartbeatDaemon workerHeartbeatDaemon = (WorkerHeartbeatDaemon)
-					SpringApplicationContext.getBean("workerHeartbeatDaemon");
-			WorkerDaemon workerDaemon = (WorkerDaemon)
-					SpringApplicationContext.getBean("workerDaemon");
-			WorkerExternalTaskLockDaemon workerExternalTaskLockDaemon = (WorkerExternalTaskLockDaemon)
-					SpringApplicationContext.getBean("workerExternalTaskLockDaemon");
-			WorkerService workerService = (WorkerService)
-					SpringApplicationContext.getBean("workerService");
-			
-			if (workerHeartbeatDaemon != null) {
-				System.out.println("    Stopping WorkerHeartbeatDaemon...");
-				workerHeartbeatDaemon.stopDaemon();
-				try {
-					workerHeartbeatDaemon.join(5000); // wait up to 5s to terminate
-					if (workerHeartbeatDaemon.isAlive()) {
-						System.out.println("    WorkerHeartbeatDaemon did not stop gracefully within 5 seconds");
-					} else {
-						System.out.println("    WorkerHeartbeatDaemon stopped successfully");
-					}
-				} catch (InterruptedException e) {
-					System.out.println("    Interrupted while waiting for WorkerHeartbeatDaemon to stop");
-					Thread.currentThread().interrupt();
-				}
-			}
-			
-			if (workerDaemon != null) {
-				System.out.println("    Interrupting WorkerDaemon...");
-				workerDaemon.interrupt();
-			}
-			
-			if (workerExternalTaskLockDaemon != null) {
-				System.out.println("    Interrupting WorkerExternalTaskLockDaemon...");
-				workerExternalTaskLockDaemon.interrupt();
-			}
-			
-			if (workerService != null) {
-				System.out.println("    Bringing worker down...");
-				workerService.bringWorkerDown();
-			}
-			
-			System.out.println("    Worker daemons stopped successfully.");
-		} catch (Exception e) {
-			System.out.println("  Error stopping worker daemons: " + e.getMessage());
-			e.printStackTrace();
-		}
 
-		// Step 4: Force shutdown of any remaining Netty threads and MySQL cleanup
+		// Step 3: Force shutdown of any remaining Netty threads and MySQL cleanup
 		try {
 			System.out.println("  Forcing shutdown of Netty threads and MySQL cleanup...");
 			
