@@ -53,7 +53,7 @@ public class WorkerHeartbeatDaemon extends Thread {
         try {
             while (running.get()) {
 
-                // Sleep in small chunks to respond faster to interrupts
+                // Sleep in small chunks to respond faster to interrupts 
                 try {
                     Thread.sleep(SLEEP_MS);
                 } catch (InterruptedException e) {
