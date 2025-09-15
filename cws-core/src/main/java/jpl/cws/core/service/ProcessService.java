@@ -9,7 +9,7 @@ import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.Session;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
@@ -121,7 +121,7 @@ public class ProcessService {
 			}
 			else {
 				log.warn("no Camunda knowledge of procInstId: " + procInstId);
-				log.warn(ExceptionUtils.getFullStackTrace(new Throwable()));
+				log.warn(ExceptionUtils.getStackTrace(new Throwable()));
 			}
 		}
 		else {

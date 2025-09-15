@@ -142,7 +142,7 @@ cp ${ROOT}/cws-tasks/cws-tasks-libs/commons-configuration-*.jar ${TOMCAT_LIB_DIR
 print 'Installing cws-ui libraries to Tomcat...'
 CWS_CONSOLE_WEBAPP=${CWS_TOMCAT_ROOT}/webapps/cws-ui
 cp ${CWS_CONSOLE_WEBAPP}/WEB-INF/lib/commons-io-*.jar      ${TOMCAT_LIB_DIR}
-cp ${CWS_CONSOLE_WEBAPP}/WEB-INF/lib/commons-lang-*.jar    ${TOMCAT_LIB_DIR}
+cp ${CWS_CONSOLE_WEBAPP}/WEB-INF/lib/commons-lang3-*.jar    ${TOMCAT_LIB_DIR}
 # Note: commons-logging is not copied as CWS uses Log4j2 with SLF4J bindings
 # cp ${CWS_CONSOLE_WEBAPP}/WEB-INF/lib/commons-logging-*.jar ${TOMCAT_LIB_DIR}
 
