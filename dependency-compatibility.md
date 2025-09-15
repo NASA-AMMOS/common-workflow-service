@@ -33,8 +33,8 @@
 
 | Library | Current Version | Compatible Versions | Notes |
 |---------|----------------|-------------------|-------|
-| **Commons-Lang3** | 3.17.0 | 3.17.x+ | ✅ Migrated from 2.x; use `org.apache.commons.lang3.*` |
-| **Commons-IO** | 2.7 | 2.7+ | ⚠️ Update recommended |
+| **Commons-Lang3** | 3.18.0 | 3.18.x+ | ✅ Migrated from 2.x; use `org.apache.commons.lang3.*` |
+| **Commons-IO** | 2.14.0 | 2.14.x+ | ✅ Updated |
 | **Commons-Exec** | 1.3 | 1.3+ | ✅ Stable |
 | **Commons-Email** | 2.0.0-M1 | 2.0.0+ | ✅ Stable |
 | **Commons-Text** | 1.10.0 | 1.10.x+ | ✅ Needed for `StringEscapeUtils` |
@@ -89,10 +89,6 @@
 
 ## 🔧 **Enforcement Rules**
 
-### **Banned Dependencies**
-- `commons-lang:commons-lang:*` - Replaced by `org.apache.commons:commons-lang3`
-- `commons-io:commons-io:2.7` - Outdated, missing security patches
-
 ### **Version Requirements**
 - Log4j: Must be 2.17.1 or higher (security requirement)
 - Java: Must be 17 or higher
@@ -101,7 +97,6 @@
 ## 📝 **Update Strategy**
 
 ### **Safe Updates (No Breaking Changes)**
-1. **Commons-IO**: 2.7 → 2.16.1
 2. **Gson**: 2.8.9 → 2.11.0
 3. **Jackson**: 2.16.1 → 2.18.1
 4. **Commons-Text**: Added at 1.10.0 for `StringEscapeUtils`
