@@ -114,7 +114,7 @@ cp ${INSTALL_DIR}/tomcat_root/not_authenticated.html ${CWS_TOMCAT_ROOT}/webapps/
 rm -rf ${CWS_TOMCAT_ROOT}/webapps/docs
 
 print 'Installing DB drivers to Tomcat...'
-cp ${ROOT}/cws-installer/cws-installer-libs/mysql-connector-java-*.jar ${TOMCAT_LIB_DIR}
+cp ${ROOT}/cws-installer/cws-installer-libs/mysql-connector-j-*.jar ${TOMCAT_LIB_DIR}
 cp ${ROOT}/cws-installer/cws-installer-libs/mariadb-java-client-*.jar  ${TOMCAT_LIB_DIR}
 cp ${ROOT}/cws-installer/cws-installer-libs/HikariCP-*.jar             ${TOMCAT_LIB_DIR}
 
@@ -137,7 +137,7 @@ cp ${ROOT}/cws-core/cws-core-libs/jakarta.activation-api-*.jar ${TOMCAT_LIB_DIR}
 cp ${ROOT}/cws-core/cws-core-libs/commons-email2-jakarta-*.jar ${TOMCAT_LIB_DIR}
 
 print 'Installing cws-tasks libraries to Tomcat...'
-cp ${ROOT}/cws-tasks/cws-tasks-libs/commons-configuration-*.jar ${TOMCAT_LIB_DIR}
+cp ${ROOT}/cws-tasks/cws-tasks-libs/commons-configuration2-*.jar ${TOMCAT_LIB_DIR}
 
 print 'Installing cws-ui libraries to Tomcat...'
 CWS_CONSOLE_WEBAPP=${CWS_TOMCAT_ROOT}/webapps/cws-ui
