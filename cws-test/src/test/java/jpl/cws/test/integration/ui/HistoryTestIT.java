@@ -60,47 +60,48 @@ public class HistoryTestIT extends WebTestUtil {
 
 			goToPage("processes");
 
-			waitForElementXPath("//input[@id=\'dt-search-0\']");
+			waitForElementXPath("//input[@id=\'dt-search-1\']");
 
 			sleep(5000);
 
-			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).click();
-			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys("test_history_page");
-			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys(Keys.ENTER);
+			driver.findElement(By.xpath("//input[@id=\'dt-search-1\']")).click();
+			driver.findElement(By.xpath("//input[@id=\'dt-search-1\']")).sendKeys("test_history_page");
+			driver.findElement(By.xpath("//input[@id=\'dt-search-1\']")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 
 			log.info("Verifying the header and output from the model.");
 			
-			// Try up to 3 times to interact with the history button
-			int maxRetries = 3;
-			boolean succeeded = false;
+			// Wait for process to complete and history button to be enabled
+			sleep(3000);
+			waitForElementXPath("//button[contains(text(),'History') and not(contains(@class, 'disabled'))]");
 			
-			for (int attempt = 1; attempt <= maxRetries && !succeeded; attempt++) {
+			// Find and click the history link
+			try {
+				// Find the anchor tag with history link
+				WebElement historyLink = findElByXPath("//a[contains(@href, 'history?procInstId')]");
+				String href = historyLink.getAttribute("href");
+				log.info("Found history link with href: " + href);
+				
+				JavascriptExecutor js = (JavascriptExecutor) driver;
+				js.executeScript("arguments[0].scrollIntoViewIfNeeded();", historyLink);
+				sleep(500);
+				
+				// Try regular click first, then JavaScript click if needed
 				try {
-					log.info("Attempt " + attempt + " to interact with history button");
-					// Get fresh reference to history button
-					WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
-					waitForElement(historyButton);
-					
-					// Refresh element before scrolling
-					historyButton = findElByXPath("//button[contains(text(),'History')]");
-					scrollTo(historyButton);
-					
-					// Refresh element before clicking
-					historyButton = findElByXPath("//button[contains(text(),'History')]");
-					historyButton.click();
-					
-					succeeded = true;
-					log.info("Successfully interacted with history button on attempt " + attempt);
-				} catch (org.openqa.selenium.StaleElementReferenceException e) {
-					if (attempt == maxRetries) {
-						log.error("Failed to interact with history button after " + maxRetries + " attempts");
-						throw e;
-					}
-					log.warn("Stale element on attempt " + attempt + ", retrying...");
-					sleep(1000); // Brief pause before retry
+					historyLink.click();
+				} catch (Exception e) {
+					log.info("Regular click intercepted, using JavaScript click");
+					js.executeScript("arguments[0].click();", historyLink);
 				}
+				
+				log.info("Successfully clicked history link");
+			} catch (Exception e) {
+				log.error("Failed to click history link: " + e.getMessage());
+				// Try fallback with button
+				WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
+				JavascriptExecutor js = (JavascriptExecutor) driver;
+				js.executeScript("arguments[0].click();", historyButton);
 			}
 
 			findOnPage("History");

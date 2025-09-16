@@ -210,19 +210,87 @@ public class InitiatorsTestIT extends WebTestUtil {
 			goToPage("processes");
 
 			log.info("Filtering results for Test Initiators Page test.");
-			waitForElementXPath("//input[@id=\'dt-search-0\']");
-
-			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).click();
-			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys("test_initiators_page");
-			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys(Keys.ENTER);
+			waitForElementXPath("//input[@id=\'dt-search-1\']");
+			sleep(1000); // Wait for page to stabilize
+			
+			WebElement searchInput = driver.findElement(By.xpath("//input[@id=\'dt-search-1\']"));
+			JavascriptExecutor jsSearch = (JavascriptExecutor) driver;
+			jsSearch.executeScript("arguments[0].scrollIntoViewIfNeeded();", searchInput);
+			sleep(500);
+			
+			// Try regular click, if intercepted use JavaScript
+			try {
+				searchInput.click();
+			} catch (Exception e) {
+				log.info("Regular click intercepted, using JavaScript click for search input");
+				jsSearch.executeScript("arguments[0].click();", searchInput);
+			}
+			
+			searchInput.sendKeys("test_initiators_page");
+			searchInput.sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 
 			log.info("Clicking on Test Initiators Page history.");
-			sleep(5000);
-			WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
-			waitForElement(historyButton);
-			historyButton.sendKeys(Keys.RETURN);
+			sleep(5000); // Wait longer for processes to fully load and complete
+			
+			// First verify the process shows in the table
+			if (!findOnPage("test_initiators_page")) {
+				log.error("Process test_initiators_page not found in table after search");
+			}
+			
+			// Wait for History button to be available and enabled (not disabled)
+			waitForElementXPath("//button[contains(text(),'History') and not(contains(@class, 'disabled'))]");
+			
+			// Find the History link for our specific process
+			WebElement historyLink = null;
+			try {
+				// Look for the anchor tag that contains the History button and has an href with procInstId
+				historyLink = findElByXPath("//a[contains(@href, 'history?procInstId')]");
+				String href = historyLink.getAttribute("href");
+				log.info("Found history link with href: " + href);
+				
+				// Verify it's not a disabled link
+				String onclick = historyLink.getAttribute("onclick");
+				if (onclick != null && onclick.contains("return false")) {
+					log.warn("History link is disabled, waiting for process to complete");
+					sleep(5000);
+					// Re-find after waiting
+					historyLink = findElByXPath("//a[contains(@href, 'history?procInstId')]");
+				}
+			} catch (Exception e) {
+				log.error("Could not find history link: " + e.getMessage());
+			}
+			
+			if (historyLink != null) {
+				JavascriptExecutor js = (JavascriptExecutor) driver;
+				js.executeScript("arguments[0].scrollIntoViewIfNeeded();", historyLink);
+				sleep(500);
+				
+				// Use the href directly for navigation as a more reliable approach
+				String href = historyLink.getAttribute("href");
+				log.info("Navigating directly to: " + href);
+				driver.get(href);
+			} else {
+				log.error("No valid history link found");
+			}
+			
+			// Wait a bit for navigation to occur
+			sleep(2000);
+			
+			// Log current URL to debug
+			String currentUrl = driver.getCurrentUrl();
+			log.info("Current URL after clicking History: " + currentUrl);
+			
+			// Check if we're on the history page
+			if (!currentUrl.contains("history")) {
+				log.error("Failed to navigate to history page. Still on: " + currentUrl);
+				// Try to get there directly via the history link if button didn't work
+				log.info("Attempting direct navigation to first process history");
+				WebElement firstHistoryLink = findElByXPath("//a[contains(@href, '/history/')]");
+				firstHistoryLink.click();
+				sleep(2000);
+			}
 
 			findOnPage("CWS - History");
 

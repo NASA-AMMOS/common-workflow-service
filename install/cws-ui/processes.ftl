@@ -744,7 +744,7 @@
                     select: { style: 'multi+shift', selector: 'td:first-child' },
                     order: [[2, 'asc']], // Default sort by Definition Key,
                     ordering: false, // This disables all sorting functionality
-                    searching: false, // Remove for now due to server-side
+                    searching: true, // Enable search functionality
                     searchDelay: 250 // Added from original config
                 });
                 
