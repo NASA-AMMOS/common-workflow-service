@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -51,7 +52,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			if(Integer.toString(testCasesCompleted).equals("5")) {
 				scriptPass = true;
 			} else {
-				log.info("Not all test cases passed. Only "+ testCasesCompleted + "/4 passed.");
+				log.info("Not all test cases passed. Only "+ testCasesCompleted + "/5 passed.");
 			}
 
 			log.info("------ END SnippetsTestIT::runSnippetsPageTest ------");
@@ -62,7 +63,7 @@ public class SnippetsTestIT extends WebTestUtil {
 		}
 		deleteProc("test_snippets_page");
 		logout();
-		assertTrue("Initiators Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
+		assertTrue("Snippets Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
 	public void runSnippetsModelTest() throws IOException {
@@ -109,7 +110,30 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			waitForElementID("validateAndSaveSnippetsSubmitBtn");
 			log.info("Saving snippet changes..");
-			driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn")).click();
+			WebElement saveButton = driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn"));
+			js.executeScript("arguments[0].scrollIntoViewIfNeeded();", saveButton);
+			sleep(1000);
+			saveButton.click();
+			
+			// Wait for page to reload after form submission
+			sleep(3000); 
+			
+			// Wait for the page to be on snippets page again after submission
+			waitForElementID("statusMessageDiv");
+			
+			// Check if save was successful - look for success message or absence of error
+			WebElement statusDiv = driver.findElement(By.id("statusMessageDiv"));
+			String statusText = statusDiv.getText();
+			log.info("Status message after save: " + statusText);
+			
+			if (statusText.contains("ERROR:")) {
+				log.error("Failed to save snippets - error message: " + statusText);
+				scriptPass = false;
+				return;
+			}
+			
+			// Give time for the success message to be visible before navigating away
+			sleep(2000);
 
 			goToPage("deployments");
 
@@ -118,18 +142,20 @@ public class SnippetsTestIT extends WebTestUtil {
 			goToPage("processes");
 			sleep(8000);
 
-			waitForElementXPath("//input[@id=\'dt-search-0\']");
+			waitForElementXPath("//input[@id=\'dt-search-1\']");
 
-			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).click();
-			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys("test_snippets_page");
-			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys(Keys.ENTER);
+			driver.findElement(By.xpath("//input[@id=\'dt-search-1\']")).click();
+			driver.findElement(By.xpath("//input[@id=\'dt-search-1\']")).sendKeys("test_snippets_page");
+			driver.findElement(By.xpath("//input[@id=\'dt-search-1\']")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
+			sleep(2000); // Wait for table to stabilize after search
 
 			log.info("Clicking on Test Snippets Page history.");
+			waitForElementXPath("//button[contains(text(),'History')]");
 			WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
-			waitForElement(historyButton);
 			scrollTo(historyButton);
+			sleep(500); // Brief pause before click
 			historyButton.click();
 
 			findOnPage("CWS - History");
@@ -160,12 +186,24 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			waitForElementID("validateAndSaveSnippetsSubmitBtn");
 			log.info("Clicking on 'Validate and Save' button.");
+			sleep(1000); // Wait for page to be ready
 			
 			WebElement validateAndSaveButton = driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn"));
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 	  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", validateAndSaveButton);
-
-	  		validateAndSaveButton.click();
+			sleep(500); // Brief pause after scroll
+			
+			// Try regular click first, if intercepted use JavaScript click
+			try {
+				validateAndSaveButton.click();
+			} catch (ElementClickInterceptedException e) {
+				log.info("Regular click intercepted, using JavaScript click");
+				js.executeScript("arguments[0].click();", validateAndSaveButton);
+			}
+			
+			// Wait for page to reload after form submission
+			sleep(2000);
+			waitForElementID("statusMessageDiv");
 
 			log.info("Verifying 'Saved the snippets' shows up on the page.");
 			if(findOnPage("Saved the snippets")) {
