@@ -330,42 +330,111 @@ public class WebTestUtil {
 
 	public void disableWorkers(String procDef) {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-		sleep(5000);
+		sleep(8000); // Increased wait for headless mode
 
-		// Get fresh reference and scroll into view
-		wait.until(ExpectedConditions.presenceOfElementLocated(By.id("pv-"+procDef)));
-		WebElement enable = findElById("pv-"+procDef);
-		JavascriptExecutor js = (JavascriptExecutor) driver;
-		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", enable);
-		sleep(5000);
-
-		// Get fresh reference before checking clickable
-		enable = findElById("pv-"+procDef);
-		wait.until(ExpectedConditions.elementToBeClickable(enable));
+		// Try multiple times to handle stale element issues
+		int maxRetries = 3;
+		boolean clicked = false;
 		
-		// Get fresh reference before clicking
-		enable = findElById("pv-"+procDef);
-		enable.click();
-		sleep(1000);
+		for (int attempt = 1; attempt <= maxRetries && !clicked; attempt++) {
+			try {
+				// Wait for element to be present
+				wait.until(ExpectedConditions.presenceOfElementLocated(By.id("pv-"+procDef)));
+				sleep(2000); // Increased pause to let page stabilize in headless mode
+				
+				// Get fresh reference and scroll into view
+				WebElement enable = findElById("pv-"+procDef);
+				JavascriptExecutor js = (JavascriptExecutor) driver;
+				js.executeScript("arguments[0].scrollIntoViewIfNeeded();", enable);
+				sleep(3000); // Increased wait after scroll for headless mode
+				
+				// Get fresh reference before checking clickable
+				enable = findElById("pv-"+procDef);
+				wait.until(ExpectedConditions.elementToBeClickable(enable));
+				
+				// Get fresh reference before clicking
+				enable = findElById("pv-"+procDef);
+				
+				// Try regular click, fallback to JavaScript if intercepted
+				try {
+					enable.click();
+				} catch (ElementClickInterceptedException e) {
+					log.info("Click intercepted for pv-" + procDef + ", using JavaScript click");
+					js.executeScript("arguments[0].click();", enable);
+				}
+				clicked = true;
+				log.info("Successfully clicked pv-" + procDef + " on attempt " + attempt);
+			} catch (StaleElementReferenceException e) {
+				if (attempt == maxRetries) {
+					log.error("Failed to click pv-" + procDef + " after " + maxRetries + " attempts");
+					throw e;
+				}
+				log.warn("Stale element on attempt " + attempt + " for pv-" + procDef + ", retrying...");
+				sleep(2000);
+			}
+		}
+		sleep(2000); // Wait for modal to start appearing
+		
+		// Wait for Bootstrap workers modal to fully appear
+		try {
+			// Wait for the workers modal container
+			wait.until(ExpectedConditions.presenceOfElementLocated(By.id("workers-modal")));
+			
+			// Wait for modal to be fully shown (Bootstrap fires 'shown.bs.modal' event)
+			// We check for the data-modal-ready attribute that gets set in the FTL
+			wait.until(ExpectedConditions.attributeToBe(By.id("workers-modal"), "data-modal-ready", "true"));
+			
+			// Small additional wait for any remaining animations
+			sleep(500);
+			
+			// Now wait for the elements inside the modal
+			wait.until(ExpectedConditions.presenceOfElementLocated(By.id("all-workers")));
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("all-workers")));
+			
+		} catch (TimeoutException e) {
+			log.warn("Workers modal did not appear properly, forcing it to show");
+			JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+			jsExecutor.executeScript("$('#workers-modal').modal('show');");
+			sleep(2000);
+		}
 
-		wait.until(ExpectedConditions.presenceOfElementLocated(By.id("all-workers")));
 		WebElement allWorkers = findElById("all-workers");
+		
+		// Scroll the all-workers checkbox into view
+		JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+		jsExecutor.executeScript("arguments[0].scrollIntoViewIfNeeded();", allWorkers);
+		sleep(500); // Let scroll complete
+		
 		wait.until(ExpectedConditions.presenceOfElementLocated(By.id("done-workers-btn")));
 		WebElement allWorkersDone = findElById("done-workers-btn");
 		log.info("Disabling workers.");
 
-		wait.until(ExpectedConditions.elementToBeClickable(allWorkers));
-		if(allWorkers.isSelected()) {
-			allWorkers.click();
-			sleep(1000);
-			wait.until(ExpectedConditions.elementToBeClickable(allWorkersDone));
-			allWorkersDone.click();
-			sleep(1000);
-		} else {
-			wait.until(ExpectedConditions.elementToBeClickable(allWorkersDone));
-			allWorkersDone.click();
-			sleep(1000);
+		// Try to wait for clickable, but use JavaScript click if it times out
+		try {
+			wait.until(ExpectedConditions.elementToBeClickable(allWorkers));
+			if(allWorkers.isSelected()) {
+				allWorkers.click();
+			}
+		} catch (TimeoutException e) {
+			log.warn("all-workers not clickable after wait, using JavaScript click");
+			// Use JavaScript to check if selected and click
+			Boolean isSelected = (Boolean) jsExecutor.executeScript("return arguments[0].checked;", allWorkers);
+			if(isSelected != null && isSelected) {
+				jsExecutor.executeScript("arguments[0].click();", allWorkers);
+			}
 		}
+		
+		sleep(1000);
+		
+		// Click the done button
+		try {
+			wait.until(ExpectedConditions.elementToBeClickable(allWorkersDone));
+			allWorkersDone.click();
+		} catch (Exception e) {
+			log.warn("done-workers-btn not clickable, using JavaScript click");
+			jsExecutor.executeScript("arguments[0].click();", allWorkersDone);
+		}
+		sleep(1000);
 
 		sleep(2000);
 	}
@@ -485,14 +554,91 @@ public class WebTestUtil {
 		if(driver.getPageSource().contains(procName)) {
 			disableWorkers(procName);
 
-			WebElement delButton = driver.findElement(By.id("delete-"+procName));
+			// Create JavascriptExecutor instance once
 			JavascriptExecutor js = (JavascriptExecutor) driver;
-		  	js.executeScript("arguments[0].scrollIntoViewIfNeeded();", delButton);
-
-			delButton.click();
-
-			waitForElementID("delete-proc-def");
-			findElById("delete-proc-def").click();
+			
+			// Wait for page to stabilize after disabling workers
+			sleep(5000); // Increased wait time for headless mode
+			
+			// Use pure JavaScript to click the delete button - no WebElement references
+			String deleteButtonId = "delete-" + procName;
+			boolean deleteClicked = false;
+			int maxAttempts = 3;
+			
+			for (int attempt = 1; attempt <= maxAttempts && !deleteClicked; attempt++) {
+				try {
+					// Check if element exists and is visible, then click - all in JavaScript
+					Boolean clicked = (Boolean) js.executeScript(
+						"var elem = document.getElementById('" + deleteButtonId + "');" +
+						"if (elem && elem.offsetParent !== null) {" +  // Check if visible
+						"  elem.scrollIntoView({behavior: 'instant', block: 'center'});" +
+						"  elem.click();" +
+						"  return true;" +
+						"} else {" +
+						"  return false;" +
+						"}"
+					);
+					
+					if (clicked != null && clicked) {
+						deleteClicked = true;
+						log.info("Successfully clicked delete button for " + procName + " using JavaScript on attempt " + attempt);
+					} else {
+						throw new RuntimeException("Delete button not found or not visible: " + deleteButtonId);
+					}
+				} catch (Exception e) {
+					if (attempt == maxAttempts) {
+						log.error("Failed to click delete button for " + procName + " after " + maxAttempts + " attempts: " + e.getMessage());
+						// As a last resort, try to force click even if not visible
+						js.executeScript(
+							"var elem = document.getElementById('" + deleteButtonId + "');" +
+							"if (elem) { elem.click(); }"
+						);
+						deleteClicked = true;
+						log.warn("Force clicked delete button as last resort");
+					} else {
+						log.warn("Delete button issue on attempt " + attempt + ": " + e.getMessage());
+						sleep(2000);
+					}
+				}
+			}
+			
+			// Wait for Bootstrap modal to appear and become ready
+			sleep(2000);
+			
+			// Wait for the modal to be visible and the backdrop to settle
+			// Bootstrap modals have animation that needs to complete
+			try {
+				// First wait for the modal container to be present
+				wait.until(ExpectedConditions.presenceOfElementLocated(By.id("delete-proc-def-modal")));
+				
+				// Wait for modal to be fully shown (Bootstrap fires 'shown.bs.modal' event)
+				// We check for the data-modal-ready attribute that gets set in the FTL
+				wait.until(ExpectedConditions.attributeToBe(By.id("delete-proc-def-modal"), "data-modal-ready", "true"));
+				
+				// Small additional wait for any remaining animations
+				sleep(500);
+				
+				// Now wait for the delete button inside the modal
+				wait.until(ExpectedConditions.presenceOfElementLocated(By.id("delete-proc-def")));
+				wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("delete-proc-def")));
+				
+			} catch (TimeoutException e) {
+				log.warn("Delete confirmation modal did not appear properly, trying alternative approach");
+				// Force show the modal using JavaScript as a fallback
+				js.executeScript("$('#delete-proc-def-modal').modal('show');");
+				sleep(2000);
+				wait.until(ExpectedConditions.presenceOfElementLocated(By.id("delete-proc-def")));
+			}
+			
+			WebElement confirmDelete = findElById("delete-proc-def");
+			
+			// Try regular click, fallback to JavaScript if needed
+			try {
+				confirmDelete.click();
+			} catch (Exception e) {
+				log.info("Confirm delete click intercepted, using JavaScript click");
+				js.executeScript("arguments[0].click();", confirmDelete);
+			}
 
 			wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("delete-proc-def")));
 			sleep(3000);

@@ -209,23 +209,24 @@ public class WebTestIT extends WebTestUtil {
 			sleep(1000);
 			log.info("Found a completed task.");
 
-			waitForElementXPath("//input[@id=\'dt-search-0\']");
+			waitForElementXPath("//input[@id=\'dt-search-1\']");
 
-			WebElement filter = driver.findElement(By.xpath("//input[@id=\'dt-search-0\']"));
+			WebElement filter = driver.findElement(By.xpath("//input[@id=\'dt-search-1\']"));
 
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 	  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", filter);
 	  		// filter.click();
 
-			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys("test_hello_world");
-			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys(Keys.ENTER);
+			driver.findElement(By.xpath("//input[@id=\'dt-search-1\']")).sendKeys("test_hello_world");
+			driver.findElement(By.xpath("//input[@id=\'dt-search-1\']")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 
 			waitForElementXPath("//button[contains(text(),'History')]");
+			sleep(1000); // Wait for table to stabilize after search
 			WebElement historyButton = driver.findElement(By.xpath("//button[contains(text(),'History')]"));
 			js.executeScript("arguments[0].scrollIntoViewIfNeeded();", historyButton);
-			
+			sleep(500); // Brief pause before click
 			historyButton.click();
 			sleep(1000);
 
@@ -259,23 +260,24 @@ public class WebTestIT extends WebTestUtil {
 			sleep(1000);
 			log.info("Found a completed task.");
 
-			waitForElementXPath("//input[@id=\'dt-search-0\']");
+			waitForElementXPath("//input[@id=\'dt-search-1\']");
 
-			WebElement filter = driver.findElement(By.xpath("//input[@id=\'dt-search-0\']"));
+			WebElement filter = driver.findElement(By.xpath("//input[@id=\'dt-search-1\']"));
 
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 	  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", filter);
 
 			// filter.click();
-			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys("test_groovy_script");
-			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys(Keys.ENTER);
+			driver.findElement(By.xpath("//input[@id=\'dt-search-1\']")).sendKeys("test_groovy_script");
+			driver.findElement(By.xpath("//input[@id=\'dt-search-1\']")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
 
 			waitForElementXPath("//button[contains(text(),'History')]");
+			sleep(1000); // Wait for table to stabilize after search
 			WebElement historyButton = driver.findElement(By.xpath("//button[contains(text(),'History')]"));
 			js.executeScript("arguments[0].scrollIntoViewIfNeeded();", historyButton);
-
+			sleep(500); // Brief pause before click
 			historyButton.click();
 
 			sleep(1000);

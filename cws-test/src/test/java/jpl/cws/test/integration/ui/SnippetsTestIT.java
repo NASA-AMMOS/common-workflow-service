@@ -3,7 +3,6 @@ package jpl.cws.test.integration.ui;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -11,15 +10,14 @@ import java.util.logging.Level;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.logging.LogType;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +49,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			if(Integer.toString(testCasesCompleted).equals("5")) {
 				scriptPass = true;
 			} else {
-				log.info("Not all test cases passed. Only "+ testCasesCompleted + "/4 passed.");
+				log.info("Not all test cases passed. Only "+ testCasesCompleted + "/5 passed.");
 			}
 
 			log.info("------ END SnippetsTestIT::runSnippetsPageTest ------");
@@ -62,7 +60,7 @@ public class SnippetsTestIT extends WebTestUtil {
 		}
 		deleteProc("test_snippets_page");
 		logout();
-		assertTrue("Initiators Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
+		assertTrue("Snippets Page Test reported unexpected success value (scriptPass="+scriptPass+")", scriptPass);
 	}
 
 	public void runSnippetsModelTest() throws IOException {
@@ -109,7 +107,30 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			waitForElementID("validateAndSaveSnippetsSubmitBtn");
 			log.info("Saving snippet changes..");
-			driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn")).click();
+			WebElement saveButton = driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn"));
+			js.executeScript("arguments[0].scrollIntoViewIfNeeded();", saveButton);
+			sleep(1000);
+			saveButton.click();
+			
+			// Wait for page to reload after form submission
+			sleep(3000); 
+			
+			// Wait for the page to be on snippets page again after submission
+			waitForElementID("statusMessageDiv");
+			
+			// Check if save was successful - look for success message or absence of error
+			WebElement statusDiv = driver.findElement(By.id("statusMessageDiv"));
+			String statusText = statusDiv.getText();
+			log.info("Status message after save: " + statusText);
+			
+			if (statusText.contains("ERROR:")) {
+				log.error("Failed to save snippets - error message: " + statusText);
+				scriptPass = false;
+				return;
+			}
+			
+			// Give time for the success message to be visible before navigating away
+			sleep(2000);
 
 			goToPage("deployments");
 
@@ -118,19 +139,31 @@ public class SnippetsTestIT extends WebTestUtil {
 			goToPage("processes");
 			sleep(8000);
 
-			waitForElementXPath("//input[@id=\'dt-search-0\']");
+			waitForElementXPath("//input[@id=\'dt-search-1\']");
 
-			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).click();
-			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys("test_snippets_page");
-			driver.findElement(By.xpath("//input[@id=\'dt-search-0\']")).sendKeys(Keys.ENTER);
+			driver.findElement(By.xpath("//input[@id=\'dt-search-1\']")).click();
+			driver.findElement(By.xpath("//input[@id=\'dt-search-1\']")).sendKeys("test_snippets_page");
+			driver.findElement(By.xpath("//input[@id=\'dt-search-1\']")).sendKeys(Keys.ENTER);
 
 			waitForElementID("processes-table");
+			sleep(5000); // Wait longer for process to complete
 
 			log.info("Clicking on Test Snippets Page history.");
-			WebElement historyButton = findElByXPath("//button[contains(text(),'History')]");
-			waitForElement(historyButton);
-			scrollTo(historyButton);
-			historyButton.click();
+			// Wait for History button that is NOT disabled
+			waitForElementXPath("//button[contains(text(),'History') and not(contains(@class, 'disabled'))]");
+			sleep(1000); // Additional wait to ensure button is ready
+			
+			WebElement historyButton = findElByXPath("//button[contains(text(),'History') and not(contains(@class, 'disabled'))]");
+			js.executeScript("arguments[0].scrollIntoViewIfNeeded();", historyButton);
+			sleep(500); // Brief pause after scroll
+			
+			// Try regular click, use JavaScript if intercepted
+			try {
+				historyButton.click();
+			} catch (ElementClickInterceptedException e) {
+				log.info("History button click intercepted, using JavaScript click");
+				js.executeScript("arguments[0].click();", historyButton);
+			}
 
 			findOnPage("CWS - History");
 
@@ -160,12 +193,24 @@ public class SnippetsTestIT extends WebTestUtil {
 
 			waitForElementID("validateAndSaveSnippetsSubmitBtn");
 			log.info("Clicking on 'Validate and Save' button.");
+			sleep(1000); // Wait for page to be ready
 			
 			WebElement validateAndSaveButton = driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn"));
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 	  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", validateAndSaveButton);
-
-	  		validateAndSaveButton.click();
+			sleep(500); // Brief pause after scroll
+			
+			// Try regular click first, if intercepted use JavaScript click
+			try {
+				validateAndSaveButton.click();
+			} catch (ElementClickInterceptedException e) {
+				log.info("Regular click intercepted, using JavaScript click");
+				js.executeScript("arguments[0].click();", validateAndSaveButton);
+			}
+			
+			// Wait for page to reload after form submission
+			sleep(2000);
+			waitForElementID("statusMessageDiv");
 
 			log.info("Verifying 'Saved the snippets' shows up on the page.");
 			if(findOnPage("Saved the snippets")) {
@@ -188,13 +233,12 @@ public class SnippetsTestIT extends WebTestUtil {
 		try {
 			log.info("------ START SnippetsTestIT:UpdateSnippetTest ------");
 			driver.navigate().refresh();
-			WebElement aceEditor = driver.findElement(By.cssSelector("textarea.ace_text-input"));
+			sleep(4000); // Wait for page to reload and Ace Editor to initialize
 
 			log.info("Updating snippets through Ace Editor...");
 			JavascriptExecutor js = (JavascriptExecutor) driver;
-			js.executeScript("ace.edit('editorDiv').navigateFileEnd();");
-			js.executeScript("ace.edit('editorDiv').setValue('');");
-			aceEditor.sendKeys("package jpl.cws.core.code;\n" +
+			// Use JavaScript to set the value directly
+			String codeContent = "package jpl.cws.core.code;\n" +
 					"\n" +
 					"import java.util.*;\n" +
 					"import java.util.regex.*;\n" +
@@ -220,7 +264,8 @@ public class SnippetsTestIT extends WebTestUtil {
 					"	    return \"Hello World\";\n" +
 					"	}\n" +
 					"}\n" +
-					"");
+					"";
+			js.executeScript("ace.edit('editorDiv').setValue(arguments[0]);", codeContent);
 
 			waitForElementID("validateAndSaveSnippetsSubmitBtn");
 			log.info("Clicking on 'Validate and Save' button...");
@@ -253,15 +298,13 @@ public class SnippetsTestIT extends WebTestUtil {
 		try {
 			log.info("------ START SnippetsTestIT:UpdateErrorTest ------");
 			driver.navigate().refresh();
-			sleep(2000);
-
-			WebElement aceEditor = driver.findElement(By.cssSelector("textarea.ace_text-input"));
+			sleep(4000); // Wait for page to reload and Ace Editor to initialize
+			
 			log.info("Updating snippets through Ace Editor.");
 			JavascriptExecutor js = (JavascriptExecutor) driver;
-			js.executeScript("ace.edit('editorDiv').navigateFileEnd();");
-			js.executeScript("ace.edit('editorDiv').setValue('');");
 			log.info("Initializing snippets to 'Let's get an error!'");
-			aceEditor.sendKeys("Let's get an error!");
+			// Use JavaScript to set the value directly
+			js.executeScript("ace.edit('editorDiv').setValue(arguments[0]);", "Let's get an error!");
 
 			waitForElementID("validateAndSaveSnippetsSubmitBtn");
 			log.info("Clicking on 'Validate and Save' button");
@@ -293,17 +336,13 @@ public class SnippetsTestIT extends WebTestUtil {
 		try {
 			log.info("------ START SnippetsTestIT:ReloadEditorTest ------");
 			driver.navigate().refresh();
-			sleep(2000);
-
-			WebElement aceEditor = driver.findElement(By.cssSelector("textarea.ace_text-input"));
+			sleep(4000); // Wait for page to reload and Ace Editor to initialize
+			
 			log.info("Updating snippets through Ace Editor.");
-
 			JavascriptExecutor js = (JavascriptExecutor) driver;
-			js.executeScript("ace.edit('editorDiv').navigateFileEnd();");
-			js.executeScript("ace.edit('editorDiv').setValue('');");
 			log.info("Initializing snippets to 'Let's get an error!'");
-
-			aceEditor.sendKeys("Let's get an error!");
+			// Use JavaScript to set the value directly
+			js.executeScript("ace.edit('editorDiv').setValue(arguments[0]);", "Let's get an error!");
 
 			waitForElementID("validateAndSaveSnippetsSubmitBtn");
 			log.info("Clicking on 'Validate and Save' button");
@@ -318,17 +357,22 @@ public class SnippetsTestIT extends WebTestUtil {
 				log.info("SUCCESS: Found on 'ERROR: invalid code.' on page.");
 
 				waitForElementID("revertSnippetsSubmitBtn");
+				sleep(1000); // Wait for page to stabilize
 				log.info("Clicking on 'Revert Snippets' button...");
-				driver.findElement(By.id("revertSnippetsSubmitBtn")).click();
+				// Get fresh element reference and use JavaScript click to avoid stale element
+				WebElement revertButton = driver.findElement(By.id("revertSnippetsSubmitBtn"));
+				js.executeScript("arguments[0].click();", revertButton);
+				
+				sleep(2000); // Wait for page to reload after revert
 
 				waitForElementID("validateAndSaveSnippetsSubmitBtn");
-
-				validateAndSaveButton = driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn"));
-		  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", validateAndSaveButton);
+				// Get fresh element reference after page update
+				WebElement freshValidateButton = driver.findElement(By.id("validateAndSaveSnippetsSubmitBtn"));
+		  		js.executeScript("arguments[0].scrollIntoViewIfNeeded();", freshValidateButton);
 		  		sleep(2000);
 
 				log.info("Clicking on 'Validate and Save' button");
-				validateAndSaveButton.click();
+				js.executeScript("arguments[0].click();", freshValidateButton);
 
 				log.info("Verifying 'Saved the snippets' shows up on the page.");
 				if(findOnPage("Saved the snippets")) {
