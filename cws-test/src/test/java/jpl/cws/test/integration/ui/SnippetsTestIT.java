@@ -49,7 +49,7 @@ public class SnippetsTestIT extends WebTestUtil {
 			if(Integer.toString(testCasesCompleted).equals("5")) {
 				scriptPass = true;
 			} else {
-				log.info("Not all test cases passed. Only "+ testCasesCompleted + "/5 passed.");
+				log.info("Not all test cases passed. Only " + testCasesCompleted + "/5 passed.");
 			}
 
 			log.info("------ END SnippetsTestIT::runSnippetsPageTest ------");
