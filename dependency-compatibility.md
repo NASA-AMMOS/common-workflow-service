@@ -73,15 +73,6 @@
 
 ## 🚨 **Known Incompatibilities**
 
-### **Commons-Lang 2.6 → 3.x Migration (COMPLETED)**
-- **Breaking Changes**: API changes between 2.x and 3.x
-- **What changed in code**:
-  - Imports moved from `org.apache.commons.lang.*` to `org.apache.commons.lang3.*`
-  - `ExceptionUtils.getFullStackTrace(Throwable)` → `ExceptionUtils.getStackTrace(Throwable)`
-  - `StringEscapeUtils` moved to `org.apache.commons.text.StringEscapeUtils` (add Commons-Text)
-  - `StringUtils` now `org.apache.commons.lang3.StringUtils`
-
-
 ### **JUnit 4 → 5 Migration**
 - **Breaking Changes**: Complete API rewrite
 - **Required Actions**: Significant test code changes
@@ -97,10 +88,7 @@
 ## 📝 **Update Strategy**
 
 ### **Safe Updates (No Breaking Changes)**
-2. **Gson**: 2.8.9 → 2.11.0
-3. **Jackson**: 2.16.1 → 2.18.1
-4. **Commons-Text**: Added at 1.10.0 for `StringEscapeUtils`
-5. **Maven Plugins**: Update to latest versions
+1. **Maven Plugins**: Update to latest versions
 
 ### **Requires Code Changes**
 1. **JUnit**: 4.13.1 → 5.11.1 (Complete rewrite)
