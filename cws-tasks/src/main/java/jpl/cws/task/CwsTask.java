@@ -120,10 +120,18 @@ public abstract class CwsTask implements JavaDelegate {
 					// complete in Camunda before we can look at Camunda's records
 					// to get the true status of the process instance.
 					sleep(1000);
-					ProcessService cwsProcessService = (ProcessService) SpringApplicationContext.getBean("cwsProcessService");
-					cwsProcessService.sendProcEventTopicMessageWithRetries(null, null, null, null, "sync");
+					
+					// Check if Spring context is available before accessing beans
+					if (SpringApplicationContext.isContextAvailable()) {
+						ProcessService cwsProcessService = (ProcessService)SpringApplicationContext.getBean("cwsProcessService");
+						cwsProcessService.sendProcEventTopicMessageWithRetries(null, null, null, null, "sync");
+					} else {
+						log.warn("Spring ApplicationContext not available during worker notification. Skipping sync message.");
+					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
+				} catch (Exception e) {
+					log.error("Error during worker notification: " + e.getMessage(), e);
 				}
 			}
 		}).start();

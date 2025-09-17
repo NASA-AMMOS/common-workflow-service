@@ -37,8 +37,12 @@ public class ScheduleProcTask extends CwsTask {
 	
 	public ScheduleProcTask() {
 		log.debug("ScheduleProcTask constructor...");
-		processService = (ProcessService) SpringApplicationContext.getBean("cwsProcessService");
-		log.debug("ScheduleProcTask() processService = " + processService);
+		if (SpringApplicationContext.isContextAvailable()) {
+			processService = (ProcessService)SpringApplicationContext.getBean("cwsProcessService");
+			log.debug("ScheduleProcTask() processService = " + processService);
+		} else {
+			log.warn("Spring ApplicationContext not available during ScheduleProcTask construction. Bean will be retrieved later if needed.");
+		}
 	}
 
 	@Override
@@ -53,6 +57,16 @@ public class ScheduleProcTask extends CwsTask {
 	@Override
 	public void executeTask() throws Exception {
 		this.setOutputVariable("procDefKey", procDefKey);
+		
+		// Get processService if not already available
+		if (processService == null) {
+			if (SpringApplicationContext.isContextAvailable()) {
+				processService = (ProcessService)SpringApplicationContext.getBean("cwsProcessService");
+			} else {
+				throw new IllegalStateException("Cannot execute ScheduleProcTask: Spring ApplicationContext is not available and ProcessService is null.");
+			}
+		}
+		
 		processService.sendProcScheduleMessageWithRetries(
 				procDefKey, procVariables, 
 				procBusinessKey, initiationKey, priority);

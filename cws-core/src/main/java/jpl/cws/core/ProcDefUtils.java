@@ -17,10 +17,13 @@ public class ProcDefUtils {
 	private Object cwsBean;
 	
 	public ProcDefUtils() {
-		cwsBean = SpringApplicationContext.getBean("cws");
-		log.trace("CWS Bean = " + cwsBean);
+		if (SpringApplicationContext.isContextAvailable()) {
+			cwsBean = SpringApplicationContext.getBean("cws");
+			log.trace("CWS Bean = " + cwsBean);
+		} else {
+			log.warn("Spring ApplicationContext not available during ProcDefUtils construction. Bean will be retrieved later if needed.");
+		}
 	}
-	
 	
 	public String getClasspathUrls() {
 		ClassLoader thisCl = this.getClass().getClassLoader();
@@ -53,6 +56,15 @@ public class ProcDefUtils {
 	 * 
 	 */
 	public Object callSnippet(String methodName, Object ... params) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		// Get cwsBean if not already available
+		if (cwsBean == null) {
+			if (SpringApplicationContext.isContextAvailable()) {
+				cwsBean = SpringApplicationContext.getBean("cws");
+			} else {
+				throw new IllegalStateException("Cannot call snippet '" + methodName + "': Spring ApplicationContext is not available and cwsBean is null.");
+			}
+		}
+		
 		log.debug("about to call method : " + methodName);
 		Class<?>[] methodParamTypes = new Class<?>[params.length];
 		int i = 0;
@@ -63,5 +75,4 @@ public class ProcDefUtils {
 		log.debug("got method: " + method);
 		return method.invoke(cwsBean, params);
 	}
-	
 }

@@ -74,9 +74,13 @@ public abstract class CwsSecurityFilter implements jakarta.servlet.Filter {
 			// so only get service here.
 			//
 			if (contextPath.equals("/cws-ui") || contextPath.equals("/cws-engine")) {
-				cwsSecurityService = (SecurityService) SpringApplicationContext.getBean("cwsSecurityService");
-				authorizationService = (AuthorizationService) SpringApplicationContext.getBean("authorizationService");
-				log.debug("got sec service: " + cwsSecurityService);
+				if (SpringApplicationContext.isContextAvailable()) {
+					cwsSecurityService = (SecurityService)SpringApplicationContext.getBean("cwsSecurityService");
+					authorizationService = (AuthorizationService)SpringApplicationContext.getBean("authorizationService");
+					log.debug("got sec service: " + cwsSecurityService);
+				} else {
+					log.error("Spring ApplicationContext not available during CwsSecurityFilter initialization.");
+				}
 			}
 		}
 		catch (Exception e) {
