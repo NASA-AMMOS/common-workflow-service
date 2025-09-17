@@ -8,7 +8,7 @@ on:
     - cron: '0 12 * * 1'
 
 env:
-  TEAM: ("jamesfwood" "voxparcxls" "galenhollins" "galenatjpl" "jeffreypon")
+  TEAM: ("jamesfwood" "jdrodjpl" "jl-0")
 
 jobs:
 
@@ -161,21 +161,25 @@ jobs:
           path: test-screenshots/
 
       - name: Show CWS Log for Console
+        if: always()
         working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
         run: |
           cat cws.log
 
       - name: Show Catalina Log for Console
+        if: always()
         working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
         run: |
           cat catalina.out
   
       - name: Show CWS Log for Worker1
+        if: always()
         working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
         run: |
           cat cws.log
 
       - name: Show Catalina Log for Worker1
+        if: always()
         working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
         run: |
           cat catalina.out
@@ -345,6 +349,42 @@ jobs:
         with:
           name: test-screenshots-advanced
           path: test-screenshots/
+
+      - name: Show CWS Log for Console
+        if: always()
+        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat cws.log
+
+      - name: Show Catalina Log for Console
+        if: always()
+        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat catalina.out
+
+      - name: Show CWS Log for Worker1
+        if: always()
+        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat cws.log
+
+      - name: Show Catalina Log for Worker1
+        if: always()
+        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat catalina.out
+
+      - name: Show CWS Log for Worker2
+        if: always()
+        working-directory: dist/worker2/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat cws.log
+
+      - name: Show Catalina Log for Worker2
+        if: always()
+        working-directory: dist/worker2/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat catalina.out
 
       - name: Cleanup Private files
         if: always()
