@@ -19,7 +19,7 @@ public class MyRestService {
 
 
 	public MyRestService() {
-		System.out.println("MyRestService xtor");
+		log.debug("MyRestService xtor");
 	}
 	
 	

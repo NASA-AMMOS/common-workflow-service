@@ -611,7 +611,7 @@ public abstract class CwsSecurityFilter implements jakarta.servlet.Filter {
 	@Override
 	public void destroy() {
 		// TODO Auto-generated method stub
-		System.out.println("CwsSecurityFilter.destroy()...");
+		log.info("CwsSecurityFilter.destroy()...");
 	}
 
 }

@@ -15,6 +15,8 @@ import jakarta.servlet.ServletContextListener;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Service class for worker.
@@ -24,106 +26,127 @@ import java.util.concurrent.TimeUnit;
  */
 public class WorkerStartupAndShutdown implements ServletContextListener {
 	
+	private static final Logger log = LoggerFactory.getLogger(WorkerStartupAndShutdown.class);
 	
 	/**
 	 * This method gets called when tomcat is shutting down.
 	 */
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) {
-		System.out.println("Worker detected that tomcat is going down.");
+		log.info("Worker detected that tomcat is going down.");
 		
 		// Step 1: Shutdown message listener containers first
-		System.out.println("  Shutting down DefaultMessageListenerContainers...");
-		Map<String,DefaultMessageListenerContainer> beans = SpringApplicationContext.getBeansOfType(DefaultMessageListenerContainer.class);
-		for (Entry<String,DefaultMessageListenerContainer> bean : beans.entrySet()) {
-			DefaultMessageListenerContainer container = bean.getValue();
-			System.out.println("    container.stop: " + container);
-			if (container.isRunning()) {
-				container.stop();
+		log.info("  Shutting down DefaultMessageListenerContainers...");
+		if (SpringApplicationContext.isContextAvailable()) {
+			try {
+				Map<String,DefaultMessageListenerContainer> beans = SpringApplicationContext.getBeansOfType(DefaultMessageListenerContainer.class);
+				for (Entry<String,DefaultMessageListenerContainer> bean : beans.entrySet()) {
+					DefaultMessageListenerContainer container = bean.getValue();
+					log.debug("    container.stop: " + container);
+					if (container.isRunning()) {
+						container.stop();
+					}
+					log.debug("    container.shutdown: " + container);
+					container.shutdown();
+				}
+			} catch (Exception e) {
+				log.error("  Error shutting down message listener containers: " + e.getMessage(), e);
 			}
-			System.out.println("    container.shutdown: " + container);
-			container.shutdown();
+		} else {
+			log.warn("  Spring context not available, skipping message listener container shutdown");
 		}
 		
 		// Step 2: Properly close connection factory and underlying connections
-		try {
-			System.out.println("  Shutting down connection factory...");
-			CachingConnectionFactory cc = (CachingConnectionFactory)SpringApplicationContext.getBean("cachingConnectionFactory");
-			if (cc != null) {
-				// Close all cached connections
-				cc.resetConnection();
-				cc.destroy();
-				System.out.println("    CachingConnectionFactory destroyed successfully.");
+		if (SpringApplicationContext.isContextAvailable()) {
+			try {
+				log.info("  Shutting down connection factory...");
+				CachingConnectionFactory cc = (CachingConnectionFactory)SpringApplicationContext.getBean("cachingConnectionFactory");
+				if (cc != null) {
+					// Close all cached connections
+					cc.resetConnection();
+					cc.destroy();
+					log.info("    CachingConnectionFactory destroyed successfully.");
+				}
+				
+				// Also close the underlying ActiveMQ connection factory
+				ActiveMQConnectionFactory acf = (ActiveMQConnectionFactory)SpringApplicationContext.getBean("connectionFactory");
+				if (acf != null) {
+					acf.close();
+					log.info("    ActiveMQConnectionFactory closed successfully.");
+				}
+			} catch (Exception e) {
+				log.error("  Error destroying connection factory: " + e.getMessage(), e);
 			}
-			
-			// Also close the underlying ActiveMQ connection factory
-			ActiveMQConnectionFactory acf = (ActiveMQConnectionFactory)SpringApplicationContext.getBean("connectionFactory");
-			if (acf != null) {
-				acf.close();
-				System.out.println("    ActiveMQConnectionFactory closed successfully.");
-			}
-		} catch (Exception e) {
-			System.out.println("  Error destroying connection factory: " + e.getMessage());
-			e.printStackTrace();
+		} else {
+			log.warn("  Spring context not available, skipping connection factory shutdown");
 		}
 		
 		// Step 3: Stop worker daemons manually
-		try {
-			System.out.println("  Stopping worker daemons...");
-			WorkerHeartbeatDaemon workerHeartbeatDaemon = (WorkerHeartbeatDaemon)
-					SpringApplicationContext.getBean("workerHeartbeatDaemon");
-			WorkerDaemon workerDaemon = (WorkerDaemon)
-					SpringApplicationContext.getBean("workerDaemon");
-			WorkerExternalTaskLockDaemon workerExternalTaskLockDaemon = (WorkerExternalTaskLockDaemon)
-					SpringApplicationContext.getBean("workerExternalTaskLockDaemon");
-			WorkerService workerService = (WorkerService)
-					SpringApplicationContext.getBean("workerService");
+		if (SpringApplicationContext.isContextAvailable()) {
+			try {
+				log.info("  Stopping worker daemons...");
+				WorkerHeartbeatDaemon workerHeartbeatDaemon = (WorkerHeartbeatDaemon)
+						SpringApplicationContext.getBean("workerHeartbeatDaemon");
+				WorkerDaemon workerDaemon = (WorkerDaemon)
+						SpringApplicationContext.getBean("workerDaemon");
+				WorkerExternalTaskLockDaemon workerExternalTaskLockDaemon = (WorkerExternalTaskLockDaemon)
+						SpringApplicationContext.getBean("workerExternalTaskLockDaemon");
+				WorkerService workerService = (WorkerService)
+						SpringApplicationContext.getBean("workerService");
 			
-			if (workerHeartbeatDaemon != null) {
-				System.out.println("    Stopping WorkerHeartbeatDaemon...");
-				workerHeartbeatDaemon.stopDaemon();
-				try {
-					workerHeartbeatDaemon.join(5000); // wait up to 5s to terminate
-					if (workerHeartbeatDaemon.isAlive()) {
-						System.out.println("    WorkerHeartbeatDaemon did not stop gracefully within 5 seconds");
-					} else {
-						System.out.println("    WorkerHeartbeatDaemon stopped successfully");
+				if (workerHeartbeatDaemon != null) {
+					log.info("    Stopping WorkerHeartbeatDaemon...");
+					workerHeartbeatDaemon.stopDaemon();
+					try {
+						workerHeartbeatDaemon.join(5000); // wait up to 5s to terminate
+						if (workerHeartbeatDaemon.isAlive()) {
+							log.warn("    WorkerHeartbeatDaemon did not stop gracefully within 5 seconds");
+						} else {
+							log.info("    WorkerHeartbeatDaemon stopped successfully");
+						}
+					} catch (InterruptedException e) {
+						log.warn("    Interrupted while waiting for WorkerHeartbeatDaemon to stop");
+						Thread.currentThread().interrupt();
 					}
-				} catch (InterruptedException e) {
-					System.out.println("    Interrupted while waiting for WorkerHeartbeatDaemon to stop");
-					Thread.currentThread().interrupt();
 				}
+				
+				if (workerDaemon != null) {
+					log.info("    Interrupting WorkerDaemon...");
+					workerDaemon.interrupt();
+				}
+				
+				if (workerExternalTaskLockDaemon != null) {
+					log.info("    Interrupting WorkerExternalTaskLockDaemon...");
+					workerExternalTaskLockDaemon.interrupt();
+				}
+				
+				if (workerService != null) {
+					log.info("    Bringing worker down...");
+					workerService.bringWorkerDown();
+				}
+				
+				log.info("    Worker daemons stopped successfully.");
+			} catch (Exception e) {
+				log.error("  Error stopping worker daemons: " + e.getMessage(), e);
 			}
-			
-			if (workerDaemon != null) {
-				System.out.println("    Interrupting WorkerDaemon...");
-				workerDaemon.interrupt();
-			}
-			
-			if (workerExternalTaskLockDaemon != null) {
-				System.out.println("    Interrupting WorkerExternalTaskLockDaemon...");
-				workerExternalTaskLockDaemon.interrupt();
-			}
-			
-			if (workerService != null) {
-				System.out.println("    Bringing worker down...");
-				workerService.bringWorkerDown();
-			}
-			
-			System.out.println("    Worker daemons stopped successfully.");
-		} catch (Exception e) {
-			System.out.println("  Error stopping worker daemons: " + e.getMessage());
-			e.printStackTrace();
+		} else {
+			log.warn("  Spring context not available, skipping worker daemon shutdown");
 		}
 
 		// Step 4: Force shutdown of any remaining Netty threads and MySQL cleanup
 		try {
-			System.out.println("  Forcing shutdown of Netty threads and MySQL cleanup...");
+			log.info("  Forcing shutdown of Netty threads and MySQL cleanup...");
 			
 			// First, try to gracefully shutdown client-side Netty components
-			ActiveMQConnectionFactory acf = (ActiveMQConnectionFactory)SpringApplicationContext.getBean("connectionFactory");
-			if (acf != null) {
-				NettyShutdownUtil.shutdownClientNettyComponents(acf);
+			if (SpringApplicationContext.isContextAvailable()) {
+				try {
+					ActiveMQConnectionFactory acf = (ActiveMQConnectionFactory)SpringApplicationContext.getBean("connectionFactory");
+					if (acf != null) {
+						NettyShutdownUtil.shutdownClientNettyComponents(acf);
+					}
+				} catch (Exception e) {
+					log.error("  Error accessing connection factory bean during Netty cleanup: " + e.getMessage(), e);
+				}
 			}
 			
 			// Shutdown MySQL connection cleanup threads
@@ -133,8 +156,7 @@ public class WorkerStartupAndShutdown implements ServletContextListener {
 			NettyShutdownUtil.forceShutdownNettyThreads();
 				
 		} catch (Exception e) {
-			System.out.println("  Error during Netty thread cleanup: " + e.getMessage());
-			e.printStackTrace();
+			log.error("  Error during Netty thread cleanup: " + e.getMessage(), e);
 		}
 	}
 	
@@ -144,17 +166,17 @@ public class WorkerStartupAndShutdown implements ServletContextListener {
 	 */
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) {
-		System.out.println("Worker detected that tomcat is coming up.");
+		log.info("Worker detected that tomcat is coming up.");
 		
 		// Register Netty shutdown hook as a safety net
 		NettyShutdownUtil.registerShutdownHook();
 
 		CwsEngineProcessApplication app = (CwsEngineProcessApplication)
 				SpringApplicationContext.getBean("cwsEngineProcessApplication");
-		System.out.println("CwsEngineProcessApplication = " + app);
+		log.info("CwsEngineProcessApplication = " + app);
 		ProcessEngine pe = (ProcessEngine)
 				SpringApplicationContext.getBean("processEngine2");
-		System.out.println("ProcessEngine  = " + pe);
+		log.info("ProcessEngine  = " + pe);
 
 		//
 		// Startup CwsEngineProcessApplication, now that tomcat is up and running

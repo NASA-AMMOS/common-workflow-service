@@ -69,7 +69,7 @@ public class WorkerExternalTaskLockDaemon extends Thread {
 
                 fatalErrors = 0;
             } catch (InterruptedException e) {
-                log.warn("WorkerExternalTaskLockDaemon: Error: WorkerExternalTaskLockDaemon interrupted. This is normal if the worker is being shutdown.");
+                log.warn("WorkerExternalTaskLockDaemon interrupted. This is normal if the worker is being shutdown.");
                 break;
             } catch (Throwable t) {
                 log.error("WorkerExternalTaskLockDaemon: Error: Error while running WorkerExternalTaskLockDaemon, " + (MAX_FAILURES - ++fatalErrors) + " retries remaining", t);
@@ -82,7 +82,7 @@ public class WorkerExternalTaskLockDaemon extends Thread {
             }
         }
 
-        log.warn("WorkerExternalTaskLockDaemon: Error: WorkerExternalTaskLockDaemon stopping...");
+        log.warn("WorkerExternalTaskLockDaemon stopping...");
         cwsWorkerLoggerFactory = null;
         externalTaskService = null;
         emailerService = null;

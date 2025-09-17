@@ -131,7 +131,6 @@ public class WorkerService implements InitializingBean {
 	ObjectName serviceName;
 	
 	public WorkerService() {
-		System.out.println("WorkerService constructor...");
 	}
 	
 	public void setProcAppRef(ProcessApplicationReference procAppRef) {
@@ -1017,11 +1016,11 @@ public class WorkerService implements InitializingBean {
 		Map<String,DefaultMessageListenerContainer> beans = SpringApplicationContext.getBeansOfType(DefaultMessageListenerContainer.class);
 		for (Entry<String,DefaultMessageListenerContainer> bean : beans.entrySet()) {
 			DefaultMessageListenerContainer container = bean.getValue();
-			System.out.println("    container.stop: " + container);
+			log.info("    container.stop: " + container);
 			if (container.isRunning()) {
 				container.stop();
 			}
-			System.out.println("    container.shutdown: " + container);
+			log.info("    container.shutdown: " + container);
 			container.shutdown();
 		}
 		

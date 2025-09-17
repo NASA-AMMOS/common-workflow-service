@@ -44,7 +44,7 @@ var typedFileValue2 = org.camunda.bpm.engine.variable.Variables.fileValue("shutt
 execution.setVariable("output_shuttle_gif", typedFileValue2);
 var typedFileValue3 = org.camunda.bpm.engine.variable.Variables.fileValue("jpl.png").file(new java.io.File("../../../install/dev/bpmn/images/jpl.png")).mimeType("image/png").encoding("UTF-8").create();
 execution.setVariable("output_jpl_png", typedFileValue3);
-execution.setVariable("output_image_url", "https://www.jpl.nasa.gov/twitter-card.jpg");
+execution.setVariable("output_image_url", "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/NASA_Mars_Rover.jpg/500px-NASA_Mars_Rover.jpg");
 </bpmn:script>
     </bpmn:scriptTask>
   </bpmn:process>

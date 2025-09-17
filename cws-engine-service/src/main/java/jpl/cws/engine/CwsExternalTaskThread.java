@@ -94,7 +94,7 @@ public class CwsExternalTaskThread extends Thread  {
 			LockedExternalTask task,
 			Date lockedTime) {
 		
-		System.out.println("CwsExternalTaskThread constructor...");
+		log.debug("CwsExternalTaskThread constructor...");
 		
 		this.externalTaskService = externalTaskService;
 		this.runtimeService = runtimeService;
