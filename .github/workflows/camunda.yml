@@ -124,7 +124,7 @@ jobs:
           ./run_ci.sh $SECURITY $WORKERS
         shell: bash
 
-      - name: Show CWS Log
+      - name: List CWS Logs
         run: |
           cd "dist/console-only/cws/server/apache-tomcat-10.1.36/logs"
           ls -al
@@ -160,6 +160,26 @@ jobs:
           name: test-screenshots
           path: test-screenshots/
 
+      - name: Show CWS Log for Console
+        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat cws.log
+
+      - name: Show Catalina Log for Console
+        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat catalina.out
+  
+      - name: Show CWS Log for Worker1
+        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat cws.log
+
+      - name: Show Catalina Log for Worker1
+        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat catalina.out
+  
       - name: Cleanup Private files
         if: always()
         run: |
@@ -301,7 +321,7 @@ jobs:
           ./run_ci.sh $SECURITY $WORKERS
         shell: bash
 
-      - name: Show CWS Log
+      - name: List CWS Logs
         run: |
           cd dist/console-only/cws/server/apache-tomcat-10.1.36/logs
           ls -al
