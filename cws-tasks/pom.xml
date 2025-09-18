@@ -29,7 +29,6 @@
 						</exclusion>
 					</exclusions>
 				</dependency>
-
 				<dependency>
 					<groupId>org.apache.logging.log4j</groupId>
 					<artifactId>log4j-slf4j-impl</artifactId>
@@ -53,37 +52,30 @@
 					<groupId>org.apache.commons</groupId>
 					<artifactId>commons-lang3</artifactId>
 				</dependency>
-
 				<dependency>
 					<groupId>commons-io</groupId>
 					<artifactId>commons-io</artifactId>
 				</dependency>
-
 				<dependency>
 					<groupId>org.apache.commons</groupId>
 					<artifactId>commons-exec</artifactId>
 				</dependency>
-
 				<dependency>
 					<groupId>org.apache.commons</groupId>
 					<artifactId>commons-email2-jakarta</artifactId>
 				</dependency>
-
 				<dependency>
 					<groupId>org.apache.commons</groupId>
 					<artifactId>commons-configuration2</artifactId>
 				</dependency>
-
 				<dependency> <!-- needed by commons-email -->
 					<groupId>jakarta.mail</groupId>
 					<artifactId>jakarta.mail-api</artifactId>
 				</dependency>
-
 				<dependency>
 					<groupId>org.glassfish.grizzly</groupId>
 					<artifactId>grizzly-http-server</artifactId>
 				</dependency>
-
 				<dependency>
 					<groupId>junit</groupId>
 					<artifactId>junit</artifactId>
@@ -92,13 +84,11 @@
 		</profile>
 	</profiles>
 
-
 	<build>
 		<finalName>${project.artifactId}</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
 					<release>${java.version}</release>
 					<parameters>true</parameters>
@@ -108,7 +98,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>${maven-dependency-plugin.version}</version>
 				<executions>
 					<execution>
 						<id>copy-dependencies</id>

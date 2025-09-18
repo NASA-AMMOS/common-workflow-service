@@ -48,7 +48,6 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
 					<release>${java.version}</release>
 					<parameters>true</parameters>
@@ -57,7 +56,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.1.0</version>
 				<configuration>
 					<excludes>
 						<exclude>**/CustomMethods*</exclude>
@@ -66,5 +64,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

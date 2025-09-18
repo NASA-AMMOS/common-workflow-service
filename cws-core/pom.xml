@@ -215,14 +215,12 @@
 			</exclusions>
 		</dependency>
 	</dependencies>
-	
-	
+
 	<build>
 		<finalName>${project.artifactId}</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
 					<release>${java.version}</release>
 					<compilerArgs>
@@ -233,7 +231,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>${maven-dependency-plugin.version}</version>
 				<executions>
 					<execution>
 						<id>copy-dependencies</id>
@@ -252,7 +249,5 @@
 				</executions>
 			</plugin>
 		</plugins>
-	
 	</build>
-
 </project>
