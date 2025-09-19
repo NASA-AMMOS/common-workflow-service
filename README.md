@@ -159,6 +159,15 @@ WORKER_ABANDONED_DAYS=1
 ./dev.sh `pwd` ${USER} ${DB_TYPE} ${DB_HOST} ${DB_PORT} ${DB_NAME} ${DB_USER} ${DB_PASS} ${ES_PROTOCOL} ${ES_HOST} ${ES_PORT} ${ES_USE_AUTH} ${ES_USERNAME} ${ES_PASSWORD} ${CLOUD} ${SECURITY} ${HOSTNAME} ${EMAIL_LIST} ${ADMIN_FIRST} ${ADMIN_LAST} ${ADMIN_EMAIL} ${NUM_WORKERS} ${WORKER_MAX_NUM_RUNNING_PROCS} ${WORKER_ABANDONED_DAYS}
 ```
 
+#### Check Dependencies for Security Vunerabilities
+```
+mvn dependency-check:check
+
+or
+
+mvn dependency-check:aggregate
+```
+
 ###### Run Personal Dev Script
 To build and run CWS, use your <personal-dev.sh> i.e.:`jsmith.sh` script - its usage is as follows:
 
