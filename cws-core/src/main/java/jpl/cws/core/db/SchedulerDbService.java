@@ -1,5 +1,6 @@
 package jpl.cws.core.db;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jpl.cws.core.log.CwsEmailerService;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -14,15 +15,13 @@ import org.springframework.jdbc.core.support.AbstractLobCreatingPreparedStatemen
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobCreator;
 
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.*;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 
 /** 
@@ -171,41 +170,40 @@ public class SchedulerDbService extends DbService implements InitializingBean {
     public void insertSchedEngineProcInstRow(final SchedulerJob schedulerJob) throws Exception {
         long t0 = System.currentTimeMillis();
 
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream(); ObjectOutputStream oos = new ObjectOutputStream(os)) {
-            oos.writeObject(schedulerJob.getProcVariables());
-            oos.flush();
-            byte[] procVariablesBytes = os.toByteArray();
+        // Serialize proc variables as JSON (UTF-8) for safer, portable storage
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(schedulerJob.getProcVariables());
+        byte[] procVariablesBytes = json.getBytes(StandardCharsets.UTF_8);
 
-            DefaultLobHandler lobHandler = new DefaultLobHandler();
-            Object o = jdbcTemplate.execute(
-                    INSERT_SCHED_WORKER_PROC_INST_ROW_SQL,
-                    new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
-                        protected void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
-                            ps.setString(1, schedulerJob.getUuid());
-                            ps.setTimestamp(2, schedulerJob.getCreatedTime()); // will get auto-filled by DB
-                            ps.setTimestamp(3, schedulerJob.getUpdatedTime()); // will get auto-filled by DB
-                            ps.setString(4, null); // don't know process instance ID yet
-                            ps.setString(5, schedulerJob.getProcDefKey());
-                            ps.setString(6, schedulerJob.getProcBusinessKey());
-                            ps.setInt(7, schedulerJob.getProcPriority());
-                            lobCreator.setBlobAsBytes(ps, 8, procVariablesBytes);
-                            ps.setString(9, schedulerJob.getStatus());
-                            ps.setString(10, null); // no error message yet
-                            ps.setString(11, schedulerJob.getInitiationKey());
-                            ps.setString(12, null); // no claimed_by_worker yet
-                            ps.setString(13, null); // not started on any worker yet
-                            ps.setString(14, null); // no worker rejections yet
-                            ps.setInt(15, 0); // no worker attempts yet
-                            ps.setString(16, null); // no claim_uuid yet
-                        }
+        DefaultLobHandler lobHandler = new DefaultLobHandler();
+        Object o = jdbcTemplate.execute(
+                INSERT_SCHED_WORKER_PROC_INST_ROW_SQL,
+                new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
+                    protected void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
+                        ps.setString(1, schedulerJob.getUuid());
+                        ps.setTimestamp(2, schedulerJob.getCreatedTime()); // will get auto-filled by DB
+                        ps.setTimestamp(3, schedulerJob.getUpdatedTime()); // will get auto-filled by DB
+                        ps.setString(4, null); // don't know process instance ID yet
+                        ps.setString(5, schedulerJob.getProcDefKey());
+                        ps.setString(6, schedulerJob.getProcBusinessKey());
+                        ps.setInt(7, schedulerJob.getProcPriority());
+                        lobCreator.setBlobAsBytes(ps, 8, procVariablesBytes);
+                        ps.setString(9, schedulerJob.getStatus());
+                        ps.setString(10, null); // no error message yet
+                        ps.setString(11, schedulerJob.getInitiationKey());
+                        ps.setString(12, null); // no claimed_by_worker yet
+                        ps.setString(13, null); // not started on any worker yet
+                        ps.setString(14, null); // no worker rejections yet
+                        ps.setInt(15, 0); // no worker attempts yet
+                        ps.setString(16, null); // no claim_uuid yet
                     }
-            );
-            log.trace("RETURN OBJECT: " + o);
-            o = null;
-            long timeTaken = System.currentTimeMillis() - t0;
-            if (timeTaken > SLOW_WARN_THRESHOLD) {
-                log.warn("INSERT INTO cws_sched_worker_proc_inst took " + timeTaken + " ms!");
-            }
+                }
+        );
+        log.trace("RETURN OBJECT: " + o);
+        o = null;
+        long timeTaken = System.currentTimeMillis() - t0;
+        if (timeTaken > SLOW_WARN_THRESHOLD) {
+            log.warn("INSERT INTO cws_sched_worker_proc_inst took " + timeTaken + " ms!");
         }
     }
 

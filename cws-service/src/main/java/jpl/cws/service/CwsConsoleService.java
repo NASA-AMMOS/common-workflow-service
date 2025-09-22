@@ -1,9 +1,14 @@
 package jpl.cws.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import jakarta.jms.BytesMessage;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.Session;
 import jpl.cws.core.code.CodeService;
 import jpl.cws.core.db.SchedulerDbService;
 import jpl.cws.core.log.CwsEmailerService;
@@ -41,11 +46,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 
-import jakarta.jms.BytesMessage;
-import jakarta.jms.JMSException;
-import jakarta.jms.Message;
-import jakarta.jms.Session;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -1109,11 +1111,9 @@ public class CwsConsoleService {
                 // Get process variables as a map
                 //
                 byte[] procVarsAsBytes = (byte[])row.get("proc_variables");
-                Map<String, Object> procVars;
-                try (ByteArrayInputStream bis = new ByteArrayInputStream(procVarsAsBytes);
-                     ObjectInputStream ois = new ObjectInputStream(bis)) {
-                    procVars = (Map<String, Object>)ois.readObject();
-                }
+                String json = new String(procVarsAsBytes, StandardCharsets.UTF_8).trim();
+                ObjectMapper objectMapper = new ObjectMapper();
+                Map<String, Object> procVars = objectMapper.readValue(json, Map.class);
 
                 if (procVars == null) {
                     procVars = new HashMap<String, Object>();

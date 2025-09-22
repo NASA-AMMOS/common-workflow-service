@@ -1,22 +1,19 @@
 package jpl.cws.engine.listener;
 
-import static java.lang.Thread.sleep;
-import static jpl.cws.core.db.SchedulerDbService.CLAIMED_BY_WORKER;
-import static jpl.cws.core.db.SchedulerDbService.FAILED_TO_START;
-import static jpl.cws.core.db.SchedulerDbService.PENDING;
-
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jpl.cws.core.db.SchedulerDbService;
+import jpl.cws.engine.WorkerService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
 
-import jpl.cws.core.db.SchedulerDbService;
-import jpl.cws.engine.WorkerService;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
+import static java.lang.Thread.sleep;
+import static jpl.cws.core.db.SchedulerDbService.*;
 
 /**
  * Thread responsible for starting a new process instance in the Camunda engine.
@@ -104,11 +101,9 @@ public class ProcessStarterThread implements Runnable {
             // Get process variables as a map
             //
             byte[] procVarsAsBytes = (byte[])procReq.get("proc_variables");
-            Map<String, Object> procVars;
-            try (ByteArrayInputStream bis = new ByteArrayInputStream(procVarsAsBytes);
-                 ObjectInputStream ois = new ObjectInputStream(bis)) {
-                procVars = (Map<String, Object>)ois.readObject();
-            }
+            String json = new String(procVarsAsBytes, StandardCharsets.UTF_8).trim();
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Object> procVars = objectMapper.readValue(json, Map.class);
 			if (procVars == null) {
 				procVars = new HashMap<String,Object>();
 			}

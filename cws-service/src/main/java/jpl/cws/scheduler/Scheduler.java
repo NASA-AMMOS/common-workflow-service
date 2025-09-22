@@ -1,23 +1,13 @@
 package jpl.cws.scheduler;
 
-import static jpl.cws.core.db.SchedulerDbService.FAILED_TO_SCHEDULE;
-import static jpl.cws.core.db.SchedulerDbService.PENDING;
-
-import java.io.*;
-import java.net.URLDecoder;
-import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.UUID;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import jakarta.jms.BytesMessage;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.Session;
-
+import jpl.cws.core.db.SchedulerDbService;
+import jpl.cws.core.db.SchedulerJob;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.joda.time.DateTime;
@@ -30,8 +20,19 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.util.MultiValueMap;
 
-import jpl.cws.core.db.SchedulerDbService;
-import jpl.cws.core.db.SchedulerJob;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.UUID;
+
+import static jpl.cws.core.db.SchedulerDbService.FAILED_TO_SCHEDULE;
+import static jpl.cws.core.db.SchedulerDbService.PENDING;
 
 public class Scheduler implements InitializingBean {
 	private static final Logger log = LoggerFactory.getLogger(Scheduler.class);
@@ -223,11 +224,8 @@ public class Scheduler implements InitializingBean {
 	 * 
 	 */
 	private byte[] createProcReqData(Map<String,String> msgPayload) throws IOException {
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream();
-             ObjectOutputStream out = new ObjectOutputStream(os)) {
-            out.writeObject(msgPayload);
-            out.flush();
-            return os.toByteArray();
-        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(msgPayload);
+        return json.getBytes(StandardCharsets.UTF_8);
 	}
 }
