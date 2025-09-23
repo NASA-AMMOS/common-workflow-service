@@ -45,7 +45,7 @@
 		<cws.engine.version>${cws.version}</cws.engine.version>
          <greenmail.version>2.1.5</greenmail.version>
 		<freemarker.version>2.3.33</freemarker.version>
-		<grizzly-http-server.version>4.0.2</grizzly-http-server.version>
+		<jetty.version>12.1.1</jetty.version>
 		<gson.version>2.13.2</gson.version>
 		<jersey.version>3.1.11</jersey.version>
 		<guava.version>33.5.0-jre</guava.version>
@@ -588,10 +588,16 @@
                 <version>${greenmail.version}</version>
                 <scope>test</scope>
             </dependency>
-			<dependency> <!-- Test HTTP Server -->
-				<groupId>org.glassfish.grizzly</groupId>
-				<artifactId>grizzly-http-server</artifactId>
-				<version>${grizzly-http-server.version}</version>
+			<dependency> <!-- Test HTTP Server (Jetty) -->
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-server</artifactId>
+				<version>${jetty.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty.ee10</groupId>
+				<artifactId>jetty-ee10-servlet</artifactId>
+				<version>${jetty.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<!-- Needed for in-memory tests -->
