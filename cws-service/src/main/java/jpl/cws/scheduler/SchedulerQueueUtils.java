@@ -27,7 +27,7 @@ public class SchedulerQueueUtils {
 	
 	// TODO: make these values come from configuration
 	
-	@Value("${cws.broker.obj.name:org.apache.activemq.artemis:broker=\"cwsConsoleBroker\"}") private String BROKER_OBJ_NAME;
+	@Value("${cws.broker.obj.name:org.apache.activemq.artemis:broker=cwsConsoleBroker}") private String BROKER_OBJ_NAME;
 	@Value("${cws.amq.jmx.service.url}") private String AMQ_JMX_SERVICE_URL;
 	
 	private static JMXServiceURL url;

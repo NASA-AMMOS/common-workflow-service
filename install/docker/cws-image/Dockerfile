@@ -21,6 +21,5 @@ RUN mkdir -p /root/.cws && echo "changeit" > /root/.cws/creds
 
 # For time check
 ADD getTime.java .
-ADD joda-time-2.1.jar .
 
 ENTRYPOINT [ "./wait_for_db_es_console.sh" ]

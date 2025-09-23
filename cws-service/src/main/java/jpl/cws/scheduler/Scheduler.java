@@ -10,7 +10,7 @@ import jpl.cws.core.db.SchedulerDbService;
 import jpl.cws.core.db.SchedulerJob;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
-import org.joda.time.DateTime;
+import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -156,7 +156,7 @@ public class Scheduler implements InitializingBean {
 				log.trace("process business key not specified.  Created one automatically: " + uuid);
 			}
 
-			Timestamp tsNow = new Timestamp(DateTime.now().getMillis());
+			Timestamp tsNow = Timestamp.from(Instant.now());
 			SchedulerJob schedulerJob = new SchedulerJob(
 					uuid,
 					tsNow, // createdTime

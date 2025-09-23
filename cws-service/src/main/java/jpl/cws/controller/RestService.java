@@ -48,7 +48,7 @@ import org.camunda.bpm.engine.ExternalTaskService;
 import org.camunda.bpm.engine.ManagementService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
-import org.joda.time.DateTime;
+import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -577,7 +577,7 @@ public class RestService extends MvcCore {
 			schedulerJob = scheduler.scheduleProcess(processDefKey, procVariablesMap, processBusinessKey, initiationKey, priority);
 		} catch (Exception e) {
 			log.error("FAILED TO SCHEDULE PROCESS: "+processDefKey);
-			Timestamp tsNow = new Timestamp(DateTime.now().getMillis());
+			Timestamp tsNow = Timestamp.from(Instant.now());
 			schedulerJob = new SchedulerJob(null, tsNow, tsNow, null, null, processDefKey,
 					priority, procVariablesMap, processBusinessKey, initiationKey, "failedToSchedule", e.getMessage());
 			return new GsonBuilder().setPrettyPrinting().create().toJson(schedulerJob);

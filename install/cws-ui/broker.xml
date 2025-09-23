@@ -10,7 +10,6 @@
 
       <persistence-enabled>true</persistence-enabled>
 
-      <!-- this could be ASYNCIO, NIO, AUTO -->
       <journal-type>NIO</journal-type>
 
       <paging-directory>__CWS_ROOT_DIR__/server/artemis/data/paging</paging-directory>

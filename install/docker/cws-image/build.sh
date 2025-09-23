@@ -18,14 +18,12 @@ if [ ! -f "$CWS_PACKAGE" ]; then
 fi
 
 cp "$CWS_PACKAGE" .
-cp ../../../cws-core/cws-core-libs/joda-time-2.1.jar .
 
 echo "Building CWS docker image.  Version = $ver"
 
 docker build -t nasa-ammos/common-workflow-service:$ver .
 
 rm cws_server.tar.gz
-rm joda-time-2.1.jar
 
 echo
 echo "Done building!"

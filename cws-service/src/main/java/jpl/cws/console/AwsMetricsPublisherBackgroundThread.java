@@ -1,7 +1,7 @@
 package jpl.cws.console;
 
 import jpl.cws.core.db.SchedulerDbService;
-import org.joda.time.DateTime;
+import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,7 +126,7 @@ public class AwsMetricsPublisherBackgroundThread extends Thread {
 	 * 
 	 */
 	private Long getMaxPendingQueueTime() {
-		Timestamp now = new Timestamp(DateTime.now().getMillis());
+		Timestamp now = Timestamp.from(Instant.now());
 		
 		// Get list of scheduled rows in the 'pending' state
 		List<Map<String,Object>> pendingRows = schedulerDbService.getPendingProcessInstances();

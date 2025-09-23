@@ -1,7 +1,7 @@
 #!/bin/bash
 
-javac -cp joda-time-2.1.jar getTime.java
-java -cp .:joda-time-2.1.jar getTime
+javac getTime.java
+java getTime
 
 ls /home/cws_user/cws/server/apache-tomcat-10.1.36/logs
 

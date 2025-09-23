@@ -82,7 +82,7 @@ import java.security.UnrecoverableEntryException;
 
 import javax.tools.ToolProvider;
 
-import org.joda.time.DateTime;
+import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1986,7 +1986,7 @@ public class CwsInstaller {
 				print("");
 				print("checking that database timestamp is consistent with this installation timestamp...");
 				long q0 = System.currentTimeMillis();
-				Timestamp thisMachineTime = new Timestamp(DateTime.now().getMillis());
+				Timestamp thisMachineTime = Timestamp.from(Instant.now());
 				Timestamp databaseTime;
 
 				try (ResultSet rs = statm.executeQuery("SELECT CURRENT_TIMESTAMP()")) {

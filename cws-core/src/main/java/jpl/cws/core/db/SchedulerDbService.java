@@ -3,7 +3,8 @@ package jpl.cws.core.db;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jpl.cws.core.log.CwsEmailerService;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
+import java.time.Instant;
+import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -95,7 +96,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
                     "error_message=? " +
                     "WHERE uuid=? AND status != ? AND status != ?",
                     new Object[]{COMPLETE, 
-                        new Timestamp(DateTime.now().getMillis()),
+                        Timestamp.from(Instant.now()),
                         null, uuid, COMPLETE, FAIL});
                 
                 if (numUpdated == 0) {
@@ -248,7 +249,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
                             "error_message=? " +
                             "WHERE uuid=? AND status=?",
                     new Object[]{newStatus,
-                            new Timestamp(DateTime.now().getMillis()),
+                            Timestamp.from(Instant.now()),
                             errorMessage, uuid, oldStatus});
             if (numUpdated == 0 && ++numTries < 20) {
                 String rowStatus = getProcInstRowStatus(uuid);
@@ -293,7 +294,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
                 new Object[]{
                         workerId,
                         procInstId,
-                        new Timestamp(DateTime.now().getMillis()),
+                        Timestamp.from(Instant.now()),
                         uuid}
         );
         long timeTaken = System.currentTimeMillis() - t0;
@@ -544,7 +545,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
             int numTries = 0;
             String workerName = null;
             while (numTries++ < 10 && numUpdated != 1) {
-                Timestamp tsNow = new Timestamp(DateTime.now().getMillis());
+                Timestamp tsNow = Timestamp.from(Instant.now());
                 workerName = "ext_worker" + String.format("%1$4s", externalWorkerNum++).replace(' ', '0');
 
                 try {
@@ -586,7 +587,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
     public int updateExternalWorkerHeartbeat(String workerId) {
         return jdbcTemplate.update(
                 "UPDATE cws_external_worker SET last_heartbeat_time = ? WHERE id=?",
-                new Object[]{new Timestamp(DateTime.now().getMillis()), workerId}
+                new Object[]{Timestamp.from(Instant.now()), workerId}
         );
     }
 
@@ -693,7 +694,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
      */
     public List<Map<String, Object>> detectDeadWorkers(int thresholdMilliseconds) {
         try {
-            Timestamp thresholdTimeAgo = new Timestamp(DateTime.now().minusMillis(thresholdMilliseconds).getMillis());
+            Timestamp thresholdTimeAgo = Timestamp.from(Instant.now().minusMillis(thresholdMilliseconds));
             return jdbcTemplate.queryForList("SELECT * FROM cws_worker " +
                             "WHERE last_heartbeat_time < ? AND status = 'up'",
                     new Object[]{thresholdTimeAgo});
@@ -711,7 +712,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
      */
     public List<Map<String, Object>> detectAbandonedWorkers(int daysToAbandoned) {
         try {
-            Timestamp thresholdTimeAgo = new Timestamp(DateTime.now().minusDays(daysToAbandoned).getMillis());
+            Timestamp thresholdTimeAgo = Timestamp.from(Instant.now().minus(Duration.ofDays(daysToAbandoned)));
 
             String query = "SELECT * FROM cws_worker WHERE last_heartbeat_time < ? AND status = 'down'";
             return jdbcTemplate.queryForList(query, new Object[]{thresholdTimeAgo});
@@ -729,7 +730,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
      */
     public List<Map<String, Object>> detectDeadExternalWorkers(int thresholdMilliseconds) {
         try {
-            Timestamp thresholdTimeAgo = new Timestamp(DateTime.now().minusMillis(thresholdMilliseconds).getMillis());
+            Timestamp thresholdTimeAgo = Timestamp.from(Instant.now().minusMillis(thresholdMilliseconds));
             return jdbcTemplate.queryForList("SELECT * FROM cws_external_worker " +
                             "WHERE last_heartbeat_time < ?",
                     new Object[]{thresholdTimeAgo});
@@ -1247,7 +1248,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
         Timestamp time = new Timestamp(0L);
 
         if (lastNumHours != null) {
-            time = new Timestamp(DateTime.now().minusHours(Integer.parseInt(lastNumHours)).getMillis());
+            time = Timestamp.from(Instant.now().minus(Duration.ofHours(Integer.parseInt(lastNumHours))));
         }
 
         String query =
@@ -1463,7 +1464,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
                             "WHERE worker_id=? AND name=?",
                     new Object[]{
                             value,
-                            new Timestamp(DateTime.now().getMillis()),
+                            Timestamp.from(Instant.now()),
                             workerId,
                             name});
             log.debug("Updated " + numUpdated + " row(s) in the cws_worker_tags table...");
