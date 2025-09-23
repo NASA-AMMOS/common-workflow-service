@@ -43,7 +43,7 @@
 		<cws.adaptation.version>${cws.version}</cws.adaptation.version>
 		<cws.installer.version>${cws.version}</cws.installer.version>
 		<cws.engine.version>${cws.version}</cws.engine.version>
-		<dumbster.version>1.6</dumbster.version>
+         <greenmail.version>2.1.5</greenmail.version>
 		<freemarker.version>2.3.33</freemarker.version>
 		<grizzly-http-server.version>4.0.2</grizzly-http-server.version>
 		<gson.version>2.13.2</gson.version>
@@ -76,7 +76,6 @@
 		<exec-maven-plugin.version>3.5.1</exec-maven-plugin.version>
 		<maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
 		<maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
-		<mockito.version>5.19.0</mockito.version>
 		<mybatis.version>3.5.19</mybatis.version>
 		<mysql-connector.version>9.4.0</mysql-connector.version>
 		<hikaricp.version>7.0.2</hikaricp.version>
@@ -583,24 +582,12 @@
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>${jacoco.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>org.mockito</groupId>
-				<artifactId>mockito-core</artifactId>
-				<version>${mockito.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency> <!-- Test SMTP Server -->
-				<groupId>dumbster</groupId>
-				<artifactId>dumbster</artifactId>
-				<version>${dumbster.version}</version>
-				<scope>test</scope>
-				<exclusions>
-					<exclusion>
-						<groupId>javax.activation</groupId>
-						<artifactId>activation</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
+            <dependency> <!-- Test Mail Server (GreenMail) -->
+                <groupId>com.icegreen</groupId>
+                <artifactId>greenmail</artifactId>
+                <version>${greenmail.version}</version>
+                <scope>test</scope>
+            </dependency>
 			<dependency> <!-- Test HTTP Server -->
 				<groupId>org.glassfish.grizzly</groupId>
 				<artifactId>grizzly-http-server</artifactId>
