@@ -26,7 +26,6 @@
 		<graalvm.js.version>23.0.9</graalvm.js.version>
 		<springdoc.version>2.8.13</springdoc.version>
 		<software.amazon.awssdk.version>2.33.13</software.amazon.awssdk.version>
-		<!-- <boon.version>0.12</boon.version> -->
 		<camunda.version>7.23.0-ee</camunda.version>
 		<commons-compress.version>1.28.0</commons-compress.version>
 		<commons-configuration.version>2.12.0</commons-configuration.version>
@@ -217,10 +216,6 @@
 				<artifactId>camunda-engine</artifactId>
 				<version>${camunda.version}</version>
 				<exclusions>
-					<!--<exclusion>-->
-						<!--<artifactId>*</artifactId>-->
-						<!--<groupId>org.springframework</groupId>-->
-					<!--</exclusion>-->
 					<exclusion>
 						<groupId>org.slf4j</groupId>
 						<artifactId>slf4j-api</artifactId>
@@ -240,12 +235,6 @@
 				<groupId>org.camunda.bpm</groupId>
 				<artifactId>camunda-engine-spring</artifactId>
 				<version>${camunda.version}</version>
-				<!--<exclusions>-->
-					<!--<exclusion>-->
-						<!--<artifactId>*</artifactId>-->
-						<!--<groupId>org.springframework</groupId>-->
-					<!--</exclusion>-->
-				<!--</exclusions>-->
 			</dependency>
 
 			<dependency>
@@ -529,17 +518,11 @@
 				<artifactId>camunda-bpm-assert</artifactId>
 				<version>${camunda.version}</version>
 				<scope>test</scope>
-				<!--<exclusions>-->
-					<!--<exclusion>-->
-						<!--<artifactId>*</artifactId>-->
-						<!--<groupId>org.springframework</groupId>-->
-					<!--</exclusion>-->
-				<!--</exclusions>-->
 			</dependency>
 			<dependency>
 				<groupId>org.assertj</groupId>
 				<artifactId>assertj-core</artifactId>
-				<version>${assertj.version}</version> <!-- for Camunda 7.19 -->
+				<version>${assertj.version}</version> <!-- for Camunda -->
 				<scope>test</scope>
 			</dependency>
 
