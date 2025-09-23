@@ -143,7 +143,6 @@
 				<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 				<artifactId>cws-tasks</artifactId>
 				<version>${cws.tasks.version}</version>
-				<!-- <scope>provided</scope> -->
 			</dependency>
 			<dependency>
 				<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
@@ -230,7 +229,6 @@
 				<version>${jython-standalone.version}</version>
 			</dependency>
 
-			<!--  FIXME:  SHOULD THIS BE PROVIDED?? -->
 			<dependency>
 				<groupId>org.camunda.bpm</groupId>
 				<artifactId>camunda-engine-spring</artifactId>
@@ -322,7 +320,6 @@
 				<artifactId>commons-text</artifactId>
 				<version>${commons-text.version}</version>
 			</dependency>
-
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
@@ -518,10 +515,10 @@
 				<version>${camunda.version}</version>
 				<scope>test</scope>
 			</dependency>
-			<dependency>
+			<dependency>    <!-- for Camunda -->
 				<groupId>org.assertj</groupId>
 				<artifactId>assertj-core</artifactId>
-				<version>${assertj.version}</version> <!-- for Camunda -->
+				<version>${assertj.version}</version>
 				<scope>test</scope>
 			</dependency>
 
