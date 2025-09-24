@@ -18,6 +18,11 @@
 			<artifactId>log4j-slf4j-impl</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
 		
 		<!-- Apache Commons -->
 		<dependency>
