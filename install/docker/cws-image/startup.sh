@@ -3,10 +3,10 @@
 javac getTime.java
 java getTime
 
-ls /home/cws_user/cws/server/apache-tomcat-10.1.43/logs
+ls /home/cws_user/cws/server/apache-tomcat-10.1.36/logs
 
 # Clear out any previous logs before starting (Note: Previous logs will cause CWS not to start)
-rm -rf /home/cws_user/cws/server/apache-tomcat-10.1.43/logs/*
+rm -rf /home/cws_user/cws/server/apache-tomcat-10.1.36/logs/*
 
 cd cws
 ./configure.sh ../config.properties Y
