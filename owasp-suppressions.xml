@@ -7,82 +7,6 @@
         <vulnerabilityName>.*</vulnerabilityName>
     </suppress>
 
-    <!-- Suppress specific CVEs that are causing build failures -->
-    <suppress>
-        <notes>Spring Framework 6.2.4 CVE-2025-41249 - temporary suppression until upgrade</notes>
-        <cve>CVE-2025-41249</cve>
-    </suppress>
-    
-    <suppress>
-        <notes>Spring Framework 6.2.4 CVE-2025-41242 - temporary suppression until upgrade</notes>
-        <cve>CVE-2025-41242</cve>
-    </suppress>
-    
-    <suppress>
-        <notes>Spring Framework 6.2.4 CVE-2025-41234 - temporary suppression until upgrade</notes>
-        <cve>CVE-2025-41234</cve>
-    </suppress>
-    
-    <suppress>
-        <notes>Spring Framework 6.2.4 CVE-2025-22233 - temporary suppression until upgrade</notes>
-        <cve>CVE-2025-22233</cve>
-    </suppress>
-    
-    <suppress>
-        <notes>Apache Tomcat 10.1.36 CVE-2025-49124 - temporary suppression until upgrade</notes>
-        <cve>CVE-2025-49124</cve>
-    </suppress>
-    
-    <suppress>
-        <notes>Apache Tomcat 10.1.36 CVE-2025-49125 - temporary suppression until upgrade</notes>
-        <cve>CVE-2025-49125</cve>
-    </suppress>
-    
-    <suppress>
-        <notes>Apache Tomcat 10.1.36 CVE-2025-52520 - temporary suppression until upgrade</notes>
-        <cve>CVE-2025-52520</cve>
-    </suppress>
-    
-    <suppress>
-        <notes>Apache Tomcat 10.1.36 CVE-2025-53506 - temporary suppression until upgrade</notes>
-        <cve>CVE-2025-53506</cve>
-    </suppress>
-    
-    <suppress>
-        <notes>Apache Tomcat 10.1.36 CVE-2025-46701 - temporary suppression until upgrade</notes>
-        <cve>CVE-2025-46701</cve>
-    </suppress>
-    
-    <suppress>
-        <notes>Apache Tomcat 10.1.36 CVE-2025-48988 - temporary suppression until upgrade</notes>
-        <cve>CVE-2025-48988</cve>
-    </suppress>
-    
-    <suppress>
-        <notes>Apache Tomcat 10.1.36 CVE-2025-31651 - temporary suppression until upgrade</notes>
-        <cve>CVE-2025-31651</cve>
-    </suppress>
-    
-    <suppress>
-        <notes>Apache Tomcat 10.1.36 CVE-2025-48989 - temporary suppression until upgrade</notes>
-        <cve>CVE-2025-48989</cve>
-    </suppress>
-    
-    <suppress>
-        <notes>Apache Tomcat 10.1.36 CVE-2025-31650 - temporary suppression until upgrade</notes>
-        <cve>CVE-2025-31650</cve>
-    </suppress>
-    
-    <suppress>
-        <notes>Apache Tomcat 10.1.36 CVE-2025-55668 - temporary suppression until upgrade</notes>
-        <cve>CVE-2025-55668</cve>
-    </suppress>
-
-    <suppress>
-        <notes>Netty 4.1.63 CVE-2025-55163 - temporary suppression until upgrade</notes>
-        <cve>CVE-2025-55163</cve>
-    </suppress>
-    
     <suppress>
         <notes>Netty 4.1.121 CVE-2025-58056 - temporary suppression until upgrade</notes>
         <cve>CVE-2025-58056</cve>
@@ -119,6 +43,16 @@
     <suppress>
         <notes>swagger-ui-bundle 5.19.0 CVE-2024-47875 - temporary suppression until upgrade</notes>
         <cve>CVE-2024-47875</cve>
+    </suppress>
+ 
+    <suppress>
+        <notes>tomcat-api 10.1.43 CVE-2025-48989 - temporary suppression until upgrade</notes>
+        <cve>CVE-2025-48989</cve>
+    </suppress>
+ 
+    <suppress>
+        <notes>netty-transport 4.1.121 CVE-2025-55163 - temporary suppression until upgrade</notes>
+        <cve>CVE-2025-55163</cve>
     </suppress>
  
 </suppressions>

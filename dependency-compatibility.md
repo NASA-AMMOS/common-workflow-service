@@ -62,8 +62,8 @@
 - Checks for known CVEs
 - Provides remediation advice
 - **Note**: Not automatic - must be run manually with commands:
-  - `mvn dependency-check-maven:aggregate` (for aggregate report)
-  - `mvn dependency-check-maven:check` (for check goal)
+  - `mvn clean dependency-check:aggregate` (for aggregate report)
+  - `mvn clean dependency-check:check` (for check goal)
 
 ### **Automated Checks**
 - Maven Enforcer Plugin (build-time)

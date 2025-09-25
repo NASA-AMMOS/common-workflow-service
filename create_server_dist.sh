@@ -21,7 +21,7 @@ rm -rf ${DIST}
 print 'Creating new CWS distribution directory...'
 mkdir -p ${CWS}/{bpmn,config/templates,installer,logs,upgrade,sql/cws}
 
-${ROOT}/install/create_camunda_zips.sh
+${ROOT}/install/create_camunda_zips.sh $CAMUNDA_VER
 
 print 'Unzipping Camunda into distribution...'
 unzip ${INSTALL_DIR}/camunda-distro-zips/cws_camunda-bpm-ee-tomcat-${CAMUNDA_VER}.zip -x start-camunda.bat start-camunda.sh -d ${CWS} > ${CWS}/logs/camunda_extract_main.log 2>&1

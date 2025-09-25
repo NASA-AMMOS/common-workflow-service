@@ -116,6 +116,18 @@ jobs:
           sleep 5s
           docker ps -a
 
+      - name: Run Dependency Check
+        run: mvn clean dependency-check:aggregate
+        shell: bash
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+
+      - name: Upload Dependency Check Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          path: target/dependency-check-reports/dependency-check-report.html
+
       - name: Build CWS
         id: build
         run:  |
@@ -126,7 +138,7 @@ jobs:
 
       - name: List CWS Logs
         run: |
-          cd "dist/console-only/cws/server/apache-tomcat-10.1.36/logs"
+          cd "dist/console-only/cws/server/apache-tomcat-10.1.43/logs"
           ls -al
 
       - name: Set up Google Chrome
@@ -162,25 +174,25 @@ jobs:
 
       - name: Show CWS Log for Console
         if: always()
-        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.43/logs
         run: |
           cat cws.log
 
       - name: Show Catalina Log for Console
         if: always()
-        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.43/logs
         run: |
           cat catalina.out
   
       - name: Show CWS Log for Worker1
         if: always()
-        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.43/logs
         run: |
           cat cws.log
 
       - name: Show Catalina Log for Worker1
         if: always()
-        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.43/logs
         run: |
           cat catalina.out
   
@@ -327,7 +339,7 @@ jobs:
 
       - name: List CWS Logs
         run: |
-          cd dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+          cd dist/console-only/cws/server/apache-tomcat-10.1.43/logs
           ls -al
 
       - name: Set up Google Chrome
@@ -352,37 +364,37 @@ jobs:
 
       - name: Show CWS Log for Console
         if: always()
-        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.43/logs
         run: |
           cat cws.log
 
       - name: Show Catalina Log for Console
         if: always()
-        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.43/logs
         run: |
           cat catalina.out
 
       - name: Show CWS Log for Worker1
         if: always()
-        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.43/logs
         run: |
           cat cws.log
 
       - name: Show Catalina Log for Worker1
         if: always()
-        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.43/logs
         run: |
           cat catalina.out
 
       - name: Show CWS Log for Worker2
         if: always()
-        working-directory: dist/worker2/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/worker2/cws/server/apache-tomcat-10.1.43/logs
         run: |
           cat cws.log
 
       - name: Show Catalina Log for Worker2
         if: always()
-        working-directory: dist/worker2/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/worker2/cws/server/apache-tomcat-10.1.43/logs
         run: |
           cat catalina.out
 
