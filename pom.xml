@@ -82,7 +82,7 @@
 		<hikaricp.version>4.0.3</hikaricp.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<quartz.version>2.5.0</quartz.version>
-		<selenium.version>4.10.0</selenium.version>
+		<selenium.version>4.35.0</selenium.version>
 		<servlet-api.version>6.0.0</servlet-api.version>
 		<log4j.version>2.25.2</log4j.version>
 		<slf4j.version>1.7.36</slf4j.version>
