@@ -67,7 +67,7 @@ jobs:
               password ${{ secrets.CAMUNDA_DOWNLOAD_PASSWORD }}" > ~/.netrc
           chmod 400 ~/.netrc
            
-      - name: Cache Maven packages
+      - name: Cache Maven packages (restore)
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
@@ -112,7 +112,7 @@ jobs:
           sleep 5s
           docker ps -a
 
-      - name: Build CWS
+      - name: Build and Start CWS
         id: build
         run:  |
           cd ci
@@ -137,6 +137,14 @@ jobs:
         id: ldap
         run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars, -Dit.test=LdapTestIT verify -DskipTests
         shell: bash
+
+      - name: Cache Maven packages (save)
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
 
       - name: Show CWS Log for Console
         if: always()

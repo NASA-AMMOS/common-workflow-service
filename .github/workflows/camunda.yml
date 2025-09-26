@@ -60,7 +60,7 @@ jobs:
                </servers>
              </settings>" > ~/.m2/settings.xml
 
-      - name: Cache Maven packages
+      - name: Cache Maven packages (restore)
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
@@ -128,7 +128,7 @@ jobs:
           name: dependency-check-report
           path: target/dependency-check-reports/dependency-check-report.html
 
-      - name: Build CWS
+      - name: Build and Start CWS
         id: build
         run:  |
           cd ci
@@ -158,6 +158,14 @@ jobs:
         id: integration
         run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source integration-test verify -DskipTests
         shell: bash
+
+      - name: Cache Maven packages (save)
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
 
       - name: Upload Jacoco report
         uses: actions/upload-artifact@v4
@@ -273,7 +281,7 @@ jobs:
                </servers>
              </settings>" > ~/.m2/settings.xml
 
-      - name: Cache Maven packages
+      - name: Cache Maven packages (restore)
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
@@ -329,7 +337,7 @@ jobs:
           sleep 5s
           docker ps -a
 
-      - name: Build CWS
+      - name: Build and Start CWS
         id: build
         run:  |
           cd ci
@@ -354,6 +362,14 @@ jobs:
         id: load
         run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars, -Dit.test=LoadTestIT verify -DskipTests
         shell: bash
+
+      - name: Cache Maven packages (save)
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
 
       - name: Upload test screenshots
         if: ${{ always() && steps.build.outcome == 'success' }}
