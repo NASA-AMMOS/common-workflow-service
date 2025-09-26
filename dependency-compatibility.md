@@ -63,7 +63,7 @@
 - Provides remediation advice
 - **Note**: Not automatic - must be run manually with commands:
   - `mvn clean dependency-check:aggregate` (for aggregate report)
-  - `mvn clean dependency-check:check` (for check goal)
+  - `mvn clean dependency-check:check` (for separate reports)
 
 ### **Automated Checks**
 - Maven Enforcer Plugin (build-time)
