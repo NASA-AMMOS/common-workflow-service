@@ -66,8 +66,8 @@ jobs:
               login ${{ secrets.CAMUNDA_DOWNLOAD_LOGIN }}
               password ${{ secrets.CAMUNDA_DOWNLOAD_PASSWORD }}" > ~/.netrc
           chmod 400 ~/.netrc
-           
-      - name: Cache Maven packages (restore)
+
+      - name: Cache Maven packages
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
@@ -137,14 +137,6 @@ jobs:
         id: ldap
         run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars, -Dit.test=LdapTestIT verify -DskipTests
         shell: bash
-
-      - name: Cache Maven packages (save)
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-m2-
 
       - name: Show CWS Log for Console
         if: always()

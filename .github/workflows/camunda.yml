@@ -60,7 +60,7 @@ jobs:
                </servers>
              </settings>" > ~/.m2/settings.xml
 
-      - name: Cache Maven packages (restore)
+      - name: Cache Maven packages
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
@@ -116,6 +116,14 @@ jobs:
           sleep 5s
           docker ps -a
 
+      - name: Cache Dependency-Check data
+        uses: actions/cache@v4
+        with:
+          path: ~/.dependency-check-data
+          key: ${{ runner.os }}-dependency-check
+          restore-keys: |
+            ${{ runner.os }}-dependency-check
+
       - name: Run Dependency Check
         run: mvn clean dependency-check:aggregate
         shell: bash
@@ -158,14 +166,6 @@ jobs:
         id: integration
         run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars,source integration-test verify -DskipTests
         shell: bash
-
-      - name: Cache Maven packages (save)
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-m2-
 
       - name: Upload Jacoco report
         uses: actions/upload-artifact@v4
@@ -281,7 +281,7 @@ jobs:
                </servers>
              </settings>" > ~/.m2/settings.xml
 
-      - name: Cache Maven packages (restore)
+      - name: Cache Maven packages
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
@@ -362,14 +362,6 @@ jobs:
         id: load
         run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars, -Dit.test=LoadTestIT verify -DskipTests
         shell: bash
-
-      - name: Cache Maven packages (save)
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-m2-
 
       - name: Upload test screenshots
         if: ${{ always() && steps.build.outcome == 'success' }}
