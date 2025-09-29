@@ -4,3 +4,5 @@ TODO List:
 - Enable the OSS Index analyzer in the Dependency-Check to catch more potential security risks
   - Requires to authenticate (create a new account on ossindex.sonatype.org)
 - Update Elasticsearch and logstash to the newest version
+- Add one integration test to the docker.yml Github Actions Workflow, just to test the basics in in the docker version
+  - Name it like DockerTestIT
