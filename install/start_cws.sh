@@ -252,7 +252,7 @@ fi
 # ==============================
 # WAIT FOR CWS SERVER TO COME UP
 # ==============================
-print "Waiting for CWS Server to startup..."
+print "Waiting for CWS to startup..."
 #print "  . = normal progress"
 #print "  W = WARN"
 #print "  E = ERROR"

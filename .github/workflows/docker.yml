@@ -1,10 +1,11 @@
-name: Docker Build
+name: CWS Docker Build
 
+# Triggers the workflow on push
 on:
   push:
-    branches: [main, develop, docker_build] # Adjust branches as needed
-  pull_request:
-    branches: [main] # Adjust branches as needed
+  schedule:
+    # trigger a build and test of CWS weekly on Monday at 5 AM PST / 12 PM UTC
+    - cron: '0 12 * * 1'
 
 permissions:
   contents: read
@@ -57,6 +58,51 @@ jobs:
           cd cws-certs
           ./generate-certs.sh
           
+      # Configure Maven security (master password)
+      - name: Configure Maven security
+        run: |
+          mkdir -p ~/.m2
+          echo "<settingsSecurity>
+                  <master>${{ secrets.MAVEN_MASTER_PASSWORD }}</master>
+                </settingsSecurity>" > ~/.m2/settings-security.xml
+
+      # Configure Maven settings (encrypted repo password)
+      - name: Configure Maven settings
+        run: |
+          echo "<settings>
+               <servers>
+                 <server>
+                   <id>${{ secrets.MAVEN_REPO_ID }}</id>
+                   <username>${{ secrets.MAVEN_USERNAME }}</username>
+                   <password>${{ secrets.MAVEN_ENCRYPTED_PASSWORD }}</password>
+                 </server>
+               </servers>
+             </settings>" > ~/.m2/settings.xml
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+     
+      - name: Configure Camunda Download Credentials
+        run: |
+          echo "machine downloads.camunda.cloud
+              login ${{ secrets.CAMUNDA_DOWNLOAD_LOGIN }}
+              password ${{ secrets.CAMUNDA_DOWNLOAD_PASSWORD }}" > ~/.netrc
+          chmod 400 ~/.netrc
+     
+      - name: Write license to file
+        run: |
+          mkdir -p ~/.camunda
+          chmod 700 ~/.camunda
+          cat <<'EOF' > ~/.camunda/license.txt
+          ${{ secrets.CAMUNDA_LICENSE }}
+          EOF
+          chmod 400 ~/.camunda/license.txt
+
       - name: Build CWS Docker Image using script
         run: |
           chmod +x build.sh
@@ -136,3 +182,9 @@ jobs:
             echo "Still waiting for CWS console... ($ELAPSED/$MAX_WAIT seconds)"
           done
         working-directory: install/docker/console-db-es-ls-kibana # Ensure correct context for docker-compose logs
+  
+      - name: Cleanup Private files
+        if: always()
+        run: |
+          rm -rf ~/.camunda
+          rm -f ~/.netrc

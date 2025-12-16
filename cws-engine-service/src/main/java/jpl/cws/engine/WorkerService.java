@@ -44,7 +44,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
-import jersey.repackaged.com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.concurrent.atomic.AtomicInteger;
 import jpl.cws.core.db.SchedulerDbService;
 import jpl.cws.core.log.CwsWorkerLoggerFactory;
 import jpl.cws.core.service.SpringApplicationContext;
@@ -101,16 +101,26 @@ public class WorkerService implements InitializingBean {
 	
 	public static String lastProcCounterStatusMsg;
 	
-	final ThreadFactory processorThreadFactory = new ThreadFactoryBuilder()
-		.setNameFormat("procReq-Processor-%d")
-		.setDaemon(true)
-		.build();
+	final ThreadFactory processorThreadFactory = new ThreadFactory() {
+		private final AtomicInteger threadNumber = new AtomicInteger(1);
+		@Override
+		public Thread newThread(Runnable r) {
+			Thread t = new Thread(r, "procReq-Processor-" + threadNumber.getAndIncrement());
+			t.setDaemon(true);
+			return t;
+		}
+	};
 	private ExecutorService processorPool;
 	
-	final ThreadFactory starterThreadFactory = new ThreadFactoryBuilder()
-		.setNameFormat("procReq-Starter-%d")
-		.setDaemon(true)
-		.build();
+	final ThreadFactory starterThreadFactory = new ThreadFactory() {
+		private final AtomicInteger threadNumber = new AtomicInteger(1);
+		@Override
+		public Thread newThread(Runnable r) {
+			Thread t = new Thread(r, "procReq-Starter-" + threadNumber.getAndIncrement());
+			t.setDaemon(true);
+			return t;
+		}
+	};
 	private ExecutorService starterPool;
 	
 	private static long skippedMessages = 0;
@@ -121,7 +131,6 @@ public class WorkerService implements InitializingBean {
 	ObjectName serviceName;
 	
 	public WorkerService() {
-		System.out.println("WorkerService constructor...");
 	}
 	
 	public void setProcAppRef(ProcessApplicationReference procAppRef) {
@@ -503,6 +512,11 @@ public class WorkerService implements InitializingBean {
 				engineDbService.workerHeartbeat(activeCount.intValue());
 			}
 			activeCount = null;
+		}
+		catch (javax.management.InstanceNotFoundException e) {
+			// This is expected during shutdown when Camunda MBeans are being cleaned up
+			log.debug("JMX MBean not found during heartbeat (likely during shutdown): " + e.getMessage());
+			// Don't log as error during shutdown to avoid noise
 		}
 		catch (Exception e) {
 			log.error("problem encountered during heartbeat()", e);
@@ -911,8 +925,16 @@ public class WorkerService implements InitializingBean {
 	public void setJobExecutorMaxPoolSize(Integer executorServiceMaxPoolSize, boolean doDbUpdate) {
 		if (executorServiceMaxPoolSize != null) {
 			try {
-				// we are getting errors if we go beyond 10?
-				executorServiceMaxPoolSize = Math.min(10, executorServiceMaxPoolSize);
+				// Apply safety limit based on historical issues with larger thread pools
+				// This was at 10, but now trying 16
+				// TODO: Make this configurable and investigate if larger pools are safe
+				int maxAllowedPoolSize = 16;
+				if (executorServiceMaxPoolSize > maxAllowedPoolSize) {
+					log.warn("Requested pool size " + executorServiceMaxPoolSize + 
+							 " exceeds safety limit of " + maxAllowedPoolSize + 
+							 ". Limiting to " + maxAllowedPoolSize + " to prevent known issues.");
+					executorServiceMaxPoolSize = maxAllowedPoolSize;
+				}
 				// Log information about JMX remote interface
 				if (System.getProperty("com.sun.management.jmxremote") == null) {
 					log.warn("JMX remote appears to be disabled");
@@ -935,18 +957,40 @@ public class WorkerService implements InitializingBean {
 				// Set the "MaximumPoolSize" attribute
 				ObjectName serviceName = new ObjectName("org.camunda.bpm.platform:type=executor-service");
 				
-				// Set the CorePoolSize.
-				// Through experimentation, we have seen that the max doesn't get reached, but
-				// its the core size that counts.
+				// Get current MaximumPoolSize to determine if we're increasing or decreasing
+				// Note: CorePoolSize is write-only, so we can't read its current value
+				Integer currentMaxPoolSize = (Integer)mbsc.getAttribute(serviceName, "MaximumPoolSize");
+
+				boolean updatedPoolSize = false;
+				// ThreadPoolExecutor constraint: corePoolSize cannot be greater than maximumPoolSize
+				// Strategy:
+				// - If decreasing: lower core first, then max
+				// - If increasing: raise max first, then core
 				//
-				Attribute attr2 = new Attribute("CorePoolSize", executorServiceMaxPoolSize);
-				mbsc.setAttribute(serviceName, attr2);
-				
-				// Also set the MaximumPoolSize
-				//
-				// FIXME:  make this attribute configurable in "advanced" configuration of configure.sh
-				Attribute attr = new Attribute("MaximumPoolSize", executorServiceMaxPoolSize);
-				mbsc.setAttribute(serviceName, attr);
+				if (executorServiceMaxPoolSize < currentMaxPoolSize) {
+					// DECREASING: Lower core first, then max
+					log.debug("Decreasing max pool size from " + currentMaxPoolSize + " to " + executorServiceMaxPoolSize);
+
+					Attribute coreAttr = new Attribute("CorePoolSize", executorServiceMaxPoolSize);
+					mbsc.setAttribute(serviceName, coreAttr);
+					
+					Attribute maxAttr = new Attribute("MaximumPoolSize", executorServiceMaxPoolSize);
+					mbsc.setAttribute(serviceName, maxAttr);
+
+					updatedPoolSize = true;
+				}
+				else if (executorServiceMaxPoolSize > currentMaxPoolSize) {
+					// INCREASING: Raise max first, then core
+					log.debug("Increasing max pool size from " + currentMaxPoolSize + " to " + executorServiceMaxPoolSize);
+					
+					Attribute maxAttr = new Attribute("MaximumPoolSize", executorServiceMaxPoolSize);
+					mbsc.setAttribute(serviceName, maxAttr);
+					
+					Attribute coreAttr = new Attribute("CorePoolSize", executorServiceMaxPoolSize);
+					mbsc.setAttribute(serviceName, coreAttr);
+
+					updatedPoolSize = true;
+				}
 				
 				// Finally set the member variable (used to determine how many to query in claim phase)
 				//
@@ -955,8 +999,13 @@ public class WorkerService implements InitializingBean {
 				// Close JMX connector
 				jmxc.close();
 				
-				log.info("Set Job Executor max pool size to " + executorServiceMaxPoolSize + " (JMX URL: " + JMX_SERVICE_URL + ")");
-				
+				if (updatedPoolSize) {
+					log.info("Set Job Executor max pool size to " + executorServiceMaxPoolSize + " (JMX URL: " + JMX_SERVICE_URL + ")");
+				}
+				else {
+					log.trace("Pool size already at target value: " + executorServiceMaxPoolSize + ". No change needed.");
+				}
+
 				if (doDbUpdate) {
 					// Now update the DB, since setting was successful.
 					//
@@ -1002,11 +1051,11 @@ public class WorkerService implements InitializingBean {
 		Map<String,DefaultMessageListenerContainer> beans = SpringApplicationContext.getBeansOfType(DefaultMessageListenerContainer.class);
 		for (Entry<String,DefaultMessageListenerContainer> bean : beans.entrySet()) {
 			DefaultMessageListenerContainer container = bean.getValue();
-			System.out.println("    container.stop: " + container);
+			log.info("    container.stop: " + container);
 			if (container.isRunning()) {
 				container.stop();
 			}
-			System.out.println("    container.shutdown: " + container);
+			log.info("    container.shutdown: " + container);
 			container.shutdown();
 		}
 		

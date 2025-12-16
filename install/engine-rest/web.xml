@@ -1,6 +1,6 @@
-<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+<web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee    http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+  xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
 
   <!-- Fetch And Lock Handler (long polling): Unique Worker Request (default value: false) -->
   <!--
@@ -81,9 +81,9 @@
 
   <servlet>
     <servlet-name>Resteasy</servlet-name>
-    <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServlet30Dispatcher</servlet-class>
+    <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
     <init-param>
-      <param-name>javax.ws.rs.Application</param-name>
+      <param-name>jakarta.ws.rs.Application</param-name>
       <param-value>org.camunda.bpm.engine.rest.impl.application.DefaultApplication</param-value>
     </init-param>
     <async-supported>true</async-supported>

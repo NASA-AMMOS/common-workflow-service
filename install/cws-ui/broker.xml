@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns="urn:activemq"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
+
+   <core xmlns="urn:activemq:core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="urn:activemq:core">
+
+      <name>cwsConsoleBroker</name>
+
+      <persistence-enabled>true</persistence-enabled>
+
+      <journal-type>NIO</journal-type>
+
+      <paging-directory>__CWS_ROOT_DIR__/server/artemis/data/paging</paging-directory>
+
+      <bindings-directory>__CWS_ROOT_DIR__/server/artemis/data/bindings</bindings-directory>
+
+      <journal-directory>__CWS_ROOT_DIR__/server/artemis/data/journal</journal-directory>
+
+      <large-messages-directory>__CWS_ROOT_DIR__/server/artemis/data/large-messages</large-messages-directory>
+
+      <journal-min-files>2</journal-min-files>
+
+      <journal-pool-files>10</journal-pool-files>
+
+      <journal-device-block-size>4096</journal-device-block-size>
+
+      <journal-file-size>10M</journal-file-size>
+
+      <!--
+         This value was determined through a series of tests.
+
+         If you want to determine one for your system:
+
+         Enable debug logging for org.apache.activemq.artemis.tests.integration.performance.
+
+         Run the test MeasureThroughputMain with arg -conf ./build/config/artemis-queues.xml
+
+         Tune the journal file size from there until you get the best performance for your system.
+
+         -->
+      <journal-buffer-timeout>3333333</journal-buffer-timeout>
+
+      <!--
+         When using ASYNCIO, if you set datasync=false, this system will call
+         fdatasync instead of fsync. This is a complete flush and less likely to loose
+         data. If you do not care about the data, you can set this to false
+         for better performance.
+
+         If you set datasync=true, the system will use fsync instead of fdatasync.
+         fsync has less guarantee of not loosing data and is really
+         bad for performance, so you should only set this to true if you really need it.
+      -->
+      <journal-datasync>false</journal-datasync>
+
+      <!-- Debug and troubleshooting settings -->
+      <jmx-management-enabled>true</jmx-management-enabled>
+      <jmx-domain>org.apache.activemq.artemis</jmx-domain>
+      <jmx-use-broker-name>true</jmx-use-broker-name>
+      
+      <!-- Enable detailed logging -->
+      <log-delegate-factory-class-name>org.apache.activemq.artemis.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>
+
+      <connectors>
+         <connector name="netty-connector">tcp://__CWS_AMQ_HOST__:__CWS_AMQ_PORT__</connector>
+      </connectors>
+
+      <acceptors>
+         <acceptor name="netty-acceptor">tcp://__CWS_AMQ_HOST__:__CWS_AMQ_PORT__?connectionTtl=60000;clientFailureCheckPeriod=5000</acceptor>
+      </acceptors>
+
+      <security-enabled>false</security-enabled>
+
+      <security-settings>
+         <security-setting match="#">
+            <permission type="createNonDurableQueue" roles="amq"/>
+            <permission type="deleteNonDurableQueue" roles="amq"/>
+            <permission type="createDurableQueue" roles="amq"/>
+            <permission type="deleteDurableQueue" roles="amq"/>
+            <permission type="createAddress" roles="amq"/>
+            <permission type="deleteAddress" roles="amq"/>
+            <permission type="consume" roles="amq"/>
+            <permission type="browse" roles="amq"/>
+            <permission type="send" roles="amq"/>
+            <permission type="manage" roles="amq"/>
+         </security-setting>
+      </security-settings>
+
+      <address-settings>
+         <!-- if you define auto-create on certain queues, management has to be auto-create -->
+         <address-setting match="activemq.management#">
+            <dead-letter-address>DLQ</dead-letter-address>
+            <expiry-address>ExpiryQueue</expiry-address>
+            <redelivery-delay>0</redelivery-delay>
+            <!-- with -1 only the global-max-size is in use for limiting -->
+            <max-size-bytes>-1</max-size-bytes>
+            <message-counter-history-day-limit>10</message-counter-history-day-limit>
+            <address-full-policy>PAGE</address-full-policy>
+            <auto-create-queues>true</auto-create-queues>
+            <auto-create-addresses>true</auto-create-addresses>
+            <auto-create-jms-queues>true</auto-create-jms-queues>
+            <auto-create-jms-topics>true</auto-create-jms-topics>
+         </address-setting>
+         <!--default for catch all-->
+         <address-setting match="#">
+            <dead-letter-address>DLQ</dead-letter-address>
+            <expiry-address>ExpiryQueue</expiry-address>
+            <redelivery-delay>0</redelivery-delay>
+            <!-- with -1 only the global-max-size is in use for limiting -->
+            <max-size-bytes>-1</max-size-bytes>
+            <message-counter-history-day-limit>10</message-counter-history-day-limit>
+            <address-full-policy>PAGE</address-full-policy>
+            <auto-create-queues>true</auto-create-queues>
+            <auto-create-addresses>true</auto-create-addresses>
+            <auto-create-jms-queues>true</auto-create-jms-queues>
+            <auto-create-jms-topics>true</auto-create-jms-topics>
+         </address-setting>
+      </address-settings>
+
+      <addresses>
+         <address name="DLQ">
+            <anycast>
+               <queue name="DLQ" />
+            </anycast>
+         </address>
+         <address name="ExpiryQueue">
+            <anycast>
+               <queue name="ExpiryQueue" />
+            </anycast>
+         </address>
+         <address name="processStartReqTopic">
+            <multicast/>
+         </address>
+         <address name="processDeployReqQueue">
+            <anycast>
+               <queue name="processDeployReqQueue" />
+            </anycast>
+         </address>
+         <address name="codeUpdateTopic">
+            <multicast/>
+         </address>
+         <address name="workerConfigChangeTopic">
+            <multicast/>
+         </address>
+         <address name="processExternalTasksQueue">
+            <anycast>
+               <queue name="processExternalTasksQueue" />
+            </anycast>
+         </address>
+         <address name="systemShutdownTopic">
+            <multicast/>
+         </address>
+         <address name="workerLogCleanupTopic">
+            <multicast/>
+         </address>
+         <address name="processEventTopic">
+            <multicast/>
+         </address>
+      </addresses>
+
+      <!-- Enable focused logging for startup debugging -->
+      <broker-plugins>
+         <broker-plugin class-name="org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin">
+            <property key="LOG_ALL_EVENTS" value="false"/>
+            <property key="LOG_CONNECTION_EVENTS" value="true"/>
+            <property key="LOG_SESSION_EVENTS" value="false"/>
+            <property key="LOG_CONSUMER_EVENTS" value="false"/>
+            <property key="LOG_DELIVERING_EVENTS" value="false"/>
+            <property key="LOG_SENDING_EVENTS" value="false"/>
+            <property key="LOG_INTERNAL_EVENTS" value="false"/>
+         </broker-plugin>
+      </broker-plugins>
+
+   </core>
+</configuration>

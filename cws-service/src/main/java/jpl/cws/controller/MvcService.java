@@ -10,9 +10,9 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import org.camunda.bpm.engine.AuthorizationService;
 import org.camunda.bpm.engine.IdentityService;
@@ -31,7 +31,7 @@ import jpl.cws.process.initiation.CwsProcessInitiator;
 import jpl.cws.process.initiation.InitiatorsService;
 import jpl.cws.scheduler.Scheduler;
 import jpl.cws.service.CwsConsoleService;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.Hidden;
 
 @Controller
 public class MvcService extends MvcCore {
@@ -51,17 +51,23 @@ public class MvcService extends MvcCore {
 	/**
 	 *
 	 */
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/login", method = GET)
-	public ModelAndView login(final HttpSession session) {
-		return buildModel("login", "Please log in");
+	public ModelAndView login(final HttpSession session, HttpServletRequest request) {
+		ModelAndView model = buildModel("login", "Please log in");
+		
+		// Add request parameters to the model for FreeMarker template access
+		Map<String, String[]> parameterMap = request.getParameterMap();
+		model.addObject("RequestParameters", parameterMap);
+		
+		return model;
 	}
 	
 	
 	/**
 	 *
 	 */
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/not_authorized", method = GET)
 	public ModelAndView notAuthorized(final HttpSession session) {
 		return buildModel("not_authorized", "Not authorized. Please navigate elsewhere");
@@ -71,7 +77,7 @@ public class MvcService extends MvcCore {
 	/**
 	 * 
 	 */
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/home", method = GET)
 	public ModelAndView index(final HttpSession session) {
 		return buildHomeModel("");
@@ -80,7 +86,7 @@ public class MvcService extends MvcCore {
 	/**
 	 *
 	 */
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/summary", method = GET)
 	public ModelAndView summary(final HttpSession session) {
 		return buildSummaryModel("");
@@ -92,7 +98,7 @@ public class MvcService extends MvcCore {
 	 * and results in displaying the home page with a welcome message
 	 * 
 	 */
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/logintotarget", method = POST)
 	public ModelAndView logintotarget(
 			final HttpSession session,
@@ -147,25 +153,25 @@ public class MvcService extends MvcCore {
 		}
 	}
 
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/deployments", method = GET)
 	public ModelAndView deployments() {
 		return buildDeploymentsModel("");
 	}
 
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/logs", method = GET)
 	public ModelAndView logs() {
 		return buildLogsModel("");
 	}
 
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/history", method = GET)
 	public ModelAndView history() {
 		return buildHistoryModel("");
 	}
 
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/workers", method = GET)
 	public ModelAndView workers() {
 		return buildWorkersModel();
@@ -176,7 +182,7 @@ public class MvcService extends MvcCore {
 	 * Returns Initiators page model and view
 	 * 
 	 */
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/initiators", method = GET)
 	public ModelAndView initiators() {
 		ModelAndView model = new ModelAndView("initiators");
@@ -195,7 +201,7 @@ public class MvcService extends MvcCore {
 		return model;
 	}
 
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/snippets", method = GET)
 	public ModelAndView snippets() {
 		ModelAndView model = new ModelAndView("snippets");
@@ -204,31 +210,31 @@ public class MvcService extends MvcCore {
 		return model;
 	}
 
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/processes", method = GET)
 	public ModelAndView processes() {
 		return buildProcessesModel("");
 	}
 
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/configuration", method = GET)
 	public ModelAndView configuration() {
 		return buildConfigurationModel("");
 	}
 
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/documentation", method = GET)
 	public ModelAndView documentation() {
 		return buildDocumentationModel("");
 	}
 
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/modeler", method = GET)
 	public ModelAndView modeler() {
 		return buildModelerModel("");
 	}
 
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/api-docs", method = GET)
 	public ModelAndView apidocs() {
 		return buildApiDocsModel("");
@@ -238,7 +244,7 @@ public class MvcService extends MvcCore {
 	/**
 	 * 
 	 */
-	@ApiIgnore
+	@Hidden
 	@RequestMapping(value = "/logout", method = GET)
 	public ModelAndView logout(
 			final HttpSession session,

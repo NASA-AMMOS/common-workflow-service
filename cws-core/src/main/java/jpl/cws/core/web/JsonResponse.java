@@ -1,7 +1,7 @@
 package jpl.cws.core.web;
 
 import com.google.gson.GsonBuilder;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 public class JsonResponse {
 	public enum Status {

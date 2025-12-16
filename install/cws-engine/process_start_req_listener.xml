@@ -1,5 +1,5 @@
 	<!-- PROCESS START REQUEST LISTENER -->
-	<bean id="processStartReqTopic" class="org.apache.activemq.command.ActiveMQTopic">
+	<bean id="processStartReqTopic" class="org.apache.activemq.artemis.jms.client.ActiveMQTopic">
 		<constructor-arg value="processStartReqTopic" />
 	</bean>
 	<bean id="procStartReqListener" class="jpl.cws.engine.listener.ProcessStartRequestListener" />

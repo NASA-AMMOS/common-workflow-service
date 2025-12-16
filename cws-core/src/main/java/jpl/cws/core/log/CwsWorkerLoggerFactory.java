@@ -13,7 +13,6 @@ public class CwsWorkerLoggerFactory {
 	@Autowired private CwsConfig cwsConfig;
 	
 	public CwsWorkerLoggerFactory() {
-		System.out.println("CwsWorkerLoggerFactory constructor... cwsConfig=" + cwsConfig);
 	}
 
 	public CwsWorkerLogger getLogger(Class clazz) {

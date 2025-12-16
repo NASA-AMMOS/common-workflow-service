@@ -1,22 +1,19 @@
 package jpl.cws.engine.listener;
 
-import static java.lang.Thread.sleep;
-import static jpl.cws.core.db.SchedulerDbService.CLAIMED_BY_WORKER;
-import static jpl.cws.core.db.SchedulerDbService.FAILED_TO_START;
-import static jpl.cws.core.db.SchedulerDbService.PENDING;
-
-import java.io.ByteArrayInputStream;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jpl.cws.core.db.SchedulerDbService;
+import jpl.cws.engine.WorkerService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
 
-import de.ruedigermoeller.serialization.FSTObjectInput;
-import jpl.cws.core.db.SchedulerDbService;
-import jpl.cws.engine.WorkerService;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
+import static java.lang.Thread.sleep;
+import static jpl.cws.core.db.SchedulerDbService.*;
 
 /**
  * Thread responsible for starting a new process instance in the Camunda engine.
@@ -100,13 +97,13 @@ public class ProcessStarterThread implements Runnable {
 					"Process definition with proc def key of: '" + procDefKey + 
 					"' is suspended, so not starting!");
 			}
-			
-			// Get process variables as a map
-			//
-			byte[] procVarsAsBytes = (byte[])procReq.get("proc_variables");
-			FSTObjectInput in = new FSTObjectInput(new ByteArrayInputStream(procVarsAsBytes));
-			Map<String,Object> procVars = (Map<String,Object>)in.readObject();
-			in.close();
+
+            // Get process variables as a map
+            //
+            byte[] procVarsAsBytes = (byte[])procReq.get("proc_variables");
+            String json = new String(procVarsAsBytes, StandardCharsets.UTF_8).trim();
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Object> procVars = objectMapper.readValue(json, Map.class);
 			if (procVars == null) {
 				procVars = new HashMap<String,Object>();
 			}

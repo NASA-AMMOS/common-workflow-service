@@ -6,7 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.camunda.bpm.engine.IdentityService;
-import org.joda.time.DateTime;
+import java.time.Instant;
+import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,7 +122,7 @@ public class SecurityService {
 	 */
 	public void addNewCwsTokenToDb(String cwsToken, String username) {
 		log.info("adding new token to db: " + cwsToken + ", " + username);
-		Timestamp expirationTime = new Timestamp(DateTime.now().plusHours(prop_TokenExpirationInHours).getMillis());
+		Timestamp expirationTime = Timestamp.from(Instant.now().plus(Duration.ofHours(prop_TokenExpirationInHours)));
 		schedulerDbService.insertCwsToken(cwsToken, username, expirationTime);
 	}
 	

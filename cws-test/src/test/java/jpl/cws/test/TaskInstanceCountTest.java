@@ -28,7 +28,6 @@ public class TaskInstanceCountTest {
 	
 	@Before // deciding where to ultimately put the jUnit integration
 	public void setUp() {
-		//MockitoAnnotations.initMocks(this);
 	}
 
 	@After

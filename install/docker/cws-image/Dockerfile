@@ -1,11 +1,12 @@
-FROM oraclelinux:8
+FROM oraclelinux:9
 
 RUN yum update -y && \
     yum install -y mysql java-17-openjdk java-17-openjdk-devel rsync which && \
-    yum clean all
+    yum clean all && \
+    rm -rf /var/cache/yum
 
-ENV JAVA_HOME /usr/lib/jvm/java-openjdk
-ENV HOME /root
+ENV JAVA_HOME=/usr/lib/jvm/java-openjdk
+ENV HOME=/root
 
 ENV TZ=America/Los_Angeles
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -20,6 +21,5 @@ RUN mkdir -p /root/.cws && echo "changeit" > /root/.cws/creds
 
 # For time check
 ADD getTime.java .
-ADD joda-time-2.1.jar .
 
 ENTRYPOINT [ "./wait_for_db_es_console.sh" ]

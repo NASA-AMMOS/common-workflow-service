@@ -17,7 +17,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import jersey.repackaged.com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.concurrent.atomic.AtomicInteger;
 import jpl.cws.core.log.CwsWorkerLoggerFactory;
 
 public class CwsExternalTaskService implements InitializingBean {
@@ -40,10 +40,15 @@ public class CwsExternalTaskService implements InitializingBean {
 
 	private static final long LOCK_DURATION = 10 * 60 * 1000L; 		// Initially lock external task for 10 minutes
 
-	final ThreadFactory extTaskThreadFactory = new ThreadFactoryBuilder()
-		.setNameFormat("extTaskThread-%d")
-		.setDaemon(true)
-		.build();
+	final ThreadFactory extTaskThreadFactory = new ThreadFactory() {
+		private final AtomicInteger threadNumber = new AtomicInteger(1);
+		@Override
+		public Thread newThread(Runnable r) {
+			Thread t = new Thread(r, "extTaskThread-" + threadNumber.getAndIncrement());
+			t.setDaemon(true);
+			return t;
+		}
+	};
 	
 	private ExecutorService extTaskThreadPool;
 	

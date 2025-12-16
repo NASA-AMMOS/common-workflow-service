@@ -1,7 +1,7 @@
 package jpl.cws.console;
 
 import jpl.cws.core.db.SchedulerDbService;
-import org.joda.time.DateTime;
+import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +74,7 @@ public class AwsMetricsPublisherBackgroundThread extends Thread {
 				
 				// Publish the number of workers metric to AWS
 				int numWorkers = getNumActiveWorkers();
-				publishMetric(NUM_ACTIVE_WORKERS_METRIC_NAME, new Double(numWorkers));
+				publishMetric(NUM_ACTIVE_WORKERS_METRIC_NAME, (double)numWorkers);
 				
 			} catch (InterruptedException e) {
 				log.warn("AwsMetricsPublisherBackgroundThread interrupted. Must be shutting down..");
@@ -126,7 +126,7 @@ public class AwsMetricsPublisherBackgroundThread extends Thread {
 	 * 
 	 */
 	private Long getMaxPendingQueueTime() {
-		Timestamp now = new Timestamp(DateTime.now().getMillis());
+		Timestamp now = Timestamp.from(Instant.now());
 		
 		// Get list of scheduled rows in the 'pending' state
 		List<Map<String,Object>> pendingRows = schedulerDbService.getPendingProcessInstances();
@@ -195,7 +195,7 @@ public class AwsMetricsPublisherBackgroundThread extends Thread {
 	 */
 	private void publishMetric(String metricName, Double metricValue) {
 		if (metricValue == null) {
-			metricValue = new Double(0); // still publish a data point..
+			metricValue = 0.0; // still publish a data point..
 		}
 		
 		try {

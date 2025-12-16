@@ -12,11 +12,19 @@
 			<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 			<artifactId>cws-service</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
+			<artifactId>cws-core</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		
 		<dependency>
@@ -24,11 +32,22 @@
 			<artifactId>junit</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<scope>provided</scope>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
 		</dependency>
- 		<dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.swagger.core.v3</groupId>
+			<artifactId>swagger-annotations-jakarta</artifactId>
+		</dependency>
+		<dependency>
  			<groupId>org.apache.commons</groupId>
  			<artifactId>commons-exec</artifactId>
  		</dependency>
@@ -49,15 +68,14 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
 					<release>${java.version}</release>
+					<parameters>true</parameters>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.1.0</version>
 				<configuration>
 					<excludes>
 						<exclude>**/CustomMethods*</exclude>
@@ -66,5 +84,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

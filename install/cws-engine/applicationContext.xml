@@ -13,7 +13,7 @@
 		http://www.springframework.org/schema/task
 		http://www.springframework.org/schema/task/spring-task.xsd
 		http://www.springframework.org/schema/jee
-		http://www.springframework.org/schema/jee/spring-jee-3.1.xsd">
+		http://www.springframework.org/schema/jee/spring-jee.xsd">
 
 	<context:property-placeholder location="classpath*:cws-engine.properties" ignore-unresolvable="true" order="1"/>
 	<context:property-placeholder location="classpath*:cws-adaptation-engine.properties" order="2"/>
@@ -70,6 +70,7 @@
         <property name="authorizationEnabled" value="true" />
         <property name="jobExecutorDeploymentAware" value="true" />
         <property name="jdbcBatchProcessing" value="false" />
+        <property name="databaseType" value="mysql" />
         <property name="idGenerator">
             <bean class="org.camunda.bpm.engine.impl.persistence.StrongUuidGenerator" />
         </property>
@@ -102,20 +103,18 @@
 	<context:annotation-config />
 
 	<!-- SETUP CONNECTION TO MESSAGE BROKER -->
-	<bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-		<!--  TODO: investigate why use of failover causes connection failure -->
-		<property name="brokerURL" value="tcp://__CWS_AMQ_HOST__:__CWS_AMQ_PORT__?wireFormat.maxInactivityDurationInitalDelay=30000"/>
-		<!-- <property name="brokerURL" value="discovery:(multicast://default)" /> -->
+	<bean id="connectionFactory" class="org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory">
+		<property name="brokerURL" value="tcp://__CWS_AMQ_HOST__:__CWS_AMQ_PORT__"/>
 	</bean>
 	<!--  FIXME: see: http://stackoverflow.com/questions/21984319/why-defaultmessagelistenercontainer-should-not-use-cachingconnectionfactory -->
-	<bean id="cachingConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+	<bean id="cachingConnectionFactory" class="jpl.cws.core.jms.CwsCachingConnectionFactory">
 		<property name="targetConnectionFactory" ref="connectionFactory"/>
 	</bean>
 
 __PROC_START_REQ_LISTENER_XML__
 
 	<!-- CONFIGURATION CHANGE LISTENER -->
-	<bean id="workerConfigChangeTopic" class="org.apache.activemq.command.ActiveMQTopic">
+	<bean id="workerConfigChangeTopic" class="org.apache.activemq.artemis.jms.client.ActiveMQTopic">
 		<constructor-arg value="workerConfigChangeTopic"/>
 	</bean>
 	<bean id="workerConfigChangeListener" class="jpl.cws.engine.listener.WorkerConfigChangeListener" />
@@ -128,7 +127,7 @@ __PROC_START_REQ_LISTENER_XML__
 	</bean>
 
 	<!-- PROCESS EXTERNAL TASKS LISTENER -->
-	<bean id="processExternalTasksQueue" class="org.apache.activemq.command.ActiveMQQueue">
+	<bean id="processExternalTasksQueue" class="org.apache.activemq.artemis.jms.client.ActiveMQQueue">
 		<constructor-arg value="processExternalTasksQueue"/>
 	</bean>
 	<bean id="jmsProcessExternalTasksTemplate" class="org.springframework.jms.core.JmsTemplate">
@@ -149,7 +148,7 @@ __PROC_START_REQ_LISTENER_XML__
 	</bean>
 
 		<!-- SYSTEM SHUTDOWN LISTENER -->
-	<bean id="systemShutdownTopic" class="org.apache.activemq.command.ActiveMQTopic">
+	<bean id="systemShutdownTopic" class="org.apache.activemq.artemis.jms.client.ActiveMQTopic">
 		<constructor-arg value="systemShutdownTopic"/>
 	</bean>
 
@@ -164,7 +163,7 @@ __PROC_START_REQ_LISTENER_XML__
 	</bean>
 
 	<!-- CODE UPDATE LISTENER -->
-	<bean id="codeUpdateTopic" class="org.apache.activemq.command.ActiveMQTopic">
+	<bean id="codeUpdateTopic" class="org.apache.activemq.artemis.jms.client.ActiveMQTopic">
 		<constructor-arg value="codeUpdateTopic"/>
 	</bean>
 	<bean id="codeUpdateListener" class="jpl.cws.engine.listener.CodeUpdateListener" />
@@ -178,7 +177,7 @@ __PROC_START_REQ_LISTENER_XML__
 	</bean>
 
 	<!-- WORKER LOG CLEANUP LISTENER -->
-	<bean id="workerLogCleanupTopic" class="org.apache.activemq.command.ActiveMQTopic">
+	<bean id="workerLogCleanupTopic" class="org.apache.activemq.artemis.jms.client.ActiveMQTopic">
 		<constructor-arg value="workerLogCleanupTopic"/>
 	</bean>
 	<bean id="workerLogCleanupListener" class="jpl.cws.engine.listener.WorkerLogCleanupListener" />
@@ -192,7 +191,7 @@ __PROC_START_REQ_LISTENER_XML__
 	</bean>
 
 	<!-- PROCESS EVENT LISTENER -->
-	<bean id="processEventTopic" class="org.apache.activemq.command.ActiveMQTopic">
+	<bean id="processEventTopic" class="org.apache.activemq.artemis.jms.client.ActiveMQTopic">
 		<constructor-arg value="processEventTopic"/>
 	</bean>
 	<bean id="processEventListener" class="jpl.cws.engine.listener.ProcessEventListener" />
@@ -214,7 +213,7 @@ __PROC_START_REQ_LISTENER_XML__
 	</bean>
 
 	<!-- PROCESS SCHEDULE TOPIC and PRODUCER -->
-	<bean id="scheduleProcessTopic" class="org.apache.activemq.command.ActiveMQTopic">
+	<bean id="scheduleProcessTopic" class="org.apache.activemq.artemis.jms.client.ActiveMQTopic">
 		<constructor-arg value="scheduleProcessTopic"/>
 	</bean>
 	<bean id="jmsScheduleProcessTopicTemplate" class="org.springframework.jms.core.JmsTemplate">

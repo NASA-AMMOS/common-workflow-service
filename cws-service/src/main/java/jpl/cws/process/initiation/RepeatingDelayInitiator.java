@@ -17,7 +17,7 @@ public class RepeatingDelayInitiator extends CwsProcessInitiator {
 	private static final Logger log = LoggerFactory.getLogger(RepeatingDelayInitiator.class);
 	
 	private Long delayBetweenProcesses;
-	private static final Long DEFAULT_DELAY_BETWEEN_PROCESSES = new Long(10000);
+	private static final Long DEFAULT_DELAY_BETWEEN_PROCESSES = 10000L;
 	private Long xtorDelayBetweenProcesses; // used for re-construction
 	
 	private Long maxRepeats;

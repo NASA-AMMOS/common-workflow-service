@@ -12,10 +12,11 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.apache.activemq.broker.BrokerRegistry;
-import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.jmx.BrokerViewMBean;
-import org.apache.activemq.broker.jmx.QueueViewMBean;
+import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +27,7 @@ public class SchedulerQueueUtils {
 	
 	// TODO: make these values come from configuration
 	
-	@Value("${cws.broker.obj.name}") private String BROKER_OBJ_NAME;
+	@Value("${cws.broker.obj.name:org.apache.activemq.artemis:broker=cwsConsoleBroker}") private String BROKER_OBJ_NAME;
 	@Value("${cws.amq.jmx.service.url}") private String AMQ_JMX_SERVICE_URL;
 	
 	private static JMXServiceURL url;
@@ -41,12 +42,15 @@ public class SchedulerQueueUtils {
 	public void logSchedulerQueues() {
 		try {
 			System.out.println("------------------------ SCHEDULER QUEUES -------------------------------");
-			for (ObjectName queueName : getBrokerViewMBean().getQueues()) {
-				QueueViewMBean queueMbean = getQueueViewMBean(queueName);
-				System.out.println("  "+queueMbean.getName() + 
-						" : [enqueues: " + queueMbean.getEnqueueCount() +
-						", dequeues: " + queueMbean.getDequeueCount() +
-						", inFlights: " + queueMbean.getInFlightCount()+"]");
+			ActiveMQServerControl serverControl = getActiveMQServerControl();
+			String[] queueNames = serverControl.getQueueNames();
+			
+			for (String queueName : queueNames) {
+				QueueControl queueControl = getQueueControl(queueName);
+				System.out.println("  "+queueControl.getName() + 
+						" : [enqueues: " + queueControl.getMessageCount() +
+						", dequeues: " + (queueControl.getMessageCount() - queueControl.getDeliveringCount()) +
+						", inFlights: " + queueControl.getDeliveringCount()+"]");
 			}
 			System.out.println("------------------------------------------------------------------------");
 		} catch (Exception e) {
@@ -58,20 +62,22 @@ public class SchedulerQueueUtils {
 	/**
 	 * 
 	 */
-	public Set<org.apache.activemq.broker.Connection>  getAmqClients() throws Exception {
-		Set<org.apache.activemq.broker.Connection> uniqueClients = new HashSet<org.apache.activemq.broker.Connection>();
-		Map<String,BrokerService> map = BrokerRegistry.getInstance().getBrokers();
-		BrokerService brokerService = map.get("cwsConsoleBroker");
-		org.apache.activemq.broker.Connection[] clients = brokerService.getBroker().getClients();
-		for (org.apache.activemq.broker.Connection client :  clients) {
-			log.trace("CLIENT: "+client);
-			log.trace("  stats: "+client.getStatistics());
-			log.trace("  connId: "+client.getConnectionId());
-			log.trace("  remoteAddr: "+client.getRemoteAddress());
-			log.trace("  connector: "+client.getConnector());
-			uniqueClients.add(client);
+	public Set<org.apache.activemq.artemis.core.server.ActiveMQServer> getAmqClients() throws Exception {
+		Set<org.apache.activemq.artemis.core.server.ActiveMQServer> uniqueServers = new HashSet<>();
+		
+		// For Artemis, we'll use JMX to get server information instead
+		// The embedded server instance is not easily accessible from this context
+		try {
+			ActiveMQServerControl serverControl = getActiveMQServerControl();
+			log.trace("ARTEMIS SERVER CONTROL: " + serverControl);
+			log.trace("  version: " + serverControl.getVersion());
+			log.trace("  nodeID: " + serverControl.getNodeID());
+			// Note: We can't get the actual server instance, but we have control access
+		} catch (Exception e) {
+			log.debug("Could not get ActiveMQ server control: " + e.getMessage());
 		}
-		return uniqueClients;
+		
+		return uniqueServers;
 	}
 	
 	
@@ -87,9 +93,11 @@ public class SchedulerQueueUtils {
 		}
 		log.debug("CHECKING FOR EXISTENCE OF SCHEDULER QUEUE: '"+queueName+"' ...");
 		
-		for (ObjectName existingQueueName : getBrokerViewMBean().getQueues()) {
-			QueueViewMBean queueMbean = getQueueViewMBean(existingQueueName);
-			if (queueMbean.getName().equals(queueName)) {
+		ActiveMQServerControl serverControl = getActiveMQServerControl();
+		String[] queueNames = serverControl.getQueueNames();
+		
+		for (String existingQueueName : queueNames) {
+			if (existingQueueName.equals(queueName)) {
 				log.debug("SCHEDULER QUEUE: '"+queueName+"' EXISTS!");
 				return true;
 			}
@@ -108,10 +116,9 @@ public class SchedulerQueueUtils {
 			throw new IllegalAccessException("queueName was null or empty!");
 		}
 		log.debug("CREATING SCHEDULER QUEUE '"+queueName+"' ...");
-		String operationName="addQueue";
-		Object[] params = {queueName};
-		String[] sig = {"java.lang.String"};
-		getConn().invoke(getActiveMQ(), operationName, params, sig);
+		
+		ActiveMQServerControl serverControl = getActiveMQServerControl();
+		serverControl.createQueue(queueName, queueName, true, "ANYCAST");
 	}
 	
 	
@@ -152,17 +159,18 @@ public class SchedulerQueueUtils {
 	/**
 	 *
 	 */
-	private BrokerViewMBean getBrokerViewMBean() throws Exception {
-		return (BrokerViewMBean) MBeanServerInvocationHandler.newProxyInstance(
-				getConn(), getActiveMQ(), BrokerViewMBean.class, true);
+	private ActiveMQServerControl getActiveMQServerControl() throws Exception {
+		return (ActiveMQServerControl) MBeanServerInvocationHandler.newProxyInstance(
+				getConn(), getActiveMQ(), ActiveMQServerControl.class, true);
 	}
 	
 	/**
 	 * 
 	 */
-	private QueueViewMBean getQueueViewMBean(ObjectName queueName) throws Exception {
-		return (QueueViewMBean) MBeanServerInvocationHandler.newProxyInstance(
-				getConn(), queueName, QueueViewMBean.class, true);
+	private QueueControl getQueueControl(String queueName) throws Exception {
+		ObjectName queueObjectName = new ObjectName(ResourceNames.QUEUE + queueName);
+		return (QueueControl) MBeanServerInvocationHandler.newProxyInstance(
+				getConn(), queueObjectName, QueueControl.class, true);
 	}
 	
 }

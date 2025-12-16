@@ -27,28 +27,25 @@
 				<dependency>
 				        <groupId>org.graalvm.js</groupId>
 				        <artifactId>js</artifactId>
-				        <version>23.0.2</version>
 					<scope>runtime</scope>
 				</dependency>
 		        	<dependency>
 			        	<groupId>org.graalvm.js</groupId>
 			        	<artifactId>js-scriptengine</artifactId>
-			        	<version>23.0.2</version>
 					<scope>runtime</scope>
 		      		</dependency>
 			</dependencies>
 		</profile>
 	</profiles>
 
-
 	<build>
 		<finalName>${project.artifactId}</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
 					<release>${java.version}</release>
+					<parameters>true</parameters>
 				</configuration>
 			</plugin>
 		</plugins>
