@@ -44,12 +44,12 @@
 
       <!--
          When using ASYNCIO, if you set datasync=false, this system will call
-         fdatasync instead of fsync. This is a complete flush and less likely to loose
+         fdatasync instead of fsync. This is a complete flush and less likely to lose
          data. If you do not care about the data, you can set this to false
          for better performance.
 
          If you set datasync=true, the system will use fsync instead of fdatasync.
-         fsync has less guarantee of not loosing data and is really
+         fsync has less guarantee of not losing data and is really
          bad for performance, so you should only set this to true if you really need it.
       -->
       <journal-datasync>false</journal-datasync>
@@ -70,6 +70,7 @@
          <acceptor name="netty-acceptor">tcp://__CWS_AMQ_HOST__:__CWS_AMQ_PORT__?connectionTtl=60000;clientFailureCheckPeriod=5000</acceptor>
       </acceptors>
 
+      <!-- Enable for Production Use, and set a username and password -->
       <security-enabled>false</security-enabled>
 
       <security-settings>
