@@ -155,7 +155,6 @@ cws-core (foundation)
 
 - **main**: Release branch
 - **develop**: Default development branch
-- Current working branch: **upgrade-camunda-7.23.00-ee**
 
 ## CI/CD Integration
 

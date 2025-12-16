@@ -31,5 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - mysql_engine_7.20_to_7.21.sql
     - mysql_engine_7.21_to_7.22.sql
     - mysql_engine_7.22_to_7.23.sql
+- Second Database Schema Update
+  - Change Details here: https://github.com/NASA-AMMOS/common-workflow-service/commit/5ee0cc7c22eb740a97230f19b814bd52c3804546
 - Update Database Table cws_sched_worker_proc_inst Column proc_variables from FSTObjectOutput (Binary Type blob) to json string (Blob UTF-8 string)
   - Read field as de.ruedigermoeller.serialization.FSTObjectInput and convert to com.fasterxml.jackson.databind.ObjectMapper UTF-8 string
