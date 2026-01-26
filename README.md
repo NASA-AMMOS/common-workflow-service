@@ -7,6 +7,16 @@ This repository is the open-source release of the [NASA-AMMOS](https://ammos.nas
 
 CWS is built on top of the [BPMN Workflow Engine](https://camunda.com/products/camunda-bpm/bpmn-engine/). CWS extends Camunda's functionality by layering an intuitive user interface, auditable logging, extensibility with code snippits and adaptation layers, and plenty of other useful tools such a powerful external task engine, custom process initiators, and much more.
 
+## Authentication Modes
+
+CWS supports three authentication modes:
+
+1. **Camunda Authentication** (default) - Built-in Camunda user management
+2. **LDAP Authentication** - Enterprise directory integration (see [LDAP_SETUP.md](LDAP_SETUP.md))
+3. **CAM Authentication** (optional) - SSO token-based with CAM/LDAP (see [CAM_SETUP.md](CAM_SETUP.md))
+
+Choose the authentication mode that best fits your environment during setup. By default, Camunda authentication is used.
+
 While this repository is mostly complete, the documentation will be a work-in-progress for some time as we parse through our internal docs and add them here. The `cws-test` package is also in need of an update, but we've included it here as it contains useful examples of integration testing for CWS.
 
 While documentation is still in the works, please feel free to [open an issue](https://github.com/NASA-AMMOS/commoan-workflow-service/issues/new/choose) with your inquiry.
@@ -115,7 +125,8 @@ HOSTNAME=localhost
 # Used in cws-test
 echo "$HOSTNAME" > cws-test/src/test/resources/hostname.txt
 
-SECURITY="camunda"
+SECURITY="camunda"  # Options: "camunda" (default), "ldap", or "cam"
+                     # See LDAP_SETUP.md and CAM_SETUP.md for authentication mode details
 
 # Stop CWS is it is currently running
 ./stop_dev.sh

@@ -50,6 +50,7 @@
 	<bean id="workerHeartbeatDaemon"   		class="jpl.cws.engine.WorkerHeartbeatDaemon" />
 	<bean id="workerExternalTaskLockDaemon" class="jpl.cws.engine.WorkerExternalTaskLockDaemon" />
 	<bean id="cwsEmailerService"       		class="jpl.cws.core.log.CwsEmailerService" />
+	<bean id="camSecurityService"                        class="jpl.cws.core.service.CamSecurityService" lazy-init="true" />
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dbDataSource" />
