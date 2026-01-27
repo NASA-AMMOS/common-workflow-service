@@ -207,11 +207,57 @@ function auto_conf_data () {
     WORKER_MAX_NUM_RUNNING_PROCS=${25}
     WORKER_ABANDONED_DAYS=${26}
 
-    OUTPUT_FILE=${27}
+    # LDAP parameters are optional - can be passed as params (jr-ldap.sh) or via env vars (jr-cam.sh)
+    # Check if position 27 looks like an LDAP URL or the output file
+    if [[ "${27}" == ldap* ]] || [[ "${27}" == ldaps* ]]; then
+        # LDAP parameters were provided
+        LDAP_SERVER_URL=${27}
+        LDAP_BASE_DN=${28}
+        LDAP_USER_SEARCH_BASE=${29}
+        LDAP_GROUP_SEARCH_BASE=${30}
+        LDAP_USER_SEARCH_FILTER=${31}
+        LDAP_GROUP_SEARCH_FILTER=${32}
+        OUTPUT_FILE=${33}
+    else
+        # LDAP parameters were NOT provided, position 27 is the output file
+        OUTPUT_FILE=${27}
+        # LDAP settings will come from environment variables or defaults
+    fi
+
+    # If OUTPUT_FILE is empty, something is wrong with parameter passing
+    if [[ -z "${OUTPUT_FILE}" ]]; then
+        print "ERROR: OUTPUT_FILE not set in auto_conf_data. Parameters may not have been passed correctly."
+        exit 1
+    fi
 
     source ${ROOT}/utils.sh
 
-    LDAP_SERVER_URL="ldap://localhost:389"
+    # Use provided LDAP settings from parameters, env vars, or defaults
+    if [[ -z "${LDAP_SERVER_URL}" ]]; then
+        # Try environment variable first (from jr-cam.sh/jr-ldap.sh export)
+        if [[ ! -z "${LDAP_URL}" ]]; then
+            LDAP_SERVER_URL="${LDAP_URL}"
+        else
+            LDAP_SERVER_URL="ldap://localhost:389"
+        fi
+    fi
+
+    # Set defaults for other LDAP parameters if not provided
+    if [[ -z "${LDAP_BASE_DN}" ]]; then
+        LDAP_BASE_DN="dc=example,dc=com"
+    fi
+    if [[ -z "${LDAP_USER_SEARCH_BASE}" ]]; then
+        LDAP_USER_SEARCH_BASE="ou=Users"
+    fi
+    if [[ -z "${LDAP_GROUP_SEARCH_BASE}" ]]; then
+        LDAP_GROUP_SEARCH_BASE="ou=Groups"
+    fi
+    if [[ -z "${LDAP_USER_SEARCH_FILTER}" ]]; then
+        LDAP_USER_SEARCH_FILTER="(uid=*)"
+    fi
+    if [[ -z "${LDAP_GROUP_SEARCH_FILTER}" ]]; then
+        LDAP_GROUP_SEARCH_FILTER="(cn=*)"
+    fi
 
     CWS_CONSOLE_SSL_PORT=38443
     AMQ_PORT=31616
@@ -313,6 +359,11 @@ function auto_conf_data () {
     identity_plugin_type=$(echo ${SECURITY_SCHEME} | tr '[:lower:]' '[:upper:]')
     cws_ldap_url=${LDAP_SERVER_URL}
     cws_ldap_url_default=${LDAP_SERVER_URL}
+    ldap_base_dn=${LDAP_BASE_DN}
+    ldap_user_search_base=${LDAP_USER_SEARCH_BASE}
+    ldap_group_search_base=${LDAP_GROUP_SEARCH_BASE}
+    ldap_user_search_filter=${LDAP_USER_SEARCH_FILTER}
+    ldap_group_search_filter=${LDAP_GROUP_SEARCH_FILTER}
     ldap_identity_plugin_class=org.camunda.bpm.identity.impl.ldap.plugin.LdapIdentityProviderPlugin
     ldap_security_filter_class=jpl.cws.core.web.CwsLdapSecurityFilter
     camunda_security_filter_class=jpl.cws.core.web.CwsCamundaSecurityFilter

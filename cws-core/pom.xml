@@ -299,6 +299,7 @@
 	</build>
 
 	<profiles>
+		<!-- Usage: mvn clean install -Pcam-support -->
 		<profile>
 			<id>cam-support</id>
 			<dependencies>
@@ -309,6 +310,7 @@
 			</dependencies>
 			<build>
 				<plugins>
+					<!-- Add CAM source directory when profile is active -->
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>build-helper-maven-plugin</artifactId>

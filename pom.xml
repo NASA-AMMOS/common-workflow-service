@@ -25,9 +25,9 @@
 		<bootstrap.version>5.3.8</bootstrap.version>
 		<graalvm.js.version>21.3.12</graalvm.js.version>
 		<springdoc.version>2.8.13</springdoc.version>
-		<cam.version>5.6.0</cam.version>
 		<swagger.core.version>2.2.37</swagger.core.version>
 		<software.amazon.awssdk.version>2.34.3</software.amazon.awssdk.version>
+		<cam.version>5.6.0</cam.version>
 		<camunda.version>7.23.0-ee</camunda.version>
 		<commons-compress.version>1.28.0</commons-compress.version>
 		<commons-configuration.version>2.12.0</commons-configuration.version>
@@ -711,13 +711,15 @@
 				<artifactId>jakarta.mail</artifactId>
 				<version>${jakarta.mail.sun.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>gov.nasa.jpl.ammos.seo.asec.cam.client</groupId>
-				<artifactId>css-java</artifactId>
-				<version>${cam.version}</version>
-				<optional>true</optional>
-			</dependency>
-		</dependencies>
+					<!-- CAM (Certificate-based Authentication Module) - for PKI-based auth -->
+		<dependency>
+			<groupId>gov.nasa.jpl.ammos.seo.asec.cam.client</groupId>
+			<artifactId>css-java</artifactId>
+			<version>${cam.version}</version>
+			<optional>true</optional>
+		</dependency>
+
+	</dependencies>
 	</dependencyManagement>
 
 	<!--  The below "distributionManagement" section defines where CWS-built -->

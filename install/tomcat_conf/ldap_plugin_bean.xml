@@ -10,17 +10,17 @@ See: https://docs.camunda.org/manual/latest/user-guide/process-engine/identity-s
 <bean id="ldapIdentityProviderPlugin" class="__CWS_IDENTITY_PLUGIN_CLASS__">
     <property name="serverUrl"                   value="__CWS_LDAP_URL__" />
     <property name="acceptUntrustedCertificates" value="true" />
-    <property name="baseDn"                      value="dc=example,dc=com" />
-    <property name="userSearchBase"              value="ou=Users" />
-    <property name="userSearchFilter"            value="(objectclass=inetOrgPerson)" />
+    <property name="baseDn"                      value="__CWS_LDAP_BASE_DN__" />
+    <property name="userSearchBase"              value="__CWS_LDAP_USER_SEARCH_BASE__" />
+    <property name="userSearchFilter"            value="__CWS_LDAP_USER_SEARCH_FILTER__" />
     <property name="userIdAttribute"             value="uid" />
     <property name="userFirstnameAttribute"      value="givenName" />
     <property name="userLastnameAttribute"       value="sn" />
     <property name="userEmailAttribute"          value="mail" />
     <property name="userPasswordAttribute"       value="userpassword" />
-    <property name="groupSearchBase"             value="ou=Users" />
-    <property name="groupSearchFilter"           value="(|(cn=your.first.group)(cn=your.other.group))" />
+    <property name="groupSearchBase"             value="__CWS_LDAP_GROUP_SEARCH_BASE__" />
+    <property name="groupSearchFilter"           value="__CWS_LDAP_GROUP_SEARCH_FILTER__" />
     <property name="groupIdAttribute"            value="cn" />
     <property name="groupNameAttribute"          value="cn" />
-    <property name="groupMemberAttribute"        value="uniqueMember" />
+    <property name="groupMemberAttribute"        value="member" />
 </bean>

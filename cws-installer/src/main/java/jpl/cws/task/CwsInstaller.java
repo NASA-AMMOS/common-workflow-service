@@ -116,7 +116,7 @@ public class CwsInstaller {
 
 	// The set of valid authentication plugin schemes
 	private static final HashSet<String> VALID_PLUGINS = new HashSet<String>() {
-		{add("LDAP"); add("CAMUNDA"); add("CUSTOM");}
+		{add("LDAP"); add("CAMUNDA"); add("CUSTOM"); add("CAM");}
 	};
 
 	// The set of valid database types
@@ -199,6 +199,11 @@ public class CwsInstaller {
 	private static String cws_amq_port;
 	private static String cws_jmx_port;
 	private static String cws_ldap_url;
+	private static String ldap_base_dn;
+	private static String ldap_user_search_base;
+	private static String ldap_group_search_base;
+	private static String ldap_user_search_filter;
+	private static String ldap_group_search_filter;
 	private static String ldap_identity_plugin_class;
 	private static String ldap_security_filter_class;
 	private static String camunda_security_filter_class;
@@ -369,7 +374,19 @@ public class CwsInstaller {
 
 		ldap_identity_plugin_class = getPreset(LDAP_IDENTITY_PLUGIN_CLASS);
 		ldap_security_filter_class = getPreset(LDAP_SECURITY_FILTER_CLASS);
+		ldap_base_dn = getPreset("ldap_base_dn");
+		ldap_user_search_base = getPreset("ldap_user_search_base");
+		ldap_group_search_base = getPreset("ldap_group_search_base");
+		ldap_user_search_filter = getPreset("ldap_user_search_filter");
+		ldap_group_search_filter = getPreset("ldap_group_search_filter");
 		camunda_security_filter_class = getPreset(CAMUNDA_SECURITY_FILTER_CLASS);
+
+		print("DEBUG: init() - LDAP variables read from presets:");
+		print("  ldap_base_dn: " + ldap_base_dn);
+		print("  ldap_user_search_base: " + ldap_user_search_base);
+		print("  ldap_group_search_base: " + ldap_group_search_base);
+		print("  ldap_user_search_filter: " + ldap_user_search_filter);
+		print("  ldap_group_search_filter: " + ldap_group_search_filter);
 	}
 
 	private static void exit(int status) {
@@ -584,11 +601,11 @@ public class CwsInstaller {
 		}
 
 		if (cws_installer_mode.equals("interactive")) {
-			String read_cws_auth_scheme = readLine("Enter authentication scheme. (LDAP | CAMUNDA | CUSTOM). " +
+			String read_cws_auth_scheme = readLine("Enter authentication scheme. (LDAP | CAMUNDA | CUSTOM | CAM). " +
 					"Default is " + cws_auth_scheme + ": ", cws_auth_scheme);
 
 			while (!VALID_PLUGINS.contains(read_cws_auth_scheme.toUpperCase())) {
-				print(" ERROR: Invalid authentication scheme, must be one of (LDAP | CAMUNDA | CUSTOM).");
+				print(" ERROR: Invalid authentication scheme, must be one of (LDAP | CAMUNDA | CUSTOM | CAM).");
 				read_cws_auth_scheme = readLine("Enter authentication scheme. " +
 						"Default is " + cws_auth_scheme + ": ", cws_auth_scheme);
 			}
@@ -597,7 +614,7 @@ public class CwsInstaller {
 		} else {
 			if (!VALID_PLUGINS.contains(cws_auth_scheme.toUpperCase())) {
 				print("ERROR: Invalid authentication scheme '" + cws_auth_scheme + "'.");
-				print("Must be one of (LDAP | CAMUNDA | CUSTOM).");
+				print("Must be one of (LDAP | CAMUNDA | CUSTOM | CAM).");
 				exit(1);
 			}
 		}
@@ -647,6 +664,45 @@ public class CwsInstaller {
 				cws_security_filter_class = camunda_security_filter_class;
 
 				break;
+		case "CAM":
+			print("Using CAM (Certificate-based Authentication Module) authentication scheme...");
+
+			cws_ldap_url = getPreset("cws_ldap_url");
+
+			if (cws_ldap_url == null) {
+				cws_ldap_url = getPreset("default_cws_ldap_url");
+			}
+
+			// PROMPT USER FOR LDAP SERVER URL (CAM still needs LDAP for user lookup)
+			if (cws_installer_mode.equals("interactive")) {
+				boolean valid_ldap_server = false;
+				while (!valid_ldap_server) {
+					String read_cws_ldap_url = readLine("Enter the LDAP URL for user lookups. " + "Default is " + cws_ldap_url + ": ", cws_ldap_url);
+
+					try {
+						boolean checkLdapServer = checkLdapServerStatus(read_cws_ldap_url);
+						if (checkLdapServer == true) {
+							valid_ldap_server = true;
+							cws_ldap_url = read_cws_ldap_url;
+						} else {
+							valid_ldap_server = false;
+							print("   WARNING: LDAP (" + read_cws_ldap_url + ") cannot be reached." );
+							print("       Possible Issues: ");
+							print("        - Incorrect configuration of 'config/templates/tomcat_conf/ldap_plugin_bean.xml'.");
+							print("        - Can't contact LDAP server because of bad certificate in host machine.");
+							print("        - LDAP server is inactive.");
+						}
+					} catch(IOException e) {
+						// exception
+					}
+				}
+			}
+
+			cws_identity_plugin_class = ldap_identity_plugin_class;
+			cws_security_filter_class = ldap_security_filter_class;
+
+			break;
+
 			case "CUSTOM":
 				print("Using CUSTOM identity plugin for security...");
 				throw new UnsupportedOperationException("CUSTOM AUTHENTICATION SCHEME SUPPORT NOT IMPLEMENTED YET!! " +
@@ -2275,6 +2331,11 @@ public class CwsInstaller {
 
 		try {
 			String fileContent = new String(Files.readAllBytes(beanFilePath));
+			// Replace LDAP placeholders with actual values before parsing
+			fileContent = fileContent.replace("__CWS_LDAP_BASE_DN__",             ldap_base_dn == null ? "" : ldap_base_dn);
+			fileContent = fileContent.replace("__CWS_LDAP_USER_SEARCH_BASE__",    ldap_user_search_base == null ? "" : ldap_user_search_base);
+			fileContent = fileContent.replace("__CWS_LDAP_URL__",                 cws_ldap_url);
+			fileContent = fileContent.replace("__CWS_IDENTITY_PLUGIN_CLASS__",    cws_identity_plugin_class);
 			String repl = "";
 			String replContent = fileContent.substring(0, fileContent.indexOf("<bean id=\"ldapIdentityProviderPlugin\""));
 			fileContent = fileContent.replace(replContent, repl);
@@ -3287,10 +3348,19 @@ public class CwsInstaller {
 
 
 	private static String updateIdentityPluginContent(String content) throws IOException {
+		print("DEBUG: updateIdentityPluginContent() called");
+		print("  cws_auth_scheme: " + cws_auth_scheme);
 		//
 		// Update identity plugin content
 		//
 		if (cws_auth_scheme.equals("LDAP")) {
+			print("DEBUG: updateIdentityPluginContent - LDAP variables:");
+			print("  ldap_base_dn: " + ldap_base_dn);
+			print("  ldap_user_search_base: " + ldap_user_search_base);
+			print("  ldap_group_search_base: " + ldap_group_search_base);
+			print("  ldap_user_search_filter: " + ldap_user_search_filter);
+			print("  ldap_group_search_filter: " + ldap_group_search_filter);
+
 			// Erase the __CUSTOM_IDENTITY_PLUGIN_XML__token
 			content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", "");
 
@@ -3304,7 +3374,34 @@ public class CwsInstaller {
 			content = content.replace("__LDAP_PLUGIN_REF__", ldapRefContent);
 
 			content = content.replace("__CWS_IDENTITY_PLUGIN_CLASS__", cws_identity_plugin_class);
-			content = content.replace("__CWS_LDAP_URL__",              cws_ldap_url);
+			content = content.replace("__CWS_LDAP_URL__",                 cws_ldap_url);
+			content = content.replace("__CWS_LDAP_BASE_DN__",             ldap_base_dn == null ? "" : ldap_base_dn);
+			content = content.replace("__CWS_LDAP_USER_SEARCH_BASE__",    ldap_user_search_base == null ? "" : ldap_user_search_base);
+			content = content.replace("__CWS_LDAP_GROUP_SEARCH_BASE__",   ldap_group_search_base == null ? "" : ldap_group_search_base);
+			content = content.replace("__CWS_LDAP_USER_SEARCH_FILTER__",  ldap_user_search_filter == null ? "" : ldap_user_search_filter);
+			content = content.replace("__CWS_LDAP_GROUP_SEARCH_FILTER__", ldap_group_search_filter == null ? "" : ldap_group_search_filter);
+		}
+		else if (cws_auth_scheme.equals("CAM")) {
+			print("DEBUG: updateIdentityPluginContent() - CAM authentication");
+			// Erase the __CUSTOM_IDENTITY_PLUGIN_XML__token
+			content = content.replace("__CUSTOM_IDENTITY_PLUGIN_XML__", "");
+
+			// Fill in the __LDAP_PLUGIN_BEAN__ (CAM still uses LDAP for user lookup)
+			String ldapBeanContent = getFileContents(
+					Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_bean.xml"));
+			content = content.replace("__LDAP_PLUGIN_BEAN__", ldapBeanContent);
+
+			String ldapRefContent = getFileContents(
+					Paths.get(config_work_dir + SEP + "tomcat_conf" + SEP + "ldap_plugin_ref.xml"));
+			content = content.replace("__LDAP_PLUGIN_REF__", ldapRefContent);
+
+			content = content.replace("__CWS_IDENTITY_PLUGIN_CLASS__", cws_identity_plugin_class);
+			content = content.replace("__CWS_LDAP_URL__",                 cws_ldap_url);
+			content = content.replace("__CWS_LDAP_BASE_DN__",             ldap_base_dn == null ? "" : ldap_base_dn);
+			content = content.replace("__CWS_LDAP_USER_SEARCH_BASE__",    ldap_user_search_base == null ? "" : ldap_user_search_base);
+			content = content.replace("__CWS_LDAP_GROUP_SEARCH_BASE__",   ldap_group_search_base == null ? "" : ldap_group_search_base);
+			content = content.replace("__CWS_LDAP_USER_SEARCH_FILTER__",  ldap_user_search_filter == null ? "" : ldap_user_search_filter);
+			content = content.replace("__CWS_LDAP_GROUP_SEARCH_FILTER__", ldap_group_search_filter == null ? "" : ldap_group_search_filter);
 		}
 		else if (cws_auth_scheme.equals("CAMUNDA")) {
 			// Erase the unneeded tokens

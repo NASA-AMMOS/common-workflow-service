@@ -278,7 +278,6 @@
 	<bean id="cwsConsoleService"                         class="jpl.cws.service.CwsConsoleService" />
 	<bean id="cwsEmailerService"                         class="jpl.cws.core.log.CwsEmailerService" />
 	<bean id="cwsSchedulerUtils"                         class="jpl.cws.scheduler.SchedulerQueueUtils" />
-	<bean id="camSecurityService"                        class="jpl.cws.core.service.CamSecurityService" lazy-init="true" />
 	<bean id="processStatusDaemon"                       class="jpl.cws.console.ProcessStatusDaemon" />
 	<bean id="historyCleanupDaemon"                      class="jpl.cws.console.ElasticAndWorkerCleanupDaemon" />
 	<bean id="externalTaskDaemon"                      	 class="jpl.cws.console.ExternalTaskDaemon" />
