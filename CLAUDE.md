@@ -117,7 +117,7 @@ cws-core (foundation)
 ## Important Development Notes
 
 ### Version Information
-- CWS Version: 2.7.0 (update in pom.xml and utils.sh for releases)
+- CWS Version: 2.8.0   (update this each CWS release)
 - Camunda Version: 7.23.0-ee
 - Tomcat Version: 10.1.36
 - Java Version: 17 (enforced by Maven)
