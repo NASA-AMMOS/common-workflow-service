@@ -230,7 +230,7 @@ ${DIST}/console-only/cws/start_cws.sh -d $BASE_PORT
 
 # AMQ must be started before configuring workers
 print "Waiting for console startup..."
-sleep 120
+sleep 60
 
 # -------------------------
 # CONFIGURE & START WORKERS

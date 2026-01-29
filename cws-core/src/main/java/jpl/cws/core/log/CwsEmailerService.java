@@ -1,7 +1,7 @@
 package jpl.cws.core.log;
 
-import org.apache.commons.mail.Email;
-import org.apache.commons.mail.HtmlEmail;
+import org.apache.commons.mail2.jakarta.Email;
+import org.apache.commons.mail2.jakarta.HtmlEmail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;

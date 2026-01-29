@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 		<artifactId>common-workflow-service</artifactId>
-		<version>2.7.0</version><!-- update this each CWS release -->
+		<version>2.8.0</version><!-- update this each CWS release -->
 	</parent>
 	<artifactId>cws-tasks</artifactId>
 
@@ -29,13 +29,36 @@
 						</exclusion>
 					</exclusions>
 				</dependency>
-
+				<dependency>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+					<scope>provided</scope>
+				</dependency>
 				<dependency>
 					<groupId>org.apache.logging.log4j</groupId>
 					<artifactId>log4j-slf4j-impl</artifactId>
 					<scope>provided</scope>
 				</dependency>
 
+				<dependency>
+					<groupId>org.camunda.bpm</groupId>
+					<artifactId>camunda-engine-plugin-spin</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.camunda.bpm</groupId>
+					<artifactId>camunda-engine</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.camunda.bpm.model</groupId>
+					<artifactId>camunda-bpmn-model</artifactId>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.camunda.commons</groupId>
+					<artifactId>camunda-commons-typed-values</artifactId>
+					<scope>provided</scope>
+				</dependency>
+				
 				<!-- https://mvnrepository.com/artifact/log4j/apache-log4j-extras -->
 <!--				<dependency>-->
 <!--				    <groupId>log4j</groupId>-->
@@ -49,48 +72,30 @@
 					<groupId>com.google.code.gson</groupId>
 					<artifactId>gson</artifactId>
 				</dependency>
-
-				<!-- Apache Commons -->
 				<dependency>
-					<groupId>commons-lang</groupId>
-					<artifactId>commons-lang</artifactId>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-lang3</artifactId>
 				</dependency>
-
 				<dependency>
 					<groupId>commons-io</groupId>
 					<artifactId>commons-io</artifactId>
 				</dependency>
-
 				<dependency>
 					<groupId>org.apache.commons</groupId>
 					<artifactId>commons-exec</artifactId>
 				</dependency>
-
 				<dependency>
 					<groupId>org.apache.commons</groupId>
-					<artifactId>commons-email</artifactId>
+					<artifactId>commons-email2-jakarta</artifactId>
 				</dependency>
-
 				<dependency>
-					<groupId>commons-configuration</groupId>
-					<artifactId>commons-configuration</artifactId>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-configuration2</artifactId>
 				</dependency>
-
 				<dependency> <!-- needed by commons-email -->
-					<groupId>javax.mail</groupId>
-					<artifactId>mail</artifactId>
+					<groupId>jakarta.mail</groupId>
+					<artifactId>jakarta.mail-api</artifactId>
 				</dependency>
-
-				<dependency>
-					<groupId>org.glassfish.jersey.core</groupId>
-					<artifactId>jersey-client</artifactId>
-				</dependency>
-
-				<dependency>
-					<groupId>org.glassfish.grizzly</groupId>
-					<artifactId>grizzly-http-server</artifactId>
-				</dependency>
-
 				<dependency>
 					<groupId>junit</groupId>
 					<artifactId>junit</artifactId>
@@ -99,22 +104,20 @@
 		</profile>
 	</profiles>
 
-
 	<build>
 		<finalName>${project.artifactId}</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
 					<release>${java.version}</release>
+					<parameters>true</parameters>
 				</configuration>
 			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>${maven-dependency-plugin.version}</version>
 				<executions>
 					<execution>
 						<id>copy-dependencies</id>

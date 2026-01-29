@@ -440,6 +440,22 @@
 
 		//DOCUMENT.READY STARTS HERE
 		$(document).ready(function () {
+			// Add event handlers for Bootstrap modals to track when they're fully shown
+			// This helps with Selenium testing, especially in headless mode
+			$('#workers-modal').on('shown.bs.modal', function () {
+				$(this).attr('data-modal-ready', 'true');
+			});
+			$('#workers-modal').on('hidden.bs.modal', function () {
+				$(this).removeAttr('data-modal-ready');
+			});
+			
+			$('#delete-proc-def-modal').on('shown.bs.modal', function () {
+				$(this).attr('data-modal-ready', 'true');
+			});
+			$('#delete-proc-def-modal').on('hidden.bs.modal', function () {
+				$(this).removeAttr('data-modal-ready');
+			});
+			
 			// DISPLAY MESSAGE AT TOP OF PAGE (IF THERE IS ONE)
 			if ($("#statusMessageDiv:contains('ERROR:')").length >= 1) {
 				$("#statusMessageDiv").css("color", "red");

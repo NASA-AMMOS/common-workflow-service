@@ -26,7 +26,7 @@ import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.LogOutputStream;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.exec.environment.EnvironmentUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.executor.BatchExecutorException;
 import org.camunda.bpm.engine.ExternalTaskService;
 import org.camunda.bpm.engine.OptimisticLockingException;
@@ -38,8 +38,8 @@ import org.camunda.bpm.engine.externaltask.LockedExternalTask;
 import com.google.gson.Gson;
 
 import edu.rice.cs.util.ArgumentTokenizer;
-import jersey.repackaged.com.google.common.base.Function;
-import jersey.repackaged.com.google.common.collect.Collections2;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import jpl.cws.task.CwsTaskLogger;
 import org.camunda.spin.json.SpinJsonNode;
 import org.camunda.spin.plugin.variable.SpinValues;
@@ -94,7 +94,7 @@ public class CwsExternalTaskThread extends Thread  {
 			LockedExternalTask task,
 			Date lockedTime) {
 		
-		System.out.println("CwsExternalTaskThread constructor...");
+		log.debug("CwsExternalTaskThread constructor...");
 		
 		this.externalTaskService = externalTaskService;
 		this.runtimeService = runtimeService;
@@ -385,8 +385,8 @@ public class CwsExternalTaskThread extends Thread  {
 	private class StripOrderId<F, T> implements Function<F, T> {
 		@SuppressWarnings("unchecked")
 		@Override
-		public Object apply(Object f) {
-			return f.toString().replaceFirst("\\d+__", "");
+		public T apply(F f) {
+			return (T) f.toString().replaceFirst("\\d+__", "");
 		}
 	}
 	
@@ -533,7 +533,7 @@ public class CwsExternalTaskThread extends Thread  {
 			//
 			success = false; // false until proven success
 			for (String successCode : cmdInputFields.successfulValues.split(",")) {
-				success = new Boolean(Integer.parseInt(successCode) == exitValue);
+				success = Integer.parseInt(successCode) == exitValue;
 				if (success) {
 					break; // found a match, so must be success
 				}
@@ -547,7 +547,7 @@ public class CwsExternalTaskThread extends Thread  {
 			// Detect whether a certain event case applies (based on exit code)
 			//
 			for (String eventCode : exitCodeEventsMap.keySet()) {
-				if (new Boolean(Integer.parseInt(eventCode) == exitValue)) {
+				if (Integer.parseInt(eventCode) == exitValue) {
 					cmdOutputFields.event = exitCodeEventsMap.get(eventCode);
 					break; // can only be one event
 				}
@@ -567,12 +567,12 @@ public class CwsExternalTaskThread extends Thread  {
 
 			// Set stdout output into variable
 			//
-			String stdoutStr = StringUtils.join(Collections2.transform(stdOutLines, new StripOrderId<String, String>()), '\n');
+			String stdoutStr = StringUtils.join(stdOutLines.stream().map(new StripOrderId<String, String>()).collect(Collectors.toList()), '\n');
 			cmdOutputFields.stdout = stdoutStr;
 
 			// Set stderr output into variable
 			//
-			String stderrStr = StringUtils.join(Collections2.transform(stdErrLines, new StripOrderId<String, String>()), '\n');
+			String stderrStr = StringUtils.join(stdErrLines.stream().map(new StripOrderId<String, String>()).collect(Collectors.toList()), '\n');
 			cmdOutputFields.stderr = stderrStr;
 
 			setStdOutVariables(stdOutLines);

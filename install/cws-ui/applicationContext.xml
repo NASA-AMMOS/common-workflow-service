@@ -15,7 +15,7 @@
 		http://activemq.apache.org/schema/core
 		http://activemq.apache.org/schema/core/activemq-core.xsd
 		http://www.springframework.org/schema/jee 
-		http://www.springframework.org/schema/jee/spring-jee-3.1.xsd">
+		http://www.springframework.org/schema/jee/spring-jee.xsd">
 
 	<context:property-placeholder location="classpath*:cws-ui.properties" ignore-unresolvable="true" order="1" />
 	<context:property-placeholder location="classpath*:cws-adaptation-ui.properties" order="2"/>
@@ -55,6 +55,7 @@
 		<property name="historyCleanupBatchSize" value="50" />
 		<property name="historyRemovalTimeStrategy" value="end" />
 		<property name="jdbcBatchProcessing" value="false" />
+		<property name="databaseType" value="mysql" />
 		<property name="idGenerator">
 			<bean class="org.camunda.bpm.engine.impl.persistence.StrongUuidGenerator" />
 		</property>
@@ -93,71 +94,25 @@
 	
 	<bean id="camundaExecutionService" class="jpl.cws.service.camunda.CamundaExecutionService" />
 	
-	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-		<!-- the maximum file size in bytes -->
-		<property name="maxUploadSize" value="2000000"/>
+	<bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver">
 	</bean>
 
-	<!--  EMBEDDED ActiveMQ BROKER -->
-	<!-- FIXME: make brokerName unique (i.e. use DBHOST_DBPORT_DBSCHEMA)-->
-	<!--        see page 53 here: -->
-	<!--        http://www.zengcode.com/files/FckAjaxFileManage/uploaded/documentations/ActiveMQInAction.pdf -->
-	<!-- 
-		do not use the shutdown hook as it would cause the broker to shutdown when you press ctrl + c,
-		instead we will let Spring shutdown the broker
-	-->
-	<amq:broker brokerName="cwsConsoleBroker" persistent="true" useJmx="true" dataDirectory="" useShutdownHook="false">
-		<!--
-		USE THIS FOR FUTURE SETTING ABOVE:
-		tmpDataDirectory="__CWS_ROOT_DIR__/server/amq_tmp_storage"
-		CURRENTLY, this defaults to /cwsConsoleBroker/tmp_storage
-		-->
-		<amq:managementContext>
-			<amq:managementContext connectorPort="__CWS_AMQ_JMX_PORT__" jmxDomainName="cws-broker" />
-		</amq:managementContext>
-		
-		<amq:persistenceAdapter>
-			<amq:kahaDB directory="__CWS_ROOT_DIR__/server/kahadb"></amq:kahaDB>
-		</amq:persistenceAdapter>
-		
-		<!-- TODO: Re-evaluate these values -->
-		<amq:systemUsage>
-			<amq:systemUsage>
-				<amq:memoryUsage>
-					<amq:memoryUsage limit="256 mb"></amq:memoryUsage>
-				</amq:memoryUsage>
-				<amq:storeUsage>
-					<amq:storeUsage limit="2 gb"></amq:storeUsage>
-				</amq:storeUsage>
-				<amq:tempUsage>
-					<amq:tempUsage limit="200 mb"></amq:tempUsage>
-				</amq:tempUsage>
-			</amq:systemUsage>
-		</amq:systemUsage>
-		<amq:networkConnectors>
-			<!--  TODO: investigate this default host/ip (239.255.2.3:6155) -->
-			<!--      see: http://activemq.apache.org/multicast-transport-reference.html -->
-			<!--      and change if necessary -->
-			<amq:networkConnector uri="multicast://239.255.2.3:6155?group=__UNIQUE_BROKER_GROUP_NAME__"/>
-		</amq:networkConnectors>
-		<amq:transportConnectors>
-			<!--  TODO: investigate this default host/ip (239.255.2.3:6155) -->
-			<!--      see: http://activemq.apache.org/multicast-transport-reference.html -->
-			<!--      and change if necessary -->
-			<amq:transportConnector name="__UNIQUE_BROKER_GROUP_NAME__" uri="tcp://__CWS_AMQ_HOST__:__CWS_AMQ_PORT__" discoveryUri="multicast://239.255.2.3:6155?group=__UNIQUE_BROKER_GROUP_NAME__" />
-		</amq:transportConnectors>
-	</amq:broker>
+	<!--  EMBEDDED ActiveMQ Artemis BROKER -->
+	<bean id="activeMQServer" class="org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ" 
+		  init-method="start" destroy-method="stop">
+		<property name="configResourcePath" value="file:__CWS_ROOT_DIR__/server/artemis/etc/broker.xml"/>
+	</bean>
 	
 	<!-- SETUP CONNECTION TO MESSAGE BROKER -->
-	<bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-		<property name="brokerURL" value="tcp://__CWS_AMQ_HOST__:__CWS_AMQ_PORT__?wireFormat.maxInactivityDurationInitalDelay=30000"/>
+	<bean id="connectionFactory" class="org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory">
+		<property name="brokerURL" value="tcp://__CWS_AMQ_HOST__:__CWS_AMQ_PORT__"/>
 	</bean>
-	<bean id="cachingConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+	<bean id="cachingConnectionFactory" class="jpl.cws.core.jms.CwsCachingConnectionFactory">
 		<property name="targetConnectionFactory" ref="connectionFactory"/>
 	</bean>
 
 	<!-- JMS processStartReqTopic Template -->
-	<bean id="processStartReqTopic" class="org.apache.activemq.command.ActiveMQTopic">
+	<bean id="processStartReqTopic" class="org.apache.activemq.artemis.jms.client.ActiveMQTopic">
 		<constructor-arg value="processStartReqTopic"/>
 	</bean>
 	<bean id="processStartReqTopicJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
@@ -171,7 +126,7 @@
 	<!-- JMS processDeployReqQueue Template -->
 	<!-- Used to send message to message broker that instructs that a Worker should -->
 	<!-- deploy the provided BPMN process definition. -->
-	<bean id="processDeployReqQueue" class="org.apache.activemq.command.ActiveMQQueue">
+	<bean id="processDeployReqQueue" class="org.apache.activemq.artemis.jms.client.ActiveMQQueue">
 		<constructor-arg value="processDeployReqQueue"/>
 	</bean>
 	<bean id="jmsProcDeployReqTemplate" class="org.springframework.jms.core.JmsTemplate">
@@ -183,7 +138,7 @@
 	
 	
 	<!-- JMS codeUpdateTopic Template -->
-	<bean id="codeUpdateTopic" class="org.apache.activemq.command.ActiveMQTopic">
+	<bean id="codeUpdateTopic" class="org.apache.activemq.artemis.jms.client.ActiveMQTopic">
 		<constructor-arg value="codeUpdateTopic"/>
 	</bean>
 	<bean id="jmsCodeUpdateTopicTemplate" class="org.springframework.jms.core.JmsTemplate">
@@ -195,7 +150,7 @@
 	</bean>
 
 	<!-- JMS processExternalTasksQueue Template -->
-	<bean id="processExternalTasksQueue" class="org.apache.activemq.command.ActiveMQQueue">
+	<bean id="processExternalTasksQueue" class="org.apache.activemq.artemis.jms.client.ActiveMQQueue">
 		<constructor-arg value="processExternalTasksQueue"/>
 	</bean>
 	<bean id="jmsProcessExternalTasksTemplate" class="org.springframework.jms.core.JmsTemplate">
@@ -208,7 +163,7 @@
 	
 		
 	<!-- JMS workerLogCleanupTopic Template -->
-	<bean id="workerLogCleanupTopic" class="org.apache.activemq.command.ActiveMQTopic">
+	<bean id="workerLogCleanupTopic" class="org.apache.activemq.artemis.jms.client.ActiveMQTopic">
 		<constructor-arg value="workerLogCleanupTopic"/>
 	</bean>
 	<bean id="jmsWorkerLogCleanupTopicTemplate" class="org.springframework.jms.core.JmsTemplate">
@@ -220,7 +175,7 @@
 	</bean>
 	
 	<!-- CONSOLE SHUTDOWN TOPIC AND LISTENER -->
-	<bean id="systemShutdownTopic" class="org.apache.activemq.command.ActiveMQTopic">
+	<bean id="systemShutdownTopic" class="org.apache.activemq.artemis.jms.client.ActiveMQTopic">
 		<constructor-arg value="systemShutdownTopic"/>
 	</bean>
 	<bean id="jmsSystemShutdownTopicTemplate" class="org.springframework.jms.core.JmsTemplate">
@@ -241,7 +196,7 @@
 	</bean>
 	
 	<!-- SCHEDULE PROCESS TOPIC AND LISTENER -->
-	<bean id="scheduleProcessTopic" class="org.apache.activemq.command.ActiveMQTopic">
+	<bean id="scheduleProcessTopic" class="org.apache.activemq.artemis.jms.client.ActiveMQTopic">
 		<constructor-arg value="scheduleProcessTopic"/>
 	</bean>
 	<bean id="jmsScheduleProcessTopicTemplate" class="org.springframework.jms.core.JmsTemplate">
@@ -264,7 +219,7 @@
 	<!-- JMS workerConfigChangeTopic Template -->
 	<!-- Used to send message to message broker that instructs that a Worker should -->
 	<!-- check for any updates to its configuration. -->
-	<bean id="workerConfigChangeTopic" class="org.apache.activemq.command.ActiveMQTopic">
+	<bean id="workerConfigChangeTopic" class="org.apache.activemq.artemis.jms.client.ActiveMQTopic">
 		<constructor-arg value="workerConfigChangeTopic"/>
 	</bean>
 	<bean id="jmsWorkerConfigChangeTopicTemplate" class="org.springframework.jms.core.JmsTemplate">
@@ -276,7 +231,7 @@
 	</bean>
 	
 	<!-- PROCESS EVENT TOPIC -->
-	<bean id="processEventTopic" class="org.apache.activemq.command.ActiveMQTopic">
+	<bean id="processEventTopic" class="org.apache.activemq.artemis.jms.client.ActiveMQTopic">
 		<constructor-arg value="processEventTopic"/>
 	</bean>
 	<!-- PROCESS EVENT TOPIC PRODUCER -->
@@ -289,7 +244,7 @@
 	</bean>
 	
 	<!-- MSG LISTENER -->
-	<bean id="processInitiatorTopic" class="org.apache.activemq.command.ActiveMQTopic">
+	<bean id="processInitiatorTopic" class="org.apache.activemq.artemis.jms.client.ActiveMQTopic">
 		<constructor-arg value="processInitiatorTopic"/>
 	</bean>
 	

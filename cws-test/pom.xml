@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 		<artifactId>common-workflow-service</artifactId>
-		<version>2.7.0</version><!-- update this each CWS release -->
+		<version>2.8.0</version><!-- update this each CWS release -->
 	</parent>
 	<artifactId>cws-test</artifactId>
 	
@@ -28,6 +28,7 @@
 					<groupId>org.springframework</groupId>
 				</exclusion>
 			</exclusions>
+			<scope>test</scope>
 		</dependency>
 		
 		<dependency>
@@ -43,6 +44,7 @@
 		<dependency>
 			<groupId>gov.nasa.jpl.ammos.ids.cws</groupId>
 			<artifactId>cws-service</artifactId>
+			<scope>test</scope>
 		</dependency>
 		
 		<dependency>
@@ -60,14 +62,39 @@
 			<artifactId>cws-engine-service</artifactId>
 		</dependency>
 		
-		<dependency>
-			<groupId>dumbster</groupId>
-			<artifactId>dumbster</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail</artifactId>
+            <scope>test</scope>
+        </dependency>
 		
 		<dependency>
-			<groupId>org.glassfish.grizzly</groupId>
-			<artifactId>grizzly-http-server</artifactId>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-server</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty.ee10</groupId>
+			<artifactId>jetty-ee10-servlet</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>jakarta.ws.rs</groupId>
+			<artifactId>jakarta.ws.rs-api</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-client</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.glassfish.jersey.inject</groupId>
+			<artifactId>jersey-hk2</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
@@ -79,8 +106,13 @@
 			<artifactId>selenium-chrome-driver</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>selenium-http-jdk-client</artifactId>
+			<groupId>jakarta.mail</groupId>
+			<artifactId>jakarta.mail-api</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.angus</groupId>
+			<artifactId>jakarta.mail</artifactId>
 		</dependency>
 		
 		<dependency>
@@ -115,15 +147,77 @@
 			<scope>test</scope>
 		</dependency>
 
-	</dependencies>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-api</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-remote-driver</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-support</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-chromium-driver</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>jakarta.mail</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.camunda.spin</groupId>
+			<artifactId>camunda-spin-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.camunda.bpm</groupId>
+			<artifactId>camunda-engine</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.python</groupId>
+			<artifactId>jython-standalone</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+ 	</dependencies>
 
 	<build>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
 					<release>${java.version}</release>
+					<parameters>true</parameters>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -254,7 +348,6 @@
 			<plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>${maven-surefire-plugin.version}</version>
             <configuration>
                 <argLine>${surefireArgLine} -Xms256m -Xmx2048m</argLine>
           <!--      <skipTests>${skip.unit.tests}</skipTests>  -->
@@ -272,7 +365,6 @@
 			<plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
-            <version>${maven-failsafe-plugin.version}</version>
             <configuration>
                 <argLine>${testArgLine}</argLine>
                 <excludes>
@@ -297,12 +389,10 @@
         <plugin>
 		    <groupId>org.apache.maven.plugins</groupId>
 		    <artifactId>maven-install-plugin</artifactId>
-		    <version>${maven-install-plugin.version}</version>
 		  </plugin>
 		  <plugin>
 		    <groupId>org.codehaus.mojo</groupId>
 		    <artifactId>exec-maven-plugin</artifactId>
-		    <version>${exec-maven-plugin.version}</version>
 		    <executions>
 		      <execution>
 		        <phase>post-integration-test</phase>
@@ -318,7 +408,6 @@
 		  </plugin>
 			<plugin>
 		        <artifactId>maven-resources-plugin</artifactId>
-		        <version>${maven-resources-plugin.version}</version>
 		        <executions>
 		          <execution>
 		            <id>copy-resources</id>             
@@ -377,7 +466,6 @@
                  <plugin>
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-dependency-plugin</artifactId>
-                   <version>${maven-dependency-plugin.version}</version>
                    <executions>
                            <execution>
                                    <id>copy-dependencies</id>

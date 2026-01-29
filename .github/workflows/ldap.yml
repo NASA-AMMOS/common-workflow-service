@@ -8,7 +8,7 @@ on:
     - cron: '0 12 * * 1'
 
 env:
-  TEAM: ("jamesfwood" "voxparcxls" "galenhollins" "galenatjpl" "jeffreypon")
+  TEAM: ("jamesfwood" "jdrodjpl" "jl-0")
 
 jobs:
 
@@ -39,6 +39,34 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      # Configure Maven security (master password)
+      - name: Configure Maven security
+        run: |
+          mkdir -p ~/.m2
+          echo "<settingsSecurity>
+                  <master>${{ secrets.MAVEN_MASTER_PASSWORD }}</master>
+                </settingsSecurity>" > ~/.m2/settings-security.xml
+
+      # Configure Maven settings (encrypted repo password)
+      - name: Configure Maven settings
+        run: |
+          echo "<settings>
+               <servers>
+                 <server>
+                   <id>${{ secrets.MAVEN_REPO_ID }}</id>
+                   <username>${{ secrets.MAVEN_USERNAME }}</username>
+                   <password>${{ secrets.MAVEN_ENCRYPTED_PASSWORD }}</password>
+                 </server>
+               </servers>
+             </settings>" > ~/.m2/settings.xml
+
+      - name: Configure Camunda Download Credentials
+        run: |
+          echo "machine downloads.camunda.cloud
+              login ${{ secrets.CAMUNDA_DOWNLOAD_LOGIN }}
+              password ${{ secrets.CAMUNDA_DOWNLOAD_PASSWORD }}" > ~/.netrc
+          chmod 400 ~/.netrc
+
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
@@ -58,7 +86,7 @@ jobs:
           mkdir ~/.cws/
           chmod 700 ~/.cws/
           echo ${{ secrets.KEYSTORE_PASSWORD }} > ~/.cws/creds
-          chmod 600 ~/.cws/creds
+          chmod 400 ~/.cws/creds
 
       - name: Download Logstash
         run: |
@@ -84,7 +112,7 @@ jobs:
           sleep 5s
           docker ps -a
 
-      - name: Build CWS
+      - name: Build and Start CWS
         id: build
         run:  |
           cd ci
@@ -92,9 +120,9 @@ jobs:
           ./run_ci.sh $SECURITY $WORKERS
         shell: bash
 
-      - name: Show CWS Log
+      - name: List CWS Logs
         run: |
-          cd dist/console-only/cws/server/apache-tomcat-9.0.75/logs
+          cd dist/console-only/cws/server/apache-tomcat-10.1.36/logs
           ls -al
 
       - name: Set up Google Chrome
@@ -109,6 +137,30 @@ jobs:
         id: ldap
         run: mvn -Dmaven.compiler.debug=true -Dmaven.compiler.debuglevel=lines,vars, -Dit.test=LdapTestIT verify -DskipTests
         shell: bash
+
+      - name: Show CWS Log for Console
+        if: always()
+        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat cws.log
+
+      - name: Show Catalina Log for Console
+        if: always()
+        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat catalina.out
+
+      - name: Show CWS Log for Worker1
+        if: always()
+        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat cws.log
+
+      - name: Show Catalina Log for Worker1
+        if: always()
+        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat catalina.out
 
       - name: Send custom JSON data to Slack workflow
         if: ${{ always() && contains(env.TEAM, github.actor) }}

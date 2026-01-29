@@ -13,6 +13,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 
 /**
  * Useful helper class from:
@@ -26,6 +27,7 @@ import org.springframework.context.ApplicationContextAware;
  * we do not need a reference to the Servlet context for this. All we need is
  * for this bean to be initialized during application startup.
  */
+@Component
 public class SpringApplicationContext implements ApplicationContextAware, BeanFactoryPostProcessor {
 	private static final Logger log = LoggerFactory.getLogger(SpringApplicationContext.class);
 	private static ApplicationContext CONTEXT;
@@ -44,6 +46,14 @@ public class SpringApplicationContext implements ApplicationContextAware, BeanFa
 		CONTEXT = context;
 	}
 	
+	/**
+	 * Check if the Spring ApplicationContext is available.
+	 * @return true if the context is available, false otherwise
+	 */
+	public static boolean isContextAvailable() {
+		return CONTEXT != null;
+	}
+	
 	
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory factory) throws BeansException {
 		this.factory = factory;
@@ -60,11 +70,19 @@ public class SpringApplicationContext implements ApplicationContextAware, BeanFa
 	 * @return an Object reference to the named bean.
 	 */
 	public static Object getBean(String beanName) {
-		log.trace("CWS: Getting bean '"+beanName+"' from context "+CONTEXT);
+		if (!isContextAvailable()) {
+			log.warn("CWS: Spring ApplicationContext is null, cannot get bean '" + beanName + "'. This may occur during application shutdown.");
+			throw new IllegalStateException("Spring ApplicationContext is null. Cannot get bean '" + beanName + "'. This may occur during application shutdown.");
+		}
+		log.trace("CWS: Getting bean '" + beanName + "' from context " + CONTEXT);
 		return CONTEXT.getBean(beanName);
 	}
 	
 	public static <T> Map<String,T> getBeansOfType(Class<T> type) {
+		if (!isContextAvailable()) {
+			log.warn("CWS: Spring ApplicationContext is null, cannot get beans of type '" + type.getName() + "'. This may occur during application shutdown.");
+			throw new IllegalStateException("Spring ApplicationContext is null. Cannot get beans of type '" + type.getName() + "'. This may occur during application shutdown.");
+		}
 		return CONTEXT.getBeansOfType(type);
 	}
 	
@@ -118,6 +136,10 @@ public class SpringApplicationContext implements ApplicationContextAware, BeanFa
 	
 	
 	public <T> String[] getBeanDefinitionNamesOfType(Class<T> type) {
+		if (!isContextAvailable()) {
+			log.warn("CWS: Spring ApplicationContext is null, cannot get bean names of type '" + type.getName() + "'. This may occur during application shutdown.");
+			throw new IllegalStateException("Spring ApplicationContext is null. Cannot get bean names of type '" + type.getName() + "'. This may occur during application shutdown.");
+		}
 		return CONTEXT.getBeanNamesForType(type);
 	}
 	
@@ -130,6 +152,10 @@ public class SpringApplicationContext implements ApplicationContextAware, BeanFa
 	
 	
 	public <T> void removeAllBeansOfType(Class<T> type) {
+		if (!isContextAvailable()) {
+			log.warn("CWS: Spring ApplicationContext is null, cannot remove beans of type '" + type.getName() + "'. This may occur during application shutdown.");
+			throw new IllegalStateException("Spring ApplicationContext is null. Cannot remove beans of type '" + type.getName() + "'. This may occur during application shutdown.");
+		}
 		BeanDefinitionRegistry registry = (BeanDefinitionRegistry) CONTEXT.getAutowireCapableBeanFactory();
 		for(String beanName : CONTEXT.getBeanNamesForType(type)){
 			log.debug("REMOVING BEAN (of type " + type + "): " + beanName);

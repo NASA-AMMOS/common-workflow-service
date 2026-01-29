@@ -95,7 +95,7 @@ services:
     labels:
       com.example.service: "cws-server"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.7.0 # update this each CWS release
+    image: nasa-ammos/common-workflow-service:2.8.0 # update this each CWS release
     depends_on:
       - db
       - es
@@ -124,9 +124,12 @@ services:
       timeout: 2s
       retries: 12
     volumes:
+      # - ../../.keystore:/home/cws_user/cws/server/apache-tomcat-10.1.36/conf/.keystore:ro
+      # - ../../tomcat_lib/cws_truststore.jks:/home/cws_user/cws/server/apache-tomcat-10.1.36/lib/cws_truststore.jks:ro
+      # - ~/.cws/creds:/root/.cws/creds:ro
       - ./config.properties:/home/cws_user/config.properties:ro
-      - ~/.cws/creds:/root/.cws/creds:ro
-      - console-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
+      - ~/.camunda/license.txt:/root/.camunda/license.txt:ro
+      - console-logs-volume:/home/cws_user/cws/server/apache-tomcat-10.1.36/logs
     networks:
       - cws-network
   cws-worker:
@@ -134,7 +137,7 @@ services:
     labels:
       com.example.service: "cws-worker1"
       com.example.description: "Common Workflow Service"
-    image: nasa-ammos/common-workflow-service:2.7.0 # update this each CWS release
+    image: nasa-ammos/common-workflow-service:2.8.0 # update this each CWS release
     depends_on:
       - db
       - es
@@ -149,9 +152,12 @@ services:
       - ES_HOST=es
       - ES_PORT=9200
     volumes:
+      # - ../../.keystore:/home/cws_user/cws/server/apache-tomcat-10.1.36/conf/.keystore:ro
+      # - ../../tomcat_lib/cws_truststore.jks:/home/cws_user/cws/server/apache-tomcat-10.1.36/lib/cws_truststore.jks:ro
+      # - ~/.cws/creds:/root/.cws/creds:ro
       - ./worker-config.properties:/home/cws_user/config.properties:ro
-      - ~/.cws/creds:/root/.cws/creds:ro
-      - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-9.0.75/logs
+      - ~/.camunda/license.txt:/root/.camunda/license.txt:ro
+      - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-10.1.36/logs
     networks:
       - cws-network
   ldapsearch:

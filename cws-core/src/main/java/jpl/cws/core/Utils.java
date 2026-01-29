@@ -8,18 +8,26 @@ import org.slf4j.LoggerFactory;
 public class Utils {
 	private static final Logger log = LoggerFactory.getLogger(Utils.class);
 
-	private Object cwsBean;
 	private CwsConfig cwsConfig;
 
 	public Utils() {
-		cwsBean = SpringApplicationContext.getBean("cws");
-		log.debug("cwsBean = " + cwsBean);
-
-		cwsConfig = (CwsConfig) SpringApplicationContext.getBean("cwsConfig");
-		log.debug("cwsConfig = " + cwsConfig);
+		if (SpringApplicationContext.isContextAvailable()) {
+			cwsConfig = (CwsConfig)SpringApplicationContext.getBean("cwsConfig");
+			log.debug("cwsConfig = " + cwsConfig);
+		} else {
+			log.warn("Spring ApplicationContext not available during Utils construction. cwsConfig will be retrieved later if needed.");
+		}
 	}
 
 	public String getCwsVar(String name) throws Exception {
+		// Get cwsConfig if not already available
+		if (cwsConfig == null) {
+			if (SpringApplicationContext.isContextAvailable()) {
+				cwsConfig = (CwsConfig)SpringApplicationContext.getBean("cwsConfig");
+			} else {
+				throw new IllegalStateException("Cannot get CWS variable '" + name + "': Spring ApplicationContext is not available and CwsConfig is null.");
+			}
+		}
 
 		if (name.equals("hostname")) { return cwsConfig.getInstallHostname(); }
 		else if (name.equals("installDir")) { return cwsConfig.getInstallDir(); }

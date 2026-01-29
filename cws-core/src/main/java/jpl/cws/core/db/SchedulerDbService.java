@@ -1,9 +1,10 @@
 package jpl.cws.core.db;
 
-import de.ruedigermoeller.serialization.FSTObjectOutput;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jpl.cws.core.log.CwsEmailerService;
-import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTime;
+import org.apache.commons.lang3.StringUtils;
+import java.time.Instant;
+import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -15,15 +16,13 @@ import org.springframework.jdbc.core.support.AbstractLobCreatingPreparedStatemen
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobCreator;
 
-import java.io.ByteArrayOutputStream;
-import java.sql.Array;
+import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.*;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 
 /** 
@@ -97,7 +96,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
                     "error_message=? " +
                     "WHERE uuid=? AND status != ? AND status != ?",
                     new Object[]{COMPLETE, 
-                        new Timestamp(DateTime.now().getMillis()),
+                        Timestamp.from(Instant.now()),
                         null, uuid, COMPLETE, FAIL});
                 
                 if (numUpdated == 0) {
@@ -172,41 +171,40 @@ public class SchedulerDbService extends DbService implements InitializingBean {
     public void insertSchedEngineProcInstRow(final SchedulerJob schedulerJob) throws Exception {
         long t0 = System.currentTimeMillis();
 
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            FSTObjectOutput out = new FSTObjectOutput(os);
-            out.writeObject(schedulerJob.getProcVariables());
-            out.close();
+        // Serialize proc variables as JSON (UTF-8) for safer, portable storage
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(schedulerJob.getProcVariables());
+        byte[] procVariablesBytes = json.getBytes(StandardCharsets.UTF_8);
 
-            DefaultLobHandler lobHandler = new DefaultLobHandler();
-            Object o = jdbcTemplate.execute(
-                    INSERT_SCHED_WORKER_PROC_INST_ROW_SQL,
-                    new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
-                        protected void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
-                            ps.setString(1, schedulerJob.getUuid());
-                            ps.setTimestamp(2, schedulerJob.getCreatedTime()); // will get auto-filled by DB
-                            ps.setTimestamp(3, schedulerJob.getUpdatedTime()); // will get auto-filled by DB
-                            ps.setString(4, null); // don't know process instance ID yet
-                            ps.setString(5, schedulerJob.getProcDefKey());
-                            ps.setString(6, schedulerJob.getProcBusinessKey());
-                            ps.setInt(7, schedulerJob.getProcPriority());
-                            lobCreator.setBlobAsBytes(ps, 8, os.toByteArray());
-                            ps.setString(9, schedulerJob.getStatus());
-                            ps.setString(10, null); // no error message yet
-                            ps.setString(11, schedulerJob.getInitiationKey());
-                            ps.setString(12, null); // no claimed_by_worker yet
-                            ps.setString(13, null); // not started on any worker yet
-                            ps.setString(14, null); // no worker rejections yet
-                            ps.setInt(15, 0); // no worker attempts yet
-                            ps.setString(16, null); // no claim_uuid yet
-                        }
+        DefaultLobHandler lobHandler = new DefaultLobHandler();
+        Object o = jdbcTemplate.execute(
+                INSERT_SCHED_WORKER_PROC_INST_ROW_SQL,
+                new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
+                    protected void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
+                        ps.setString(1, schedulerJob.getUuid());
+                        ps.setTimestamp(2, schedulerJob.getCreatedTime()); // will get auto-filled by DB
+                        ps.setTimestamp(3, schedulerJob.getUpdatedTime()); // will get auto-filled by DB
+                        ps.setString(4, null); // don't know process instance ID yet
+                        ps.setString(5, schedulerJob.getProcDefKey());
+                        ps.setString(6, schedulerJob.getProcBusinessKey());
+                        ps.setInt(7, schedulerJob.getProcPriority());
+                        lobCreator.setBlobAsBytes(ps, 8, procVariablesBytes);
+                        ps.setString(9, schedulerJob.getStatus());
+                        ps.setString(10, null); // no error message yet
+                        ps.setString(11, schedulerJob.getInitiationKey());
+                        ps.setString(12, null); // no claimed_by_worker yet
+                        ps.setString(13, null); // not started on any worker yet
+                        ps.setString(14, null); // no worker rejections yet
+                        ps.setInt(15, 0); // no worker attempts yet
+                        ps.setString(16, null); // no claim_uuid yet
                     }
-            );
-            log.trace("RETURN OBJECT: " + o);
-            o = null;
-            long timeTaken = System.currentTimeMillis() - t0;
-            if (timeTaken > SLOW_WARN_THRESHOLD) {
-                log.warn("INSERT INTO cws_sched_worker_proc_inst took " + timeTaken + " ms!");
-            }
+                }
+        );
+        log.trace("RETURN OBJECT: " + o);
+        o = null;
+        long timeTaken = System.currentTimeMillis() - t0;
+        if (timeTaken > SLOW_WARN_THRESHOLD) {
+            log.warn("INSERT INTO cws_sched_worker_proc_inst took " + timeTaken + " ms!");
         }
     }
 
@@ -251,7 +249,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
                             "error_message=? " +
                             "WHERE uuid=? AND status=?",
                     new Object[]{newStatus,
-                            new Timestamp(DateTime.now().getMillis()),
+                            Timestamp.from(Instant.now()),
                             errorMessage, uuid, oldStatus});
             if (numUpdated == 0 && ++numTries < 20) {
                 String rowStatus = getProcInstRowStatus(uuid);
@@ -296,7 +294,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
                 new Object[]{
                         workerId,
                         procInstId,
-                        new Timestamp(DateTime.now().getMillis()),
+                        Timestamp.from(Instant.now()),
                         uuid}
         );
         long timeTaken = System.currentTimeMillis() - t0;
@@ -547,7 +545,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
             int numTries = 0;
             String workerName = null;
             while (numTries++ < 10 && numUpdated != 1) {
-                Timestamp tsNow = new Timestamp(DateTime.now().getMillis());
+                Timestamp tsNow = Timestamp.from(Instant.now());
                 workerName = "ext_worker" + String.format("%1$4s", externalWorkerNum++).replace(' ', '0');
 
                 try {
@@ -589,7 +587,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
     public int updateExternalWorkerHeartbeat(String workerId) {
         return jdbcTemplate.update(
                 "UPDATE cws_external_worker SET last_heartbeat_time = ? WHERE id=?",
-                new Object[]{new Timestamp(DateTime.now().getMillis()), workerId}
+                new Object[]{Timestamp.from(Instant.now()), workerId}
         );
     }
 
@@ -696,7 +694,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
      */
     public List<Map<String, Object>> detectDeadWorkers(int thresholdMilliseconds) {
         try {
-            Timestamp thresholdTimeAgo = new Timestamp(DateTime.now().minusMillis(thresholdMilliseconds).getMillis());
+            Timestamp thresholdTimeAgo = Timestamp.from(Instant.now().minusMillis(thresholdMilliseconds));
             return jdbcTemplate.queryForList("SELECT * FROM cws_worker " +
                             "WHERE last_heartbeat_time < ? AND status = 'up'",
                     new Object[]{thresholdTimeAgo});
@@ -714,7 +712,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
      */
     public List<Map<String, Object>> detectAbandonedWorkers(int daysToAbandoned) {
         try {
-            Timestamp thresholdTimeAgo = new Timestamp(DateTime.now().minusDays(daysToAbandoned).getMillis());
+            Timestamp thresholdTimeAgo = Timestamp.from(Instant.now().minus(Duration.ofDays(daysToAbandoned)));
 
             String query = "SELECT * FROM cws_worker WHERE last_heartbeat_time < ? AND status = 'down'";
             return jdbcTemplate.queryForList(query, new Object[]{thresholdTimeAgo});
@@ -732,7 +730,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
      */
     public List<Map<String, Object>> detectDeadExternalWorkers(int thresholdMilliseconds) {
         try {
-            Timestamp thresholdTimeAgo = new Timestamp(DateTime.now().minusMillis(thresholdMilliseconds).getMillis());
+            Timestamp thresholdTimeAgo = Timestamp.from(Instant.now().minusMillis(thresholdMilliseconds));
             return jdbcTemplate.queryForList("SELECT * FROM cws_external_worker " +
                             "WHERE last_heartbeat_time < ?",
                     new Object[]{thresholdTimeAgo});
@@ -1250,7 +1248,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
         Timestamp time = new Timestamp(0L);
 
         if (lastNumHours != null) {
-            time = new Timestamp(DateTime.now().minusHours(Integer.parseInt(lastNumHours)).getMillis());
+            time = Timestamp.from(Instant.now().minus(Duration.ofHours(Integer.parseInt(lastNumHours))));
         }
 
         String query =
@@ -1466,7 +1464,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
                             "WHERE worker_id=? AND name=?",
                     new Object[]{
                             value,
-                            new Timestamp(DateTime.now().getMillis()),
+                            Timestamp.from(Instant.now()),
                             workerId,
                             name});
             log.debug("Updated " + numUpdated + " row(s) in the cws_worker_tags table...");

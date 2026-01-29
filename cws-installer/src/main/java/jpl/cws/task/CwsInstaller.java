@@ -82,7 +82,7 @@ import java.security.UnrecoverableEntryException;
 
 import javax.tools.ToolProvider;
 
-import org.joda.time.DateTime;
+import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1816,7 +1816,7 @@ public class CwsInstaller {
 		print("CWS Notification Emails       = " + cws_notification_emails);
 		print("CWS Token Expiration In Hours = " + cws_token_expiration_hours);
 		print("History Level                 = " + history_level);
-		print("Processes per Worker          = " + worker_max_num_running_procs);
+		print("Max Num Processes per Worker  = " + worker_max_num_running_procs);
 		print("Days Remove Abandoned Workers = " + worker_abandoned_days);
 		if (installConsole) {
 			print("History Days to Live          = " + history_days_to_live);
@@ -1986,7 +1986,7 @@ public class CwsInstaller {
 				print("");
 				print("checking that database timestamp is consistent with this installation timestamp...");
 				long q0 = System.currentTimeMillis();
-				Timestamp thisMachineTime = new Timestamp(DateTime.now().getMillis());
+				Timestamp thisMachineTime = Timestamp.from(Instant.now());
 				Timestamp databaseTime;
 
 				try (ResultSet rs = statm.executeQuery("SELECT CURRENT_TIMESTAMP()")) {
@@ -2625,6 +2625,8 @@ public class CwsInstaller {
 				Paths.get(config_work_dir + SEP + "cws-ui" + SEP + "cws-ui.properties"));
 		copy(Paths.get( config_templates_dir + SEP + "cws-ui" + SEP + "applicationContext.xml"),
 				Paths.get(config_work_dir + SEP + "cws-ui" + SEP +  "applicationContext.xml"));
+		copy(Paths.get( config_templates_dir + SEP + "cws-ui" + SEP + "broker.xml"),
+				Paths.get(config_work_dir + SEP + "cws-ui" + SEP +  "broker.xml"));
 		copyAllType(
 				config_templates_dir + SEP + "cws-ui",
 				config_work_dir + SEP + "cws-ui", "ftl");
@@ -2813,6 +2815,25 @@ public class CwsInstaller {
 		copy(
 			Paths.get(config_work_dir + SEP + "engine-rest_mods" + SEP + "web.xml"),
 			Paths.get(cws_tomcat_webapps + SEP + "engine-rest" + SEP + "WEB-INF" + SEP + "web.xml"));
+
+		// CREATE ARTEMIS DIRECTORY STRUCTURE AND COPY BROKER.XML
+		print(" Creating Artemis directory structure and copying broker.xml...");
+		mkDir(cws_root + SEP + "server" + SEP + "artemis");
+		mkDir(cws_root + SEP + "server" + SEP + "artemis" + SEP + "etc");
+		mkDir(cws_root + SEP + "server" + SEP + "artemis" + SEP + "data");
+		mkDir(cws_root + SEP + "server" + SEP + "artemis" + SEP + "log");
+		mkDir(cws_root + SEP + "server" + SEP + "artemis" + SEP + "tmp");
+		
+		// Process broker.xml and replace placeholders
+		print(" Processing broker.xml and replacing placeholders...");
+		Path brokerXmlPath = Paths.get(config_work_dir + SEP + "cws-ui" + SEP + "broker.xml");
+		String brokerContent = getFileContents(brokerXmlPath);
+		brokerContent = brokerContent.replace("__CWS_AMQ_HOST__", cws_amq_host);
+		brokerContent = brokerContent.replace("__CWS_AMQ_PORT__", cws_amq_port);
+		brokerContent = brokerContent.replace("__CWS_ROOT_DIR__", cws_root);
+		
+		Path targetBrokerPath = Paths.get(cws_root + SEP + "server" + SEP + "artemis" + SEP + "etc" + SEP + "broker.xml");
+		writeToFile(targetBrokerPath, brokerContent);
 
 		deleteDirectory(new File(cws_tomcat_webapps + SEP + "h2"));
 		deleteDirectory(new File(cws_tomcat_webapps + SEP + "manager"));

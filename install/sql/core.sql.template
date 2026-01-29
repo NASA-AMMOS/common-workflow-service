@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `cws_worker_tags` (
 	`created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP(),
 	`updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP(),
 	PRIMARY KEY (`worker_id`, `name`),
-	CONSTRAINT `FK_cws_worker_tags` FOREIGN KEY (`worker_id`) REFERENCES `cws_worker` (`id`)
+	CONSTRAINT `FK_cws_worker_tags` FOREIGN KEY (`worker_id`) REFERENCES `cws_worker` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE IF NOT EXISTS `cws_external_worker` (
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `cws_log_usage` (
 	`filename` varchar(255) COLLATE utf8_bin NOT NULL,
 	`size_bytes` bigint NOT NULL,
 	PRIMARY KEY (`worker_id`, `filename`),
-	CONSTRAINT `FK_cws_worker_log_usage` FOREIGN KEY (`worker_id`) REFERENCES `cws_worker` (`id`)
+	CONSTRAINT `FK_cws_worker_log_usage` FOREIGN KEY (`worker_id`) REFERENCES `cws_worker` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `cws_worker_proc_def` (
 	`accepting_new` TINYINT(1) NOT NULL,
 	PRIMARY KEY (`worker_id`,`proc_def_key`),
 	KEY `FK_ACT_RE_PROCDEF` (`proc_def_key`),
-	CONSTRAINT `FK_cws_worker` FOREIGN KEY (`worker_id`) REFERENCES `cws_worker` (`id`)
+	CONSTRAINT `FK_cws_worker` FOREIGN KEY (`worker_id`) REFERENCES `cws_worker` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 

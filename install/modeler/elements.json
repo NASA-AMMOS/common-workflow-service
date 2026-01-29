@@ -583,7 +583,7 @@
 				"constraints": {
 					"notEmpty": true,
 					"pattern": {
-						"value": "(^[1-9][0-9]{0,5}$)|(^\\$\\{[a-zA-Z_].*\\}$)",
+						"value": "(^[1-9][0-9]{0,4}$)|(^[1-2][0-9]{5}$)|(^300000$)|(^\\$\\{[a-zA-Z_].*\\}$)",
 						"message": "Must be a positive integer not exceeding 300000 (5 minutes)"
 					},
 					"max": 300000

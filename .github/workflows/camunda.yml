@@ -8,7 +8,7 @@ on:
     - cron: '0 12 * * 1'
 
 env:
-  TEAM: ("jamesfwood" "voxparcxls" "galenhollins" "galenatjpl" "jeffreypon")
+  TEAM: ("jamesfwood" "jdrodjpl" "jl-0")
 
 jobs:
 
@@ -39,6 +39,27 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      # Configure Maven security (master password)
+      - name: Configure Maven security
+        run: |
+          mkdir -p ~/.m2
+          echo "<settingsSecurity>
+                  <master>${{ secrets.MAVEN_MASTER_PASSWORD }}</master>
+                </settingsSecurity>" > ~/.m2/settings-security.xml
+
+      # Configure Maven settings (encrypted repo password)
+      - name: Configure Maven settings
+        run: |
+          echo "<settings>
+               <servers>
+                 <server>
+                   <id>${{ secrets.MAVEN_REPO_ID }}</id>
+                   <username>${{ secrets.MAVEN_USERNAME }}</username>
+                   <password>${{ secrets.MAVEN_ENCRYPTED_PASSWORD }}</password>
+                 </server>
+               </servers>
+             </settings>" > ~/.m2/settings.xml
+
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
@@ -46,6 +67,13 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-m2-
+
+      - name: Configure Camunda Download Credentials
+        run: |
+          echo "machine downloads.camunda.cloud
+              login ${{ secrets.CAMUNDA_DOWNLOAD_LOGIN }}
+              password ${{ secrets.CAMUNDA_DOWNLOAD_PASSWORD }}" > ~/.netrc
+          chmod 400 ~/.netrc
 
       - name: Create open-source certs
         run: |
@@ -58,7 +86,16 @@ jobs:
           mkdir ~/.cws/
           chmod 700 ~/.cws/
           echo ${{ secrets.KEYSTORE_PASSWORD }} > ~/.cws/creds
-          chmod 600 ~/.cws/creds
+          chmod 400 ~/.cws/creds
+
+      - name: Write license to file
+        run: |
+          mkdir -p ~/.camunda
+          chmod 700 ~/.camunda
+          cat <<'EOF' > ~/.camunda/license.txt
+          ${{ secrets.CAMUNDA_LICENSE }}
+          EOF
+          chmod 400 ~/.camunda/license.txt
 
       - name: Download Logstash
         run: |
@@ -79,7 +116,27 @@ jobs:
           sleep 5s
           docker ps -a
 
-      - name: Build CWS
+      - name: Cache Dependency-Check data
+        uses: actions/cache@v4
+        with:
+          path: ~/.dependency-check-data
+          key: ${{ runner.os }}-dependency-check
+          restore-keys: |
+            ${{ runner.os }}-dependency-check
+
+      - name: Run Dependency Check
+        run: mvn clean dependency-check:aggregate
+        shell: bash
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+
+      - name: Upload Dependency Check Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          path: target/dependency-check-reports/dependency-check-report.html
+
+      - name: Build and Start CWS
         id: build
         run:  |
           cd ci
@@ -87,9 +144,9 @@ jobs:
           ./run_ci.sh $SECURITY $WORKERS
         shell: bash
 
-      - name: Show CWS Log
+      - name: List CWS Logs
         run: |
-          cd dist/console-only/cws/server/apache-tomcat-9.0.75/logs
+          cd "dist/console-only/cws/server/apache-tomcat-10.1.36/logs"
           ls -al
 
       - name: Set up Google Chrome
@@ -122,6 +179,36 @@ jobs:
         with:
           name: test-screenshots
           path: test-screenshots/
+
+      - name: Show CWS Log for Console
+        if: always()
+        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat cws.log
+
+      - name: Show Catalina Log for Console
+        if: always()
+        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat catalina.out
+  
+      - name: Show CWS Log for Worker1
+        if: always()
+        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat cws.log
+
+      - name: Show Catalina Log for Worker1
+        if: always()
+        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat catalina.out
+  
+      - name: Cleanup Private files
+        if: always()
+        run: |
+          rm -rf ~/.camunda
+          rm -f ~/.netrc
 
       - name: Send custom JSON data to Slack workflow
         if: ${{ always() && contains(env.TEAM, github.actor) }}
@@ -173,6 +260,27 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      # Configure Maven security (master password)
+      - name: Configure Maven security
+        run: |
+          mkdir -p ~/.m2
+          echo "<settingsSecurity>
+                  <master>${{ secrets.MAVEN_MASTER_PASSWORD }}</master>
+                </settingsSecurity>" > ~/.m2/settings-security.xml
+
+      # Configure Maven settings (encrypted repo password)
+      - name: Configure Maven settings
+        run: |
+          echo "<settings>
+               <servers>
+                 <server>
+                   <id>${{ secrets.MAVEN_REPO_ID }}</id>
+                   <username>${{ secrets.MAVEN_USERNAME }}</username>
+                   <password>${{ secrets.MAVEN_ENCRYPTED_PASSWORD }}</password>
+                 </server>
+               </servers>
+             </settings>" > ~/.m2/settings.xml
+
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
@@ -180,6 +288,13 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-m2-
+
+      - name: Configure Camunda Download Credentials
+        run: |
+          echo "machine downloads.camunda.cloud
+              login ${{ secrets.CAMUNDA_DOWNLOAD_LOGIN }}
+              password ${{ secrets.CAMUNDA_DOWNLOAD_PASSWORD }}" > ~/.netrc
+          chmod 400 ~/.netrc
 
       - name: Create open-source certs
         run: |
@@ -192,7 +307,16 @@ jobs:
           mkdir ~/.cws/
           chmod 700 ~/.cws/
           echo ${{ secrets.KEYSTORE_PASSWORD }} > ~/.cws/creds
-          chmod 600 ~/.cws/creds
+          chmod 400 ~/.cws/creds
+
+      - name: Write license to file
+        run: |
+          mkdir -p ~/.camunda
+          chmod 700 ~/.camunda
+          cat <<'EOF' > ~/.camunda/license.txt
+          ${{ secrets.CAMUNDA_LICENSE }}
+          EOF
+          chmod 400 ~/.camunda/license.txt
 
       - name: Download Logstash
         run: |
@@ -213,7 +337,7 @@ jobs:
           sleep 5s
           docker ps -a
 
-      - name: Build CWS
+      - name: Build and Start CWS
         id: build
         run:  |
           cd ci
@@ -221,9 +345,9 @@ jobs:
           ./run_ci.sh $SECURITY $WORKERS
         shell: bash
 
-      - name: Show CWS Log
+      - name: List CWS Logs
         run: |
-          cd dist/console-only/cws/server/apache-tomcat-9.0.75/logs
+          cd dist/console-only/cws/server/apache-tomcat-10.1.36/logs
           ls -al
 
       - name: Set up Google Chrome
@@ -245,6 +369,48 @@ jobs:
         with:
           name: test-screenshots-advanced
           path: test-screenshots/
+
+      - name: Show CWS Log for Console
+        if: always()
+        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat cws.log
+
+      - name: Show Catalina Log for Console
+        if: always()
+        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat catalina.out
+
+      - name: Show CWS Log for Worker1
+        if: always()
+        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat cws.log
+
+      - name: Show Catalina Log for Worker1
+        if: always()
+        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat catalina.out
+
+      - name: Show CWS Log for Worker2
+        if: always()
+        working-directory: dist/worker2/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat cws.log
+
+      - name: Show Catalina Log for Worker2
+        if: always()
+        working-directory: dist/worker2/cws/server/apache-tomcat-10.1.36/logs
+        run: |
+          cat catalina.out
+
+      - name: Cleanup Private files
+        if: always()
+        run: |
+          rm -rf ~/.camunda
+          rm -f ~/.netrc
 
       - name: Send custom JSON data to Slack workflow
         if: ${{ always() && contains(env.TEAM, github.actor) }}

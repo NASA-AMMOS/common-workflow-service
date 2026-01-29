@@ -1,10 +1,14 @@
 package jpl.cws.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import de.ruedigermoeller.serialization.FSTObjectInput;
+import jakarta.jms.BytesMessage;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.Session;
 import jpl.cws.core.code.CodeService;
 import jpl.cws.core.db.SchedulerDbService;
 import jpl.cws.core.log.CwsEmailerService;
@@ -42,11 +46,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 
-import javax.jms.BytesMessage;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -1109,10 +1110,10 @@ public class CwsConsoleService {
             try {
                 // Get process variables as a map
                 //
-                byte[] procVarsAsBytes = (byte[]) row.get("proc_variables");
-                FSTObjectInput in = new FSTObjectInput(new ByteArrayInputStream(procVarsAsBytes));
-                Map<String, Object> procVars = (Map<String, Object>) in.readObject();
-                in.close();
+                byte[] procVarsAsBytes = (byte[])row.get("proc_variables");
+                String json = new String(procVarsAsBytes, StandardCharsets.UTF_8).trim();
+                ObjectMapper objectMapper = new ObjectMapper();
+                Map<String, Object> procVars = objectMapper.readValue(json, Map.class);
 
                 if (procVars == null) {
                     procVars = new HashMap<String, Object>();

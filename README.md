@@ -47,7 +47,7 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
 - **Store Your Keystore Password**: You will need to add your own creds file, which carries the keystore password, to this path: `~/.cws/creds`
   - Set the permissions for the **~/.cws/** directory and **creds** file as Owner-Only.
     - **~/.cws/** directory: `chmod 700 ~/.cws/`
-    - **~/.cws/creds** file: `chmod 600 ~/.cws/creds`
+    - **~/.cws/creds** file: `chmod 400 ~/.cws/creds`
 
 
 ### **Development Environment Configuration**
@@ -101,7 +101,7 @@ _In a different terminal window `cd` into root of **common-workflow-service** fo
 For development we tend to create our own separate build script `<personal-dev.sh>` (firstinitial-lastname.sh), i.e.:`jsmith.sh`, that calls `dev.sh`. Here's an template for your personal build script that will work for development on a local machine:
 
 * Correctly set the Elasticsearch configuration within your personal script by assigning the proper protocol, `HTTP` or `HTTPS`, to `ES_PROTOCOL` with Elasticsearch hostname assigned to `ES_HOST`.
-    * Example: 
+    * Example:
       * `ES_PROTOCOL="HTTP"`
       * `ES_HOST="locahost"`
 
@@ -159,6 +159,15 @@ WORKER_ABANDONED_DAYS=1
 ./dev.sh `pwd` ${USER} ${DB_TYPE} ${DB_HOST} ${DB_PORT} ${DB_NAME} ${DB_USER} ${DB_PASS} ${ES_PROTOCOL} ${ES_HOST} ${ES_PORT} ${ES_USE_AUTH} ${ES_USERNAME} ${ES_PASSWORD} ${CLOUD} ${SECURITY} ${HOSTNAME} ${EMAIL_LIST} ${ADMIN_FIRST} ${ADMIN_LAST} ${ADMIN_EMAIL} ${NUM_WORKERS} ${WORKER_MAX_NUM_RUNNING_PROCS} ${WORKER_ABANDONED_DAYS}
 ```
 
+#### Check Dependencies for Security Vunerabilities
+```
+mvn dependency-check:check
+
+or
+
+mvn dependency-check:aggregate
+```
+
 ###### Run Personal Dev Script
 To build and run CWS, use your <personal-dev.sh> i.e.:`jsmith.sh` script - its usage is as follows:
 
@@ -169,6 +178,18 @@ To build and run CWS, use your <personal-dev.sh> i.e.:`jsmith.sh` script - its u
 
 
 The above script will build CWS, verify your configuration, then will start the CWS console and workers. The script will provide a link to access the console dashboard once everything has started up!
+
+### Credentials in Docker
+
+The CWS image available on Github is loaded with self-signed SSL certs that require a password for the CWS server to use on startup. The default password is `changeit`. The image should load and run without specifying any additional certs.
+
+If you'd like to provide your own SSL certs, you can use the `generate_certs.sh` script in `cws_certs/` to do so. You'll then need to copy those files into the image before startup or (more easily) use volume mounts to make them available to CWS. Take a look at the `docker-compose.yml` file in `install/docker/` -- there are commented-out volume store lines that you can use.
+
+The keystore files CWS looks for are at these paths inside the image:
+`/home/cws_user/cws/server/apache-tomcat-10.1.36/conf/.keystore`
+`/home/cws_user/cws/server/apache-tomcat-10.1.36/lib/cws_truststore.jks`
+
+You'll also want to provide CWS with the password you used to create the certs so the software can use them. This is a plaintext file with the password in it. CWS looks for this file at the path: `/root/.cws/creds:ro`. Note that this password is not related to what you'd use to log into the CWS interface -- it's only the password for the certs themselves.
 
 ## Stopping CWS
 

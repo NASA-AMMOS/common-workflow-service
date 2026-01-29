@@ -12,11 +12,11 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
-import javax.servlet.FilterConfig;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
 import org.camunda.bpm.engine.AuthorizationService;
@@ -37,7 +37,7 @@ import jpl.cws.core.web.WebUtils.RestCallResult;
  * @author ghollins
  *
  */
-public abstract class CwsSecurityFilter implements javax.servlet.Filter {
+public abstract class CwsSecurityFilter implements jakarta.servlet.Filter {
 	private static final Logger log = LoggerFactory.getLogger(CwsSecurityFilter.class);
 
 	public static final String CWS_TOKEN_COOKIE_NAME = "cwsToken";
@@ -74,9 +74,13 @@ public abstract class CwsSecurityFilter implements javax.servlet.Filter {
 			// so only get service here.
 			//
 			if (contextPath.equals("/cws-ui") || contextPath.equals("/cws-engine")) {
-				cwsSecurityService = (SecurityService) SpringApplicationContext.getBean("cwsSecurityService");
-				authorizationService = (AuthorizationService) SpringApplicationContext.getBean("authorizationService");
-				log.debug("got sec service: " + cwsSecurityService);
+				if (SpringApplicationContext.isContextAvailable()) {
+					cwsSecurityService = (SecurityService)SpringApplicationContext.getBean("cwsSecurityService");
+					authorizationService = (AuthorizationService)SpringApplicationContext.getBean("authorizationService");
+					log.debug("got sec service: " + cwsSecurityService);
+				} else {
+					log.error("Spring ApplicationContext not available during CwsSecurityFilter initialization.");
+				}
 			}
 		}
 		catch (Exception e) {
@@ -611,7 +615,7 @@ public abstract class CwsSecurityFilter implements javax.servlet.Filter {
 	@Override
 	public void destroy() {
 		// TODO Auto-generated method stub
-		System.out.println("CwsSecurityFilter.destroy()...");
+		log.info("CwsSecurityFilter.destroy()...");
 	}
 
 }

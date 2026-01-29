@@ -6,10 +6,12 @@ import jpl.cws.task.TestDelegateExecution;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.impl.el.FixedValue;
-import org.glassfish.grizzly.http.server.HttpHandler;
-import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.http.server.Request;
-import org.glassfish.grizzly.http.server.Response;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -18,23 +20,26 @@ public class RestGetTaskTest2 {
 
 	private static final String VAR_PREFIX = TestDelegateExecution.VAR_PREFIX;
 
-
-	private HttpServer server;
+	private Server server;
 
 	@Before
 	public void setUp() throws Exception {
 		// Setup a HTTP server that will receive REST calls
 		// during the lifetime of these tests.
 		//
-		server = HttpServer.createSimpleServer(null, 9999);
-		server.getServerConfiguration().addHttpHandler(new HttpHandler() {
-			public void service(Request request, Response response) throws Exception {
+		server = new Server(9999);
+		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		context.setContextPath("/");
+		server.setHandler(context);
+		context.addServlet(new ServletHolder(new HttpServlet() {
+			@Override
+			protected void doGet(HttpServletRequest request, HttpServletResponse response) throws java.io.IOException {
 				response.setContentType("text/plain");
 				String resp = "bar";
 				response.setContentLength(resp.length());
 				response.getWriter().write(resp);
 			}
-		}, "/foo");
+		}), "/foo");
 
 		server.start();
 	}

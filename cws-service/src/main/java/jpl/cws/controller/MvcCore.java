@@ -254,10 +254,10 @@ public class MvcCore {
 		model.addObject("workersTitle", cwsConsoleService.getWorkersTitle());
 
 		try {
-			Set<org.apache.activemq.broker.Connection> clients = cwsSchedulerUtils.getAmqClients();
-			model.addObject("amqClients", clients);
+			Set<org.apache.activemq.artemis.core.server.ActiveMQServer> servers = cwsSchedulerUtils.getAmqClients();
+			model.addObject("amqClients", servers);
 		} catch (Exception e) {
-			log.error("There was a problem getting listing of AMQ clients", e);
+			log.error("There was a problem getting listing of AMQ servers", e);
 		}
 
 		return model;

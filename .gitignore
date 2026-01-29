@@ -34,4 +34,7 @@ install/logging/logstash-*.zip
 /jacoco-reports
 /test-screenshots
 
+# Camunda distro zip
+/install/camunda-distro-zips/
+
 *.cnf

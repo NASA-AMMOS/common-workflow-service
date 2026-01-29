@@ -33,7 +33,6 @@ public class FileInitiatorTest {
 	
 	@Before
 	public void setUp() {
-		//MockitoAnnotations.initMocks(this);
 	}
 
 	@After

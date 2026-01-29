@@ -5,8 +5,8 @@ package jpl.cws.core.web;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;

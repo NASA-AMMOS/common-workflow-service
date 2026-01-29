@@ -1,26 +1,16 @@
 package jpl.cws.scheduler;
 
-import static jpl.cws.core.db.SchedulerDbService.FAILED_TO_SCHEDULE;
-import static jpl.cws.core.db.SchedulerDbService.PENDING;
-
-import java.io.*;
-import java.net.URLDecoder;
-import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.UUID;
-
-import javax.annotation.Resource;
-import javax.jms.BytesMessage;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.Resource;
+import jakarta.jms.BytesMessage;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.Session;
+import jpl.cws.core.db.SchedulerDbService;
+import jpl.cws.core.db.SchedulerJob;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
-import org.joda.time.DateTime;
+import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -30,9 +20,19 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.util.MultiValueMap;
 
-import de.ruedigermoeller.serialization.FSTObjectOutput;
-import jpl.cws.core.db.SchedulerDbService;
-import jpl.cws.core.db.SchedulerJob;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.UUID;
+
+import static jpl.cws.core.db.SchedulerDbService.FAILED_TO_SCHEDULE;
+import static jpl.cws.core.db.SchedulerDbService.PENDING;
 
 public class Scheduler implements InitializingBean {
 	private static final Logger log = LoggerFactory.getLogger(Scheduler.class);
@@ -156,7 +156,7 @@ public class Scheduler implements InitializingBean {
 				log.trace("process business key not specified.  Created one automatically: " + uuid);
 			}
 
-			Timestamp tsNow = new Timestamp(DateTime.now().getMillis());
+			Timestamp tsNow = Timestamp.from(Instant.now());
 			SchedulerJob schedulerJob = new SchedulerJob(
 					uuid,
 					tsNow, // createdTime
@@ -223,16 +223,9 @@ public class Scheduler implements InitializingBean {
 	 * Constructs a byte array representing the request process data payload
 	 * 
 	 */
-	private byte[] createProcReqData(Map<String,String> msgPayload)
-			throws IOException {
-		try (
-				ByteArrayOutputStream os = new ByteArrayOutputStream();
-				FSTObjectOutput out = new FSTObjectOutput(os);
-			)
-		{
-			out.writeObject(msgPayload);
-			return os.toByteArray();
-		}
+	private byte[] createProcReqData(Map<String,String> msgPayload) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(msgPayload);
+        return json.getBytes(StandardCharsets.UTF_8);
 	}
-
 }

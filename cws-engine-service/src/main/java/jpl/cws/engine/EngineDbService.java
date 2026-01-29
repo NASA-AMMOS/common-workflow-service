@@ -2,7 +2,7 @@ package jpl.cws.engine;
 
 import jpl.cws.core.db.DbService;
 import jpl.cws.core.log.CwsWorkerLoggerFactory;
-import org.joda.time.DateTime;
+import java.time.Instant;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -163,7 +163,7 @@ public class EngineDbService extends DbService implements InitializingBean {
 				int numTries = 0;
 				String workerName = null;
 				while (numTries++ < 10 && numUpdated != 1) {
-					Timestamp tsNow = new Timestamp(DateTime.now().getMillis());
+					Timestamp tsNow = Timestamp.from(Instant.now());
 
 					// Determine a worker name, using current system time in milliseconds.
 					// TODO: In the future, we might want to do a more elegant algorithm,
@@ -228,7 +228,7 @@ public class EngineDbService extends DbService implements InitializingBean {
 			int numUpdated = 0;
 			int numTries = 0;
 			while (numTries++ < 10 && numUpdated != 1) {
-				Timestamp tsNow = new Timestamp(DateTime.now().getMillis());
+				Timestamp tsNow = Timestamp.from(Instant.now());
 				
 				try {
 					log.info("Updating row (attempt #" + numTries +", workerId='"+workerId+"') in cws_worker table...");
@@ -269,7 +269,7 @@ public class EngineDbService extends DbService implements InitializingBean {
 	public void workerHeartbeat(int activeCount) {
 		jdbcTemplate.update(
 			"UPDATE cws_worker SET last_heartbeat_time = ?, status='up', active_count = ? WHERE id=?",
-			new Object[] { new Timestamp(DateTime.now().getMillis()), activeCount, workerId }
+			new Object[] { Timestamp.from(Instant.now()), activeCount, workerId }
 		);
 	}
 	

@@ -2,11 +2,12 @@ package jpl.cws.engine.listener;
 
 import java.util.Date;
 
-import javax.jms.BytesMessage;
-import javax.jms.Message;
-import javax.jms.MessageListener;
+import jakarta.jms.BytesMessage;
+import jakarta.jms.Message;
+import jakarta.jms.MessageListener;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class WorkerLogCleanupListener implements MessageListener, InitializingBe
 				
 				log.debug("GOT historyDaysToLive: " + historyDaysToLive);
 				
-				Date keepDate = LocalDate.now().plusDays(-historyDaysToLive).toDate();
+				Date keepDate = Date.from(LocalDate.now().plusDays(-historyDaysToLive).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
 				workerService.cleanupLogs(keepDate);
 			}
