@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Converted ActiveMQ 5.x to Artemis ActiveMQ broker
   - broker.xml has security-enabled as false.  For production use this should be setup with security enabled.
 ### Breaking Changes
+- Removed support for LDAP and CAM security authentication modes.  Only Camunda Auth is supported going forward
 - Need to add the Camunda License file to ~/.camunda/license.txt since we moved to use Camunda Enterprise Edition
 - Update Database Schema from Camunda 7.20 to Camunda 7.23.0-ee:
   - Go to the <root-dir>/sql/upgrade/ dir and use the upgrade scripts (in order): 
