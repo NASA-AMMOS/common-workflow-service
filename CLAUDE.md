@@ -90,7 +90,7 @@ CWS follows a layered service-oriented architecture with these key modules:
 - **Camunda BPM 7.23.0-ee**: Workflow engine and BPMN execution
 - **Apache Artemis**: Message queue for external task communication
 - **MyBatis**: Database ORM and query mapping
-- **Apache Tomcat 10.1.36**: Application server
+- **Apache Tomcat 10.1.50**: Application server
 
 ### Module Dependencies
 ```
@@ -118,8 +118,8 @@ cws-core (foundation)
 
 ### Version Information
 - CWS Version: 2.8.0   (update this each CWS release)
-- Camunda Version: 7.23.0-ee
-- Tomcat Version: 10.1.36
+- Camunda Version: 7.24.0-ee
+- Tomcat Version: 10.1.50
 - Java Version: 17 (enforced by Maven)
 
 ### Security Requirements
