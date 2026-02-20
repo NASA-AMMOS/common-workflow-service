@@ -92,7 +92,7 @@
 		<spring-web.version>6.2.4</spring-web.version>
 		<jackson.version>2.15.2</jackson.version>
 		<surefire.version>2.22.2</surefire.version>
-		<tomcat-catalina.version>10.1.36</tomcat-catalina.version>
+		<tomcat-catalina.version>10.1.49</tomcat-catalina.version>
 		<urlrewritefilter.version>5.1.3</urlrewritefilter.version>
 		<xmlunit.version>2.10.4</xmlunit.version>
 		<owasp.dependency.check.version>12.1.6</owasp.dependency.check.version>
