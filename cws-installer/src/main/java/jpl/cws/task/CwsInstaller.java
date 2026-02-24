@@ -277,12 +277,13 @@ public class CwsInstaller {
 			setupAdminUser();
 			setupNotificationEmails();
 			setupTokenExpirationHours();
-			setupPorts();
-			getKeystorePassword();
-			setupTaskAssigmentEmails();
-			setupSMTP();
-			setupElasticsearch();
-			setupLogstash();
+		setupPorts();
+		getKeystorePassword();
+		setupTaskAssigmentEmails();
+		setupSMTP();
+		// Elasticsearch is now optional - only setup if configured
+		setupElasticsearch();
+		setupLogstash();
 			setupHistoryLevel();
 			setupAws();
 			if (installConsole) {
@@ -1279,14 +1280,29 @@ public class CwsInstaller {
 		// PROMPT USER FOR ELASTICSEARCH PROTOCOL
 		elasticsearch_protocol = getPreset("elasticsearch_protocol");
 
+		// Elasticsearch is now optional - if no protocol is provided, skip setup
+		if (elasticsearch_protocol == null && !cws_installer_mode.equals("interactive")) {
+			log.info("Elasticsearch configuration not provided - skipping Elasticsearch setup (optional)");
+			return;
+		}
+
 		if (cws_installer_mode.equals("interactive")) {
 			if (elasticsearch_protocol == null) {
+				String read_elasticsearch_protocol = readLine("Enter the Elasticsearch protocol (HTTP/HTTPS) or press Enter to skip Elasticsearch setup: ", "");
+				
+				// Allow user to skip Elasticsearch setup
+				if (read_elasticsearch_protocol == null || read_elasticsearch_protocol.trim().isEmpty()) {
+					log.info("Elasticsearch setup skipped by user");
+					return;
+				}
 
-				String read_elasticsearch_protocol = "";
 				while (!read_elasticsearch_protocol.toLowerCase().startsWith("https") &&
 					!read_elasticsearch_protocol.toLowerCase().startsWith("http")) {
-					read_elasticsearch_protocol = readRequiredLine("Enter the Elasticsearch protocol (be sure to use HTTP or HTTPS):  ",
-						"You must enter a protocol");
+					read_elasticsearch_protocol = readLine("Invalid protocol. Enter HTTP or HTTPS, or press Enter to skip: ", "");
+					if (read_elasticsearch_protocol == null || read_elasticsearch_protocol.trim().isEmpty()) {
+						log.info("Elasticsearch setup skipped by user");
+						return;
+					}
 				}
 
 				elasticsearch_protocol_init = read_elasticsearch_protocol;
@@ -1301,10 +1317,6 @@ public class CwsInstaller {
 				elasticsearch_protocol = readLine("Enter the Elasticsearch protocol. " + "Default is " + elasticsearch_protocol + ": ", elasticsearch_protocol);
 			}
 		} else {
-			if (elasticsearch_protocol == null) {
-				bailOutMissingOption("elasticsearch_protocol");
-			}
-
 			elasticsearch_protocol_init = elasticsearch_protocol;
 			elasticsearch_protocol = elasticsearch_protocol.toLowerCase();
 			if (elasticsearch_protocol.startsWith("https")) {
@@ -1319,7 +1331,6 @@ public class CwsInstaller {
 
 		log.debug("elasticsearch_protocol: " + elasticsearch_protocol);
 
-
 		// PROMPT USER FOR ELASTICSEARCH HOST
 		elasticsearch_host = getPreset("elasticsearch_host");
 
@@ -1327,8 +1338,7 @@ public class CwsInstaller {
 			if (elasticsearch_host == null) {
 
 				String read_elasticsearch_host = "";
-				read_elasticsearch_host = readRequiredLine("Enter the Elasticsearch host:  ",
-							"You must enter a hostname");
+				read_elasticsearch_host = readLine("Enter the Elasticsearch host (or press Enter for default 'localhost'): ", "localhost");
 
 				elasticsearch_host_init = read_elasticsearch_host;
 				elasticsearch_host = read_elasticsearch_host.toLowerCase();
@@ -1340,8 +1350,10 @@ public class CwsInstaller {
 				elasticsearch_host = readLine("Enter the Elasticsearch host. " + "Default is " + elasticsearch_host + ": ", elasticsearch_host);
 			}
 		} else {
+			// In non-interactive mode, use default if not provided
 			if (elasticsearch_host == null) {
-				bailOutMissingOption("elasticsearch_host");
+				elasticsearch_host = "localhost";
+				log.info("Using default Elasticsearch host: localhost");
 			}
 
 			elasticsearch_host_init = elasticsearch_host;
@@ -1391,14 +1403,17 @@ public class CwsInstaller {
 			elasticsearch_use_auth = getPreset("default_elasticsearch_use_auth");
 		}
 
+		// Default to 'n' if not provided
+		if (elasticsearch_use_auth == null) {
+			elasticsearch_use_auth = "n";
+		}
+
 		if (cws_installer_mode.equals("interactive")) {
-			String read_elasticsearch_use_auth = "";
+			String read_elasticsearch_use_auth = readLine("Does your Elasticsearch cluster require authentication? (Y/N, default N): ", "n");
 
 			while (!read_elasticsearch_use_auth.equalsIgnoreCase("y") &&
 					!read_elasticsearch_use_auth.equalsIgnoreCase("n")) {
-				read_elasticsearch_use_auth =
-						readRequiredLine("Does you Elasticsearch cluster require authentication? (Y/N): ",
-								"ERROR: Must specify either 'Y' or 'N'");
+				read_elasticsearch_use_auth = readLine("Invalid input. Enter Y or N (default N): ", "n");
 			}
 
 			elasticsearch_use_auth = read_elasticsearch_use_auth.toLowerCase();
@@ -1414,12 +1429,13 @@ public class CwsInstaller {
 					elasticsearch_username = readRequiredLine("Enter the elasticsearch username: ",
 							"Must specify an elasticsearch username!");
 				} else {
-					elasticsearch_username = readLine("Enter the database username. " +
+					elasticsearch_username = readLine("Enter the elasticsearch username. " +
 							"Default is " + elasticsearch_username + ": ", elasticsearch_username);
 				}
 			} else {
 				if (elasticsearch_username == null) {
-					bailOutMissingOption("elasticsearch_username");
+					log.warn("elasticsearch_username not provided but authentication is enabled - using empty string");
+					elasticsearch_username = "";
 				}
 			}
 
@@ -1439,8 +1455,17 @@ public class CwsInstaller {
 				elasticsearch_password = String.valueOf(password);
 			} else {
 				if (elasticsearch_password == null) {
-					bailOutMissingOption("elasticsearch_password");
+					log.warn("elasticsearch_password not provided but authentication is enabled - using empty string");
+					elasticsearch_password = "";
 				}
+			}
+		} else {
+			// Set defaults for username and password when auth is not used
+			if (elasticsearch_username == null) {
+				elasticsearch_username = "";
+			}
+			if (elasticsearch_password == null) {
+				elasticsearch_password = "";
 			}
 		}
 	}
@@ -1797,13 +1822,17 @@ public class CwsInstaller {
 		print("SMTP host                     = " + cws_smtp_hostname);
 		print("SMTP port                     = " + cws_smtp_port);
 		print("....................................................................................");
-		print("Elasticsearch Protocol        = " + elasticsearch_protocol);
-		print("Elasticsearch Host            = " + elasticsearch_host);
-		print("Elasticsearch Index Prefix    = " + elasticsearch_index_prefix);
-        print("Elasticsearch Port            = " + elasticsearch_port);
-		if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
-			print("Elasticsearch User            = " + elasticsearch_username);
-			print("Elasticsearch Password        = ****** (hidden) ");
+		if (elasticsearch_protocol != null && !elasticsearch_protocol.isEmpty()) {
+			print("Elasticsearch Protocol        = " + elasticsearch_protocol);
+			print("Elasticsearch Host            = " + elasticsearch_host);
+			print("Elasticsearch Index Prefix    = " + elasticsearch_index_prefix);
+			print("Elasticsearch Port            = " + elasticsearch_port);
+			if (elasticsearch_use_auth.equalsIgnoreCase("Y")) {
+				print("Elasticsearch User            = " + elasticsearch_username);
+				print("Elasticsearch Password        = ****** (hidden) ");
+			}
+		} else {
+			print("Elasticsearch                 = Not Configured (Optional)");
 		}
 		print("....................................................................................");
 		if (user_provided_logstash.equalsIgnoreCase("Y")) {
@@ -1869,8 +1898,12 @@ public class CwsInstaller {
 			warningCount++;
 		}
 
-		// Check that user provided Elasticsearch service is up and healthy
-		warningCount += validateElasticsearch();
+		// Check that user provided Elasticsearch service is up and healthy (only if configured)
+		if (elasticsearch_protocol != null && !elasticsearch_protocol.isEmpty()) {
+			warningCount += validateElasticsearch();
+		} else {
+			log.info("Elasticsearch not configured - skipping validation");
+		}
 
 		// Check that keystore and truststore is valid, not expired
 		warningCount += validateKeystoreTruststore();
