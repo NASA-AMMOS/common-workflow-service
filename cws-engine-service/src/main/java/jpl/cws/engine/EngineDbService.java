@@ -181,8 +181,8 @@ public class EngineDbService extends DbService implements InitializingBean {
 						numUpdated = jdbcTemplate.update(
 							"INSERT INTO cws_worker" +
 								"   (id, lock_owner, name, install_directory, cws_install_type, cws_worker_type, " +
-								"    status, job_executor_max_pool_size, max_num_running_procs, created_time, last_heartbeat_time) " +
-								"VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+								"    status, job_executor_max_pool_size, max_num_running_procs, created_time, last_heartbeat_time, active_count) " +
+								"VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
 							new Object[]{
 								workerId,
 								lockOwner,
@@ -194,7 +194,8 @@ public class EngineDbService extends DbService implements InitializingBean {
 								maxExecutorServicePoolSize, // changeable later via the UI..
 								workerMaxNumRunningProcs,
 								tsNow, // created_time
-								tsNow  // last_heartbeat_time
+								tsNow,  // last_heartbeat_time
+								0  // active_count should be initialized here as the db scheme defines the default as a NULLABLE int.
 							});
 					} catch (Exception e) {
 						log.error("Problem encountered while inserting row (attempt #" +

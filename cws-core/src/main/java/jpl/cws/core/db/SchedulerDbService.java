@@ -66,6 +66,9 @@ public class SchedulerDbService extends DbService implements InitializingBean {
     public static final int DEFAULT_WORKER_PROC_DEF_MAX_INSTANCES = 1;
     public static final int PROCESSES_PAGE_SIZE = 50;
     
+    // Timeout for orphaned running processes (in seconds) - 4 hours
+    public static final int RUNNING_PROCESS_TIMEOUT = 14400;
+    
     /**
      * Counts the total number of running instances of a process definition across all workers.
      * Used to enforce global process instance limits.
@@ -114,7 +117,7 @@ public class SchedulerDbService extends DbService implements InitializingBean {
     
 
     public static final String FIND_CLAIMABLE_ROWS_SQL =
-            "SELECT uuid, priority FROM cws_sched_worker_proc_inst " +
+            "SELECT uuid, priority, created_time FROM cws_sched_worker_proc_inst " +
                     "WHERE " +
                     "  status='" + PENDING + "' AND " +
                     "  proc_def_key=? " +
@@ -132,6 +135,9 @@ public class SchedulerDbService extends DbService implements InitializingBean {
                     "WHERE " +
                     "  uuid=? AND claim_uuid IS NULL " +
                     "  AND EXISTS (SELECT * FROM cws_worker WHERE id=? AND status='up')";
+
+    public static final String UPDATE_ORPHANED_JOB_ROWS_SQL =
+            "UPDATE cws_proc_inst_status SET status='" + FAIL + "' WHERE status='" + RUNNING + "' AND TIME_TO_SEC(TIMEDIFF(NOW(), start_time)) > " + RUNNING_PROCESS_TIMEOUT;
 
     public static final String INSERT_SCHED_WORKER_PROC_INST_ROW_SQL =
             "INSERT INTO cws_sched_worker_proc_inst " +
@@ -339,7 +345,14 @@ public class SchedulerDbService extends DbService implements InitializingBean {
 
                 unfilteredProcesses.sort(new Comparator<Map<String, Object>>() {
                     public int compare(Map<String, Object> one, Map<String, Object> two) {
-                        return ((Integer) one.get("priority")).compareTo((Integer) two.get("priority"));
+                        int initial_compare = ((Integer) one.get("priority")).compareTo((Integer) two.get("priority"));
+                        if (initial_compare == 0) {
+                            // When priorities are equal, compare by created_time (older first)
+                            Timestamp createdTimeOne = (Timestamp) one.get("created_time");
+                            Timestamp createdTimeTwo = (Timestamp) two.get("created_time");
+                            return createdTimeOne.compareTo(createdTimeTwo);
+                        }
+                        return initial_compare;
                     }
                 });
 
@@ -1233,6 +1246,17 @@ public class SchedulerDbService extends DbService implements InitializingBean {
         }
 
         return ret;
+    }
+
+
+    /**
+     * Updates orphaned running processes that have exceeded the timeout limit.
+     * Marks them as failed to prevent them from running indefinitely.
+     * 
+     * @return Number of processes marked as failed
+     */
+    public int updateRunningProcessesOverLimit() {
+        return jdbcTemplate.update(UPDATE_ORPHANED_JOB_ROWS_SQL);
     }
 
 

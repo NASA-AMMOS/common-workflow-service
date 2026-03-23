@@ -1426,11 +1426,7 @@ public class RestService extends MvcCore {
 			totalCount = dbService.getFilteredProcessInstancesSize(
 					superProcInstId, procInstId, procDefKey, status, minDate, maxDate, allRequestParams);
 
-			// Apply maxReturn limit if needed
 			filteredCount = totalCount;
-			if (intMaxReturn > 0 && intMaxReturn < totalCount) {
-				filteredCount = intMaxReturn;
-			}
 			
 			// Get only the requested page of data
 			instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
