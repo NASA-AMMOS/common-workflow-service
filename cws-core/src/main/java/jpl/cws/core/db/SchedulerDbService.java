@@ -1070,6 +1070,16 @@ public class SchedulerDbService extends DbService implements InitializingBean {
             Map<String, String> allRequestParams
     ) {
         
+        // Validate pagination parameters to prevent SQL syntax errors
+        if (page < 0) {
+            log.warn("Invalid page number: " + page + ". Defaulting to 0.");
+            page = 0;
+        }
+        if (pageSize <= 0) {
+            log.warn("Invalid page size: " + pageSize + ". Defaulting to PROCESSES_PAGE_SIZE (" + PROCESSES_PAGE_SIZE + ").");
+            pageSize = PROCESSES_PAGE_SIZE;
+        }
+        
         List<Object> cwsWhereObjs = new ArrayList<>();
         List<Object> camundaWhereObjs = new ArrayList<>(); // Separate for Camunda specific params
 
