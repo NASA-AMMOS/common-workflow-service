@@ -837,14 +837,14 @@ public class RestService extends MvcCore {
 				restCallResult = WebUtils.restCall(urlString, "GET", null, null, null, "application/json; charset=utf-8");
 			}
 			if (restCallResult.getResponseCode() != 200) {
-				return "ERROR";
+				log.warn("Elasticsearch returned non-200 response code: " + restCallResult.getResponseCode());
+				return "{\"hits\": {\"hits\": []}, \"error\": \"Elasticsearch request failed with code " + restCallResult.getResponseCode() + "\"}";
 			}
 			return restCallResult.getResponse();
 		} catch (Exception e) {
 			log.error("Problem performing REST call to get log data (URL=" + urlString + ")", e);
+			return "{\"hits\": {\"hits\": []}, \"error\": \"Exception: " + e.getMessage() + "\"}";
 		}
-		
-		return "ERROR";
 	}
 	
 	
