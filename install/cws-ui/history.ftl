@@ -336,14 +336,22 @@
 	}
 	
 	function processData(historyData, logData) {
-	
-		const historyRows = buildHistoryRows(historyData[0]);
-		const logRows = buildLogRows(logData[0]);
+		const historyRows = buildHistoryRows(historyData);
 		
-		renderSet(historyRows.concat(logRows));
-		
-		// Get rest of log data (if exists)
-		getMoreLogData(logData[0]._scroll_id);
+		// Check if logData is valid and contains hits (Elasticsearch is enabled)
+		if (logData && logData.hits && logData.hits.hits && logData.hits.hits.length > 0) {
+			const logRows = buildLogRows(logData);
+			renderSet(historyRows.concat(logRows));
+			
+			// Get rest of log data (if exists)
+			getMoreLogData(logData._scroll_id);
+		} else {
+			// Elasticsearch is disabled or no log data available, only show history
+			renderSet(historyRows);
+			$(".ajax-spinner").hide();
+			var table = $("#logData").DataTable();
+			table.draw();
+		}
 	}
 	
 	function processFailed(historyError, logError) {
@@ -352,7 +360,15 @@
 		
 		console.log("Errors", historyError, logError);
 		
-		alert("Error retrieving history data.");
+		// If only log error (Elasticsearch disabled), try to process history data alone
+		if (historyError && historyError.status === 200) {
+			const historyRows = buildHistoryRows(historyError);
+			renderSet(historyRows);
+			var table = $("#logData").DataTable();
+			table.draw();
+		} else {
+			alert("Error retrieving history data.");
+		}
 	}
 
 	function downloadLogCSV() {
@@ -523,9 +539,29 @@
 			
 			esReq.query.bool.must.push({"query_string":{"fields":["procInstId"],"query" : "\"" + decodeURIComponent(params.procInstId) + "\""}});
 			
-			// Get history and log data (first scroll) in parallel
-			$.when( $.getJSON("/${base}/rest/history/" + params.procInstId), 
-					$.getJSON("/${base}/rest/logs/get?source=" + encodeURIComponent(JSON.stringify(esReq))) ).then(processData, processFailed);
+			// Get history data
+			var historyPromise = $.getJSON("/${base}/rest/history/" + params.procInstId);
+			
+			// Get log data (may fail if Elasticsearch is disabled)
+			var logPromise = $.getJSON("/${base}/rest/logs/get?source=" + encodeURIComponent(JSON.stringify(esReq)))
+				.fail(function() {
+					// Silently ignore log errors (Elasticsearch may be disabled)
+					return $.Deferred().resolve(null);
+				});
+			
+			// Process data when both complete (or log fails gracefully)
+			$.when(historyPromise, logPromise).then(
+				function(historyResult, logResult) {
+					// Handle successful responses
+					var historyData = historyResult[0];
+					var logData = logResult ? logResult[0] : null;
+					processData(historyData, logData);
+				},
+				function(historyError, logError) {
+					// Handle errors
+					processFailed(historyError, logError);
+				}
+			);
 			
 			// In case of unknown problems, just hide spinner
 			setTimeout(function() {
@@ -972,46 +1008,50 @@
         dataType: "json",
         async: false,
         success: function(data) {
-	        var finished = false;
-	        scrollId = data._scroll_id;
-	        if (data.hits) {
-	            for (const hit of data.hits.hits) {
-	                const source = hit._source;
-	                const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
-	                logLines.push(row);
-	                
-	            }
-	        }
-	        while (!finished) {
-	            $.ajax({
-	                type: "POST",
-	                url: "/${base}/rest/logs/get/scroll",
-	                data: "scrollId=" + scrollId,
-	                async: false,
-	                success: function(data) {
-	                    if (data.hits) {
-	                        
-	                        if (data.hits.hits.length > 0) {
-	                            for (const hit of data.hits.hits) {
-	                                const source = hit._source;
-	                                const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
-	                                logLines.push(row);
-	                            }
-	                            scrollId = data._scroll_id;
-	                        }
-	                        else {
-	                            finished = true;
-	                        }
-	                    }
-	                },
-	                error: function(e) {
-	                    alert("Error retrieving history data.");
-	                }
-	            });
-	        }
+	        // Check if data is valid (Elasticsearch enabled)
+	        if (data && data.hits) {
+		        var finished = false;
+		        scrollId = data._scroll_id;
+		        if (data.hits) {
+		            for (const hit of data.hits.hits) {
+		                const source = hit._source;
+		                const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
+		                logLines.push(row);
+		                
+		            }
+		        }
+		        while (!finished) {
+		            $.ajax({
+		                type: "POST",
+		                url: "/${base}/rest/logs/get/scroll",
+		                data: "scrollId=" + scrollId,
+		                async: false,
+		                success: function(data) {
+		                    if (data.hits) {
+		                        
+		                        if (data.hits.hits.length > 0) {
+		                            for (const hit of data.hits.hits) {
+		                                const source = hit._source;
+		                                const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
+		                                logLines.push(row);
+		                            }
+		                            scrollId = data._scroll_id;
+		                        }
+		                        else {
+		                            finished = true;
+		                        }
+		                    }
+		                },
+		                error: function(e) {
+		                    console.log("Error retrieving more log data - Elasticsearch may be disabled");
+		                    finished = true;
+		                }
+		            });
+		        }
+		    }
 	    }
     }).fail(function(xhr, err) {
-        console.error("Error getting instance JSON: " + xhr.responseText);
+        console.log("Error getting log data for JSON export - Elasticsearch may be disabled: " + xhr.responseText);
     });
     logLines.sort(function(a, b) {
         var aDate = moment(a[0].trim());
