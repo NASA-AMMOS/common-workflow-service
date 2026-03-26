@@ -1013,10 +1013,18 @@ public class CwsConsoleService {
     public void cleanupElasticsearch() {
 
         try {
+            String cleanupScriptPath = cwsInstallDir + "/clean_es_history.sh";
+            File cleanupScript = new File(cleanupScriptPath);
+
+            // Check if the script exists before attempting to run it
+            if (!cleanupScript.exists()) {
+                log.info("Elasticsearch cleanup script not found at " + cleanupScriptPath + " - skipping cleanup (Elasticsearch may not be configured)");
+                return;
+            }
 
             log.debug("Cleaning up elasticsearch...");
 
-            java.lang.Process p = Runtime.getRuntime().exec(cwsInstallDir + "/clean_es_history.sh");
+            java.lang.Process p = Runtime.getRuntime().exec(cleanupScriptPath);
 
             // Wait for the process to complete
             //

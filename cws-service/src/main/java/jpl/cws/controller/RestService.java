@@ -103,14 +103,14 @@ public class RestService extends MvcCore {
 	@Value("${cws.console.app.root}") private String appRoot;
 	@Value("${cws.install.hostname}") private String hostName;
 
-	@Value("${cws.elasticsearch.protocol}") private String elasticsearchProtocolName;
-	@Value("${cws.elasticsearch.hostname}") private String elasticsearchHostname;
-	@Value("${cws.elasticsearch.index.prefix}") private String elasticsearchIndexPrefix;
-	@Value("${cws.elasticsearch.port}") private String elasticsearchPort;
+	@Value("${cws.elasticsearch.protocol:#{null}}") private String elasticsearchProtocolName;
+	@Value("${cws.elasticsearch.hostname:#{null}}") private String elasticsearchHostname;
+	@Value("${cws.elasticsearch.index.prefix:#{null}}") private String elasticsearchIndexPrefix;
+	@Value("${cws.elasticsearch.port:#{null}}") private String elasticsearchPort;
 
-	@Value("${cws.elasticsearch.use.auth}") private String elasticsearchUseAuth;
-	@Value("${cws.elasticsearch.username}") private String elasticsearchUsername;
-	@Value("${cws.elasticsearch.password}") private String elasticsearchPassword;
+	@Value("${cws.elasticsearch.use.auth:n}") private String elasticsearchUseAuth;
+	@Value("${cws.elasticsearch.username:#{null}}") private String elasticsearchUsername;
+	@Value("${cws.elasticsearch.password:#{null}}") private String elasticsearchPassword;
 
 	public RestService() {
 		log.info("RestService controller initialized with @RequestMapping('/api')");
@@ -459,8 +459,23 @@ public class RestService extends MvcCore {
 	 * @return fully constructed elasticsearch URL string
 	 */
 	private String constructElasticsearchUrl(String subPath) {
+		if (!isElasticsearchConfigured()) {
+			log.warn("Elasticsearch is not configured. Cannot construct URL.");
+			return null;
+		}
 		String urlString = elasticsearchProtocolName + "://" + elasticsearchHostname + ":" + elasticsearchPort + subPath;
 		return urlString;
+	}
+
+	/**
+	 * Check if Elasticsearch is properly configured
+	 *
+	 * @return boolean indicating whether elasticsearch is configured
+	 */
+	private boolean isElasticsearchConfigured() {
+		return elasticsearchProtocolName != null && !elasticsearchProtocolName.isEmpty() &&
+			   elasticsearchHostname != null && !elasticsearchHostname.isEmpty() &&
+			   elasticsearchPort != null && !elasticsearchPort.isEmpty();
 	}
 
 	/**
@@ -468,7 +483,7 @@ public class RestService extends MvcCore {
 	 * @return boolean indicating whether elasticsearch requires authentication
 	 */
 	private Boolean elasticsearchUseAuth() {
-		return elasticsearchUseAuth.equalsIgnoreCase("Y");
+		return elasticsearchUseAuth != null && elasticsearchUseAuth.equalsIgnoreCase("Y");
 	}
 	
 	
@@ -690,6 +705,11 @@ public class RestService extends MvcCore {
 	@RequestMapping(value = "/logs/get/scroll", method = POST, produces="application/json")
 	public @ResponseBody String getLogsScroll(
 			@Parameter(description = "Scroll ID to keep track of already fetched data.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "scrollId") String scrollId) {
+		if (!isElasticsearchConfigured()) {
+			log.warn("Elasticsearch is not configured");
+			return "{\"hits\": {\"hits\": []}, \"error\": \"Elasticsearch is not configured\"}";
+		}
+		
 		String urlString = constructElasticsearchUrl("/_search/scroll");
 		String jsonData = "{ \"scroll\" : \"1m\", \"scroll_id\" : \"" + scrollId + "\" }";
 
@@ -723,6 +743,11 @@ public class RestService extends MvcCore {
 	@Operation(summary = "Gets the total number of log rows.", tags = {"Logs"})
 	@RequestMapping(value="/logs/get/count", method = GET, produces="application/json")
 	public @ResponseBody String getNumLogs() {
+		if (!isElasticsearchConfigured()) {
+			log.warn("Elasticsearch is not configured");
+			return "{\"count\": 0, \"error\": \"Elasticsearch is not configured\"}";
+		}
+		
 		String urlString = constructElasticsearchUrl("/" + elasticsearchIndexPrefix + "-logstash-*/_count");
 		log.trace("REST getNumLogs query = " + urlString);
 
@@ -754,6 +779,11 @@ public class RestService extends MvcCore {
 	@RequestMapping(value = "/logs/get/noScroll", method = GET, produces="application/json")
 	public @ResponseBody String getLogsNoScroll(
 			@Parameter(description = "Source of the logs to get.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "source") String source) {
+		if (!isElasticsearchConfigured()) {
+			log.warn("Elasticsearch is not configured");
+			return "{\"hits\": {\"hits\": []}, \"error\": \"Elasticsearch is not configured\"}";
+		}
+		
 		String urlString = constructElasticsearchUrl("/" + elasticsearchIndexPrefix + "-logstash-*/_search");
 		log.debug("REST logs/get/noScroll query = " + urlString);
 
@@ -789,6 +819,11 @@ public class RestService extends MvcCore {
 	@RequestMapping(value = "/logs/get", method = GET, produces="application/json")
 	public @ResponseBody String getLogs(
 			@Parameter(description = "Source of the logs to get.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "source") String source) {
+		if (!isElasticsearchConfigured()) {
+			log.warn("Elasticsearch is not configured");
+			return "{\"hits\": {\"hits\": []}, \"error\": \"Elasticsearch is not configured\"}";
+		}
+		
 		String urlString = constructElasticsearchUrl("/" + elasticsearchIndexPrefix + "-logstash-*/_search?scroll=5m&source=" + source + "&source_content_type=application/json");
 		log.trace("REST getLogs query = " + urlString);
 		
@@ -823,6 +858,11 @@ public class RestService extends MvcCore {
 			HttpServletResponse response,
 			@Parameter(description = "Process definition key to delete logs for.", required = true, schema = @Schema(type = "string")) @PathVariable String procDefKey
 			) {
+		if (!isElasticsearchConfigured()) {
+			log.warn("Elasticsearch is not configured - cannot delete logs");
+			return "{\"status\": \"SUCCESS\", \"message\": \"Elasticsearch is not configured - no logs to delete\"}";
+		}
+		
 		String urlString = constructElasticsearchUrl("/" + elasticsearchIndexPrefix + "-logstash*/_delete_by_query");
 		log.debug("REST deleteLogsByProcDefKey url = " + urlString);
 		
@@ -907,6 +947,11 @@ public class RestService extends MvcCore {
 	@Operation(summary = "Gets Elasticsearch stats.", tags = {"Elasticsearch"})
 	@RequestMapping(value = "/stats/es/indices", method = GET, produces="application/json")
 	public @ResponseBody String getElasticsearchIndices() {
+		if (!isElasticsearchConfigured()) {
+			log.warn("Elasticsearch is not configured");
+			return "{\"error\": \"Elasticsearch is not configured\"}";
+		}
+		
 		String urlString = constructElasticsearchUrl("/_cat/indices?v&bytes=b&s=index&format=json");
 		
 		log.trace("REST query = " + urlString);
@@ -939,6 +984,11 @@ public class RestService extends MvcCore {
 	@Operation(summary = "Gets Elasticsearch cluster health.", tags = {"Elasticsearch"})
 	@RequestMapping(value = "/stats/es/cluster/health", method = GET, produces="application/json")
 	public @ResponseBody String getElasticsearchClusterHealth() {
+		if (!isElasticsearchConfigured()) {
+			log.warn("Elasticsearch is not configured");
+			return "{\"error\": \"Elasticsearch is not configured\"}";
+		}
+		
 		String urlString = constructElasticsearchUrl("/_cluster/health");
 		
 		log.trace("REST query = " + urlString);
@@ -971,6 +1021,11 @@ public class RestService extends MvcCore {
 	@Operation(summary = "Gets Elasticsearch stats.", tags = {"Elasticsearch"})
 	@RequestMapping(value = "/stats/es", method = GET, produces="application/json")
 	public @ResponseBody String getElasticsearchStats() {
+		if (!isElasticsearchConfigured()) {
+			log.warn("Elasticsearch is not configured");
+			return "{\"error\": \"Elasticsearch is not configured\"}";
+		}
+		
 		String urlString = constructElasticsearchUrl("/_nodes/stats/_all");
 		
 		log.trace("REST query = " + urlString);
