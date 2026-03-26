@@ -272,20 +272,20 @@ public class CwsInstaller {
 			if (!reconfigure && !installConsole) {
 				deleteCwsUiWebApp();
 			}
-		setupDatabase();
-		setIdentityPluginType();
-		setupAdminUser();
-		setupNotificationEmails();
-		setupTokenExpirationHours();
-		setupPorts();
-		getKeystorePassword();
-		setupTaskAssigmentEmails();
-		setupSMTP();
-		// Elasticsearch is now optional - only setup if configured
-		setupElasticsearch();
-		setupLogstash();
-		setupHistoryLevel();
-		setupAws();
+			setupDatabase();
+			setIdentityPluginType();
+			setupAdminUser();
+			setupNotificationEmails();
+			setupTokenExpirationHours();
+			setupPorts();
+			getKeystorePassword();
+			setupTaskAssigmentEmails();
+			setupSMTP();
+			// Elasticsearch is now optional - only setup if configured
+			setupElasticsearch();
+			setupLogstash();
+			setupHistoryLevel();
+			setupAws();
 			if (installConsole) {
 				setupHistoryDaysToLive();
 				setBrandHeader();
