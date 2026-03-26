@@ -3033,12 +3033,13 @@ public class CwsInstaller {
 		content = content.replace("__CWS_DB_PORT__",                     cws_db_port);
 		content = content.replace("__CWS_DB_USERNAME__",                 cws_db_username);
 		content = content.replace("__CWS_DB_PASSWORD__",                 cws_db_password);
-		content = content.replace("__CWS_CONSOLE_SSL_PORT__",            cws_console_ssl_port);
-		content = content.replace("__CWS_ES_PROTOCOL__",                 elasticsearch_protocol);
-		content = content.replace("__CWS_ES_HOST__",                     elasticsearch_host);
-		content = content.replace("__CWS_ES_INDEX_PREFIX__",             elasticsearch_index_prefix);
-		content = content.replace("__CWS_ES_PORT__",                     elasticsearch_port);
-		content = content.replace("__CWS_ES_USE_AUTH__",                 elasticsearch_use_auth);
+	content = content.replace("__CWS_CONSOLE_SSL_PORT__",            cws_console_ssl_port);
+	// Use default values if Elasticsearch was not configured
+	content = content.replace("__CWS_ES_PROTOCOL__",                 elasticsearch_protocol != null ? elasticsearch_protocol : "http");
+	content = content.replace("__CWS_ES_HOST__",                     elasticsearch_host != null ? elasticsearch_host : "localhost");
+	content = content.replace("__CWS_ES_INDEX_PREFIX__",             elasticsearch_index_prefix != null ? elasticsearch_index_prefix : "cws");
+	content = content.replace("__CWS_ES_PORT__",                     elasticsearch_port != null ? elasticsearch_port : "9200");
+	content = content.replace("__CWS_ES_USE_AUTH__",                 elasticsearch_use_auth != null ? elasticsearch_use_auth : "N");
 		content = content.replace("__CWS_ENABLE_CLOUD_AUTOSCALING__",    cws_enable_cloud_autoscaling);
 		content = content.replace("__CWS_CLOUDWATCH_ENDPOINT__",         aws_cloudwatch_endpoint);
 		content = content.replace("__CWS_METRICS_PUBLISHING_INTERVAL__", metrics_publishing_interval);
@@ -3077,13 +3078,17 @@ public class CwsInstaller {
 		content = content.replace("__CWS_HISTORY_LEVEL__",     		     history_level);
 		content = content.replace("__CWS_WORKER_MAX_NUM_RUNNING_PROCS__", worker_max_num_running_procs);
 		content = content.replace("__CWS_WORKER_ABANDONED_DAYS__",		worker_abandoned_days);
-		content = content.replace("__AWS_DEFAULT_REGION__", 				  aws_default_region);
+	content = content.replace("__AWS_DEFAULT_REGION__", 				  aws_default_region);
 
-		// ES auth might not be in use
-		if(elasticsearch_use_auth.equalsIgnoreCase("Y")) {
-			content = content.replace("__CWS_ES_USERNAME__", elasticsearch_username);
-			content = content.replace("__CWS_ES_PASSWORD__", elasticsearch_password);
-		}
+	// ES auth might not be in use - use defaults if not configured
+	if(elasticsearch_use_auth != null && elasticsearch_use_auth.equalsIgnoreCase("Y")) {
+		content = content.replace("__CWS_ES_USERNAME__", elasticsearch_username != null ? elasticsearch_username : "");
+		content = content.replace("__CWS_ES_PASSWORD__", elasticsearch_password != null ? elasticsearch_password : "");
+	} else {
+		// Provide empty defaults when auth is not configured
+		content = content.replace("__CWS_ES_USERNAME__", "");
+		content = content.replace("__CWS_ES_PASSWORD__", "");
+	}
 
 		// S3 Initiator might not be in use
 		if(aws_sqs_dispatcher_sqsUrl != null) {
@@ -3154,7 +3159,9 @@ public class CwsInstaller {
 			Paths.get(cws_tomcat_webapps + SEP + "cws-ui" + SEP + "WEB-INF" + SEP + "applicationContext.xml"));
 
 
-		// Update clean_es_history.sh file
+	// Update clean_es_history.sh file
+	// Only update if Elasticsearch is configured (not skipped)
+	if (elasticsearch_protocol != null) {
 		path = Paths.get(config_work_dir + SEP + "clean_es_history.sh");
 		content = getFileContents(path);
 		content = content.replace("__ES_PROTOCOL__",      			elasticsearch_protocol);
@@ -3174,6 +3181,9 @@ public class CwsInstaller {
 		copy(
 			Paths.get(config_work_dir + SEP + "clean_es_history.sh"),
 			Paths.get(cws_root + SEP + "clean_es_history.sh"));
+	} else {
+		log.info("Elasticsearch not configured - skipping clean_es_history.sh update");
+	}
 
 
 		// UPDATE cws-ui brand name in FTL files
@@ -3378,20 +3388,27 @@ public class CwsInstaller {
 	}
 
 
-	private static void installLogstash() throws IOException {
-		// UNZIP / INSTALL / SETUP  LOGSTASH
-		String logstashZipFilePath = cws_server_root + SEP + "logstash-" + logstash_ver + ".zip";
-		String logstashDestDirectory = cws_server_root;
+private static void installLogstash() throws IOException {
+	// Skip logstash installation if Elasticsearch is not configured
+	if (elasticsearch_protocol == null || elasticsearch_host == null) {
+		log.info("Elasticsearch not configured - skipping Logstash installation");
+		print(" Skipping Logstash installation (Elasticsearch not configured)");
+		return;
+	}
+	
+	// UNZIP / INSTALL / SETUP  LOGSTASH
+	String logstashZipFilePath = cws_server_root + SEP + "logstash-" + logstash_ver + ".zip";
+	String logstashDestDirectory = cws_server_root;
 
-		// Unzip the LogStash archive
-		unzipFile(logstashZipFilePath, logstashDestDirectory);
+	// Unzip the LogStash archive
+	unzipFile(logstashZipFilePath, logstashDestDirectory);
 
-		// Open up permissions of logstash executables
-		openUpPermissions(logstashDestDirectory + SEP + "logstash-" + logstash_ver + SEP + "bin" + SEP + "logstash");
+	// Open up permissions of logstash executables
+	openUpPermissions(logstashDestDirectory + SEP + "logstash-" + logstash_ver + SEP + "bin" + SEP + "logstash");
 
-		// CONFIGURE LOGSTASH CONF TO READ FROM CATALINA.OUT AND CWS.LOG
-		// UPDATE cws-logstash.conf
-		print(" Updating cws-logstash.conf...");
+	// CONFIGURE LOGSTASH CONF TO READ FROM CATALINA.OUT AND CWS.LOG
+	// UPDATE cws-logstash.conf
+	print(" Updating cws-logstash.conf...");
 		Path logstashFilePath = Paths.get(config_work_dir + SEP + "logging" + SEP + "cws-logstash.conf");
 		String logstashContent = getFileContents(logstashFilePath);
 
