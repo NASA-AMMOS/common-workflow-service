@@ -1289,7 +1289,7 @@ public class CwsInstaller {
 		if (cws_installer_mode.equals("interactive")) {
 			if (elasticsearch_protocol == null) {
 				String read_elasticsearch_protocol = readLine("Enter the Elasticsearch protocol (HTTP/HTTPS) or press Enter to skip Elasticsearch setup: ", "");
-				
+
 				// Allow user to skip Elasticsearch setup
 				if (read_elasticsearch_protocol == null || read_elasticsearch_protocol.trim().isEmpty()) {
 					log.info("Elasticsearch setup skipped by user");
@@ -2856,7 +2856,7 @@ public class CwsInstaller {
 		mkDir(cws_root + SEP + "server" + SEP + "artemis" + SEP + "data");
 		mkDir(cws_root + SEP + "server" + SEP + "artemis" + SEP + "log");
 		mkDir(cws_root + SEP + "server" + SEP + "artemis" + SEP + "tmp");
-		
+
 		// Process broker.xml and replace placeholders
 		print(" Processing broker.xml and replacing placeholders...");
 		Path brokerXmlPath = Paths.get(config_work_dir + SEP + "cws-ui" + SEP + "broker.xml");
@@ -2864,7 +2864,7 @@ public class CwsInstaller {
 		brokerContent = brokerContent.replace("__CWS_AMQ_HOST__", cws_amq_host);
 		brokerContent = brokerContent.replace("__CWS_AMQ_PORT__", cws_amq_port);
 		brokerContent = brokerContent.replace("__CWS_ROOT_DIR__", cws_root);
-		
+
 		Path targetBrokerPath = Paths.get(cws_root + SEP + "server" + SEP + "artemis" + SEP + "etc" + SEP + "broker.xml");
 		writeToFile(targetBrokerPath, brokerContent);
 
@@ -3395,7 +3395,7 @@ private static void installLogstash() throws IOException {
 		print(" Skipping Logstash installation (Elasticsearch not configured)");
 		return;
 	}
-	
+
 	// UNZIP / INSTALL / SETUP  LOGSTASH
 	String logstashZipFilePath = cws_server_root + SEP + "logstash-" + logstash_ver + ".zip";
 	String logstashDestDirectory = cws_server_root;

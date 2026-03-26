@@ -95,11 +95,11 @@ public class RestService extends MvcCore {
 	@Autowired private SchedulerDbService dbService;
 	@Autowired private ManagementService managementService;
 	@Autowired private InitiatorsService cwsInitiatorsService;
-	
+
 	@Autowired
 	@Qualifier("jmsProcessInitiatorTemplate")
 	private JmsTemplate jmsProcessInitiatorTemplate;
-	
+
 	@Value("${cws.console.app.root}") private String appRoot;
 	@Value("${cws.install.hostname}") private String hostName;
 
@@ -115,11 +115,11 @@ public class RestService extends MvcCore {
 	public RestService() {
 		log.info("RestService controller initialized with @RequestMapping('/api')");
 	}
-	
-	
+
+
 	/**
 	 * Gets the contents of the initiators XML context file
-	 * 
+	 *
 	 */
 	@Operation(summary="Gets the contents of the initiators XML context file.", tags = {"Initiators"})
 	@RequestMapping(value="/initiators/getXmlContextFile", method=GET)
@@ -132,36 +132,36 @@ public class RestService extends MvcCore {
 			return "error";
 		}
 	}
-	
-	
+
+
 	/**
 	 * Refreshes initiators from XML file
-	 * 
+	 *
 	 */
 	@Operation(summary = "Refreshes initiators from a new XML file.", tags = {"Initiators"})
 	@RequestMapping(value="/initiators/updateInitiatorsContextXml", method=POST)
 	public @ResponseBody String refreshInitiatorsFromXml(HttpServletResponse response,
 			@Parameter(description = "New XML context to update initiators with.", required = true, schema = @Schema(type = "string")) @RequestParam("newXmlContext") String newXmlContext) {
-		
+
 		try {
 			cwsInitiatorsService.updateAndRefreshInitiators(newXmlContext);
 		} catch (Exception e) {
 			log.error("Problem while refreshInitiatorsFromXml()", e);
 			return "ERROR MESSAGE: " + e.getMessage();
 		}
-		
+
 		return "success";
 	}
-	
-	
+
+
 	/**
 	 * Refreshes initiators from current working initiators XML file
-	 * 
+	 *
 	 */
 	@Operation(summary = "Refreshes initiators from current working initiators XML file.", tags = {"Initiators"})
 	@RequestMapping(value="/initiators/loadInitiatorsContextXml", method=POST)
 	public @ResponseBody String refreshInitiatorsFromXml(HttpServletResponse response) {
-		
+
 		try {
 			String xmlContents = cwsInitiatorsService.getCurXmlContextFile();
 			cwsInitiatorsService.updateAndRefreshInitiators(xmlContents);
@@ -169,7 +169,7 @@ public class RestService extends MvcCore {
 			log.error("Problem while loadInitiatorsContextXml()", e);
 			return "ERROR MESSAGE: " + e.getMessage();
 		}
-		
+
 		return "success";
 	}
 
@@ -213,17 +213,17 @@ public class RestService extends MvcCore {
 
 		return "success";
 	}
-	
+
 	/**
 	 * Updates a process initiator's enabled flag.
-	 * 
+	 *
 	 */
 	@Operation(summary = "Updates a process initiator's enabled flag.", tags = {"Initiators"})
 	@RequestMapping(value="/initiators/{initiatorId}/enabled", method=POST)
 	public @ResponseBody ModelAndView setInitiatorEnabled(
 		@Parameter(description = "ID of the initiator to update.", required = true, schema = @Schema(type = "string")) @PathVariable String initiatorId,
 		@Parameter(description = "New enabled status of the initiator.", required = true, schema = @Schema(type = "boolean")) @RequestParam("enabled") boolean enabled) {
-		
+
 		try {
 			if (enabled) {
 				cwsInitiatorsService.enableAndStartInitiator(initiatorId);
@@ -236,7 +236,7 @@ public class RestService extends MvcCore {
 			log.error("A problem occured when setting enabled status to " +enabled, e);
 			return buildModel("initiators", e.getMessage());
 		}
-		
+
 		// Success!
 		return buildModel("login", "updated initiator enabled to " + enabled);
 	}
@@ -258,11 +258,11 @@ public class RestService extends MvcCore {
 		}
 		return buildModel("login", "updated initiator enabled to " + enabled);
 	}
-	
-	
+
+
 	/**
 	 * Gets a process initiator's enabled flag.
-	 * 
+	 *
 	 */
 	@Operation(summary = "Gets a process initiator's enabled flag.", tags = {"Initiators"})
 	@RequestMapping(value="/initiators/{initiatorId}/enabled", method=GET)
@@ -270,7 +270,7 @@ public class RestService extends MvcCore {
 			@Parameter(description = "ID of the initiator to get.", required = true, schema = @Schema(type = "string")) @PathVariable String initiatorId) {
 		try {
 			log.trace("REST::isInitiatorEnabled isInitiatorEnabled + " + initiatorId);
-			CwsProcessInitiator initiator = 
+			CwsProcessInitiator initiator =
 					cwsConsoleService.getProcessInitiatorById(initiatorId);
 			if (initiator == null) {
 				return "ERROR: Could not find an initiator with ID '" + initiatorId + "'";
@@ -310,11 +310,11 @@ public class RestService extends MvcCore {
 		}
 		return null;
 	}
-	
-	
+
+
 	/**
 	 * Returns ModelAndView table body representing the current set of Initiators.
-	 * 
+	 *
 	 */
 	@Operation(summary = "Returns ModelAndView table body representing the current set of Initiators.", tags = {"Initiators"})
 	@RequestMapping(value = "/initiators/getInitiatorsHtmlTable", method = GET)
@@ -334,22 +334,22 @@ public class RestService extends MvcCore {
 		}
 		return mav;
 	}
-	
-	
+
+
 	/**
 	 * Notify confused User to use POST instead of GET
-	 * 
+	 *
 	 */
 	@Operation(summary = "Notify confused User to use POST instead of GET", tags = {"Initiators"}, hidden = true)
 	@RequestMapping(value="/deployments/deployProcessDefinition", method = GET)
 	public @ResponseBody String provideDeployProcessDefinitionInfo() {
 		return "You can upload a file by POSTing to this same URL.";
 	}
-	
-	
+
+
 	/**
 	 * Deploys a new process definition from a filename (for deployment from the modeler)
-	 * 
+	 *
 	 */
 	@Operation(summary = "Deploys a new process definition from a filename (for deployment from the modeler).", tags = {"Deployments"})
 	@RequestMapping(value="/deployments/deployModelerFile", method = POST)
@@ -396,12 +396,12 @@ public class RestService extends MvcCore {
 			f.delete();
 		}
 	}
-	
-	
+
+
 	/**
 	 * Deploys a new process definition via a UI-uploaded file
-	 * @throws IOException 
-	 * 
+	 * @throws IOException
+	 *
 	 */
 	@Operation(summary = "Deploys a new process definition via a UI-uploaded file.", tags = {"Deployments"})
 	@RequestMapping(value="/deployments/deployProcessDefinition", method = POST)
@@ -409,14 +409,14 @@ public class RestService extends MvcCore {
 			@Parameter(description = "File to deploy.", required = true, schema = @Schema(type = "string", format = "binary")) @RequestParam("file") MultipartFile file) {
 		return buildDeploymentsModel(doDeployProcessDefinition(file));
 	}
-	
+
 	/**
 	 * General purpose deployment logic
 	 *
 	 */
 	private String doDeployProcessDefinition(MultipartFile file) {
 		String origFileName = file.getOriginalFilename();
-		
+
 		try {
 			// TODO: validate more things about the uploaded file such as extension
 			if (!file.isEmpty()) {
@@ -430,21 +430,21 @@ public class RestService extends MvcCore {
 				} catch (IOException e1) {
 					return "ERROR: Failed to deploy due to internal error: " + e1.getMessage();
 				}
-				
+
 				String errorMsg = cwsConsoleService.deployProcessDefinitionXmlFile(bpmnFile);
-				
+
 				try { Thread.sleep(500); } catch (InterruptedException e) { ; }
 				if (errorMsg == null) {
-					return "Deployed process definition: "+origFileName + 
+					return "Deployed process definition: "+origFileName +
 						".<br/><br/><small>Newly deployed file can be found at: " + cwsConsoleService.getCwsHome() + "/bpmn/" + origFileName + "</small>";
 				}
 				else {
 					return errorMsg;
 				}
-				
+
 			} else {
 				return "ERROR: You failed to upload '" + origFileName + "' because the file was empty.";
-			}	
+			}
 		} catch (Exception e) {
 			log.error("Unexpected error: ", e);
 			return e.getMessage();
@@ -485,8 +485,8 @@ public class RestService extends MvcCore {
 	private Boolean elasticsearchUseAuth() {
 		return elasticsearchUseAuth != null && elasticsearchUseAuth.equalsIgnoreCase("Y");
 	}
-	
-	
+
+
 	/**
 	 * Undeploys a process definition.
 	 *
@@ -496,7 +496,7 @@ public class RestService extends MvcCore {
 	public @ResponseBody String unDeployProcessDefinition(
 			@Parameter(description = "Key of the process definition to undeploy.", required = true, schema = @Schema(type = "string")) @PathVariable String processDefKey) {
 		try {
-			
+
 			if (!processService.isProcDefKeyDeployed(processDefKey)) {
 				throw new Exception("Not found");
 			}
@@ -506,7 +506,7 @@ public class RestService extends MvcCore {
 			if (processService.isProcDefKeyAcceptingNew(processDefKey)) {
 				throw new Exception("Accepting new");
 			}
-			
+
 			log.info("Undeploying process definition '"+processDefKey+"'...");
 			List<ProcessDefinition> procDefs = repositoryService.createProcessDefinitionQuery().list();
 			for (ProcessDefinition procDef : procDefs) {
@@ -518,15 +518,15 @@ public class RestService extends MvcCore {
 					log.info("About to unregister process application for deployment ID: "+deploymentId+" ("+procDefKey+")...");
 					managementService.unregisterProcessApplication(deploymentId, true);
 					log.info("Unregistered process application for deployment ID: "+deploymentId);
-					
+
 					log.info("About to delete deployment ID: "+deploymentId+" ("+procDefKey+")...");
 					repositoryService.deleteDeployment(deploymentId, true);
 					log.info("Deleted deployment ID: "+deploymentId);
-					
+
 					// Clear process definition from all CWS tables
 					//
 					schedulerDbService.deleteProcessDefinition(procDefKey);
-					
+
 					// Send single to all workers to re-evaluate their process definition list and in-memory data structures
 					cwsConsoleService.sendWorkerConfigChangeTopicMessage();
 				}
@@ -536,10 +536,10 @@ public class RestService extends MvcCore {
 
 			String message = "A problem occurred while trying to undeploy procDefKey: " + processDefKey + " (" + e.getMessage() + ")";
 			log.error(message);
-			
+
 			return new JsonResponse(JsonResponse.Status.FAIL, message).toString();
 		}
-		
+
 		return new JsonResponse(JsonResponse.Status.SUCCESS, "Undeployed procDefKey '" + processDefKey + "'").toString();
 	}
 
@@ -553,13 +553,13 @@ public class RestService extends MvcCore {
 			@Parameter(description = "Priority of the process to schedule.", required = false, schema = @Schema(type = "string")) @RequestParam (value = "processPriority", required=false, defaultValue="default") String processPriority,
 			@Parameter(description = "Variables of the process to schedule.", required = false, schema = @Schema(implementation = MultiValueMap.class)) @RequestParam MultiValueMap<String,String> processVariables
 			) {
-		
+
 		log.info("******* REST (POST) SCHEDULING Process '" + processDefKey + "' " +
 				"with (processVariables="+processVariables+", " +
 				"processBusinessKey=" + processBusinessKey +", " +
 				"initiationKey=" + initiationKey + ", " +
 				"processPriority=" + processPriority + ")...");
-		
+
 		// Get the process priority to use
 		//
 		int priority = 0;
@@ -574,7 +574,7 @@ public class RestService extends MvcCore {
 				return "ERROR: invalid processPriority specified ('" + processPriority + "')";
 			}
 		}
-		
+
 		// Get validated process variables map
 		// (or return error message, if there was a problem)
 		//
@@ -585,7 +585,7 @@ public class RestService extends MvcCore {
 		catch (Exception e) {
 			return e.getMessage();
 		}
-		
+
 		// Schedule the process
 		SchedulerJob schedulerJob = null;
 		try {
@@ -597,27 +597,27 @@ public class RestService extends MvcCore {
 					priority, procVariablesMap, processBusinessKey, initiationKey, "failedToSchedule", e.getMessage());
 			return new GsonBuilder().setPrettyPrinting().create().toJson(schedulerJob);
 		}
-		
+
 		return new GsonBuilder().setPrettyPrinting().create().toJson(schedulerJob);
 	}
-	
+
 	/**
 	 * REST method used to get status information about a process instance
-	 * 
+	 *
 	 */
 	@Operation(summary = "Gets status information about a process instance.", tags = {"Processes"})
 	@RequestMapping(value = "/process-instance/{uuid}/status", method = GET, produces="application/json")
 	public @ResponseBody String getProcessInstanceStatus(
 			@Parameter(description = "UUID of the process instance to get status for.", required = true, schema = @Schema(type = "string")) @PathVariable String uuid,
 			@Parameter(hidden = true) final HttpSession session) {
-		
+
 		log.debug("REST: getProcessInstanceStatus(" + uuid + ")");
-		
+
 		//
 		// TODO: implement detection of history level, and warn user appropriately if
 		//       they don't have enough information to get these results.
 		//
-		
+
 		return cwsConsoleService.getProcInstStatusJson(uuid);
 	}
 
@@ -640,8 +640,8 @@ public class RestService extends MvcCore {
         }
         return ret;
     }
-	
-	
+
+
 	/**
 	 * Returns latest successfully compiled code snippet from DB
 	 */
@@ -650,8 +650,8 @@ public class RestService extends MvcCore {
 	public @ResponseBody String getLatestCodeSnippet() {
 		return cwsConsoleService.getLatestCode();
 	}
-	
-	
+
+
 	/**
 	 * Returns latest code snippet from DB
 	 */
@@ -660,8 +660,8 @@ public class RestService extends MvcCore {
 	public @ResponseBody String getLatestInProgressCodeSnippet() {
 		return cwsConsoleService.getLatestInProgressCode();
 	}
-	
-	
+
+
 	/**
 	 * Saves UI-edited code to the database.
 	 */
@@ -672,21 +672,21 @@ public class RestService extends MvcCore {
 			@Parameter(hidden = true) final HttpSession session) {
 		log.debug("REST: validateAndSaveSnippets");
 		log.trace("REST: validateAndSaveSnippets, code=" + code);
-		
+
 		ModelAndView model = new ModelAndView("snippets");
 		model.addObject("base", appRoot);
-		
+
 		String errors = cwsConsoleService.validateAndPersistCode(code);
 		if (errors != null) {
 			model.addObject("msg", "ERROR: invalid code.  Did not save to database.<br />" + errors);
 			return model;
 		}
-		
+
 		model.addObject("msg", "Saved the snippets");
 		return model;
 	}
-	
-	
+
+
 	/**
 	 * Sends a message to shutdown the entire system, including all remote workers
 	 */
@@ -709,7 +709,7 @@ public class RestService extends MvcCore {
 			log.warn("Elasticsearch is not configured");
 			return "{\"hits\": {\"hits\": []}, \"error\": \"Elasticsearch is not configured\"}";
 		}
-		
+
 		String urlString = constructElasticsearchUrl("/_search/scroll");
 		String jsonData = "{ \"scroll\" : \"1m\", \"scroll_id\" : \"" + scrollId + "\" }";
 
@@ -747,7 +747,7 @@ public class RestService extends MvcCore {
 			log.warn("Elasticsearch is not configured");
 			return "{\"count\": 0, \"error\": \"Elasticsearch is not configured\"}";
 		}
-		
+
 		String urlString = constructElasticsearchUrl("/" + elasticsearchIndexPrefix + "-logstash-*/_count");
 		log.trace("REST getNumLogs query = " + urlString);
 
@@ -783,7 +783,7 @@ public class RestService extends MvcCore {
 			log.warn("Elasticsearch is not configured");
 			return "{\"hits\": {\"hits\": []}, \"error\": \"Elasticsearch is not configured\"}";
 		}
-		
+
 		String urlString = constructElasticsearchUrl("/" + elasticsearchIndexPrefix + "-logstash-*/_search");
 		log.debug("REST logs/get/noScroll query = " + urlString);
 
@@ -813,7 +813,7 @@ public class RestService extends MvcCore {
 
 	/**
 	 * REST method used to get logs
-	 * 
+	 *
 	 */
 	@Operation(summary = "Gets logs.", tags = {"Logs"})
 	@RequestMapping(value = "/logs/get", method = GET, produces="application/json")
@@ -823,10 +823,10 @@ public class RestService extends MvcCore {
 			log.warn("Elasticsearch is not configured");
 			return "{\"hits\": {\"hits\": []}, \"error\": \"Elasticsearch is not configured\"}";
 		}
-		
+
 		String urlString = constructElasticsearchUrl("/" + elasticsearchIndexPrefix + "-logstash-*/_search?scroll=5m&source=" + source + "&source_content_type=application/json");
 		log.trace("REST getLogs query = " + urlString);
-		
+
 		try {
 			RestCallResult restCallResult;
 			if (elasticsearchUseAuth()) {
@@ -846,11 +846,11 @@ public class RestService extends MvcCore {
 			return "{\"hits\": {\"hits\": []}, \"error\": \"Exception: " + e.getMessage() + "\"}";
 		}
 	}
-	
-	
+
+
 	/**
 	 * REST method used to delete logs by procDefKey
-	 * 
+	 *
 	 */
 	@Operation(summary = "Deletes logs by procDefKey.", tags = {"Logs"})
 	@RequestMapping(value = "/logs/delete/{procDefKey}", method = DELETE, produces="application/json")
@@ -862,13 +862,13 @@ public class RestService extends MvcCore {
 			log.warn("Elasticsearch is not configured - cannot delete logs");
 			return "{\"status\": \"SUCCESS\", \"message\": \"Elasticsearch is not configured - no logs to delete\"}";
 		}
-		
+
 		String urlString = constructElasticsearchUrl("/" + elasticsearchIndexPrefix + "-logstash*/_delete_by_query");
 		log.debug("REST deleteLogsByProcDefKey url = " + urlString);
-		
+
 		String data = "{ \"query\": { \"bool\": { \"must\": [ { \"match\": { \"procDefKey\": \"" + procDefKey + "\" } } ] } } }";
 		log.debug("REST deleteLogsByProcDefKey data = " + data);
-		
+
 		try {
 			RestCallResult restCallResult;
 			if (elasticsearchUseAuth()) {
@@ -878,18 +878,18 @@ public class RestService extends MvcCore {
 				// Unauthenticated call
 				restCallResult = WebUtils.restCall(urlString, "POST", data, null, null, "application/json");
 			}
-			
+
 			if (restCallResult.getResponseCode() != 200) {
-				
+
 				throw new Exception(restCallResult.getResponse());
 			}
-			
+
 			String strResponse = "{\"status\": \"SUCCESS\"}";
 
 			return strResponse;
 		}
 		catch (Exception e) {
-			
+
 			String message = "A problem occurred while trying to delete log data (url=" + urlString + ", data=" + data + ", error=" + e.getMessage() + ")";
 			log.error(message, e);
 
@@ -898,9 +898,9 @@ public class RestService extends MvcCore {
 			return strResponse;
 		}
 	}
-	
-	
-	
+
+
+
 	public class GsonUTCDateAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
 		private final DateFormat dateFormat;
@@ -922,11 +922,11 @@ public class RestService extends MvcCore {
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * REST method used to get history (logs + historical data)
-	 * 
+	 *
 	 */
 	@Operation(summary = "Gets history (logs + historical data).", tags = {"History"})
 	@RequestMapping(value = "/history/{procInstId}", method = GET, produces="application/json")
@@ -942,7 +942,7 @@ public class RestService extends MvcCore {
 
 	/**
 	 * REST method used to get Elasticsearch stats
-	 * 
+	 *
 	 */
 	@Operation(summary = "Gets Elasticsearch stats.", tags = {"Elasticsearch"})
 	@RequestMapping(value = "/stats/es/indices", method = GET, produces="application/json")
@@ -951,11 +951,11 @@ public class RestService extends MvcCore {
 			log.warn("Elasticsearch is not configured");
 			return "{\"error\": \"Elasticsearch is not configured\"}";
 		}
-		
+
 		String urlString = constructElasticsearchUrl("/_cat/indices?v&bytes=b&s=index&format=json");
-		
+
 		log.trace("REST query = " + urlString);
-		
+
 		try {
 			RestCallResult restCallResult;
 			if (elasticsearchUseAuth()) {
@@ -972,14 +972,14 @@ public class RestService extends MvcCore {
 		} catch (Exception e) {
 			log.error("Problem performing REST call to get ES stats (URL=" + urlString + ")", e);
 		}
-		
+
 		return "ERROR";
 	}
-	
+
 
 	/**
 	 * REST method used to get Elasticsearch stats
-	 * 
+	 *
 	 */
 	@Operation(summary = "Gets Elasticsearch cluster health.", tags = {"Elasticsearch"})
 	@RequestMapping(value = "/stats/es/cluster/health", method = GET, produces="application/json")
@@ -988,11 +988,11 @@ public class RestService extends MvcCore {
 			log.warn("Elasticsearch is not configured");
 			return "{\"error\": \"Elasticsearch is not configured\"}";
 		}
-		
+
 		String urlString = constructElasticsearchUrl("/_cluster/health");
-		
+
 		log.trace("REST query = " + urlString);
-		
+
 		try {
 			RestCallResult restCallResult;
 			if (elasticsearchUseAuth()) {
@@ -1009,14 +1009,14 @@ public class RestService extends MvcCore {
 		} catch (Exception e) {
 			log.error("Problem performing REST call to get ES stats (URL=" + urlString + ")", e);
 		}
-		
+
 		return "ERROR";
 	}
-	
-	
+
+
 	/**
 	 * REST method used to get Elasticsearch stats
-	 * 
+	 *
 	 */
 	@Operation(summary = "Gets Elasticsearch stats.", tags = {"Elasticsearch"})
 	@RequestMapping(value = "/stats/es", method = GET, produces="application/json")
@@ -1025,11 +1025,11 @@ public class RestService extends MvcCore {
 			log.warn("Elasticsearch is not configured");
 			return "{\"error\": \"Elasticsearch is not configured\"}";
 		}
-		
+
 		String urlString = constructElasticsearchUrl("/_nodes/stats/_all");
-		
+
 		log.trace("REST query = " + urlString);
-		
+
 		try {
 			RestCallResult restCallResult;
 			if (elasticsearchUseAuth()) {
@@ -1046,11 +1046,11 @@ public class RestService extends MvcCore {
 		} catch (Exception e) {
 			log.error("Problem performing REST call to get ES stats (URL=" + urlString + ")", e);
 		}
-		
+
 		return "ERROR";
 	}
-	
-	
+
+
 	/**
 	 * Returns latest system stats (Db size, ES size, Disk space, Log sizes, etc...
 	 */
@@ -1059,21 +1059,21 @@ public class RestService extends MvcCore {
 	public @ResponseBody String getDiskStats(HttpServletResponse response) {
 
 		String errorMsg = "";
-		
+
 		try {
 			DiskUsage diskUsage = cwsConsoleService.getDiskUsage();
 
 			response.setStatus(HttpServletResponse.SC_OK);
-			
+
 			return diskUsage.toString();
-			
+
 		} catch (Exception e) {
 
 			errorMsg = e.getMessage();
 		}
 
 		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		
+
 		return new JsonResponse(Status.FAIL, errorMsg).toString();
 	}
 
@@ -1087,11 +1087,11 @@ public class RestService extends MvcCore {
 	public @ResponseBody Map<String,String> getProcessInstanceStats(
 			@Parameter(description = "Number of hours to get stats for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "lastNumHours", required=false) String lastNumHours
 			) {
-		
+
 		return cwsConsoleService.getProcessInstanceStats(lastNumHours);
 	}
-	
-	
+
+
 	/*
 	* Return JSON key values of process status
 	* e.g. {PD1: {errors:4, pending:3,... },...}
@@ -1102,7 +1102,7 @@ public class RestService extends MvcCore {
 			@Parameter(description = "Number of hours to get stats for.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "lastNumHours", required=false) String lastNumHours
 			) {
 		Map<String,Map<String,String>> ret = new HashMap<String,Map<String,String>>();
-		try {	
+		try {
 
 			ret = cwsConsoleService.getProcessInstanceStatsJSON(lastNumHours);
 		}
@@ -1111,8 +1111,8 @@ public class RestService extends MvcCore {
 		}
 		return ret;
 	}
-	
-	
+
+
 	/*
 	*
 	*
@@ -1121,7 +1121,7 @@ public class RestService extends MvcCore {
 	@RequestMapping(value="/stats/pendingProcessesJSON", method = GET, produces="application/json")
 	public @ResponseBody String getPendingProcessesJSON(HttpServletResponse response) {
 		JsonArray json = new JsonArray();
-		
+
 		try {
 			json = cwsConsoleService.getPendingProcessesJSON();
 		}
@@ -1129,32 +1129,32 @@ public class RestService extends MvcCore {
 			log.error("Issue getting pending processes", e);
 
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			
+
 			return new JsonResponse(JsonResponse.Status.FAIL, e.getMessage()).toString();
 		}
 
 		response.setStatus(HttpServletResponse.SC_OK);
-		
+
 		return json.toString();
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 * FIXME: This can result in double-counting (e.g. a running task has an external task as well)
 	 */
 	@Operation(summary = "Gets number of running processes for each worker.", tags = {"Workers"})
 	@RequestMapping(value="/stats/workerNumRunningProcs", method = GET)
 	public @ResponseBody Map<String,String> getWorkerNumRunningProcs() {
-		
+
 		Map<String, String> procs = cwsConsoleService.getWorkerNumRunningProcs();
 
 		for (String workerId : procs.keySet()) {
 			int count = Integer.parseInt(procs.get(workerId));
-			
+
 			// Get number of external tasks locked for this worker
 			int numLocked = (int)externalTaskService.createExternalTaskQuery().workerId(workerId).locked().count();
-			
+
 			// For now just add them together
 			int total = count + numLocked;
 
@@ -1163,10 +1163,10 @@ public class RestService extends MvcCore {
 
 		return procs;
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 * FIXME:  remove processVariables parameter below -- I don't think it's used
 	 */
 	@Operation(summary = "Update the number of process definitions a worker can be working on at any given time.", tags = {"Workers"})
@@ -1177,9 +1177,9 @@ public class RestService extends MvcCore {
 			@Parameter(description = "Key of the process definition to update.", required = true, schema = @Schema(type = "string")) @PathVariable String procDefKey,
 			@Parameter(description = "New limit for the worker.", required = true, schema = @Schema(type = "string")) @PathVariable String newLimit,
 			@Parameter(description = "Process variables to update.", required = false, schema = @Schema(implementation = MultiValueMap.class)) @RequestParam MultiValueMap<String,String> processVariables) {
-		
+
 		log.info("*** REST CALL ***  updateWorkerProcDefLimit (workerId='"+workerId+"', procDefKey='"+procDefKey+"', newLimit='"+newLimit+"')...");
-		
+
 		try {
 			dbService.updateWorkerProcDefLimit(workerId, procDefKey, Integer.parseInt(newLimit));
 		} catch (NumberFormatException e) {
@@ -1189,9 +1189,9 @@ public class RestService extends MvcCore {
 			log.error("Unexpected error", e);
 			return "fail";
 		}
-		
+
 		cwsConsoleService.sendWorkerConfigChangeTopicMessage();
-		
+
 		return "success";
 	}
 
@@ -1226,23 +1226,23 @@ public class RestService extends MvcCore {
 
 	/**
 	 * Checks if procDefKey is deployed (exists)
-	 * 
+	 *
 	 */
 	@Operation(summary = "Checks if process definition key is deployed.", tags = {"Processes"})
 	@RequestMapping(value = "/isProcDefKeyDeployed", method = POST)
 	public @ResponseBody String isProcDefKeyDeployed(
 			@Parameter(description = "Key of the process definition to check.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "procDefKey", required=true) String procDefKey) {
-		
+
 		log.trace("isProcDefKeyDeployed... (procDefKey="+procDefKey+")");
 
 		boolean isValid = processService.isProcDefKeyDeployed(procDefKey);
-		
+
 		log.trace("/isProcDefKeyDeployed returning " + isValid);
 
 		return isValid+"";
 	}
-	
-	
+
+
 	/**
 	* Get list of all workers with active status for the process
 	*/
@@ -1251,10 +1251,10 @@ public class RestService extends MvcCore {
 	public @ResponseBody String getWorkersForProc(@Parameter(description = "Process definition key to get workers for.", required = true, schema = @Schema(type = "string")) @PathVariable String procDefKey) {
 
 		List<Map<String,Object>> procWorkers = dbService.getWorkersForProcDefKey(procDefKey);
-		
+
 		return new GsonBuilder().setPrettyPrinting().create().toJson(procWorkers);
 	}
-	
+
 
 	/**
 	* Add new external worker
@@ -1266,15 +1266,15 @@ public class RestService extends MvcCore {
 
 		String workerId = UUID.randomUUID().toString();
 		String workerName = dbService.createExternalWorkerRow(workerId, hostname);
-		
+
 		Map<String, Object> output = new HashMap<String, Object>();
-		
+
 		output.put("workerId",  workerId);
 		output.put("workerName", workerName);
 
 		return new GsonBuilder().setPrettyPrinting().create().toJson(output);
 	}
-	
+
 	/**
 	* Update external worker heartbeat
 	*/
@@ -1284,7 +1284,7 @@ public class RestService extends MvcCore {
 
 		dbService.updateExternalWorkerHeartbeat(workerId);
 	}
-	
+
 	@Operation(summary = "Updates external worker.", tags = {"Workers"})
 	@RequestMapping(value = "/externalWorker/{workerId}/update", method = POST)
 	public @ResponseBody String updateExternalWorker(
@@ -1293,20 +1293,20 @@ public class RestService extends MvcCore {
 			@Parameter(description = "Current topic of the worker to update.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "currentTopic", required=false) String currentTopic,
 			@Parameter(description = "Current command of the worker to update.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "currentCommand", required=false) String currentCommand,
 			@Parameter(description = "Current working directory of the worker to update.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "currentWorkingDir", required=false) String currentWorkingDir) {
-		
+
 		try {
 			if (activeTopics != null) {
 				dbService.updateExternalWorkerActiveTopics(workerId, activeTopics);
 			}
-			
+
 			if (currentTopic != null) {
 				dbService.updateExternalWorkerCurrentTopic(workerId, currentTopic);
 			}
-			
+
 			if (currentCommand != null) {
 				dbService.updateExternalWorkerCurrentCommand(workerId, currentCommand);
 			}
-			
+
 			if (currentWorkingDir != null) {
 				dbService.updateExternalWorkerCurrentWorkingDir(workerId, currentWorkingDir);
 			}
@@ -1314,13 +1314,13 @@ public class RestService extends MvcCore {
 			log.error("Unexpected error", e);
 			return "fail";
 		}
-		
+
 		return "success";
 	}
-	
+
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	@Operation(summary = "Gets the size of an instance", tags = {"Processes"})
 	@RequestMapping(value = "/processes/getInstancesSize", method = GET, produces="application/json")
@@ -1338,7 +1338,7 @@ public class RestService extends MvcCore {
 				"', procInstId='" + procInstId +
 				"', procDefKey='"+procDefKey+
 				"', status='"+status+"', minDate="+minDate+", maxDate="+maxDate);
-		
+
 		int size = 0;
 		try {
 			size = dbService.getFilteredProcessInstancesSize(
@@ -1365,10 +1365,10 @@ public class RestService extends MvcCore {
 			return instances.get(0).getStatus();
 		}
 	}
-	
+
 	/**
 	 * REST method used to get Processes table JSON
-	 * 
+	 *
 	 */
 	@Operation(summary = "Gets camunda instances.", tags = {"Processes"})
 	@RequestMapping(value = "/processes/getInstancesCamunda", method = GET, produces="application/json")
@@ -1388,16 +1388,16 @@ public class RestService extends MvcCore {
 			@Parameter(description = "Maximum number of results to return.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "maxReturn", required=false, defaultValue="-1") String maxReturn,
 			@Parameter(description = "Additional request parameters for SearchBuilder.", required = false, schema = @Schema(implementation = Map.class)) @RequestParam Map<String, String> allRequestParams // Handle SearchBuilder
 			) {
-		
+
 		List<CwsProcessInstance> instances = null;
 		Map<String, Object> response = new HashMap<>();
 		int totalCount = 0; // Initialize totalCount
 		int filteredCount = 0; // Initialize filteredCount
-		
+
 		try {
 			Integer pageNum = 0;
 			Integer pageSizeNum = Integer.parseInt(pageSize);
-			
+
 			// Support for both paging mechanisms
 			if (start != null && length != null) {
 				// DataTables style pagination
@@ -1407,7 +1407,7 @@ public class RestService extends MvcCore {
 				// Regular pagination
 				pageNum = Integer.parseInt(page);
 			}
-			
+
 			Integer intMaxReturn = Integer.parseInt(maxReturn);
 
 			dateOrderBy = dateOrderBy.toUpperCase();
@@ -1415,7 +1415,7 @@ public class RestService extends MvcCore {
 				log.error("Invalid dateOrderBy of " + dateOrderBy + "!  Forcing to be 'DESC'");
 				dateOrderBy = "DESC";
 			}
-			
+
 			log.debug("REST: getProcessInstances (superProcInstId='" + superProcInstId +
 					"', procInstId='" + procInstId +
 					"', procDefKey='"+procDefKey+
@@ -1431,10 +1431,10 @@ public class RestService extends MvcCore {
 			if (intMaxReturn > 0 && intMaxReturn < totalCount) {
 				filteredCount = intMaxReturn;
 			}
-			
+
 			// Get only the requested page of data
 			instances = cwsConsoleService.getFilteredProcessInstancesCamunda(
-					superProcInstId, procInstId, procDefKey, status, minDate, maxDate, 
+					superProcInstId, procInstId, procDefKey, status, minDate, maxDate,
 					dateOrderBy, pageNum, pageSizeNum, allRequestParams);
 
 			// Format response based on whether DataTables format is requested
@@ -1465,61 +1465,61 @@ public class RestService extends MvcCore {
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	* List of all process definitions and number of workers selected for each
 	*/
 	@Operation(summary = "Gets process definitions and number of workers selected for each.", tags = {"Processes"})
 	@RequestMapping(value="/processes/getProcDefWorkerCount", method = GET)
 	public @ResponseBody String getProcDefWorkerCount() {
-		
+
 		List<Map<String,Object>> procWorkers = dbService.getProcDefWorkerCount();
-		
+
 		return new GsonBuilder().setPrettyPrinting().create().toJson(procWorkers);
 	}
-	
-	
+
+
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	@Operation(summary = "Makes disabled processes pending", tags = {"Processes"})
 	@RequestMapping(value = "/processes/makeDisabledRowsPending", method = POST)
 	public @ResponseBody String makeDisabledRowsPending(
 			@Parameter(hidden = true) final HttpSession session,
 			@Parameter(description = "UUIDs of the processes to make pending.", required = true, schema = @Schema(implementation = List.class)) @RequestBody List<String> uuids) {
-		
+
 		log.info("*** REST CALL ***  /processes/makeDisabledRowsPending ... " + uuids.size());
-		
+
 		int numRowsTransitioned = 0;
 		try {
-			numRowsTransitioned = 
+			numRowsTransitioned =
 				dbService.changeSchedWorkerProcInstRowStatus("disabled", "pending", uuids);
 		} catch (Exception e) {
 			log.error("Problem while transitioning 'disabled' rows to 'pending' in DB", e);
 		}
-		
+
 		log.debug("*** REST CALL *** returning " + numRowsTransitioned);
 		return "{ \"status\" : \"success\", \"message\" : \"Updated " + numRowsTransitioned + " rows.\"}";
 	}
-	
-	
+
+
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	@Operation(summary = "Makes pending processes disabled", tags = {"Processes"})
 	@RequestMapping(value = "/processes/makePendingRowsDisabled", method = POST)
 	public @ResponseBody String makePendingRowsDisabled(
 			@Parameter(hidden = true) final HttpSession session,
 			@Parameter(description = "UUIDs of the processes to make disabled.", required = true, schema = @Schema(implementation = List.class)) @RequestBody List<String> uuids) {
-		
+
 		log.info("*** REST CALL ***  /processes/makePendingRowsDisabled ... " + uuids.size());
-		
+
 		int numRowsTransitioned = 0;
 		try {
-			numRowsTransitioned = 
+			numRowsTransitioned =
 				dbService.changeSchedWorkerProcInstRowStatus("pending", "disabled", uuids);
 		} catch (Exception e) {
 			log.error("Problem while transitioning 'pending' rows to 'disabled' in DB", e);
@@ -1606,10 +1606,10 @@ public class RestService extends MvcCore {
 		log.debug("*** REST CALL *** returning " + numRowsUpdated);
 		return ResponseEntity.ok("{ \"status\" : \"success\", \"message\" : \"Updated " + numRowsUpdated + " rows.\"}");
 	}
-	
+
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	@Operation(summary = "Updates the enabled/disabled status of a process definition on a worker", tags = {"Processes", "Workers"})
 	@RequestMapping(value = "/worker/{workerId}/{procDefKey}/updateWorkerProcDefEnabled/{enabledFlag}", method = POST)
@@ -1619,9 +1619,9 @@ public class RestService extends MvcCore {
 			@Parameter(description = "Key of the process definition to update.", required = true, schema = @Schema(type = "string")) @PathVariable String procDefKey,
 			@Parameter(description = "Flag to set the process definition to.", required = true, schema = @Schema(type = "string")) @PathVariable String enabledFlag,
 			@Parameter(description = "Process variables to update.", required = false, schema = @Schema(implementation = MultiValueMap.class)) @RequestParam MultiValueMap<String,String> processVariables) {
-		
+
 		log.info("*** REST CALL ***  updateWorkerProcDefEnabled (workerId='"+workerId+"', procDefKey='"+procDefKey+"', enabledFlag='"+enabledFlag+"')...");
-		
+
 		try {
 			dbService.updateWorkerProcDefEnabled(workerId, procDefKey,
 					processService.getDeploymentIdForProcDef(procDefKey),
@@ -1632,7 +1632,7 @@ public class RestService extends MvcCore {
 		}
 
 		cwsConsoleService.sendWorkerConfigChangeTopicMessage();
-		
+
 		return "success";
 	}
 
@@ -1678,8 +1678,8 @@ public class RestService extends MvcCore {
 	}
 
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	@Operation(summary = "Updates the number of job executor threads for a worker", tags = {"Workers"})
 	@RequestMapping(value = "/worker/{workerId}/updateNumJobExecThreads/{numThreads}", method = POST)
@@ -1687,15 +1687,15 @@ public class RestService extends MvcCore {
 			@Parameter(hidden = true) final HttpSession session,
 			@Parameter(description = "ID of the worker to update.", required = true, schema = @Schema(type = "string")) @PathVariable String workerId,
 			@Parameter(description = "Number of threads to set for the worker.", required = true, schema = @Schema(type = "string")) @PathVariable String numThreads) {
-		
+
 		log.info("*** REST CALL ***  updateWorkerNumJobExecThreads (workerId='"+workerId+"', numThreads='"+numThreads+"')...");
-		
+
 		try {
 			int numThreadsInt = Integer.parseInt(numThreads);
-			
+
 			int cores = Runtime.getRuntime().availableProcessors();
 			int maxRange = cores * 2;
-			
+
 			// Validate range
 			if (numThreadsInt < 3 || numThreadsInt > maxRange) {
 				log.warn("UI-VALUE-ERROR: numThreads (" + numThreadsInt + ") outside of allowable range (3 - " + maxRange + ")");
@@ -1711,23 +1711,23 @@ public class RestService extends MvcCore {
 			log.error("Unexpected error", e);
 			return "update failed";
 		}
-		
+
 		// Send out topic message, so worker can be notified,
 		// and make change to its configuration
 		//
 		cwsConsoleService.sendWorkerConfigChangeTopicMessage();
-		
+
 		return "success";
 	}
-	
-	
+
+
 	/**
 	 * Authenticates the User, as this passes through CWS security.
 	 * Depending on the security scheme CWS is using,
 	 * a cookie may be set in the response.
-	 * 
+	 *
 	 * This cookie, can then be used to make future requests.
-	 * 
+	 *
 	 */
 	@Operation(summary = "Authenticates the user via GET.", tags = {"Security"})
 	@RequestMapping(value="/authenticate", method = GET)
@@ -1736,15 +1736,15 @@ public class RestService extends MvcCore {
 		log.debug("/authenticate call got through CWS security!");
 		return "{\"status\" : \"SUCCESS\", \"session\" : \"" + session.getId() + "\"}";
 	}
-	
-	
+
+
 	/**
 	 * Authenticates the User, as this passes through CWS security.
 	 * Depending on the security scheme CWS is using,
 	 * a cookie may be set in the response.
-	 * 
+	 *
 	 * This cookie, can then be used to make future requests.
-	 * 
+	 *
 	 */
 	@Operation(summary = "Authenticates the user via POST.", tags = {"Security"})
 	@RequestMapping(value = "/authenticate", method = POST)
@@ -1754,11 +1754,11 @@ public class RestService extends MvcCore {
 		log.debug("/authenticate call got through CWS security!");
 		return "{\"status\" : \"SUCCESS\", \"session\" : \"" + session.getId() + "\"}";
 	}
-	
-	
+
+
 	/**
 	 * Validates CWS token (checks for expiration)
-	 * 
+	 *
 	 */
 	@Operation(summary = "Validates CWS token.", tags = {"Security"})
 	@RequestMapping(value = "/validateCwsToken", method = POST)
@@ -1774,11 +1774,11 @@ public class RestService extends MvcCore {
 		}
 		return isValid+"";
 	}
-	
-	
+
+
 	/**
 	 * For testing purposes - if you want to send messages to the built-in ActiveMQ broker
-	 * 
+	 *
 	 */
 	@Operation(summary = "Posts a message to an AMQ queue.", tags = {"Messaging"})
 	@RequestMapping(value = "/postAmqTopic", method = GET)
@@ -1793,12 +1793,12 @@ public class RestService extends MvcCore {
 		});
 		return "posted to topic with content " + payload;
 	}
-	
-	
+
+
 	/**
 	 * Utility method so that authenticated client (for example a project web page)
 	 * can make a call to get data from an external resource.
-	 * 
+	 *
 	 */
 	@Operation(summary = "Makes an external HTTP GET request.", tags = {"External"})
 	@RequestMapping(value = "/externalGetReq", method = GET)
@@ -1806,7 +1806,7 @@ public class RestService extends MvcCore {
 			@Parameter(description = "URL to make the GET request to.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "url", required=true) final String url,
 			@Parameter(description = "Accept type for the request.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "acceptType", required=false) final String acceptType) {
 		log.debug("making external HTTP GET (acceptType=" + acceptType + ") request with URL: " + url);
-		
+
 		RestCallResult restCallResult = null;
 		try {
 			restCallResult = WebUtils.restCall(url, "GET", null, null, acceptType, null);
@@ -1819,14 +1819,14 @@ public class RestService extends MvcCore {
 		}
 		return restCallResult.getResponse();
 	}
-	
-	
+
+
 	/**
 	 * Utility method so that authenticated client (for example a project web page)
 	 * can make a REST POST call to an external resource.
-	 * 
+	 *
 	 * This call expects a parameter with a key of 'data' that holds the POST data body.
-	 * 
+	 *
 	 */
 	@Operation(summary = "Makes an external HTTP POST request.", tags = {"External"})
 	@RequestMapping(value = "/externalPostReq", method = POST)
@@ -1834,10 +1834,10 @@ public class RestService extends MvcCore {
 			HttpServletRequest request,
 			@Parameter(description = "URL to make the POST request to.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "url", required=true) final String url,
 			@Parameter(description = "Content type for the request.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "contentType", required=false) final String contentType) {
-		
+
 		String postPayload = request.getParameter("data");
 		log.debug("making external HTTP POST request with URL=" + url + ", contentType="+contentType+", and postPayload=" + postPayload);
-		
+
 		RestCallResult restCallResult = null;
 		try {
 			restCallResult = WebUtils.restCall(url, "POST", postPayload, null, null, contentType);
@@ -1851,14 +1851,14 @@ public class RestService extends MvcCore {
 		}
 		return restCallResult.getResponse();
 	}
-	
-	
+
+
 	/**
 	 * Utility method so that authenticated client (for example a project web page)
 	 * can make a REST PUT call to an external resource.
-	 * 
+	 *
 	 * This call expects a parameter with a key of 'data' that holds the PUT data body.
-	 * 
+	 *
 	 */
 	@Operation(summary = "Makes an external HTTP PUT request.", tags = {"External"})
 	@RequestMapping(value = "/externalPutReq", method = PUT)
@@ -1867,9 +1867,9 @@ public class RestService extends MvcCore {
 			@Parameter(description = "URL to make the PUT request to.", required = true, schema = @Schema(type = "string")) @RequestParam(value = "url", required=true) final String url,
 			@Parameter(description = "Content type for the request.", required = false, schema = @Schema(type = "string")) @RequestParam(value = "contentType", required=false) final String contentType,
 			@Parameter(description = "Payload to post to the queue.", required = true, schema = @Schema(type = "string")) @RequestBody String payload) {
-		
+
 		log.debug("making external HTTP PUT request with URL=" + url + ", contentType="+contentType+", and payload=" + payload);
-		
+
 		RestCallResult restCallResult = null;
 		try {
 			restCallResult = WebUtils.restCall(url, "PUT", payload, null, null, contentType);

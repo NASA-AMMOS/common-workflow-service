@@ -33,22 +33,22 @@
 	var isDataTablesInit = 0;
 	var params;
 	var FETCH_COUNT = 20;		// 20 seems to make for fastest load times
-	
+
 	var baseEsReq = {
 		"from": 0,
 		"size": FETCH_COUNT,
-		"query": { 
+		"query": {
 			"bool": {
 				"must" :[]
 			}
 		},
 		"sort": { "@timestamp": { "order": "asc" } }
 	};
-	
+
 	function renderSet(rows) {
 
 		var table = $("#logData").DataTable();
-	
+
 		for (var i = 0; i < rows.length; i++) {
 			table.row.add($(rows[i]));
 		}
@@ -75,7 +75,7 @@
 		}, 2000);
 		console.log("fire");
 	});
-		
+
 	function getMoreLogData(scrollId) {
 
 		$.ajax({
@@ -84,9 +84,9 @@
 			data: "scrollId=" + scrollId,
 			success: function(data) {
 				if (data.hits) {
-					
+
 					if (data.hits.hits.length > 0) {
-					
+
 						const tableRows = buildLogRows(data);
 
 						renderSet(tableRows);
@@ -102,23 +102,23 @@
 						var table = $("#logData").DataTable();
 
 						table.draw();
-					
+
 					}
-					
+
 				} // end if (data.hits)
 			},
 			error: function(e) {
 				$(".ajax-spinner").hide();
-				
+
 				alert("Error retrieving history data.");
 			}
 		});
 	}
 
 	function buildLogRows(data) {
-	
+
 		let tableRows = [];
-		
+
 		if (data.hits) {
 
 			for (const hit of data.hits.hits) {
@@ -129,23 +129,23 @@
 							"<td>Log</td>"+
 							"<td>"+ source.actInstId.split(':')[0] + "</td>"+
 							"<td><p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p></td></tr>";
-				
+
 				tableRows.push(row);
-				
+
 			} // end for each theLogData
 
 		} // end if (data.hits)
-		
+
 		return tableRows;
 	}
-	
+
 	function convertMillis(millis) {
 
  	    var x = millis / 1000
 	    var seconds = Math.floor(x % 60)
 	    x /= 60
 	    var minutes = Math.floor(x)
-		
+
 		if (minutes === 0)
 			return millis / 1000 + " sec";
 
@@ -215,28 +215,28 @@
 	}
 
 	function buildHistoryRows(data) {
-	
+
 		let tableRows = [];
 		let inputVarRows = [];
-		
+
 		if (data.details) {
-					
+
 			for (const entry of data.details) {
-				
+
 				let date = entry["date"];
-				
+
 				if (entry["message"].startsWith("Ended ")) {
 					date += " ";
 				}
-				
+
 				const row = "<tr><td>"+ date + "</td>" +
 							"<td>"+ entry["type"] + "</td>"+
 							"<td>"+ entry["activity"] + "</td>"+
 							"<td>"+ outputMessage(entry["message"]) + "</td></tr>";
-						
+
 				tableRows.push(row);
 			}
-	
+
 			$('#procDefKey').html(data.procDefKey);
 			$('#procInstId').html(`<div class="procInstId-cell">` + data.procInstId + `</div>`);
 			var momentStart;
@@ -256,7 +256,7 @@
 			if (data.duration !== 0) {
 				$('#procDuration').html(convertMillis(data.duration));
 			}
-			
+
 			$.ajax({
 			type: "GET",
 			url: "/${base}/rest/history/getStatus/" + data.procInstId,
@@ -331,18 +331,18 @@
 
 		setInputVariableTable(data.inputVariables);
 		setOutputVariableTable(data.outputVariables);
-		
+
 		return tableRows;
 	}
-	
+
 	function processData(historyData, logData) {
 		const historyRows = buildHistoryRows(historyData);
-		
+
 		// Check if logData is valid and contains hits (Elasticsearch is enabled)
 		if (logData && logData.hits && logData.hits.hits && logData.hits.hits.length > 0) {
 			const logRows = buildLogRows(logData);
 			renderSet(historyRows.concat(logRows));
-			
+
 			// Get rest of log data (if exists)
 			getMoreLogData(logData._scroll_id);
 		} else {
@@ -353,13 +353,13 @@
 			table.draw();
 		}
 	}
-	
+
 	function processFailed(historyError, logError) {
-	
+
 		$(".ajax-spinner").hide();
-		
+
 		console.log("Errors", historyError, logError);
-		
+
 		// If only log error (Elasticsearch disabled), try to process history data alone
 		if (historyError && historyError.status === 200) {
 			const historyRows = buildHistoryRows(historyError);
@@ -489,9 +489,9 @@
 			console.err(xhr.responseTextmsg.message);
 		});
 	}
-	
+
 	$( document ).ready(function() {
-		
+
 		$("#logData").DataTable({
 			order: [[0, 'asc']],
 			paging: false,
@@ -532,23 +532,23 @@
 		params = getQueryString();
 
 		if (params && params.procInstId) {
-		
+
 			let esReq = baseEsReq;
-		
+
 			$(".ajax-spinner").show();
-			
+
 			esReq.query.bool.must.push({"query_string":{"fields":["procInstId"],"query" : "\"" + decodeURIComponent(params.procInstId) + "\""}});
-			
+
 			// Get history data
 			var historyPromise = $.getJSON("/${base}/rest/history/" + params.procInstId);
-			
+
 			// Get log data (may fail if Elasticsearch is disabled)
 			var logPromise = $.getJSON("/${base}/rest/logs/get?source=" + encodeURIComponent(JSON.stringify(esReq)))
 				.fail(function() {
 					// Silently ignore log errors (Elasticsearch may be disabled)
 					return $.Deferred().resolve(null);
 				});
-			
+
 			// Process data when both complete (or log fails gracefully)
 			$.when(historyPromise, logPromise).then(
 				function(historyResult, logResult) {
@@ -562,7 +562,7 @@
 					processFailed(historyError, logError);
 				}
 			);
-			
+
 			// In case of unknown problems, just hide spinner
 			setTimeout(function() {
 				$(".ajax-spinner").hide();
@@ -738,7 +738,7 @@
 					var tempVal = data[fullKeysInOrder[key]];
 					var tempKey = fullKeysInOrder[key].substring(7);
 					if (tempKey.includes("(file, image")) {
-						tempKey = tempKey.replace("file, ", "");	
+						tempKey = tempKey.replace("file, ", "");
 						temp = `<div class="proc-var-flex-main">`
 						+ `<div class="proc-var-flex-main-sub-1">`
 						+ `<div class="proc-var-flex-main-sub-2"><b>` + tempKey + `: </b></div>`
@@ -951,7 +951,7 @@
     var baseEsReq = {
         "from": 0,
         "size": 20,
-        "query": { 
+        "query": {
             "bool": {
                 "must" :[]
             }
@@ -1017,7 +1017,7 @@
 		                const source = hit._source;
 		                const row = [source["@timestamp"], "Log", source.actInstId.split(':')[0], "<p>" + source.msgBody.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br/>") + "</p>"];
 		                logLines.push(row);
-		                
+
 		            }
 		        }
 		        while (!finished) {
@@ -1028,7 +1028,7 @@
 		                async: false,
 		                success: function(data) {
 		                    if (data.hits) {
-		                        
+
 		                        if (data.hits.hits.length > 0) {
 		                            for (const hit of data.hits.hits) {
 		                                const source = hit._source;
@@ -1206,14 +1206,14 @@ function convertMillis(millis) {
     var seconds = Math.floor(x % 60)
     x /= 60
     var minutes = Math.floor(x)
-    
+
     if (minutes === 0)
         return millis / 1000 + " sec";
 
     return minutes + " min " + seconds + " sec"
 }
 	</script>
-	
+
 
 	<!-- Just for debugging purposes. Don't actually copy this line! -->
 	<!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -1230,7 +1230,7 @@ function convertMillis(millis) {
 	<#include "navbar.ftl">
 
 	<div class="container-fluid" style="max-width: 100%; margin: 25px auto; padding: 0 20px;">
-		
+
 		<h2 class="sub-header">History</h2>
 		<div class="row">
 			<table align="center" class="table" style="width: 50%; font-size: 14px; margin-top: 15px;">
@@ -1290,7 +1290,7 @@ function convertMillis(millis) {
         </div>
       </div>
 		</div>
-	
+
 		<div class="row">
 			<div class="ajax-spinner"></div>
 		</div>
