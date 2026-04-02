@@ -38,7 +38,9 @@ public class WorkerHeartbeatDaemon extends Thread {
         setDaemon(true);  // ensures JVM can exit even if this thread is running
     }
 
-    @PostConstruct
+    // NOTE: @PostConstruct removed to prevent auto-start
+    // This daemon must be started AFTER WorkerDaemon and WorkerExternalTaskLockDaemon
+    // to avoid race condition where it checks for daemons before they've started
     public void startDaemon() {
         log = cwsWorkerLoggerFactory.getLogger(this.getClass());
         log.info("Starting WorkerHeartbeatDaemon...");

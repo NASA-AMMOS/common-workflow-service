@@ -159,6 +159,10 @@ public class CwsEngineProcessApplication extends AbstractProcessApplication impl
 		workerDaemon.start();
 		workerExternalTaskLockDaemon.start();
 		
+		// Start the heartbeat daemon LAST (after the daemons it monitors)
+		// to prevent race condition where heartbeat checks before daemons have started
+		workerHeartbeatDaemon.startDaemon();
+		
 		// Update database with initial heart beat, so others will know we are alive.
 		// This also set the worker's status to "up".
 		//
