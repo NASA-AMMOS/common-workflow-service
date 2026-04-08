@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Fixed
 ### Security
+- Updated dependency libraries
 ### Breaking Changes
 - Update Database Schema from Camunda 7.23.0-ee to Camunda 7.24.0-ee:
   - Go to the <root-dir>/sql/upgrade/ dir and use the upgrade script: 
