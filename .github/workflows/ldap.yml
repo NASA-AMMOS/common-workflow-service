@@ -1,11 +1,8 @@
 name: CWS CI LDAP
 
-# Triggers the workflow on push
+# Workflow disabled - manual trigger only
 on:
-  push:
-  schedule:
-    # trigger a build and test of CWS weekly on Monday at 5 AM PST / 12 PM UTC
-    - cron: '0 12 * * 1'
+  workflow_dispatch:
 
 env:
   TEAM: ("jamesfwood" "jdrodjpl" "jl-0")
