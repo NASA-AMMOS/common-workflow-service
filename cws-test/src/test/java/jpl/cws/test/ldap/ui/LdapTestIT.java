@@ -44,7 +44,7 @@ public class LdapTestIT extends WebTestUtil {
         sleep(2000);
 
         // Go back to CWS
-        WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui']"));
+        WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui/home']"));
         cws.click();
         findOnPage("CWS - Deployments");
         logout();

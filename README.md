@@ -17,12 +17,10 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
 
 ## Prerequisites
 
-- [**Java 17 JDK**](https://formulae.brew.sh/formula/openjdk@17): CWS only runs on JDK 17. (NOTE: Cannot use JRE)
+- [**Java 17 JDK**](https://formulae.brew.sh/cask/corretto@17): CWS only runs on JDK 17. (NOTE: Cannot use JRE)
   - For Homebrew users:
-    - Install OpenJDK 17 using: `brew install openjdk@17`
-    - Check the exact version installed using `/usr/libexec/java_home -V`
-    - Add to your Shell startup (e.g. .zprofile): `export JAVA_HOME=$(/usr/libexec/java_home -v X.X.X)`
-      - Replace the X.X.X version above with the OpenJDK 17 output from the `/usr/libexec/java_home -V` command.
+    - Install OpenJDK 17 using: `brew install --cask corretto@17`
+    - Add to your Shell startup (e.g. .zprofile): `export JAVA_HOME=$(/usr/libexec/java_home -v17)`
 - [**Maven**](https://maven.apache.org/download.cgi): Used to dynamically download libraries and other required project dependencies.
   - For Home-brew users:
     - Install Maven using: `brew install maven`
@@ -81,7 +79,7 @@ Open new Shell terminal designated for running ElasticSearch.
 
 * `cd` into `install/docker/es-only` directory and run Docker Compose:
 ```
-docker-compose up
+docker-compose up -d
 ```
 
 #### _Updating Presets and Default Settings_
