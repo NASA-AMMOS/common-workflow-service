@@ -146,7 +146,7 @@ jobs:
 
       - name: List CWS Logs
         run: |
-          cd "dist/console-only/cws/server/apache-tomcat-10.1.50/logs"
+          cd "dist/console-only/cws/server/apache-tomcat-11.0.20/logs"
           ls -al
 
       - name: Set up Google Chrome
@@ -182,25 +182,25 @@ jobs:
 
       - name: Show CWS Log for Console
         if: always()
-        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.50/logs
+        working-directory: dist/console-only/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat cws.log
 
       - name: Show Catalina Log for Console
         if: always()
-        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.50/logs
+        working-directory: dist/console-only/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat catalina.out
   
       - name: Show CWS Log for Worker1
         if: always()
-        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.50/logs
+        working-directory: dist/worker1/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat cws.log
 
       - name: Show Catalina Log for Worker1
         if: always()
-        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.50/logs
+        working-directory: dist/worker1/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat catalina.out
   
@@ -347,7 +347,7 @@ jobs:
 
       - name: List CWS Logs
         run: |
-          cd dist/console-only/cws/server/apache-tomcat-10.1.50/logs
+          cd dist/console-only/cws/server/apache-tomcat-11.0.20/logs
           ls -al
 
       - name: Set up Google Chrome
@@ -372,37 +372,37 @@ jobs:
 
       - name: Show CWS Log for Console
         if: always()
-        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.50/logs
+        working-directory: dist/console-only/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat cws.log
 
       - name: Show Catalina Log for Console
         if: always()
-        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.50/logs
+        working-directory: dist/console-only/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat catalina.out
 
       - name: Show CWS Log for Worker1
         if: always()
-        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.50/logs
+        working-directory: dist/worker1/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat cws.log
 
       - name: Show Catalina Log for Worker1
         if: always()
-        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.50/logs
+        working-directory: dist/worker1/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat catalina.out
 
       - name: Show CWS Log for Worker2
         if: always()
-        working-directory: dist/worker2/cws/server/apache-tomcat-10.1.50/logs
+        working-directory: dist/worker2/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat cws.log
 
       - name: Show Catalina Log for Worker2
         if: always()
-        working-directory: dist/worker2/cws/server/apache-tomcat-10.1.50/logs
+        working-directory: dist/worker2/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat catalina.out
 

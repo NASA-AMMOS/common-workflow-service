@@ -10,10 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 ### Changed
+- Updated to Camunda 7.24.6-ee
+- Updated to Spring 7
+- Updated to Apache Tomcat 11
 ### Deprecated
 ### Removed
 ### Fixed
 ### Security
+### Breaking Changes
+- Update Database Schema from Camunda 7.23.0-ee to Camunda 7.24.0-ee:
+  - Go to the <root-dir>/sql/upgrade/ dir and use the upgrade script: 
+    - mysql_engine_7.23_to_7.24.sql
+
 
 ## [2.8.0]
 ### Added

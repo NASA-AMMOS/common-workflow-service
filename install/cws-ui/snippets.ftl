@@ -73,7 +73,7 @@
 					<br/>
 					<b>NOTE:</b> <b>For each external code library (JAR)</b> (referenced by Java import statements) <b>put the JAR in the following place</b>:
 					<ul>
-						<li>CWS Console Server: <pre>cws/server/apache-tomcat-10.1.50/lib</pre></li>
+						<li>CWS Console Server: <pre>cws/server/apache-tomcat-11.0.20/lib</pre></li>
 					</ul>
 					<br/>
 				</form>

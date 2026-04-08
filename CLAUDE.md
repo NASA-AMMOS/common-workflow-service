@@ -86,11 +86,11 @@ CWS follows a layered service-oriented architecture with these key modules:
 - **cws-test**: Integration and system testing framework
 
 ### Key Technologies
-- **Spring Framework 6.2.4**: Dependency injection, web services, transactions
-- **Camunda BPM 7.23.0-ee**: Workflow engine and BPMN execution
+- **Spring Framework 7.0.6**: Dependency injection, web services, transactions
+- **Camunda BPM 7.24.6-ee**: Workflow engine and BPMN execution
 - **Apache Artemis**: Message queue for external task communication
 - **MyBatis**: Database ORM and query mapping
-- **Apache Tomcat 10.1.50**: Application server
+- **Apache Tomcat 11.0.20**: Application server
 
 ### Module Dependencies
 ```
@@ -118,8 +118,8 @@ cws-core (foundation)
 
 ### Version Information
 - CWS Version: 2.8.0   (update this each CWS release)
-- Camunda Version: 7.24.0-ee
-- Tomcat Version: 10.1.50
+- Camunda Version: 7.24.6-ee
+- Tomcat Version: 11.0.20
 - Java Version: 17 (enforced by Maven)
 
 ### Security Requirements

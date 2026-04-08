@@ -124,12 +124,12 @@ services:
       timeout: 2s
       retries: 12
     volumes:
-      # - ../../.keystore:/home/cws_user/cws/server/apache-tomcat-10.1.50/conf/.keystore:ro
-      # - ../../tomcat_lib/cws_truststore.jks:/home/cws_user/cws/server/apache-tomcat-10.1.50/lib/cws_truststore.jks:ro
+      # - ../../.keystore:/home/cws_user/cws/server/apache-tomcat-11.0.20/conf/.keystore:ro
+      # - ../../tomcat_lib/cws_truststore.jks:/home/cws_user/cws/server/apache-tomcat-11.0.20/lib/cws_truststore.jks:ro
       # - ~/.cws/creds:/root/.cws/creds:ro
       - ./config.properties:/home/cws_user/config.properties:ro
       - ~/.camunda/license.txt:/root/.camunda/license.txt:ro
-      - console-logs-volume:/home/cws_user/cws/server/apache-tomcat-10.1.50/logs
+      - console-logs-volume:/home/cws_user/cws/server/apache-tomcat-11.0.20/logs
     networks:
       - cws-network
   cws-worker:
@@ -152,12 +152,12 @@ services:
       - ES_HOST=es
       - ES_PORT=9200
     volumes:
-      # - ../../.keystore:/home/cws_user/cws/server/apache-tomcat-10.1.50/conf/.keystore:ro
-      # - ../../tomcat_lib/cws_truststore.jks:/home/cws_user/cws/server/apache-tomcat-10.1.50/lib/cws_truststore.jks:ro
+      # - ../../.keystore:/home/cws_user/cws/server/apache-tomcat-11.0.20/conf/.keystore:ro
+      # - ../../tomcat_lib/cws_truststore.jks:/home/cws_user/cws/server/apache-tomcat-11.0.20/lib/cws_truststore.jks:ro
       # - ~/.cws/creds:/root/.cws/creds:ro
       - ./worker-config.properties:/home/cws_user/config.properties:ro
       - ~/.camunda/license.txt:/root/.camunda/license.txt:ro
-      - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-10.1.50/logs
+      - worker1-logs-volume:/home/cws_user/cws/server/apache-tomcat-11.0.20/logs
     networks:
       - cws-network
   ldapsearch:

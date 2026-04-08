@@ -80,7 +80,7 @@
 		<url-pattern>/v3/api-docs/*</url-pattern>
 		<url-pattern>/swagger-ui</url-pattern>
 		<url-pattern>/swagger-ui/*</url-pattern>
-		<url-pattern>*.mvc</url-pattern>
+		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
 
 	<!-- Webapp context definitions -->
