@@ -19,7 +19,7 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
 
 - [**Java 17 JDK**](https://formulae.brew.sh/cask/corretto@17): CWS only runs on JDK 17. (NOTE: Cannot use JRE)
   - For Homebrew users:
-    - Install OpenJDK 17 using: `brew install --cask corretto@17`
+    - Install Amazon Corretto 17 using: `brew install --cask corretto@17`
     - Add to your Shell startup (e.g. .zprofile): `export JAVA_HOME=$(/usr/libexec/java_home -v17)`
 - [**Maven**](https://maven.apache.org/download.cgi): Used to dynamically download libraries and other required project dependencies.
   - For Home-brew users:
