@@ -8,7 +8,7 @@ on:
     - cron: '0 12 * * 1'
 
 env:
-  TEAM: ("jamesfwood" "jdrodjpl" "jl-0")
+  TEAM: ("jamesfwood" "jl-0")
 
 jobs:
 
@@ -215,6 +215,8 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v3
         with:
+          webhook-type: incoming-webhook
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           # This data can be any valid JSON from a previous step in the GitHub Action
           payload: |
             {
@@ -229,8 +231,6 @@ jobs:
                 }
               ]
             }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 
   advanced-test:
@@ -417,6 +417,8 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v3
         with:
+          webhook-type: incoming-webhook
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           # This data can be any valid JSON from a previous step in the GitHub Action
           payload: |
             {
@@ -431,8 +433,6 @@ jobs:
                 }
               ]
             }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 
   publish-cws-image:
