@@ -54,7 +54,7 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
 
 Generate MariaDB Docker Container and Create Database Instance for CWS:
 ```
-docker run -d -p 3306:3306 -e MYSQL_DATABASE=__DB_NAME__ -e MYSQL_ROOT_PASSWORD=__ROOT_PW__ -e TZ=America/Los_Angeles --name mdb106 mariadb:10.6
+docker run -d -p 3306:3306 -e MYSQL_DATABASE=__DB_NAME__ -e MYSQL_ROOT_PASSWORD=__ROOT_PW__ -e TZ=America/Los_Angeles --name mdb1011 mariadb:10.11
 ```
 
 Replace `__DB_NAME__` with your desired database name. <br />

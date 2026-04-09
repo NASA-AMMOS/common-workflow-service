@@ -20,7 +20,7 @@ NASA-AMMOS Common Workflow Service (CWS) is an enterprise workflow management pl
 
 #### Database Setup (MariaDB via Docker)
 ```bash
-docker run -d -p 3306:3306 -e MYSQL_DATABASE=cws_dev -e MYSQL_ROOT_PASSWORD=YOUR_PASSWORD -e TZ=America/Los_Angeles --name mdb106 mariadb:10.6
+docker run -d -p 3306:3306 -e MYSQL_DATABASE=__DB_NAME__ -e MYSQL_ROOT_PASSWORD=__ROOT_PW__ -e TZ=America/Los_Angeles --name mdb1011 mariadb:10.11
 ```
 
 #### Elasticsearch Setup

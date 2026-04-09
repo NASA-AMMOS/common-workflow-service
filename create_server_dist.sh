@@ -243,10 +243,6 @@ cp ${INSTALL_DIR}/launch_ls.sh                         ${CWS}
 print 'Copying Modeller scripts and libraries...'
 cp -R ${INSTALL_DIR}/modeler                    ${CWS}
 
-print 'Copying Upgrade scripts...'
-cp -R ${INSTALL_DIR}/upgrade/upgrade_to_2.4.sh         ${CWS}/upgrade
-cp -R ${INSTALL_DIR}/upgrade/README.md                 ${CWS}/upgrade
-
 print 'Installing context.xml to Tomcat...'
 cp ${INSTALL_DIR}/context.xml ${CWS_TOMCAT_ROOT}/conf/context.xml
 
