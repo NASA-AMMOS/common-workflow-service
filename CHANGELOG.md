@@ -27,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.8.0]
 ### Added
 ### Changed
+- Updated to Camunda 7.23.0-ee
+- Updated to Spring 6
+- Updated to Apache Tomcat 10
 ### Deprecated
 ### Removed
 ### Fixed
