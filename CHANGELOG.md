@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated to Camunda 7.24.6-ee
 - Updated to Spring 7
 - Updated to Apache Tomcat 11
+- Updated to Artemis 2.53.0
 ### Deprecated
 ### Removed
 ### Fixed

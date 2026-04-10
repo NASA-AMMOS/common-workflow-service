@@ -20,7 +20,7 @@
 	</scm>
 
 	<properties>
-		<activemq.version>2.42.0</activemq.version>
+		<artemis.version>2.53.0</artemis.version>
 		<assertj.version>3.27.7</assertj.version>
 		<bootstrap.version>5.3.8</bootstrap.version>
 		<graalvm.js.version>21.3.17</graalvm.js.version>
@@ -140,14 +140,14 @@
 				<version>${tomcat-catalina.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.apache.activemq</groupId>
+				<groupId>org.apache.artemis</groupId>
 				<artifactId>artemis-core-client</artifactId>
-				<version>${activemq.version}</version>
+				<version>${artemis.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.apache.activemq</groupId>
+				<groupId>org.apache.artemis</groupId>
 				<artifactId>artemis-server</artifactId>
-				<version>${activemq.version}</version>
+				<version>${artemis.version}</version>
 			</dependency>
 
 			<dependency>
@@ -400,14 +400,14 @@
 			</dependency>
 
 			<dependency>
-				<groupId>org.apache.activemq</groupId>
+				<groupId>org.apache.artemis</groupId>
 				<artifactId>artemis-jakarta-client</artifactId>
-				<version>${activemq.version}</version>
+				<version>${artemis.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.apache.activemq</groupId>
+				<groupId>org.apache.artemis</groupId>
 				<artifactId>artemis-jakarta-server</artifactId>
-				<version>${activemq.version}</version>
+				<version>${artemis.version}</version>
 				<exclusions>
 					<exclusion>
 						<groupId>commons-logging</groupId>

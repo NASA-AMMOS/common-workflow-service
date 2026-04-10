@@ -12,6 +12,8 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
@@ -118,7 +120,12 @@ public class SchedulerQueueUtils {
 		log.debug("CREATING SCHEDULER QUEUE '"+queueName+"' ...");
 		
 		ActiveMQServerControl serverControl = getActiveMQServerControl();
-		serverControl.createQueue(queueName, queueName, true, "ANYCAST");
+		serverControl.createQueue(
+			QueueConfiguration.of(queueName)
+				.setRoutingType(RoutingType.ANYCAST)
+				.setDurable(true)
+				.toJSON()
+		);
 	}
 	
 	
