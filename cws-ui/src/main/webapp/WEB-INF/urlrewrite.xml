@@ -10,10 +10,9 @@
 -->
 <urlrewrite>
 
-	<!--  REWRITE SO THAT SPRING DISPATCH SERVLET WILL FIND *.mvc -->
 	<rule match-type="wildcard">
 		<from>/rest/**</from>
-		<to>/api/$1.mvc</to>
+		<to>/api/$1</to>
 	</rule>
 
 </urlrewrite>

@@ -17,9 +17,8 @@
 
     <bean id="swaggerConfig" class="jpl.cws.controller.SwaggerConfig"/>
 	
-    <mvc:annotation-driven>
-        <mvc:path-matching suffix-pattern="true" />
-    </mvc:annotation-driven>
+    <mvc:annotation-driven/>
+    <mvc:default-servlet-handler/>
   
 <!--     <bean id="viewResolver"
     	class="org.springframework.web.servlet.view.InternalResourceViewResolver" >

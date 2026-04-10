@@ -20,7 +20,7 @@ NASA-AMMOS Common Workflow Service (CWS) is an enterprise workflow management pl
 
 #### Database Setup (MariaDB via Docker)
 ```bash
-docker run -d -p 3306:3306 -e MYSQL_DATABASE=cws_dev -e MYSQL_ROOT_PASSWORD=YOUR_PASSWORD -e TZ=America/Los_Angeles --name mdb106 mariadb:10.6
+docker run -d -p 3306:3306 -e MYSQL_DATABASE=__DB_NAME__ -e MYSQL_ROOT_PASSWORD=__ROOT_PW__ -e TZ=America/Los_Angeles --name mdb1011 mariadb:10.11
 ```
 
 #### Elasticsearch Setup
@@ -86,11 +86,11 @@ CWS follows a layered service-oriented architecture with these key modules:
 - **cws-test**: Integration and system testing framework
 
 ### Key Technologies
-- **Spring Framework 6.2.4**: Dependency injection, web services, transactions
-- **Camunda BPM 7.23.0-ee**: Workflow engine and BPMN execution
+- **Spring Framework 7.0.6**: Dependency injection, web services, transactions
+- **Camunda BPM 7.24.6-ee**: Workflow engine and BPMN execution
 - **Apache Artemis**: Message queue for external task communication
 - **MyBatis**: Database ORM and query mapping
-- **Apache Tomcat 10.1.36**: Application server
+- **Apache Tomcat 11.0.20**: Application server
 
 ### Module Dependencies
 ```
@@ -118,8 +118,8 @@ cws-core (foundation)
 
 ### Version Information
 - CWS Version: 2.8.0   (update this each CWS release)
-- Camunda Version: 7.23.0-ee
-- Tomcat Version: 10.1.36
+- Camunda Version: 7.24.6-ee
+- Tomcat Version: 11.0.20
 - Java Version: 17 (enforced by Maven)
 
 ### Security Requirements

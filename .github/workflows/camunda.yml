@@ -8,7 +8,7 @@ on:
     - cron: '0 12 * * 1'
 
 env:
-  TEAM: ("jamesfwood" "jdrodjpl" "jl-0")
+  TEAM: ("jamesfwood" "jl-0")
 
 jobs:
 
@@ -20,7 +20,7 @@ jobs:
       WORKERS: 1
 
     services:
-      mdb106:
+      mdb1011:
         image: mariadb:10.11
         ports:
           - 3306:3306
@@ -28,13 +28,13 @@ jobs:
           MYSQL_DATABASE: cws_dev
           MYSQL_ROOT_PASSWORD: adminpw
         options: >-
-          --name mdb106
+          --name mdb1011
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -61,7 +61,7 @@ jobs:
              </settings>" > ~/.m2/settings.xml
 
       - name: Cache Maven packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -117,7 +117,7 @@ jobs:
           docker ps -a
 
       - name: Cache Dependency-Check data
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.dependency-check-data
           key: ${{ runner.os }}-dependency-check
@@ -131,7 +131,7 @@ jobs:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
 
       - name: Upload Dependency Check Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dependency-check-report
           path: target/dependency-check-reports/dependency-check-report.html
@@ -146,7 +146,7 @@ jobs:
 
       - name: List CWS Logs
         run: |
-          cd "dist/console-only/cws/server/apache-tomcat-10.1.36/logs"
+          cd "dist/console-only/cws/server/apache-tomcat-11.0.20/logs"
           ls -al
 
       - name: Set up Google Chrome
@@ -168,39 +168,39 @@ jobs:
         shell: bash
 
       - name: Upload Jacoco report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: jacoco-report
           path: jacoco-reports/aggregate/index.html
 
       - name: Upload test screenshots
         if: ${{ always() && steps.build.outcome == 'success' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-screenshots
           path: test-screenshots/
 
       - name: Show CWS Log for Console
         if: always()
-        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/console-only/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat cws.log
 
       - name: Show Catalina Log for Console
         if: always()
-        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/console-only/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat catalina.out
   
       - name: Show CWS Log for Worker1
         if: always()
-        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/worker1/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat cws.log
 
       - name: Show Catalina Log for Worker1
         if: always()
-        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/worker1/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat catalina.out
   
@@ -213,8 +213,10 @@ jobs:
       - name: Send custom JSON data to Slack workflow
         if: ${{ always() && contains(env.TEAM, github.actor) }}
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v3
         with:
+          webhook-type: incoming-webhook
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           # This data can be any valid JSON from a previous step in the GitHub Action
           payload: |
             {
@@ -229,8 +231,6 @@ jobs:
                 }
               ]
             }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 
   advanced-test:
@@ -241,7 +241,7 @@ jobs:
       WORKERS: 2
 
     services:
-      mdb106:
+      mdb1011:
         image: mariadb:10.11
         ports:
           - 3306:3306
@@ -249,13 +249,13 @@ jobs:
           MYSQL_DATABASE: cws_dev
           MYSQL_ROOT_PASSWORD: adminpw
         options: >-
-          --name mdb106
+          --name mdb1011
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -282,7 +282,7 @@ jobs:
              </settings>" > ~/.m2/settings.xml
 
       - name: Cache Maven packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -347,7 +347,7 @@ jobs:
 
       - name: List CWS Logs
         run: |
-          cd dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+          cd dist/console-only/cws/server/apache-tomcat-11.0.20/logs
           ls -al
 
       - name: Set up Google Chrome
@@ -365,44 +365,44 @@ jobs:
 
       - name: Upload test screenshots
         if: ${{ always() && steps.build.outcome == 'success' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-screenshots-advanced
           path: test-screenshots/
 
       - name: Show CWS Log for Console
         if: always()
-        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/console-only/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat cws.log
 
       - name: Show Catalina Log for Console
         if: always()
-        working-directory: dist/console-only/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/console-only/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat catalina.out
 
       - name: Show CWS Log for Worker1
         if: always()
-        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/worker1/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat cws.log
 
       - name: Show Catalina Log for Worker1
         if: always()
-        working-directory: dist/worker1/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/worker1/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat catalina.out
 
       - name: Show CWS Log for Worker2
         if: always()
-        working-directory: dist/worker2/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/worker2/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat cws.log
 
       - name: Show Catalina Log for Worker2
         if: always()
-        working-directory: dist/worker2/cws/server/apache-tomcat-10.1.36/logs
+        working-directory: dist/worker2/cws/server/apache-tomcat-11.0.20/logs
         run: |
           cat catalina.out
 
@@ -415,8 +415,10 @@ jobs:
       - name: Send custom JSON data to Slack workflow
         if: ${{ always() && contains(env.TEAM, github.actor) }}
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v3
         with:
+          webhook-type: incoming-webhook
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           # This data can be any valid JSON from a previous step in the GitHub Action
           payload: |
             {
@@ -431,8 +433,6 @@ jobs:
                 }
               ]
             }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 
   publish-cws-image:
@@ -443,17 +443,17 @@ jobs:
 
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}

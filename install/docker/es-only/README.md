@@ -8,4 +8,4 @@
 
 To run use the command:
     
-    docker-compose up
+    docker-compose up -d

@@ -3,7 +3,7 @@
 ### **Java Version Requirements**
 - **Minimum**: Java 17
 - **Current**: Java 17
-- **Reason**: Required for Spring Framework 6.x and modern libraries
+- **Reason**: Required for Spring Framework 7.x and modern libraries
 
 ### **Maven Version Requirements**
 - **Minimum**: Maven 3.9.6
@@ -16,8 +16,8 @@
 
 | Library | Current Version | Compatible Versions | Notes |
 |---------|----------------|-------------------|-------|
-| **Spring Framework** | 6.2.4 | 6.2.x, 6.3.x | ✅ Stable |
-| **Camunda BPM** | 7.23.0-ee | 7.23.x | ✅ Enterprise |
+| **Spring Framework** | 7.0.6 | 7.0.x | ✅ Stable |
+| **Camunda BPM** | 7.24.6-ee | 7.24.x | ✅ Enterprise |
 | **Java** | 17 | 17, 21 | ✅ LTS |
 
 ### **Testing Dependencies**
@@ -39,8 +39,8 @@
 1. **JUnit**: 4.13.2 → 5.12.2 (Complete rewrite)
 
 ### **Enterprise Considerations**
-1. **Camunda**: 7.23.0-ee (Enterprise license required)
-2. **Spring**: 6.2.4 (Stable, well-tested)
+1. **Camunda**: 7.24.6-ee (Enterprise license required)
+2. **Spring**: 7.0.6 (Stable, well-tested)
 
 ## 🛠️ **Tools for Compatibility Checking**
 

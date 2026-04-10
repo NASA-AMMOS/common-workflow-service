@@ -99,7 +99,7 @@ public class WebTestIT extends WebTestUtil {
 
 
 		// Go back to CWS
-		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui']"));
+		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui/home']"));
 		cws.click();
 		findOnPage("CWS - Deployments");
 
@@ -149,7 +149,7 @@ public class WebTestIT extends WebTestUtil {
 
 
 		// Go back to CWS
-		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui']"));
+		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui/home']"));
 		cws.click();
 		findOnPage("CWS - Deployments");
 
@@ -195,9 +195,8 @@ public class WebTestIT extends WebTestUtil {
 		button.click();
 		sleep(5000);
 
-
 		// Go back to CWS
-		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui']"));
+		WebElement cws = driver.findElement(By.xpath("//a[@href='/cws-ui/home']"));
 		cws.click();
 		findOnPage("CWS - Deployments");
 

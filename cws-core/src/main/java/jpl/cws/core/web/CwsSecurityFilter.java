@@ -296,9 +296,7 @@ public abstract class CwsSecurityFilter implements jakarta.servlet.Filter {
 			if (path.startsWith("/cws-ui/fonts/") ||
 				path.endsWith("login") ||
 				path.endsWith("not_authorized") ||
-				//path.toLowerCase().endsWith("/api/authenticate.mvc") ||
-				path.toLowerCase().endsWith("/api/validatecwstoken.mvc") ||
-				path.toLowerCase().contains("/api/checksession.mvc")
+				path.toLowerCase().endsWith("/api/validatecwstoken")
 			) {
 				return true; // skip
 			}
@@ -456,8 +454,8 @@ public abstract class CwsSecurityFilter implements jakarta.servlet.Filter {
 		if (path.startsWith("/cws-ui/")) {
 			if (path.endsWith("/home") ||
 				path.endsWith("/logintotarget") ||
-				path.endsWith("/api/process-instance/status.mvc") ||
-				path.endsWith("/cws-ui/api/authenticate.mvc")) {
+				(path.contains("/api/process-instance/") && path.endsWith("/status")) ||
+				path.endsWith("/api/authenticate")) {
 				log.trace("NOT AUTHORIZING CWS PATH: " + path);
 				return true; // no authorization
 			}

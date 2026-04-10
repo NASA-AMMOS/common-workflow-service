@@ -17,12 +17,10 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
 
 ## Prerequisites
 
-- [**Java 17 JDK**](https://formulae.brew.sh/formula/openjdk@17): CWS only runs on JDK 17. (NOTE: Cannot use JRE)
+- [**Java 17 JDK**](https://formulae.brew.sh/cask/corretto@17): CWS only runs on JDK 17. (NOTE: Cannot use JRE)
   - For Homebrew users:
-    - Install OpenJDK 17 using: `brew install openjdk@17`
-    - Check the exact version installed using `/usr/libexec/java_home -V`
-    - Add to your Shell startup (e.g. .zprofile): `export JAVA_HOME=$(/usr/libexec/java_home -v X.X.X)`
-      - Replace the X.X.X version above with the OpenJDK 17 output from the `/usr/libexec/java_home -V` command.
+    - Install Amazon Corretto 17 using: `brew install --cask corretto@17`
+    - Add to your Shell startup (e.g. .zprofile): `export JAVA_HOME=$(/usr/libexec/java_home -v17)`
 - [**Maven**](https://maven.apache.org/download.cgi): Used to dynamically download libraries and other required project dependencies.
   - For Home-brew users:
     - Install Maven using: `brew install maven`
@@ -56,7 +54,7 @@ See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for m
 
 Generate MariaDB Docker Container and Create Database Instance for CWS:
 ```
-docker run -d -p 3306:3306 -e MYSQL_DATABASE=__DB_NAME__ -e MYSQL_ROOT_PASSWORD=__ROOT_PW__ -e TZ=America/Los_Angeles --name mdb106 mariadb:10.6
+docker run -d -p 3306:3306 -e MYSQL_DATABASE=__DB_NAME__ -e MYSQL_ROOT_PASSWORD=__ROOT_PW__ -e TZ=America/Los_Angeles --name mdb1011 mariadb:10.11
 ```
 
 Replace `__DB_NAME__` with your desired database name. <br />
@@ -81,7 +79,7 @@ Open new Shell terminal designated for running ElasticSearch.
 
 * `cd` into `install/docker/es-only` directory and run Docker Compose:
 ```
-docker-compose up
+docker-compose up -d
 ```
 
 #### _Updating Presets and Default Settings_
@@ -186,8 +184,8 @@ The CWS image available on Github is loaded with self-signed SSL certs that requ
 If you'd like to provide your own SSL certs, you can use the `generate_certs.sh` script in `cws_certs/` to do so. You'll then need to copy those files into the image before startup or (more easily) use volume mounts to make them available to CWS. Take a look at the `docker-compose.yml` file in `install/docker/` -- there are commented-out volume store lines that you can use.
 
 The keystore files CWS looks for are at these paths inside the image:
-`/home/cws_user/cws/server/apache-tomcat-10.1.36/conf/.keystore`
-`/home/cws_user/cws/server/apache-tomcat-10.1.36/lib/cws_truststore.jks`
+`/home/cws_user/cws/server/apache-tomcat-11.0.20/conf/.keystore`
+`/home/cws_user/cws/server/apache-tomcat-11.0.20/lib/cws_truststore.jks`
 
 You'll also want to provide CWS with the password you used to create the certs so the software can use them. This is a plaintext file with the password in it. CWS looks for this file at the path: `/root/.cws/creds:ro`. Note that this password is not related to what you'd use to log into the CWS interface -- it's only the password for the certs themselves.
 
