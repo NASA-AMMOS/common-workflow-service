@@ -227,7 +227,14 @@ public class CwsLdapSecurityFilter extends CwsSecurityFilter {
 				RestCallResult result = WebUtils.restCall(
 						baseUrl + "/cws-ui/rest/authenticate",
 						"POST",
-						"username=" + username + "&password=" + password);
+						"username=" + username + "&password=" + password,
+						null,  // cookie
+						null,  // acceptType
+						null,  // contentType
+						true,  // allowInsecureRequests - allow SSL certificates without proper SAN
+						null,  // username
+						null   // password
+				);
 
 				return result.getResponseCode() == 200;  // Success! We are authenticated
 			}
