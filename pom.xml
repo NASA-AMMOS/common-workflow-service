@@ -29,7 +29,7 @@
 		<software.amazon.awssdk.version>2.34.3</software.amazon.awssdk.version>
 		<camunda.version>7.24.6-ee</camunda.version>
 		<commons-compress.version>1.28.0</commons-compress.version>
-		<commons-configuration.version>2.12.0</commons-configuration.version>
+		<commons-configuration.version>2.15.0</commons-configuration.version>
 		<commons-exec.version>1.5.0</commons-exec.version>
 		<commons-fileupload.version>1.6.0</commons-fileupload.version>
 		<commons-io.version>2.17.0</commons-io.version>
