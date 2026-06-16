@@ -286,9 +286,6 @@
 			}
 		}
 		
-		$( window ).load(function() {
-			console.log( "window loaded" );
-		});
 	</script>
 	
 	<!-- Just for debugging purposes. Don''t actually copy this line! -->

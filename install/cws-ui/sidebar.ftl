@@ -1,11 +1,9 @@
 <script type="text/javascript">
-$(document).ready(_ =>{
-console.log("initialize tooltips!")
-				const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+$(document).ready(_ => {
+	const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+	const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 })
 </script>
-
 
 <div class="sidebar show" id="sidebar">
 	<ul class="nav nav-sidebar">

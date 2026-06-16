@@ -4,7 +4,6 @@
 	<title>CWS - History</title>
 
 	<script src="/${base}/js/jquery.min.js"></script>
-	<script src="/${base}/js/docs.min.js"></script>
 	<script src="/${base}/js/popper.min.js"></script>
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
@@ -612,7 +611,7 @@
 			for (const [key, value] of sortedEntries) {
 				var temp = "";
 				var varTimeSet = key.substring(key.indexOf("[")+1, key.indexOf("]"));
-				if (moment(varTimeSet).diff(timeStart, "seconds") > 1) {
+				if (moment(new Date(varTimeSet)).diff(moment(new Date(timeStart)), "seconds") > 1) {
 					continue;
 				}
 				var tempVal = value;

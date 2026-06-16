@@ -585,7 +585,9 @@
                                     var temp = "";
                                     var varTimeSetString = key.substring(key.indexOf("[") + 1, key.indexOf("]"));
                                     if (timeStart && varTimeSetString) {
-                                        if (moment(varTimeSetString).diff(timeStart, "seconds") > 1) {
+                                        var varTimeSet = moment(new Date(varTimeSetString));
+                                        var timeStartMoment = moment(new Date(timeStart));
+                                        if (varTimeSet.isValid() && timeStartMoment.isValid() && varTimeSet.diff(timeStartMoment, "seconds") > 1) {
                                             continue;
                                         }
                                     }
