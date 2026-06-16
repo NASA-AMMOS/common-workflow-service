@@ -323,7 +323,7 @@ public class CwsInstaller {
 			print("    ./start_cws.sh");
 			print("");
 			print("  Then access CWS with a browser at:");
-			print("     https://" + cws_console_host + ":" + cws_console_ssl_port + "/cws-ui");
+			print("     https://" + cws_console_host + ":" + cws_console_ssl_port + "/cws-ui/home");
 			print("---------------------------------------------------------------");
 			print("");
 			if (cws_auth_scheme.equals("CAMUNDA")) {
@@ -3180,10 +3180,10 @@ public class CwsInstaller {
 			mkDir(cws_tomcat_webapps + SEP + cws_project_webapp_root);
 			Path indexHtml = Paths.get(cws_tomcat_webapps + SEP + cws_project_webapp_root + SEP + "index.html");
 			writeToFile(indexHtml,
-				"<html><head><meta http-equiv=\"refresh\" content=\"10;url=/cws-ui/\" /></head>" +
+				"<html><head><meta http-equiv=\"refresh\" content=\"10;url=/cws-ui/home\" /></head>" +
 				"<body>You have configured CWS to have a project web page.\n" +
 				"Put your custom content here by editing the '" + indexHtml + "' file...<br/><br/><hr/>" +
-				"Automatically redirecting to <a href=\"/cws-ui\">CWS Home</a> in 10 seconds...</body></html>");
+				"Automatically redirecting to <a href=\"/cws-ui/home\">CWS Home</a> in 10 seconds...</body></html>");
 		}
 	}
 

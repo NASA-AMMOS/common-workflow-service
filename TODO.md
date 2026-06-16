@@ -6,3 +6,4 @@ TODO List:
 - Update Elasticsearch and logstash to the newest version
 - Add one integration test to the docker.yml Github Actions Workflow, just to test the basics in in the docker version
   - Name it like DockerTestIT
+- Update Web Modeler to Camunda 7.24.6-ee Version

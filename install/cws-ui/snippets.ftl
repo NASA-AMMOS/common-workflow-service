@@ -5,8 +5,8 @@
 	<meta charset="utf-8">
 	<title>CWS - Executable Code</title>
 	<script src="/${base}/js/jquery.min.js"></script>
-	<script src="/${base}/js/bootstrap.min.js"></script>
 	<script src="/${base}/js/popper.min.js"></script>
+	<script src="/${base}/js/bootstrap.min.js"></script>
 	
 	<link href="/${base}/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/${base}/css/bootstrap-reboot.min.css" rel="stylesheet">
@@ -73,7 +73,7 @@
 					<br/>
 					<b>NOTE:</b> <b>For each external code library (JAR)</b> (referenced by Java import statements) <b>put the JAR in the following place</b>:
 					<ul>
-						<li>CWS Console Server: <pre>cws/server/apache-tomcat-10.1.36/lib</pre></li>
+						<li>CWS Console Server: <pre>cws/server/apache-tomcat-11.0.20/lib</pre></li>
 					</ul>
 					<br/>
 				</form>

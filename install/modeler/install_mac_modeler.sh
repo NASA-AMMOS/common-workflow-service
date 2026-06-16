@@ -53,7 +53,7 @@ cd temp
 
 echo
 echo "Downloading camunda modeler now..."
-curl -LO https://downloads.camunda.cloud/release/camunda-modeler/5.24.0/camunda-modeler-5.24.0-mac-arm64.zip
+curl -LO https://downloads.camunda.cloud/release/camunda-modeler/5.43.1/camunda-modeler-5.43.1-mac-arm64.zip
 
 unzip *.zip
 

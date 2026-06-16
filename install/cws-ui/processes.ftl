@@ -553,70 +553,103 @@
                         }
                     },
                     { // Input Variables
-                        data: { inputVariables: "inputVariables", procStartTime: "procStartTime", initiationKey: "initiationKey" }, // Added initiationKey
+                        data: { inputVariables: "inputVariables", procStartTime: "procStartTime", initiationKey: "initiationKey" },
                         render: function (data, type) {
-                            // ... (Your existing complex rendering logic for inputVariables)
-                            // Ensure all paths in this complex render function return valid HTML
-                            // and that all opened <div> tags are properly closed.
-                            // This function is quite long, so double check its HTML structure carefully.
-                            // For brevity, I'm not reproducing it here but it needs scrutiny.
-                            // Example of a small part:
                             if (jQuery.isEmptyObject(data.inputVariables)) {
-                                if (jQuery.isEmptyObject(data.initiationKey)) { // Check initiationKey if inputVariables is empty
+                                if (jQuery.isEmptyObject(data.initiationKey)) {
                                     return "None";
                                 } else {
-                                    // Ensure HTML is well-formed here too
                                     var temp = `<div class="var-row-div-flex">`
                                             + `<div class="var-row-div-flex-sub-1"><b>initiationKey: </b><p style="margin-bottom: 0px;">` + data.initiationKey + `</p></div>`
-                                            + `<div class="var-row-div-flex-sub-2"></div>` // This div seems empty, might be for spacing
+                                            + `<div class="var-row-div-flex-sub-2"></div>`
                                             + `<div class="copySpan" style="width: 30px;">`
                                             + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + data.initiationKey + `" onClick="">`
                                             + `<img src="images/copy.svg" class="copy-icon clipboard">`
-                                            + `</span></div></div>`; // Closed var-row-div-flex
+                                            + `</span></div></div>`;
                                     return temp;
                                 }
                             }
                             if (type === 'display') {
-                                // ... your existing logic ...
-                                // Ensure all paths return correctly closed HTML, e.g. ensure "output" always has closed details if used.
                                 var output = "";
                                 var before = "";
                                 var after = "";
-                                var putAllAfter = 0;
                                 var count = 0;
-                                var timeStart = moment(data.procStartTime, serverDateFormat, true);
+                                var timeStart = data.procStartTime;
+                                var sortedEntries = Object.entries(data.inputVariables).sort(function(a, b) {
+                                    var keyA = a[0].substring(a[0].indexOf("]") + 1).toLowerCase();
+                                    var keyB = b[0].substring(b[0].indexOf("]") + 1).toLowerCase();
+                                    return keyA.localeCompare(keyB);
+                                });
 
-                                for (const [key, value] of Object.entries(data.inputVariables)) {
+                                for (const [key, value] of sortedEntries) {
                                     var temp = "";
                                     var varTimeSetString = key.substring(key.indexOf("[") + 1, key.indexOf("]"));
-                                    // Make sure varTimeSetString is a valid date string before parsing
-                                    if (!varTimeSetString || !moment(varTimeSetString).isValid()) {
-                                        // console.warn("Invalid date in inputVariable key:", key);
-                                        // Skip or handle as appropriate if the date isn't critical for this logic path
+                                    if (timeStart && varTimeSetString) {
+                                        var varTimeSet = moment(new Date(varTimeSetString));
+                                        var timeStartMoment = moment(new Date(timeStart));
+                                        if (varTimeSet.isValid() && timeStartMoment.isValid() && varTimeSet.diff(timeStartMoment, "seconds") > 1) {
+                                            continue;
+                                        }
+                                    }
+                                    var tempVal = value;
+                                    var tempKey = key.substring(key.indexOf("]") + 1);
+
+                                    if (key.includes("(file, image")) {
+                                        tempKey = tempKey.replace("file, ", "");
+                                        temp = `<div class="var-row-div-flex">`
+                                            + `<div class="var-row-div-flex-sub-1"><b>` + tempKey + `: </b>`
+                                            + `<img class="grow thumbnail" style="max-width:150px; max-height:100px;" src="` + tempVal + `"></div>`
+                                            + `<div class="copySpan" style="width: 30px;">`
+                                            + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick="">`
+                                            + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                            + `</span></div></div>`;
+                                    } else if (key.includes("{")) {
+                                        var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
+                                        tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+                                        temp = `<div class="var-row-div-flex">`
+                                            + `<div class="var-row-div-flex-sub-1"><b>` + tempKey + `: </b>`
+                                            + `<i>` + fileName + `</i></div>`
+                                            + `<div class="copySpan" style="width: 30px;">`
+                                            + `<span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick="">`
+                                            + `<img src="images/download.svg" class="copy-icon clipboard">`
+                                            + `</span></div></div>`;
+                                    } else if (checkforImageURL(tempVal)) {
+                                        tempKey = tempKey.replace("string", "url");
+                                        temp = `<div class="var-row-div-flex">`
+                                            + `<div class="var-row-div-flex-sub-1"><b>` + tempKey + `: </b>`
+                                            + `<img class="grow thumbnail" style="max-width:150px; max-height:100px;" src="` + tempVal + `"></div>`
+                                            + `<div class="copySpan" style="width: 30px;">`
+                                            + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
+                                            + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                            + `</span></div></div>`;
                                     } else {
-                                    var varTimeSet = moment(varTimeSetString, serverDateFormat, true);
-                                    if (varTimeSet.diff(timeStart, "seconds") > 1) { // Check diff only if varTimeSet is valid
-                                        continue;
+                                        temp = `<div class="var-row-div-flex">`
+                                            + `<div class="var-row-div-flex-sub-1"><b>` + tempKey + `: </b><p style="margin-bottom: 0px;">` + tempVal + `</p></div>`
+                                            + `<div class="copySpan" style="width: 30px;">`
+                                            + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
+                                            + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                            + `</span></div></div>`;
                                     }
+                                    count++;
+                                    if (count <= 2) {
+                                        before += temp;
+                                    } else {
+                                        after += temp;
                                     }
-                                    // ... rest of your logic for input variables
-                                    // Ensure all 'temp' assignments result in well-formed HTML with closed tags.
-                                    // For example:
-                                    // temp = `<div class="var-row-div-flex">...</div>`;
                                 }
                                 if (after.length == 0) {
                                     output = before;
                                 } else {
                                     output = before + "<details><summary><b> Show All</b></summary>" + after + "</details>";
                                 }
-                                if (output === "") return "None"; // Handle case where no variables are processed
+                                if (output === "") return "None";
                                 return output;
 
-                            } else { /* for sorting/filtering etc. */
+                            } else {
                                 var outputToString = "";
                                 if (data.inputVariables) {
                                     for (const [key, value] of Object.entries(data.inputVariables)) {
-                                        if (key.substring(key.indexOf("]") + 1) === "workerId") { // Check actual key name
+                                        if (key.substring(key.indexOf("]") + 1) === "workerId") {
                                             continue;
                                         }
                                         outputToString += key.substring(key.indexOf("]") + 1) + ": " + value + ", ";
@@ -625,7 +658,7 @@
                                 if (data.initiationKey) {
                                     outputToString += "initiationKey: " + data.initiationKey + ", ";
                                 }
-                                return outputToString.slice(0, -2); // remove last ", "
+                                return outputToString.slice(0, -2);
                             }
                         }
                     },
@@ -660,29 +693,111 @@
                     { // Output Variables
                         data: "outputVariables",
                         render: function (data, type) {
-                            // ... (Your existing complex rendering logic for outputVariables)
-                            // Similar to inputVariables, ensure all HTML is well-formed.
-                            // This function is also quite long and needs careful review of its HTML structure.
                             if (jQuery.isEmptyObject(data)) {
                                 return "None";
                             }
                             if (type === 'display') {
-                                // ... your existing logic ...
-                                // Ensure all paths return correctly closed HTML.
                                 var output = "";
-                                // ...
-                                if (output === "") return "None"; // Handle case where no variables are processed
+                                var before = "";
+                                var after = "";
+                                var count = 0;
+                                var orderedKeys = [];
+
+                                if (Object.keys(data).includes("output_display_order (object)")) {
+                                    var orderTruncated = data["output_display_order (object)"].substring(1, data["output_display_order (object)"].length - 1).split(", ");
+                                    var fullKeys = Object.keys(data);
+                                    for (var i = 0; i < orderTruncated.length; i++) {
+                                        var result = fullKeys.findIndex(element => element.includes(orderTruncated[i]));
+                                        if (result > -1) {
+                                            orderedKeys.push(fullKeys[result]);
+                                        }
+                                    }
+                                    var keysNotInOrder = fullKeys.filter(x => !orderedKeys.includes(x) && x !== "output_display_order (object)");
+                                    orderedKeys = orderedKeys.concat(keysNotInOrder);
+                                } else {
+                                    orderedKeys = Object.keys(data).sort(function(a, b) {
+                                        var keyA = a.substring(7).toLowerCase();
+                                        var keyB = b.substring(7).toLowerCase();
+                                        var aIsSummary = keyA.startsWith("summary");
+                                        var bIsSummary = keyB.startsWith("summary");
+                                        var aIsThumb = keyA.startsWith("thumbnail");
+                                        var bIsThumb = keyB.startsWith("thumbnail");
+                                        if (aIsSummary && !bIsSummary) return -1;
+                                        if (!aIsSummary && bIsSummary) return 1;
+                                        if (aIsThumb && !bIsThumb) return -1;
+                                        if (!aIsThumb && bIsThumb) return 1;
+                                        return keyA.localeCompare(keyB);
+                                    });
+                                }
+
+                                for (var oi = 0; oi < orderedKeys.length; oi++) {
+                                    var key = orderedKeys[oi];
+                                    var value = data[key];
+                                    var temp = "";
+                                    var tempVal = value;
+                                    var tempKey = key.substring(7);
+
+                                    if (tempKey === "output_display_order (object)") continue;
+
+                                    if (tempKey.includes("(file, image")) {
+                                        tempKey = tempKey.replace("file, ", "");
+                                        temp = `<div class="var-row-div-flex">`
+                                            + `<div class="var-row-div-flex-sub-1"><b>` + tempKey + `: </b>`
+                                            + `<img class="grow thumbnail" style="max-width:150px; max-height:100px;" src="` + tempVal + `"></div>`
+                                            + `<div class="copySpan" style="width: 30px;">`
+                                            + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="true" data-copyValue="` + tempVal + `" onClick="">`
+                                            + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                            + `</span></div></div>`;
+                                    } else if (tempKey.includes("{")) {
+                                        var fileName = tempKey.substring(tempKey.indexOf("{") + 1, tempKey.indexOf("}"));
+                                        tempKey = tempKey.substring(0, tempKey.indexOf(" {"));
+                                        temp = `<div class="var-row-div-flex">`
+                                            + `<div class="var-row-div-flex-sub-1"><b>` + tempKey + `: </b>`
+                                            + `<i>` + fileName + `</i></div>`
+                                            + `<div class="copySpan" style="width: 30px;">`
+                                            + `<span aria-label="Download" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-downloadValue="` + tempVal + `" data-downloadName="` + fileName + `" onClick="">`
+                                            + `<img src="images/download.svg" class="copy-icon clipboard">`
+                                            + `</span></div></div>`;
+                                    } else if (checkforImageURL(tempVal)) {
+                                        tempKey = tempKey.replace("string", "url");
+                                        temp = `<div class="var-row-div-flex">`
+                                            + `<div class="var-row-div-flex-sub-1"><b>` + tempKey + `: </b>`
+                                            + `<img class="grow thumbnail" style="max-width:150px; max-height:100px;" src="` + tempVal + `"></div>`
+                                            + `<div class="copySpan" style="width: 30px;">`
+                                            + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
+                                            + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                            + `</span></div></div>`;
+                                    } else {
+                                        temp = `<div class="var-row-div-flex">`
+                                            + `<div class="var-row-div-flex-sub-1"><b>` + tempKey + `: </b><p style="margin-bottom: 0px;">` + tempVal + `</p></div>`
+                                            + `<div class="copySpan" style="width: 30px;">`
+                                            + `<span aria-label="Copy to clipboard" data-microtip-position="top-left" role="tooltip" class="copy" data-isImage="false" data-copyValue="` + tempVal + `" onClick="">`
+                                            + `<img src="images/copy.svg" class="copy-icon clipboard">`
+                                            + `</span></div></div>`;
+                                    }
+                                    count++;
+                                    if (count <= 2) {
+                                        before += temp;
+                                    } else {
+                                        after += temp;
+                                    }
+                                }
+                                if (after.length == 0) {
+                                    output = before;
+                                } else {
+                                    output = before + "<details><summary><b> Show All</b></summary>" + after + "</details>";
+                                }
+                                if (output === "") return "None";
                                 return output;
-                            } else { /* for sorting/filtering etc. */
+                            } else {
                                 var outputToString = "";
                                 if (data) {
                                     for (const [key, value] of Object.entries(data)) {
-                                        // Example:
-                                        if (key.substring(7) === "workerId") continue; // Check actual key name
+                                        if (key.substring(7) === "workerId") continue;
                                         outputToString += key.substring(7) + ": " + value + ", ";
                                     }
                                 }
-                                return outputToString.slice(0, -2); // remove last ", "
+                                return outputToString.slice(0, -2);
                             }
                         }
                     }

@@ -15,8 +15,6 @@
 		<script src="/${base}/js/DataTables/datatables.js"></script>
 		<script src="/${base}/js/DataTablesDateFilter.js"></script>
 		<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
-		<script src="/${base}/js/DataTables/dataTables.responsive.min.js"></script>
-		<script src="/${base}/js/DataTables/responsive.bootstrap.min.js"></script>
 		<script src="/${base}/js/cws.js" type="text/javascript"></script> 
 		<!--Load CSS Stylesheets-->
 		<link href="/${base}/css/bootstrap.min.css"rel="stylesheet">

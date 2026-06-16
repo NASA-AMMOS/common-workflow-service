@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [X.Y.Z](https://github.com/NASA-AMMOS/<repo_name>/releases/tag/X.Y.Z) - 2023-MM-DD
 
+
 ## [Unreleased]
 ### Added
 ### Changed
@@ -14,10 +15,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Fixed
 ### Security
+### Breaking Changes
+
+
+## [2.9.0]
+### Added
+### Changed
+- Updated to Camunda 7.24.6-ee
+- Updated to Spring 7
+- Updated to Apache Tomcat 11
+- Updated to Artemis 2.53.0
+### Deprecated
+### Removed
+### Fixed
+### Security
+- Updated dependency libraries
+### Breaking Changes
+- Update Database Schema from Camunda 7.23.0-ee to Camunda 7.24.0-ee:
+  - Go to the <root-dir>/sql/upgrade/ dir and use the upgrade script: 
+    - mysql_engine_7.23_to_7.24.sql
+
 
 ## [2.8.0]
 ### Added
 ### Changed
+- Updated to Camunda 7.23.0-ee
+- Updated to Spring 6
+- Updated to Apache Tomcat 10
 ### Deprecated
 ### Removed
 ### Fixed

@@ -4,7 +4,6 @@
 	<title>CWS - History</title>
 
 	<script src="/${base}/js/jquery.min.js"></script>
-	<script src="/${base}/js/docs.min.js"></script>
 	<script src="/${base}/js/popper.min.js"></script>
 	<script src="/${base}/js/bootstrap-datepicker.min.js"></script>
 	<script src="/${base}/js/bootstrap.min.js"></script>
@@ -604,10 +603,15 @@
 		} else {
 			var output = "";
 			var timeStart = $("#procStartTime").html();
-			for (const [key, value] of Object.entries(data).reverse()) {
+			var sortedEntries = Object.entries(data).sort(function(a, b) {
+				var keyA = a[0].substring(a[0].indexOf("]") + 1).toLowerCase();
+				var keyB = b[0].substring(b[0].indexOf("]") + 1).toLowerCase();
+				return keyA.localeCompare(keyB);
+			});
+			for (const [key, value] of sortedEntries) {
 				var temp = "";
 				var varTimeSet = key.substring(key.indexOf("[")+1, key.indexOf("]"));
-				if (moment(varTimeSet).diff(timeStart, "seconds") > 1) {
+				if (moment(new Date(varTimeSet)).diff(moment(new Date(timeStart)), "seconds") > 1) {
 					continue;
 				}
 				var tempVal = value;
@@ -660,9 +664,6 @@
 						+ `<img src="images/copy.svg" class="copy-icon clipboard">`
 						+ `</span></div></div>`;
 				} else {
-					if (key.includes("(string)")) {
-						tempKey = tempKey.substring(0, tempKey.indexOf(" ("));
-					}
 					temp = `<div class="proc-var-flex-main">`
 						+ `<div class="proc-var-flex-main-sub-1">`
 						+ `<div class="proc-var-flex-main-sub-2">`
@@ -676,6 +677,7 @@
 				}
 				output = output + temp;
 			}
+			if (output === "") { output = "None"; }
 		}
 		$("#inputVariables").html(output);
 	}
@@ -837,7 +839,20 @@
 				}
 		} else {
 				//behavior for if variable "output_display_order" is not set
-				for (const [key, value] of Object.entries(data).reverse()) {
+				var sortedOutputEntries = Object.entries(data).sort(function(a, b) {
+					var keyA = a[0].substring(7).toLowerCase();
+					var keyB = b[0].substring(7).toLowerCase();
+					var aIsSummary = keyA.startsWith("summary");
+					var bIsSummary = keyB.startsWith("summary");
+					var aIsThumb = keyA.startsWith("thumbnail");
+					var bIsThumb = keyB.startsWith("thumbnail");
+					if (aIsSummary && !bIsSummary) return -1;
+					if (!aIsSummary && bIsSummary) return 1;
+					if (aIsThumb && !bIsThumb) return -1;
+					if (!aIsThumb && bIsThumb) return 1;
+					return keyA.localeCompare(keyB);
+				});
+				for (const [key, value] of sortedOutputEntries) {
 					var temp = "";
 					var tempVal = value;
 					var tempKey = key.substring(7);

@@ -56,9 +56,6 @@
 			refreshElasticsearchStats();
 		});
 	
-		$( window ).load(function() {
-			console.log( "window loaded" );
-		});
 	</script>
 	
 	<!-- Just for debugging purposes. Don't actually copy this line! -->
@@ -110,7 +107,6 @@
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="/${base}/js/bootstrap.min.js"></script>
-<script src="/${base}/js/docs.min.js"></script>
 
 </body>
 </html>
