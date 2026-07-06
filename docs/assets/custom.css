@@ -1,0 +1,37 @@
+/* CWS documentation site — light custom styling on top of Material. */
+
+:root {
+  --md-primary-fg-color: #2e3a87;
+  --md-primary-fg-color--light: #4a57b5;
+  --md-primary-fg-color--dark: #1d2765;
+  --md-accent-fg-color: #3d5afe;
+}
+
+/* Give the hero landing cards a little breathing room. */
+.cws-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.cws-card {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  transition: border-color 120ms, box-shadow 120ms;
+}
+
+.cws-card:hover {
+  border-color: var(--md-accent-fg-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.cws-card h3 {
+  margin-top: 0;
+}
+
+/* Slightly wider content column for reference tables. */
+.md-grid {
+  max-width: 62rem;
+}

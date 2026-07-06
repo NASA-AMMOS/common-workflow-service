@@ -44,6 +44,9 @@ public class OpenApiController {
     @Autowired
     private ApplicationContext applicationContext;
 
+    @org.springframework.beans.factory.annotation.Value("${cws.version}")
+    private String cwsVersion;
+
     @GetMapping(value = "/api-docs", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public String getApiDocs() {
@@ -71,7 +74,7 @@ public class OpenApiController {
                 .info(new Info()
                         .title("CWS API")
                         .description("Documentation of the endpoints used by CWS. Once authenticated, requests can be made to these endpoints.\nTo authenticate, right click on this page --> Inspect --> Click the 'Application' tab --> Select the URL under the Cookies tab on the left --> Copy the value of the cwsToken cookie.")
-                        .version("2.9.0")    // Update this each CWS release
+                        .version(cwsVersion)
                         .license(new License()
                                 .name("Apache 2.0")
                                 .url("https://github.com/NASA-AMMOS/common-workflow-service?tab=Apache-2.0-1-ov-file")))

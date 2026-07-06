@@ -73,6 +73,7 @@
 		<maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
 		<maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
 		<maven-site-plugin.version>3.21.0</maven-site-plugin.version>
+		<maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
 		<maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
 		<exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
 		<maven-failsafe-plugin.version>2.16</maven-failsafe-plugin.version>
@@ -117,6 +118,37 @@
 				<module>cws-installer</module>
 				<module>cws-test</module>
 			</modules>
+		</profile>
+
+		<!--
+		  Documentation profile: generates aggregated Javadoc for the CWS API
+		  reference published to the docs site (see .github/workflows/docs.yml).
+		  NOTE: activating any -P profile deactivates activeByDefault profiles,
+		  so run this alongside 'core', e.g.:
+		      mvn -P core,docs -DskipTests javadoc:aggregate
+		  Output lands in target/site/apidocs.
+		-->
+		<profile>
+			<id>docs</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>${maven-javadoc-plugin.version}</version>
+						<configuration>
+							<doclint>none</doclint>
+							<failOnError>false</failOnError>
+							<failOnWarnings>false</failOnWarnings>
+							<quiet>true</quiet>
+							<detectJavaApiLink>false</detectJavaApiLink>
+							<additionalJOption>-Xdoclint:none</additionalJOption>
+							<doctitle>CWS ${project.version} API</doctitle>
+							<windowtitle>CWS ${project.version} API</windowtitle>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 	</profiles>
 
