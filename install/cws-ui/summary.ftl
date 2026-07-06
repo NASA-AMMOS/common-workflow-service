@@ -98,7 +98,7 @@
 			<br/>
 			<br/>
 			<br/>
-			<b>New to CWS?</b>  Click <a href="https://github.com/NASA-AMMOS/common-workflow-service/wiki" target="_blank">here for the User's Guide</a>
+			<b>New to CWS?</b>  Click <a href="https://nasa-ammos.github.io/common-workflow-service/user-guide/" target="_blank">here for the User's Guide</a>
 		</div>
 	</div>
 </div>

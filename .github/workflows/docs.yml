@@ -1,0 +1,146 @@
+name: CWS Docs Site
+
+# Builds the MkDocs documentation site, guards it against JPL-internal content,
+# generates the aggregated Javadoc, and publishes versioned docs to GitHub
+# Pages (the gh-pages branch) via mike.
+#
+# One-time setup in repo Settings → Pages: set the source to the "gh-pages"
+# branch, root folder. The first deploy (push to develop or a manual run)
+# creates that branch.
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'requirements-docs.txt'
+      - 'tools/docs/**'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'requirements-docs.txt'
+      - 'tools/docs/**'
+      - '.github/workflows/docs.yml'
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Never run two deploys against gh-pages at once.
+concurrency:
+  group: docs-deploy
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0   # mike needs full history of the gh-pages branch
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install docs dependencies
+        run: pip install -r requirements-docs.txt
+
+      - name: Guard against JPL-internal content
+        run: bash tools/docs/sanitize-lint.sh docs
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # --- Maven credentials for Camunda Enterprise Edition dependencies ---
+      # Mirrors the CWS CI workflow so the Javadoc aggregate build can resolve
+      # EE artifacts. On fork PRs these secrets are absent; the Javadoc step is
+      # allowed to fail and the docs still build/deploy without it.
+      - name: Configure Maven security
+        run: |
+          mkdir -p ~/.m2
+          echo "<settingsSecurity>
+                  <master>${{ secrets.MAVEN_MASTER_PASSWORD }}</master>
+                </settingsSecurity>" > ~/.m2/settings-security.xml
+
+      - name: Configure Maven settings
+        run: |
+          echo "<settings>
+               <servers>
+                 <server>
+                   <id>${{ secrets.MAVEN_REPO_ID }}</id>
+                   <username>${{ secrets.MAVEN_USERNAME }}</username>
+                   <password>${{ secrets.MAVEN_ENCRYPTED_PASSWORD }}</password>
+                 </server>
+               </servers>
+             </settings>" > ~/.m2/settings.xml
+
+      - name: Configure Camunda Download Credentials
+        run: |
+          echo "machine downloads.camunda.cloud
+              login ${{ secrets.CAMUNDA_DOWNLOAD_LOGIN }}
+              password ${{ secrets.CAMUNDA_DOWNLOAD_PASSWORD }}" > ~/.netrc
+          chmod 400 ~/.netrc
+
+      - name: Cache Maven packages
+        uses: actions/cache@v5
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      - name: Generate aggregated Javadoc
+        id: javadoc
+        continue-on-error: true
+        run: mvn -q -P core,docs -DskipTests javadoc:aggregate
+
+      - name: Note if Javadoc was skipped
+        if: steps.javadoc.outcome != 'success'
+        run: echo "::warning::Javadoc generation failed or was skipped; the site will publish without the /javadoc reference."
+
+      # Validate on every event (incl. PRs) — fails on broken links, bad nav,
+      # or macro errors. The on_post_build hook folds Javadoc into the site.
+      - name: Validate site (strict build)
+        run: mkdocs build --strict
+
+      - name: Configure git identity
+        if: github.event_name != 'pull_request'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Deploy versioned docs (mike)
+        if: github.event_name != 'pull_request'
+        run: |
+          set -euo pipefail
+          git fetch origin gh-pages --depth=1 || true
+
+          if [ "${{ github.event_name }}" = "release" ]; then
+            RAW="${{ github.event.release.tag_name }}"
+            VERSION="${RAW#v}"
+            export CWS_VERSION="$VERSION"
+            echo "Deploying release version $VERSION (alias: latest)"
+            mike deploy --push --update-aliases "$VERSION" latest
+            mike set-default --push latest
+          else
+            # Push to develop/main or a manual run: publish the moving "dev" docs.
+            export CWS_VERSION="$(grep -E "CWS_VER=" utils.sh | head -1 | sed -E "s/.*CWS_VER=['\"]?([^'\"# ]+).*/\1/")"
+            echo "Deploying dev docs (display version ${CWS_VERSION})"
+            mike deploy --push dev
+            # Until the first release publishes a "latest" alias, point the site
+            # root at dev so it resolves.
+            if ! mike list 2>/dev/null | grep -q 'latest'; then
+              mike set-default --push dev
+            fi
+          fi

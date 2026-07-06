@@ -72,13 +72,16 @@
 						<th class="sort">Resource</th>
 					</tr>
 					<tr>
-						<td><a href="https://github.com/NASA-AMMOS/common-workflow-service/wiki" target="_blank">CWS Wiki</a></td>
+						<td>
+							<a href="https://nasa-ammos.github.io/common-workflow-service/" target="_blank">CWS Documentation Site</a>
+							<i style="margin-left: 8px; font-size: small">User guide, install guide, and reference</i>
+						</td>
 					</tr>
 					<tr>
-						<td><a href="https://docs.camunda.org/manual/7.20/reference/bpmn20/" target="_blank">Camunda BPMN 2.0 Implementation Reference</a></td>
+						<td><a href="https://docs.camunda.org/manual/7.24/reference/bpmn20/" target="_blank">Camunda BPMN 2.0 Implementation Reference</a></td>
 					</tr>
 					<tr>
-						<td><a href="http://www.bpmnquickguide.com/quickguide/index.html" target="_blank">BP Incubator BPMN Quick Guide</a></td>
+						<td><a href="https://www.bpmnquickguide.com/quickguide/index.html" target="_blank">BP Incubator BPMN Quick Guide</a></td>
 					</tr>
 					<tr>
 						<td>
@@ -87,7 +90,7 @@
 						</td>
 					</tr>
 					<tr>
-						<td><a href="https://docs.camunda.org/rest/camunda-bpm-platform/7.20/" target="_blank">Camunda API Documentation</a></td>
+						<td><a href="https://docs.camunda.org/rest/camunda-bpm-platform/7.24/" target="_blank">Camunda API Documentation</a></td>
 					</tr>
 				</table>
 			</div>

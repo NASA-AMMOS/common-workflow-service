@@ -38,3 +38,7 @@ install/logging/logstash-*.zip
 /install/camunda-distro-zips/
 
 *.cnf
+
+# Documentation site (MkDocs)
+/site/
+.venv/

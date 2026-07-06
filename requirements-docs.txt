@@ -1,0 +1,7 @@
+# Documentation site build dependencies (MkDocs + Material).
+# Install into a virtualenv:  python3 -m venv .venv && . .venv/bin/activate && pip install -r requirements-docs.txt
+mkdocs-material>=9.5,<10
+mike>=2.1,<3
+mkdocs-macros-plugin>=1.0,<2
+mkdocs-redirects>=1.2,<2
+pymdown-extensions>=10.7

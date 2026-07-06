@@ -11,7 +11,7 @@ While this repository is mostly complete, the documentation will be a work-in-pr
 
 While documentation is still in the works, please feel free to [open an issue](https://github.com/NASA-AMMOS/commoan-workflow-service/issues/new/choose) with your inquiry.
 
-See the [wiki](https://github.com/NASA-AMMOS/common-workflow-service/wiki) for more information.
+See the [CWS documentation site](https://nasa-ammos.github.io/common-workflow-service/) for the full user guide, installation guide, and reference documentation.
 
 # Installation
 

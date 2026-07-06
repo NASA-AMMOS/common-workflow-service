@@ -1,0 +1,205 @@
+site_name: Common Workflow Service
+site_description: >-
+  User guide, installation guide, and reference documentation for the
+  NASA-AMMOS Common Workflow Service (CWS).
+site_url: https://nasa-ammos.github.io/common-workflow-service/
+site_author: NASA-AMMOS
+
+repo_name: NASA-AMMOS/common-workflow-service
+repo_url: https://github.com/NASA-AMMOS/common-workflow-service
+edit_uri: edit/develop/docs/
+
+copyright: >-
+  Made available under the Apache License 2.0.
+
+theme:
+  name: material
+  language: en
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.indexes
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.action.edit
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+extra:
+  version:
+    provider: mike
+    default: latest
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/NASA-AMMOS/common-workflow-service
+    - icon: fontawesome/solid/globe
+      link: https://ammos.nasa.gov/
+
+extra_css:
+  - assets/custom.css
+
+plugins:
+  - search
+  - macros:
+      module_name: docs/macros
+      include_yaml: []
+      j2_variable_start_string: '<<<'
+      j2_variable_end_string: '>>>'
+      j2_block_start_string: '<<%'
+      j2_block_end_string: '%>>'
+  - redirects:
+      redirect_maps: {}
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.snippets:
+      base_path:
+        - .
+        - docs
+      check_paths: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - getting-started/index.md
+      - Quickstart (Docker): getting-started/quickstart.md
+      - Core Concepts: getting-started/concepts.md
+      - Process Instance Lifecycle: getting-started/lifecycle.md
+  - Installation:
+      - install/index.md
+      - Requirements: install/requirements.md
+      - Prerequisites: install/prerequisites.md
+      - Database Setup: install/database.md
+      - Elasticsearch: install/elasticsearch.md
+      - Certificates & Keystore: install/certificates.md
+      - Building from Source: install/building.md
+      - Configuration Reference: install/configuration.md
+      - Running & Stopping: install/running.md
+      - LDAP Security: install/ldap.md
+      - Modeler: install/modeler.md
+      - Security Considerations: install/security-considerations.md
+  - User Guide:
+      - user-guide/index.md
+      - Web Console:
+          - user-guide/console/index.md
+          - Home & Summary: user-guide/console/home-summary.md
+          - Processes: user-guide/console/processes.md
+          - Deployments: user-guide/console/deployments.md
+          - History: user-guide/console/history.md
+          - Workers: user-guide/console/workers.md
+          - Initiators: user-guide/console/initiators.md
+          - Configuration: user-guide/console/configuration.md
+          - Logs: user-guide/console/logs.md
+          - Camunda Tasklist: user-guide/console/tasklist.md
+      - Deploying Processes: user-guide/deploying.md
+      - Launching & Scheduling:
+          - user-guide/launching/index.md
+          - Manually: user-guide/launching/manual.md
+          - From Another Process: user-guide/launching/from-process.md
+          - Via REST API: user-guide/launching/rest.md
+      - Initiators:
+          - user-guide/initiators/index.md
+          - File Initiator: user-guide/initiators/file.md
+          - Cron Initiator: user-guide/initiators/cron.md
+          - Message Arrival: user-guide/initiators/message-arrival.md
+          - Repeating Delay: user-guide/initiators/repeating-delay.md
+          - Internal & External: user-guide/initiators/internal-external.md
+      - Snippets: user-guide/snippets.md
+  - Modeling:
+      - modeling/index.md
+      - Best Practices: modeling/best-practices.md
+      - Tips & Tricks: modeling/tips.md
+      - Parallel Tasks & Sub-Processes: modeling/parallel-subprocess.md
+      - BPMN Examples: modeling/examples.md
+      - DMN Examples: modeling/dmn.md
+      - Script Task Recipes: modeling/script-recipes.md
+  - Administration:
+      - administration/index.md
+      - Security & Roles: administration/security.md
+      - User Administration: administration/users.md
+      - Worker Management: administration/workers.md
+      - Log & History Management: administration/logs-history.md
+      - Resource Monitoring: administration/monitoring.md
+  - Developer & Adaptation:
+      - developer/index.md
+      - Architecture: developer/architecture.md
+      - Adapting CWS for a Mission: developer/adaptation.md
+      - External Database: developer/external-database.md
+      - Custom Tasks: developer/custom-tasks.md
+      - Built-in Task Types: developer/task-types.md
+      - Custom Initiators: developer/custom-initiators.md
+      - Security Scheme Plugins: developer/security-plugin.md
+      - Web Integration & CORS: developer/web-integration.md
+      - Building & Contributing: developer/contributing.md
+  - Deployment:
+      - deployment/index.md
+      - Docker: deployment/docker.md
+      - AWS: deployment/aws.md
+      - Upgrade & Migration: deployment/upgrade.md
+  - Reference:
+      - reference/index.md
+      - REST API: reference/rest-api.md
+      - Javadoc: reference/javadoc.md
+      - Configuration Properties: reference/configuration.md
+      - Changelog: reference/changelog.md
+      - External Resources: reference/external.md
